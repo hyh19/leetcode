@@ -1,3 +1,4 @@
+package 中文题解;
 class Solution {
     public void moveZeroes(int[] nums) {
         int n = nums.length, left = 0, right = 0;
