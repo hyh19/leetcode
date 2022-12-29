@@ -6238,7 +6238,48 @@ private:
 <https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/>
 
 ```cpp
+class Solution {
+public:
+    TreeNode *lowestCommonAncestor(TreeNode *root, TreeNode *p, TreeNode *q) {
+        // 保持 p < q
+        if (p->val > q->val) {
+            return lowestCommonAncestor(root, q, p);
+        }
+        if (p->val <= root->val && root->val <= q->val) {
+            return root;
+        }
+        if (q->val < root->val) {
+            return lowestCommonAncestor(root->left, p, q);
+        }
+        if (root->val < p->val) {
+            return lowestCommonAncestor(root->right, p, q);
+        }
+        return nullptr;
+    }
+};
+// https://leetcode.cn/submissions/detail/368725146/
+```
 
+```cpp
+class Solution {
+public:
+    TreeNode *lowestCommonAncestor(TreeNode *root, TreeNode *p, TreeNode *q) {
+        int minVal = min(p->val, q->val);
+        int maxVal = max(p->val, q->val);
+        int rootVal = root->val;
+        if (minVal <= rootVal && rootVal <= maxVal) {
+            return root;
+        }
+        if (maxVal < rootVal) {
+            return lowestCommonAncestor(root->left, p, q);
+        }
+        if (rootVal < minVal) {
+            return lowestCommonAncestor(root->right, p, q);
+        }
+        return nullptr;
+    }
+};
+// https://leetcode.cn/submissions/detail/368724252/
 ```
 
 ## 236. 二叉树的最近公共祖先
@@ -6246,7 +6287,74 @@ private:
 <https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/>
 
 ```cpp
+class Solution {
+public:
+    TreeNode *lowestCommonAncestor(TreeNode *root, TreeNode *p, TreeNode *q) {
+        find(root, p, q);
+        return lca;
+    }
 
+private:
+    // 在子树中查找节点 p 或 q，递归过程中确定『最近公共祖先』。
+    bool find(TreeNode *root, TreeNode *p, TreeNode *q) {
+        if (root == nullptr) {
+            return false;
+        }
+        if (root == p || root == q) {
+            // 如果 lca(p,q) = p 或 q，则此处的 lca = root 是最终答案
+            lca = root;
+            return true;
+        }
+        bool left = find(root->left, p, q);
+        bool right = find(root->right, p, q);
+        // 否则返回到某祖先节点处的 lca = root 才是最终答案
+        if (left && right) {
+            lca = root;
+        }
+        return left || right;
+    }
+
+    TreeNode *lca = nullptr;
+};
+// https://leetcode.cn/submissions/detail/391605653/
+```
+
+```cpp
+class Solution {
+public:
+    TreeNode *lowestCommonAncestor(TreeNode *root, TreeNode *p, TreeNode *q) {
+        dfs(root);
+        unordered_set<TreeNode *> visited;
+        while (p != nullptr) {
+            visited.insert(p);
+            p = parent[p];
+        }
+        while (q != nullptr) {
+            if (visited.count(q) == 1) {
+                return q;
+            }
+            q = parent[q];
+        }
+        return root;
+    }
+
+private:
+    void dfs(TreeNode *root) {
+        TreeNode *left = root->left;
+        if (left != nullptr) {
+            parent[left] = root;
+            dfs(left);
+        }
+        TreeNode *right = root->right;
+        if (right != nullptr) {
+            parent[right] = root;
+            dfs(right);
+        }
+    }
+
+    unordered_map<TreeNode *, TreeNode *> parent;
+};
+// https://leetcode.cn/submissions/detail/391606054/
 ```
 
 ## 237. 删除链表中的节点
@@ -6254,7 +6362,16 @@ private:
 <https://leetcode-cn.com/problems/delete-node-in-a-linked-list/>
 
 ```cpp
-
+class Solution {
+public:
+    void deleteNode(ListNode *node) {
+        node->val = node->next->val;
+        ListNode *x = node->next;
+        node->next = node->next->next;
+        delete x;
+    }
+};
+// https://leetcode.cn/submissions/detail/391472853/
 ```
 
 ## 239. 滑动窗口最大值
@@ -6262,7 +6379,31 @@ private:
 <https://leetcode.cn/problems/sliding-window-maximum/>
 
 ```cpp
-
+class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int> &nums, int k) {
+        vector<int> ans;
+        deque<int> q;
+        for (int i = 0; i < nums.size(); ++i) {
+            // nums[i] = 进入窗口的数字
+            int x = nums[i];
+            while (!q.empty() && q.back() < x) {
+                q.pop_back();
+            }
+            q.push_back(x);
+            if (i < k - 1) {
+                continue;
+            }
+            // nums[i-k] = 退出窗口的数字
+            if (i >= k && nums[i - k] == q.front()) {
+                q.pop_front();
+            }
+            ans.push_back(q.front());
+        }
+        return ans;
+    }
+};
+// https://leetcode.cn/submissions/detail/374204841/
 ```
 
 ## 253. 会议室 II
@@ -6270,7 +6411,34 @@ private:
 <https://leetcode.cn/problems/meeting-rooms-ii/>
 
 ```cpp
-
+class Solution {
+public:
+    int minMeetingRooms(vector <vector<int>> &intervals) {
+        int n = intervals.size();
+        vector<int> begin(n);
+        vector<int> end(n);
+        for (int i = 0; i < n; i++) {
+            begin[i] = intervals[i][0];
+            end[i] = intervals[i][1];
+        }
+        std::sort(begin.begin(), begin.end());
+        std::sort(end.begin(), end.end());
+        int count = 0, ans = 0;
+        int i = 0, j = 0;
+        while (i < n && j < n) {
+            if (begin[i] < end[j]) {
+                count++;
+                i++;
+            } else {
+                count--;
+                j++;
+            }
+            ans = std::max(ans, count);
+        }
+        return ans;
+    }
+};
+// https://leetcode.cn/submissions/detail/333896194/
 ```
 
 ## 283. 移动零
@@ -6278,7 +6446,25 @@ private:
 <https://leetcode-cn.com/problems/move-zeroes/>
 
 ```cpp
-
+class Solution {
+public:
+    void moveZeroes(vector<int> &nums) {
+        // [0..i-1] != 0
+        // [i..j-1] == 0
+        // [j..n-1] Scanning
+        int i = 0, j = 0;
+        size_t n = nums.size();
+        while (j < n) {
+            while (j < n && nums[j] == 0) {
+                ++j;
+            }
+            if (j < n) {
+                swap(nums[i++], nums[j++]);
+            }
+        }
+    }
+};
+// https://leetcode.cn/submissions/detail/391447842/
 ```
 
 ## 297. 二叉树的序列化与反序列化
@@ -6286,7 +6472,152 @@ private:
 <https://leetcode.cn/problems/serialize-and-deserialize-binary-tree/>
 
 ```cpp
+class Codec {
+public:
+    // Encodes a tree to a single string.
+    string serialize(const TreeNode *root) {
+        if (root == nullptr) {
+            return "#";
+        }
+        string left = serialize(root->left);
+        string right = serialize(root->right);
+        return to_string(root->val) + "," + left + "," + right;
+    }
 
+    // Decodes your encoded data to tree.
+    TreeNode *deserialize(const string &data) {
+        deque<string> q;
+        size_t n = data.size();
+        int i = 0;
+        while (i < n) {
+            string str;
+            while (i < n) {
+                char ch = data[i++];
+                if (ch == ',') {
+                    break;
+                }
+                str += ch;
+            }
+            if (!str.empty()) {
+                q.push_back(str);
+            }
+        }
+        return buildTree(q);
+    }
+
+private:
+    TreeNode *buildTree(deque<string> &q) {
+        string s = q.front();
+        q.pop_front();
+        if (s == "#") {
+            return nullptr;
+        }
+        auto *root = new TreeNode(stoi(s));
+        root->left = buildTree(q);
+        root->right = buildTree(q);
+        return root;
+    }
+};
+// https://leetcode.cn/submissions/detail/391713763/
+```
+
+```cpp
+class Codec {
+public:
+    // Encodes a tree to a single string.
+    string serialize(const TreeNode *root) {
+        string data;
+        dfs(root, data);
+        return data;
+    }
+
+    // Decodes your encoded data to tree.
+    TreeNode *deserialize(const string &data) {
+        deque<string> q;
+        size_t n = data.size();
+        int i = 0;
+        while (i < n) {
+            string str;
+            while (i < n) {
+                char ch = data[i++];
+                if (ch == ',') {
+                    break;
+                }
+                str += ch;
+            }
+            if (!str.empty()) {
+                q.push_back(str);
+            }
+        }
+        return buildTree(q);
+    }
+
+private:
+    void dfs(const TreeNode *root, string &data) {
+        if (root == nullptr) {
+            data += "#,";
+            return;
+        }
+        data += (to_string(root->val) + ",");
+        dfs(root->left, data);
+        dfs(root->right, data);
+    }
+
+    TreeNode *buildTree(deque<string> &q) {
+        string s = q.front();
+        q.pop_front();
+        if (s == "#") {
+            return nullptr;
+        }
+        auto *root = new TreeNode(stoi(s));
+        root->left = buildTree(q);
+        root->right = buildTree(q);
+        return root;
+    }
+};
+// https://leetcode.cn/submissions/detail/391714681/
+```
+
+```cpp
+class Codec {
+public:
+    // Encodes a tree to a single string.
+    string serialize(const TreeNode *root) {
+        ostringstream oss;
+        dfs(root, oss);
+        return oss.str();
+    }
+
+    // Decodes your encoded data to tree.
+    TreeNode *deserialize(const string &data) {
+        istringstream iss(data);
+        return buildTree(iss);
+    }
+
+private:
+    void dfs(const TreeNode *root, ostringstream &oss) {
+        if (root == nullptr) {
+            oss << '#' << ' ';
+            return;
+        }
+        oss << root->val << ' ';
+        dfs(root->left, oss);
+        dfs(root->right, oss);
+    }
+
+    TreeNode *buildTree(istringstream &iss) {
+        string val;
+        iss >> val;
+        if (val == "#") {
+            return nullptr;
+        }
+        auto *root = new TreeNode(stoi(val));
+        root->left = buildTree(iss);
+        root->right = buildTree(iss);
+        return root;
+    }
+};
+// https://leetcode.cn/submissions/detail/391715648/
 ```
 
 ## 300. 最长递增子序列
@@ -6294,7 +6625,61 @@ private:
 <https://leetcode.cn/problems/longest-increasing-subsequence/>
 
 ```cpp
+class Solution {
+public:
+    int lengthOfLIS(vector<int> &nums) {
+        size_t n = nums.size();
+        // dp[i] = max({length(subseq) | subseq 是以 nums[i] 结尾的严格递增子序列})
+        vector<int> dp(n, 1);
+        int ans = dp[0];
+        for (int i = 1; i < n; ++i) {
+            int res = 1;
+            for (int j = i - 1; j >= 0; --j) {
+                if (nums[j] < nums[i]) {
+                    res = max(res, dp[j] + 1);
+                }
+            }
+            dp[i] = res;
+            ans = max(ans, dp[i]);
+        }
+        return ans;
+    }
+};
+// https://leetcode.cn/submissions/detail/391532945/
+```
 
+```cpp
+class Solution {
+public:
+    int lengthOfLIS(vector<int> &nums) {
+        size_t n = nums.size();
+        memo = vector<int>(n, -1);
+        int ans = 0;
+        for (int i = 0; i < n; ++i) {
+            ans = max(ans, lengthOfLIS(nums, i));
+        }
+        return ans;
+    }
+
+private:
+    // max({length(subseq) | subseq 是以 nums[i] 结尾的严格递增子序列})
+    int lengthOfLIS(const vector<int> &nums, int i) {
+        if (memo[i] == -1) {
+            int res = 1;
+            for (int j = i - 1; j >= 0; --j) {
+                int sp = lengthOfLIS(nums, j);
+                if (nums[j] < nums[i]) {
+                    res = max(res, sp + 1);
+                }
+            }
+            memo[i] = res;
+        }
+        return memo[i];
+    }
+
+    vector<int> memo;
+};
+// https://leetcode.cn/submissions/detail/391533856/
 ```
 
 ## 303. 区域和检索 - 数组不可变
@@ -6302,7 +6687,26 @@ private:
 <https://leetcode.cn/problems/range-sum-query-immutable/>
 
 ```cpp
+class NumArray {
+public:
+    explicit NumArray(vector<int> &nums) {
+        sums = vector<int>(nums);
+        for (int i = 1; i < nums.size(); ++i) {
+            sums[i] = sums[i - 1] + nums[i];
+        }
+    }
 
+    int sumRange(int left, int right) {
+        if (left == 0) {
+            return sums[right];
+        }
+        return sums[right] - sums[left - 1];
+    }
+
+private:
+    vector<int> sums;
+};
+// https://leetcode.cn/submissions/detail/391691592/
 ```
 
 ## 309. 最佳买卖股票时机含冷冻期
@@ -6310,7 +6714,31 @@ private:
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/>
 
 ```cpp
-
+class Solution {
+public:
+    int maxProfit(vector<int> &prices) {
+        size_t n = prices.size();
+        if (n <= 1) {
+            return 0;
+        }
+        // dp[i][0] = 第 i 天，空仓状态下的最大利润
+        // dp[i][1] = 第 i 天，持仓状态下的最大利润
+        vector<vector<int>> dp(n, vector<int>(2));
+        dp[0][0] = 0;
+        dp[0][1] = -prices[0];
+        dp[1][0] = max(dp[0][0], dp[0][1] + prices[1]);
+        dp[1][1] = max(dp[0][0] - prices[1], dp[0][1]);
+        for (int i = 2; i < n; ++i) {
+            // dp[i - 1][0]             >= dp[i - 2][0] >= p[i - 2][0] - prices[i]
+            // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+            // => dp[i][0] >= dp[i][1]
+            dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+            dp[i][1] = max(dp[i - 2][0] - prices[i], dp[i - 1][1]);
+        }
+        return dp[n - 1][0];
+    }
+};
+// https://leetcode.cn/submissions/detail/391486031/
 ```
 
 ## 315. 计算右侧小于当前元素的个数
@@ -6318,7 +6746,112 @@ private:
 <https://leetcode.cn/problems/count-of-smaller-numbers-after-self/>
 
 ```cpp
+struct Pair {
+    int val;
+    int idx;
 
+    Pair(int v, int i) : val{v}, idx{i} {}
+};
+
+class Solution {
+public:
+    vector<int> countSmaller(vector<int> &nums) {
+        int n = nums.size();
+        counts = vector<int>(n);
+        vector<Pair> pairs;
+        for (int i = 0; i < n; ++i) {
+            pairs.emplace_back(nums[i], i);
+        }
+        vector<Pair> aux(pairs);
+        sort(pairs, aux, 0, n - 1);
+        return counts;
+    }
+
+private:
+    void sort(vector<Pair> &pairs, vector<Pair> &aux, int lo, int hi) {
+        if (lo >= hi) {
+            return;
+        }
+        int mid = lo + (hi - lo) / 2;
+        sort(pairs, aux, lo, mid);
+        sort(pairs, aux, mid + 1, hi);
+        merge(pairs, aux, lo, mid, hi);
+    }
+
+    void merge(vector<Pair> &paris, vector<Pair> &aux, int lo, int mid, int hi) {
+        for (int k = lo; k <= hi; ++k) {
+            aux[k] = paris[k];
+        }
+        int i = lo, j = mid + 1;
+        for (int k = lo; k <= hi; ++k) {
+            if (i > mid || (j <= hi && aux[j].val < aux[i].val)) {
+                paris[k] = aux[j++];
+            } else {
+                // aux[mid+1..j) < aux[i]
+                counts[aux[i].idx] += (j - mid - 1);
+                paris[k] = aux[i++];
+            }
+        }
+    }
+
+    vector<int> counts;
+};
+// https://leetcode.cn/submissions/detail/391686642/
+```
+
+```cpp
+struct Pair {
+    int val;
+    int idx;
+
+    Pair(int v, int i) : val{v}, idx{i} {}
+};
+
+class Solution {
+public:
+    vector<int> countSmaller(vector<int> &nums) {
+        int n = nums.size();
+        counts = vector<int>(n);
+        vector<Pair> pairs;
+        int idx = 0;
+        transform(nums.cbegin(), nums.cend(),
+                  back_inserter(pairs),
+                  [&idx](const int &val) { return Pair(val, idx++); });
+        vector<Pair> aux(pairs);
+        sort(pairs, aux, 0, n - 1);
+        return counts;
+    }
+
+private:
+    void sort(vector<Pair> &pairs, vector<Pair> &aux, int lo, int hi) {
+        if (lo >= hi) {
+            return;
+        }
+        int mid = lo + (hi - lo) / 2;
+        sort(pairs, aux, lo, mid);
+        sort(pairs, aux, mid + 1, hi);
+        merge(pairs, aux, lo, mid, hi);
+    }
+
+    void merge(vector<Pair> &paris, vector<Pair> &aux, int lo, int mid, int hi) {
+        for (int k = lo; k <= hi; ++k) {
+            aux[k] = paris[k];
+        }
+        int i = lo, j = mid + 1;
+        for (int k = lo; k <= hi; ++k) {
+            if (i > mid || (j <= hi && aux[j].val < aux[i].val)) {
+                paris[k] = aux[j++];
+            } else {
+                // aux[mid+1..j) < aux[i]
+                counts[aux[i].idx] += (j - mid - 1);
+                paris[k] = aux[i++];
+            }
+        }
+    }
+
+    vector<int> counts;
+};
+// https://leetcode.cn/submissions/detail/391687437/
 ```
 
 ## 322. 零钱兑换
@@ -6326,7 +6859,109 @@ private:
 <https://leetcode.cn/problems/coin-change/>
 
 ```cpp
+class Solution {
+public:
+    int coinChange(vector<int> &coins, int amount) {
+        // dp[i] = 凑成总金额 i 所需的最少的硬币个数
+        vector<int> dp(amount + 1);
+        for (int i = 1; i <= amount; ++i) {
+            int res = INT_MAX;
+            // c       = 选择放入的硬币
+            // i-c     = 剩余总金额
+            // dp[i-c] = 凑成剩余总金额所需的最少的硬币个数
+            for (const auto &c: coins) {
+                int x = i - c;
+                if (x >= 0 && dp[x] != -1) {
+                    res = min(res, dp[x] + 1);
+                }
+            }
+            dp[i] = (res == INT_MAX ? -1 : res);
+        }
+        return dp[amount];
+    }
+};
+// https://leetcode.cn/submissions/detail/391483145/
+```
 
+```cpp
+class Solution {
+public:
+    int coinChange(vector<int> &coins, int amount) {
+        if (amount < 0) {
+            return -1;
+        }
+        if (amount == 0) {
+            return 0;
+        }
+        if (memo.count(amount) == 0) {
+            int res = INT_MAX;
+            // c = 选择放入的硬币
+            for (const auto &c: coins) {
+                // amount-c = 剩余总金额
+                // sp       = 凑成剩余总金额所需的最少的硬币个数
+                int sp = coinChange(coins, amount - c);
+                if (sp != -1) {
+                    res = min(res, sp + 1);
+                }
+            }
+            memo[amount] = (res == INT_MAX ? -1 : res);
+        }
+        return memo[amount];
+    }
+
+private:
+    unordered_map<int, int> memo;
+};
+// https://leetcode.cn/submissions/detail/391483772/
+```
+
+```cpp
+class Solution {
+public:
+    int coinChange(vector<int> &coins, int amount) {
+        size_t n = coins.size();
+        // dp[i][j] = 使用硬币 coins[0..i-1] 凑成总金额 j 所需的最少的硬币个数
+        vector<vector<int>> dp(n + 1, vector<int>(amount + 1));
+        // 总金额为 0
+        for (int i = 1; i <= n; ++i) {
+            dp[i][0] = 0;
+        }
+        // 硬币数为 0
+        for (int j = 1; j <= amount; ++j) {
+            dp[0][j] = -1;
+        }
+        dp[0][0] = 0;
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= amount; ++j) {
+                int x = coins[i - 1];
+                if (j < x) {
+                    // 不包含硬币 x
+                    dp[i][j] = dp[i - 1][j];
+                } else {
+                    int sp1 = dp[i - 1][j]; // 包含    0 个硬币 x
+                    int sp2 = dp[i][j - x]; // 包含 >= 1 个硬币 x
+                    int res = INT_MAX;
+                    if (sp1 != -1) {
+                        res = min(res, sp1);
+                    }
+                    if (sp2 != -1) {
+                        res = min(res, sp2 + 1);
+                    }
+                    dp[i][j] = (res == INT_MAX ? -1 : res);
+                    // 注意
+                    // dp[i][j - x] = 包含 >= 1 个硬币 x
+                    // dp[i-1][j-x] = 包含    1 个硬币 x
+                    // 举例 amount = 79, coins = [1, 2, 5]
+                    // dp[2][79] = 包含    0 个硬币 5，79 = 0 x 5 + 79，剩余 79 只能从 [1, 2] 凑
+                    // dp[2][74] = 包含    1 个硬币 5，79 = 1 x 5 + 74，剩余 74 只能从 [1, 2] 凑
+                    // dp[3][74] = 包含 >= 1 个硬币 5，79 = 1 x 5 + 74，剩余 74 可以从 [1, 2, 5] 凑
+                }
+            }
+        }
+        return dp[n][amount];
+    }
+};
+// https://leetcode.cn/submissions/detail/391483435/
 ```
 
 ## 337. 打家劫舍 III
@@ -6334,7 +6969,33 @@ private:
 <https://leetcode.cn/problems/house-robber-iii/>
 
 ```cpp
+class Solution {
+public:
+    // 在二叉树 root，能盗取的最高金额
+    int rob(TreeNode *root) {
+        if (root == nullptr) {
+            return 0;
+        }
+        if (memo.count(root) == 0) {
+            // 不偷 root
+            int sp1 = rob(root->left) + rob(root->right);
+            // 偷 root
+            int sp2 = root->val;
+            if (root->left != nullptr) {
+                sp2 += rob(root->left->left) + rob(root->left->right);
+            }
+            if (root->right != nullptr) {
+                sp2 += rob(root->right->left) + rob(root->right->right);
+            }
+            memo[root] = max(sp1, sp2);
+        }
+        return memo[root];
+    }
 
+private:
+    unordered_map<TreeNode *, int> memo;
+};
+// https://leetcode.cn/submissions/detail/374765084/
 ```
 
 ## 344. 反转字符串
@@ -6342,7 +7003,16 @@ private:
 <https://leetcode.cn/problems/reverse-string/>
 
 ```cpp
-
+class Solution {
+public:
+    void reverseString(vector<char> &s) {
+        int i = 0, j = s.size() - 1;
+        while (i < j) {
+            swap(s[i++], s[j--]);
+        }
+    }
+};
+// https://leetcode.cn/submissions/detail/368847230/
 ```
 
 ## 354. 俄罗斯套娃信封问题
@@ -6358,7 +7028,66 @@ private:
 <https://leetcode.cn/problems/decode-string/>
 
 ```cpp
+class Solution {
+public:
+    string decodeString(const string &s) {
+        stack<string> stk;
+        int i = 0;
+        size_t n = s.size();
+        while (i < n) {
+            string digits;
+            while (i < n && isdigit(s[i])) {
+                digits += s[i++];
+            }
+            if (!digits.empty()) {
+                stk.push(digits);
+            }
+            while (i < n && s[i] == '[') {
+                stk.emplace("[");
+                ++i;
+            }
+            string letters;
+            while (i < n && isalpha(s[i])) {
+                letters += s[i++];
+            }
+            if (!letters.empty()) {
+                stk.push(letters);
+            }
+            while (i < n && s[i] == ']') {
+                letters = "";
+                while (!stk.empty()) {
+                    string str = stk.top();
+                    stk.pop();
+                    if (str == "[") {
+                        break;
+                    }
+                    letters.insert(0, str);
+                }
+                digits = stk.top();
+                stk.pop();
+                string rep = repeatedString(letters, stoi(digits));
+                stk.push(rep);
+                ++i;
+            }
+        }
+        string ans;
+        while (!stk.empty()) {
+            ans.insert(0, stk.top());
+            stk.pop();
+        }
+        return ans;
+    }
 
+private:
+    string repeatedString(const string &s, int k) {
+        string res;
+        for (int i = 1; i <= k; ++i) {
+            res += s;
+        }
+        return res;
+    }
+};
+// https://leetcode.cn/submissions/detail/391709901/
 ```
 
 ## 416. 分割等和子集
@@ -6366,7 +7095,59 @@ private:
 <https://leetcode.cn/problems/partition-equal-subset-sum/>
 
 ```cpp
+class Solution {
+public:
+    bool canPartition(vector<int> &nums) {
+        int sum = 0;
+        for (const auto &x: nums) {
+            sum += x;
+        }
+        if (sum % 2 == 1) {
+            return false;
+        }
+        return hasSubsetSum(nums, sum / 2);
+    }
 
+private:
+    // 数组 nums 是否存在和为 sum 的子集
+    bool hasSubsetSum(const vector<int> &nums, int sum) {
+        size_t n = nums.size();
+        // dp[i][j] = 子数组 nums[0..i-1] 是否存在和为 j 的子集
+        vector<vector<bool>> dp(n + 1, vector<bool>(sum + 1));
+        // 和为 0
+        for (int i = 1; i <= n; ++i) {
+            dp[i][0] = true;
+        }
+        // 空数组
+        for (int j = 1; j <= sum; ++j) {
+            dp[0][j] = false;
+        }
+        // 空集的和为 0，空集是任何数组的子集，包括空数组
+        dp[0][0] = true;
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= sum; ++j) {
+                int x = nums[i - 1];
+                if (j >= x) {
+                    // 不包含 x
+                    // 当 i = 1 时，dp[i - 1][j] = dp[0][j]
+                    // 因为空数组没有子集的和为 j >= 1
+                    // 所以定义 dp[0][j] = false (j >= 1)
+                    bool sp1 = dp[i - 1][j];
+                    // 包含 x
+                    // 当 i >= 1, j = x 时，dp[i - 1][j - x] = dp[i - 1][0]
+                    // 因为存在子集 {x} 的和为 j，
+                    // 所以定义 dp[i][0] = true (i >= 0)
+                    bool sp2 = dp[i - 1][j - x];
+                    dp[i][j] = sp1 || sp2;
+                } else {
+                    dp[i][j] = dp[i - 1][j];
+                }
+            }
+        }
+        return dp[n][sum];
+    }
+};
+// https://leetcode.cn/submissions/detail/391548959/
 ```
 
 ## 435. 无重叠区间
@@ -6374,7 +7155,34 @@ private:
 <https://leetcode.cn/problems/non-overlapping-intervals/>
 
 ```cpp
+class Solution {
+public:
+    int eraseOverlapIntervals(vector<vector<int>> &intervals) {
+        return intervals.size() - maxNonOverlappingIntervals(intervals);
+    }
 
+private:
+    // 区间数组 intervals 无重叠区间的最大数量
+    int maxNonOverlappingIntervals(vector<vector<int>> &intervals) {
+        sort(intervals.begin(), intervals.end(),
+             [](const vector<int> &a, const vector<int> &b) {
+                 return a[1] < b[1];
+             });
+        int count = 0;
+        long minEnd = LONG_MIN;
+        for (const auto &interval: intervals) {
+            int start = interval[0];
+            int end = interval[1];
+            if (start < minEnd) {
+                continue;
+            }
+            ++count;
+            minEnd = end;
+        }
+        return count;
+    }
+};
+// https://leetcode.cn/submissions/detail/391669860/
 ```
 
 ## 438. 找到字符串中所有字母异位词
@@ -6382,7 +7190,44 @@ private:
 <https://leetcode.cn/problems/find-all-anagrams-in-a-string/>
 
 ```cpp
-
+class Solution {
+public:
+    vector<int> findAnagrams(string s, string p) {
+        unordered_map<char, int> need, window;
+        for (const auto &c: p) {
+            ++need[c];
+        }
+        vector<int> ans;
+        int valid = 0;
+        // s[left..right) = Window Substring
+        // s[right..n-1]  = Scanning
+        int left = 0, right = 0;
+        while (right < s.size()) {
+            char add = s[right++];
+            if (need.count(add) == 1) {
+                if (++window[add] == need[add]) {
+                    ++valid;
+                }
+            }
+            if (valid == need.size()) {
+                while (left < right - p.size()) {
+                    char del = s[left++];
+                    if (need.count(del) == 1) {
+                        if (window[del] == need[del]) {
+                            --valid;
+                        }
+                        --window[del];
+                    }
+                }
+            }
+            if (valid == need.size()) {
+                ans.push_back(left);
+            }
+        }
+        return ans;
+    }
+};
+// https://leetcode.cn/submissions/detail/391685413/
 ```
 
 ## 445. 两数相加 II
@@ -6390,7 +7235,87 @@ private:
 <https://leetcode.cn/problems/add-two-numbers-ii/>
 
 ```cpp
+class Solution {
+public:
+    ListNode *addTwoNumbers(ListNode *l1, ListNode *l2) {
+        l1 = reverseList(l1);
+        l2 = reverseList(l2);
+        auto *dummyHead = new ListNode();
+        ListNode *ptr = dummyHead;
+        int carry = 0;
+        while (l1 != nullptr || l2 != nullptr || carry > 0) {
+            int sum = carry;
+            if (l1 != nullptr) {
+                sum += l1->val;
+                l1 = l1->next;
+            }
+            if (l2 != nullptr) {
+                sum += l2->val;
+                l2 = l2->next;
+            }
+            ptr->next = new ListNode(sum % 10);
+            ptr = ptr->next;
+            carry = sum / 10;
+        }
+        ListNode *head = dummyHead->next;
+        delete dummyHead;
+        reverseList(l1);
+        reverseList(l2);
+        return reverseList(head);
+    }
 
+private:
+    ListNode *reverseList(ListNode *head) {
+        ListNode *reverseHead = nullptr;
+        while (head != nullptr) {
+            ListNode *next = head->next;
+            head->next = reverseHead;
+            reverseHead = head;
+            head = next;
+        }
+        return reverseHead;
+    }
+};
+// https://leetcode.cn/submissions/detail/391582373/
+```
+
+```cpp
+class Solution {
+public:
+    ListNode *addTwoNumbers(ListNode *l1, ListNode *l2) {
+        stack<ListNode *> s1;
+        stack<ListNode *> s2;
+        while (l1 != nullptr || l2 != nullptr) {
+            if (l1 != nullptr) {
+                s1.push(l1);
+                l1 = l1->next;
+            }
+            if (l2 != nullptr) {
+                s2.push(l2);
+                l2 = l2->next;
+            }
+        }
+        int carry = 0;
+        ListNode *first = nullptr;
+        while (!s1.empty() || !s2.empty() || carry > 0) {
+            int sum = carry;
+            if (!s1.empty()) {
+                sum += s1.top()->val;
+                s1.pop();
+            }
+            if (!s2.empty()) {
+                sum += s2.top()->val;
+                s2.pop();
+            }
+            ListNode *x = first;
+            first = new ListNode(sum % 10);
+            first->next = x;
+            carry = sum / 10;
+        }
+        return first;
+    }
+};
+// https://leetcode.cn/submissions/detail/391582767/
 ```
 
 ## 450. 删除二叉搜索树中的节点
@@ -6398,7 +7323,48 @@ private:
 <https://leetcode.cn/problems/delete-node-in-a-bst/>
 
 ```cpp
+class Solution {
+public:
+    TreeNode *deleteNode(TreeNode *root, int key) {
+        if (root == nullptr) {
+            return nullptr;
+        }
+        if (key < root->val) {
+            root->left = deleteNode(root->left, key);
+        } else if (root->val < key) {
+            root->right = deleteNode(root->right, key);
+        } else {
+            if (root->left == nullptr) {
+                TreeNode *right = root->right;
+                delete root;
+                return right;
+            }
+            if (root->right == nullptr) {
+                TreeNode *left = root->left;
+                delete root;
+                return left;
+            }
+            TreeNode *x = root;
+            root = deleteMin(x->right);
+            root->right = x->right;
+            root->left = x->left;
+            delete x;
+        }
+        return root;
+    }
 
+private:
+    // 删除并返回二叉搜索树 root 的最小节点
+    TreeNode *deleteMin(TreeNode *&root) {
+        if (root->left == nullptr) {
+            TreeNode *x = root;
+            root = root->right;
+            return x;
+        }
+        return deleteMin(root->left);
+    }
+};
+// https://leetcode.cn/submissions/detail/391482648/
 ```
 
 ## 452. 用最少数量的箭引爆气球
@@ -6406,7 +7372,34 @@ private:
 <https://leetcode.cn/problems/minimum-number-of-arrows-to-burst-balloons/>
 
 ```cpp
+class Solution {
+public:
+    int findMinArrowShots(vector<vector<int>> &points) {
+        return maxNonOverlappingIntervals(points);
+    }
 
+private:
+    // 区间数组 intervals 无重叠区间的最大数量
+    int maxNonOverlappingIntervals(vector<vector<int>> &intervals) {
+        sort(intervals.begin(), intervals.end(),
+             [](const vector<int> &a, const vector<int> &b) {
+                 return a[1] < b[1];
+             });
+        int count = 0;
+        long minEnd = LONG_MIN;
+        for (const auto &interval: intervals) {
+            int start = interval[0];
+            int end = interval[1];
+            if (start <= minEnd) {
+                continue;
+            }
+            ++count;
+            minEnd = end;
+        }
+        return count;
+    }
+};
+// https://leetcode.cn/submissions/detail/391669529/
 ```
 
 ## 460. LFU 缓存
@@ -6414,7 +7407,261 @@ private:
 <https://leetcode.cn/problems/lfu-cache/>
 
 ```cpp
+struct Node {
+    int key, val, freq;
+    Node *prev;
+    Node *next;
 
+    Node(int k, int v, int f) : key{k}, val{v}, freq{f}, prev{nullptr}, next{nullptr} {}
+};
+
+class DoublyLinkedList {
+public:
+    DoublyLinkedList() : first{nullptr}, last{nullptr}, n{0} {}
+
+    ~DoublyLinkedList() {
+        while (!empty()) {
+            removeFirst();
+        }
+    }
+
+    void addLast(Node *x) {
+        if (n == 0) {
+            first = x;
+            last = x;
+        } else {
+            last->next = x;
+            x->prev = last;
+            last = x;
+        }
+        ++n;
+    }
+
+    void removeFirst() {
+        Node *x = first;
+        if (n == 1) {
+            first = nullptr;
+            last = nullptr;
+        } else {
+            first = first->next;
+            first->prev = nullptr;
+        }
+        delete x;
+        --n;
+    }
+
+    void removeLast() {
+        Node *x = last;
+        if (n == 1) {
+            first = nullptr;
+            last = nullptr;
+        } else {
+            last = last->prev;
+            last->next = nullptr;
+        }
+        delete x;
+        --n;
+    }
+
+    void remove(Node *x) {
+        if (x == first) {
+            removeFirst();
+        } else if (x == last) {
+            removeLast();
+        } else {
+            x->prev->next = x->next;
+            x->next->prev = x->prev;
+            delete x;
+            --n;
+        }
+    }
+
+    const Node *getFirst() const {
+        return first;
+    }
+
+    bool empty() const {
+        return first == nullptr;
+    }
+
+private:
+    Node *first;
+    Node *last;
+    int n;
+};
+
+class LFUCache {
+public:
+    explicit LFUCache(int capacity) {
+        this->capacity = capacity;
+    }
+
+    int get(int key) {
+        if (contains(key)) {
+            return touchCache(key, INT_MIN);
+        }
+        return -1;
+    }
+
+    void put(int key, int value) {
+        if (capacity > 0) {
+            if (contains(key)) {
+                touchCache(key, value);
+            } else {
+                if (full()) {
+                    removeCache();
+                }
+                addCache(key, value);
+            }
+        }
+    }
+
+private:
+    bool contains(int key) const {
+        return keyToNode.count(key) == 1;
+    }
+
+    bool full() const {
+        return keyToNode.size() == capacity;
+    }
+
+    void addCache(int key, int val) {
+        Node *x = new Node(key, val, 1);
+        keyToNode[key] = x;
+        freqToList[1].addLast(x);
+        minFreq = 1;
+    }
+
+    void removeCache() {
+        auto &list = freqToList[minFreq];
+        int key = list.getFirst()->key;
+        keyToNode.erase(key);
+        list.removeFirst();
+        if (list.empty()) {
+            freqToList.erase(minFreq);
+        }
+    }
+
+    int touchCache(int key, int val) {
+        Node *x = keyToNode[key];
+        int newVal = x->val;
+        if (val != INT_MIN) {
+            newVal = val;
+        }
+        int oldFreq = x->freq;
+        int newFreq = oldFreq + 1;
+        keyToNode.erase(key);
+        auto &oldFreqList = freqToList[oldFreq];
+        oldFreqList.remove(x);
+        if (oldFreqList.empty()) {
+            freqToList.erase(oldFreq);
+            if (minFreq == oldFreq) {
+                minFreq = newFreq;
+            }
+        }
+        x = new Node(key, newVal, newFreq);
+        keyToNode[key] = x;
+        auto &newFreqList = freqToList[newFreq];
+        newFreqList.addLast(x);
+        return newVal;
+    }
+
+    int capacity;
+    int minFreq;
+    unordered_map<int, Node *> keyToNode;
+    unordered_map<int, DoublyLinkedList> freqToList;
+};
+// https://leetcode.cn/submissions/detail/391598310/
+```
+
+```cpp
+class LFUCache {
+public:
+    explicit LFUCache(int capacity) {
+        this->capacity = capacity;
+    }
+
+    int get(int key) {
+        if (contains(key)) {
+            return touchCache(key, INT_MIN);
+        }
+        return -1;
+    }
+
+    void put(int key, int value) {
+        if (capacity > 0) {
+            if (contains(key)) {
+                touchCache(key, value);
+            } else {
+                if (full()) {
+                    removeCache();
+                }
+                addCache(key, value);
+            }
+        }
+    }
+
+private:
+    bool contains(int key) {
+        return keyToVal.count(key) == 1;
+    }
+
+    bool full() {
+        return keyToVal.size() == capacity;
+    }
+
+    void addCache(int key, int val) {
+        keyToVal[key] = val;
+        keyToFreq[key] = 1;
+        auto &list = freqToKeyList[1];
+        list.push_back(key);
+        keyToListIter[key] = prev(list.end());
+        minFreq = 1;
+    }
+
+    void removeCache() {
+        auto &list = freqToKeyList[minFreq];
+        int key = list.front();
+        keyToVal.erase(key);
+        keyToFreq.erase(key);
+        keyToListIter.erase(key);
+        list.pop_front();
+        if (list.empty()) {
+            freqToKeyList.erase(minFreq);
+        }
+    }
+
+    int touchCache(int key, int val) {
+        if (val != INT_MIN) {
+            keyToVal[key] = val;
+        }
+        int oldFreq = keyToFreq[key];
+        int newFreq = oldFreq + 1;
+        keyToFreq[key] = newFreq;
+        auto oldListIter = keyToListIter[key];
+        auto &oldFreqList = freqToKeyList[oldFreq];
+        oldFreqList.erase(oldListIter);
+        if (oldFreqList.empty()) {
+            freqToKeyList.erase(oldFreq);
+            if (minFreq == oldFreq) {
+                minFreq = newFreq;
+            }
+        }
+        auto &newFreqList = freqToKeyList[newFreq];
+        newFreqList.push_back(key);
+        auto newListIter = prev(newFreqList.end());
+        keyToListIter[key] = newListIter;
+        return keyToVal[key];
+    }
+
+    int capacity;
+    int minFreq{};
+    unordered_map<int, int> keyToVal;
+    unordered_map<int, int> keyToFreq;
+    unordered_map<int, list<int>> freqToKeyList;
+    unordered_map<int, list<int>::iterator> keyToListIter;
+};
+// https://leetcode.cn/submissions/detail/391599098/
 ```
 
 ## 493. 翻转对
@@ -6422,7 +7669,68 @@ private:
 <https://leetcode.cn/problems/reverse-pairs/>
 
 ```cpp
+class Solution {
+public:
+    int reversePairs(vector<int> &nums) {
+        vector<int> aux(nums);
+        sort(nums, 0, nums.size() - 1, aux);
+        return ans;
+    }
 
+private:
+    void sort(vector<int> &nums, int lo, int hi, vector<int> &aux) {
+        if (lo >= hi) {
+            return;
+        }
+        int mid = lo + (hi - lo) / 2;
+        sort(nums, lo, mid, aux);
+        sort(nums, mid + 1, hi, aux);
+        merge(nums, lo, mid, hi, aux);
+    }
+
+    void merge(vector<int> &nums, int lo, int mid, int hi, vector<int> &aux) {
+        for (int k = lo; k <= hi; ++k) {
+            aux[k] = nums[k];
+        }
+        ans += countReversePairs(nums, lo, mid, hi);
+        int i = lo, j = mid + 1;
+        for (int k = lo; k <= hi; ++k) {
+            if (i > mid || (j <= hi && aux[j] < aux[i])) {
+                nums[k] = aux[j++];
+            } else {
+                nums[k] = aux[i++];
+            }
+        }
+    }
+
+    int countReversePairs(const vector<int> &nums, int lo, int mid, int hi) {
+        int res = 0;
+        //     nums[i]      > 2*nums[j]
+        // (1) nums[i]      > 2*nums[mid+1..j]
+        // (2) nums[i..mid] > 2*nums[j]
+        //
+        //     nums[i]     <= 2*nums[j]
+        // (1) nums[i]     <= 2*nums[j..hi]
+        // (2) nums[lo..i] <= 2*nums[j]
+        int i = lo, j = mid + 1;
+        while (i <= mid && j <= hi) {
+            if (isReversePair(nums, i, j)) {
+                res += (mid - i + 1);
+                ++j;
+            } else {
+                ++i;
+            }
+        }
+        return res;
+    }
+
+    bool isReversePair(const vector<int> &nums, int i, int j) {
+        return i < j && (long) nums[i] > (long) 2 * nums[j];
+    }
+
+    int ans = 0;
+};
+// https://leetcode.cn/submissions/detail/391554378/
 ```
 
 ## 494. 目标和
@@ -6430,7 +7738,213 @@ private:
 <https://leetcode.cn/problems/target-sum/>
 
 ```cpp
+class Solution {
+public:
+    int findTargetSumWays(vector<int> &nums, int target) {
+        // sum(A) - sum(B) = target
+        // sum(A) = target + sum(B)
+        // sum(A) + sum(A) = target + sum(B) + sum(A)
+        // 2 * sum(A) = target + sum(nums)
+        // sum(A) = (target + sum(nums)) / 2
+        // 问题转化为：数组 nums 中存在几个子集 A
+        // 使得 A 中元素的和为 (target + sum(nums)) / 2
+        int sum = accumulate(nums.begin(), nums.end(), 0);
+        if (abs(target) > sum || (sum + target) % 2 == 1) {
+            return 0;
+        }
+        return numSubsetSum(nums, (sum + target) / 2);
+    }
 
+private:
+    // 数组 nums 和为 sum 的子集的数目，其中 nums[i] >= 0, sum >= 0
+    int numSubsetSum(const vector<int> &nums, int sum) {
+        size_t n = nums.size();
+        // dp[i][j] = 子数组 nums[0..i-1] 和为 j 的子集的数目
+        vector<vector<int>> dp(n + 1, vector<int>(sum + 1));
+        // 空数组
+        for (int j = 1; j <= sum; ++j) {
+            dp[0][j] = 0;
+        }
+        // 空集的和为 0，空集是任何数组的子集，包括空数组
+        dp[0][0] = 1;
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 0; j <= sum; ++j) {
+                int x = nums[i - 1];
+                if (j >= x) {
+                    // 不包含 x
+                    // 当 i = 1, j >= 1 时，dp[i - 1][j] = dp[0][j]
+                    // 因为空数组没有子集的和为 j
+                    // 所以定义 dp[0][j] = 0 (j >= 1)
+                    int sp1 = dp[i - 1][j];
+                    // 包含 x
+                    // 当 i = 1, j = x 时，dp[i - 1][j - x] = dp[0][0]
+                    // 因为存在子集 {x} 的和为 j，
+                    // 所以定义 dp[0][0] = 1
+                    // 注意：当 i > 1, j = x 时，dp[i - 1][j - x] = dp[i - 1][0]
+                    // 此时，不一定只有 dp[i][0] = 1 (i > 0)
+                    // 测试用例
+                    // [0,0,0,0,0,0,0,0,1]
+                    // 1
+                    int sp2 = dp[i - 1][j - x];
+                    dp[i][j] = sp1 + sp2;
+                } else {
+                    dp[i][j] = dp[i - 1][j];
+                }
+            }
+        }
+        return dp[n][sum];
+    }
+};
+// https://leetcode.cn/submissions/detail/391606926/
+```
+
+```cpp
+class Solution {
+public:
+    int findTargetSumWays(vector<int> &nums, int target) {
+        int sum = accumulate(nums.begin(), nums.end(), 0);
+        if (abs(target) > sum) {
+            return 0;
+        }
+        return findTargetSumWays(nums, nums.size() - 1, target);
+    }
+
+private:
+    // 子数组 nums[0..i] 目标和为 target 的不同表达式的数目
+    int findTargetSumWays(const vector<int> &nums, int i, int target) {
+        if (i < 0) {
+            return target == 0 ? 1 : 0;
+        }
+        string key = to_string(i) + "," + to_string(target);
+        if (memo.count(key) == 0) {
+            int x = nums[i];
+            // x 前添加 + 号
+            // sum(nums[0..i-1]) = target - x
+            int sp1 = findTargetSumWays(nums, i - 1, target - x);
+            // x 前添加 - 号
+            // sum(nums[0..i-1]) = target + x
+            int sp2 = findTargetSumWays(nums, i - 1, target + x);
+            memo[key] = sp1 + sp2;
+        }
+        return memo[key];
+    }
+
+    unordered_map<string, int> memo;
+};
+// https://leetcode.cn/submissions/detail/391608658/
+```
+
+```cpp
+class Solution {
+public:
+    int findTargetSumWays(vector<int> &nums, int target) {
+        int sum = accumulate(nums.begin(), nums.end(), 0);
+        if (abs(target) > sum) {
+            return 0;
+        }
+        return findTargetSumWays(nums, 0, target);
+    }
+
+private:
+    // 子数组 nums[i..n-1] 目标和为 target 的不同表达式的数目
+    int findTargetSumWays(const vector<int> &nums, int i, int target) {
+        if (i == nums.size()) {
+            return target == 0 ? 1 : 0;
+        }
+        string key = to_string(i) + "," + to_string(target);
+        if (memo.count(key) == 0) {
+            int x = nums[i];
+            // x 前添加 + 号
+            // sum(nums[i+1..n-1]) = target - x
+            int sp1 = findTargetSumWays(nums, i + 1, target - x);
+            // x 前添加 - 号
+            // sum(nums[i+1..n-1]) = target + x
+            int sp2 = findTargetSumWays(nums, i + 1, target + x);
+            memo[key] = sp1 + sp2;
+        }
+        return memo[key];
+    }
+
+    unordered_map<string, int> memo;
+};
+// https://leetcode.cn/submissions/detail/391608964/
+```
+
+```cpp
+class Solution {
+public:
+    int findTargetSumWays(vector<int> &nums, int target) {
+        int sum = accumulate(nums.begin(), nums.end(), 0);
+        if (abs(target) > sum) {
+            return 0;
+        }
+        backtrack(nums, target, -1);
+        return ans;
+    }
+
+private:
+    // level = 取数组 nums 的索引为值
+    void backtrack(vector<int> &nums, int target, int level) {
+        if (level == nums.size() - 1) {
+            if (pathSum == target) {
+                ++ans;
+            }
+            return;
+        }
+        int x = nums[level + 1];
+        // edge = +, -
+        // 添加 + 号
+        pathSum += x;
+        backtrack(nums, target, level + 1);
+        pathSum -= x;
+        // 添加 - 号
+        pathSum -= x;
+        backtrack(nums, target, level + 1);
+        pathSum += x;
+    }
+
+    int pathSum = 0;
+    int ans = 0;
+};
+// https://leetcode.cn/submissions/detail/391607747/
+```
+
+```cpp
+class Solution {
+public:
+    int findTargetSumWays(vector<int> &nums, int target) {
+        int sum = accumulate(nums.begin(), nums.end(), 0);
+        if (abs(target) > sum) {
+            return 0;
+        }
+        dfs(nums, target, -1, 0);
+        return ans;
+    }
+
+private:
+    // level  = 取数组 nums 的索引为值
+    // vertex = 1, -1
+    void dfs(vector<int> &nums, int target, int level, int vertex) {
+        if (level >= 0) {
+            pathSum += nums[level] * vertex;
+        }
+        if (level == nums.size() - 1) {
+            if (pathSum == target) {
+                ++ans;
+            }
+        } else {
+            dfs(nums, target, level + 1, 1);
+            dfs(nums, target, level + 1, -1);
+        }
+        if (level >= 0) {
+            pathSum -= nums[level] * vertex;
+        }
+    }
+
+    int pathSum = 0;
+    int ans = 0;
+};
+// 超出时间限制
 ```
 
 ## 496. 下一个更大元素 I
@@ -6438,7 +7952,39 @@ private:
 <https://leetcode.cn/problems/next-greater-element-i/>
 
 ```cpp
+class Solution {
+public:
+    vector<int> nextGreaterElement(vector<int> &nums1, vector<int> &nums2) {
+        vector<int> greater = nextGreaterElement(nums2);
+        unordered_map<int, int> valToGreater;
+        for (int i = 0; i < nums2.size(); ++i) {
+            valToGreater[nums2[i]] = greater[i];
+        }
+        size_t n1 = nums1.size();
+        vector<int> ans(n1);
+        for (int i = 0; i < n1; ++i) {
+            ans[i] = valToGreater[nums1[i]];
+        }
+        return ans;
+    }
 
+private:
+    vector<int> nextGreaterElement(const vector<int> &nums) {
+        int n = nums.size();
+        vector<int> res(n);
+        stack<int> s;
+        for (int i = n - 1; i >= 0; --i) {
+            int x = nums[i];
+            while (!s.empty() && s.top() < x) {
+                s.pop();
+            }
+            res[i] = s.empty() ? -1 : s.top();
+            s.push(x);
+        }
+        return res;
+    }
+};
+// https://leetcode.cn/submissions/detail/391664168/
 ```
 
 ## 503. 下一个更大元素 II
@@ -6446,7 +7992,25 @@ private:
 <https://leetcode.cn/problems/next-greater-element-ii/>
 
 ```cpp
-
+class Solution {
+public:
+    vector<int> nextGreaterElements(vector<int> &nums) {
+        int n = nums.size();
+        vector<int> ans(n);
+        stack<int> s;
+        for (int i = 2 * n - 1; i >= 0; --i) {
+            int k = i % n;
+            int x = nums[k];
+            while (!s.empty() && s.top() <= x) {
+                s.pop();
+            }
+            ans[k] = s.empty() ? -1 : s.top();
+            s.push(x);
+        }
+        return ans;
+    }
+};
+// https://leetcode.cn/submissions/detail/391694869/
 ```
 
 ## 509. 斐波那契数
@@ -6454,7 +8018,25 @@ private:
 <https://leetcode.cn/problems/fibonacci-number/>
 
 ```cpp
-
+class Solution {
+public:
+    int fib(int n) {
+        if (n == 0) {
+            return 0;
+        }
+        if (n == 1) {
+            return 1;
+        }
+        vector<int> dp(n + 1);
+        dp[0] = 0;
+        dp[1] = 1;
+        for (int i = 2; i <= n; ++i) {
+            dp[i] = dp[i - 1] + dp[i - 2];
+        }
+        return dp[n];
+    }
+};
+// https://leetcode.cn/submissions/detail/391560406/
 ```
 
 ## 516. 最长回文子序列
@@ -6462,7 +8044,44 @@ private:
 <https://leetcode.cn/problems/longest-palindromic-subsequence/>
 
 ```cpp
-
+class Solution {
+public:
+    int longestPalindromeSubseq(const string &s) {
+        int n = s.size();
+        // dp[i][j] = 子串 s[i..j] 的最长回文子序列的长度
+        vector<vector<int>> dp(n, vector<int>(n));
+        // 遍历对角线
+        for (int i = 0; i < n; ++i) {
+            dp[i][i] = 1;
+        }
+        // 遍历下三角形
+        // for (int i = 0; i < n; ++i) {
+        //     for (int j = 0; j < i; ++j) {
+        //         dp[i][j] = 0;
+        //     }
+        // }
+        // 遍历上三角形
+        for (int i = n - 2; i >= 0; --i) {
+            for (int j = i + 1; j < n; ++j) {
+                if (s[i] == s[j]) {
+                    // s[i][i+1..j-1][j]
+                    // s   [i+1..j-1]
+                    dp[i][j] = dp[i + 1][j - 1] + 2;
+                } else {
+                    // s[i..j-1][j]
+                    // s[i..j-1]
+                    int sp1 = dp[i][j - 1];
+                    // s[i][i+1..j]
+                    // s   [i+1..j]
+                    int sp2 = dp[i + 1][j];
+                    dp[i][j] = max(sp1, sp2);
+                }
+            }
+        }
+        return dp[0][n - 1];
+    }
+};
+// https://leetcode.cn/submissions/detail/391711096/
 ```
 
 ## 518. 零钱兑换 II
@@ -6470,7 +8089,78 @@ private:
 <https://leetcode.cn/problems/coin-change-2/>
 
 ```cpp
+class Solution {
+public:
+    int change(int amount, vector<int> &coins) {
+        size_t n = coins.size();
+        // dp[i][j] = 使用硬币 coins[0..i-1] 凑成总金额 j 的组合数
+        vector<vector<int>> dp(n + 1, vector<int>(amount + 1));
+        // 总金额为 0
+        for (int i = 1; i <= n; ++i) {
+            dp[i][0] = 1;
+        }
+        // 硬币数为 0
+        for (int j = 1; j <= amount; ++j) {
+            dp[0][j] = 0;
+        }
+        dp[0][0] = 1;
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= amount; ++j) {
+                int x = coins[i - 1];
+                if (j < x) {
+                    // 不包含硬币 x
+                    dp[i][j] = dp[i - 1][j];
+                } else {
+                    int sp1 = dp[i - 1][j]; // 包含    0 个硬币 x
+                    int sp2 = dp[i][j - x]; // 包含 >= 1 个硬币 x
+                    dp[i][j] = sp1 + sp2;
+                    // 注意
+                    // dp[i][j - x] = 包含 >= 1 个硬币 x
+                    // dp[i-1][j-x] = 包含    1 个硬币 x
+                    // 举例 amount = 79, coins = [1, 2, 5]
+                    // dp[2][79] = 包含    0 个硬币 5，79 = 0 x 5 + 79，剩余 79 只能从 [1, 2] 凑
+                    // dp[2][74] = 包含    1 个硬币 5，79 = 1 x 5 + 74，剩余 74 只能从 [1, 2] 凑
+                    // dp[3][74] = 包含 >= 1 个硬币 5，79 = 1 x 5 + 74，剩余 74 可以从 [1, 2, 5] 凑
+                }
+            }
+        }
+        return dp[n][amount];
+    }
+};
+// https://leetcode.cn/submissions/detail/391484077/
+```
 
+```cpp
+class Solution {
+public:
+    int change(int amount, vector<int> &coins) {
+        int n = coins.size();
+        memo = vector<vector<int>>(amount + 1, vector<int>(n + 1, -1));
+        return change(amount, coins, n - 1);
+    }
+
+private:
+    // 使用硬币 coins[0..i] 凑成总金额 amount 的组合数
+    int change(int amount, const vector<int> &coins, int i) {
+        if (amount < 0 || i < 0) {
+            return 0;
+        }
+        if (amount == 0) {
+            return 1;
+        }
+        if (memo[amount][i] == -1) {
+            // 包含 >= 1 个硬币 coins[i]
+            int sp1 = change(amount - coins[i], coins, i);
+            // 包含 0 个硬币 coins[i]
+            int sp2 = change(amount, coins, i - 1);
+            memo[amount][i] = sp1 + sp2;
+        }
+        return memo[amount][i];
+    }
+
+    vector<vector<int>> memo;
+};
+// https://leetcode.cn/submissions/detail/391544723/
 ```
 
 ## 538. 把二叉搜索树转换为累加树
@@ -6478,7 +8168,27 @@ private:
 <https://leetcode.cn/problems/convert-bst-to-greater-tree/>
 
 ```cpp
+class Solution {
+public:
+    TreeNode *convertBST(TreeNode *root) {
+        dfs(root);
+        return root;
+    }
 
+private:
+    void dfs(TreeNode *root) {
+        if (root == nullptr) {
+            return;
+        }
+        dfs(root->right);
+        sum += root->val;
+        root->val = sum;
+        dfs(root->left);
+    }
+
+    int sum = 0;
+};
+// https://leetcode.cn/submissions/detail/368559929/
 ```
 
 ## 543. 二叉树的直径
@@ -6486,7 +8196,32 @@ private:
 <https://leetcode.cn/problems/diameter-of-binary-tree/>
 
 ```cpp
+// rootLP = 穿过根节点的最长路径（左右子树的最大深度之和）
+// rootLP(root) = maxDepth(root.left) + maxDepth(root.right)
+// diameter = 所有子树的 rootLP 的最大值
+// diameter(root) = max({ rootLP(subtree) | subtree 是 root 的任意子树 })
+class Solution {
+public:
+    int diameterOfBinaryTree(TreeNode *root) {
+        maxDepth(root);
+        return diameter;
+    }
 
+private:
+    int maxDepth(TreeNode *root) {
+        if (root == nullptr) {
+            return 0;
+        }
+        int left = maxDepth(root->left);
+        int right = maxDepth(root->right);
+        int rootLP = left + right;
+        diameter = max(diameter, rootLP);
+        return 1 + max(left, right);
+    }
+
+    int diameter = 0;
+};
+// https://leetcode.cn/submissions/detail/391588086/
 ```
 
 ## 567. 字符串的排列
@@ -6494,7 +8229,43 @@ private:
 <https://leetcode.cn/problems/permutation-in-string/>
 
 ```cpp
-
+class Solution {
+public:
+    bool checkInclusion(string s1, string s2) {
+        unordered_map<char, int> need, window;
+        for (const auto &c: s1) {
+            ++need[c];
+        }
+        int valid = 0;
+        // s[left..right) = Window Substring
+        // s[right..n-1]  = Scanning
+        int left = 0, right = 0;
+        while (right < s2.size()) {
+            char add = s2[right++];
+            if (need.count(add) == 1) {
+                if (++window[add] == need[add]) {
+                    ++valid;
+                }
+            }
+            if (valid == need.size()) {
+                while (left < right - s1.size()) {
+                    char del = s2[left++];
+                    if (need.count(del) == 1) {
+                        if (window[del] == need[del]) {
+                            --valid;
+                        }
+                        --window[del];
+                    }
+                }
+            }
+            if (valid == need.size()) {
+                return true;
+            }
+        }
+        return false;
+    }
+};
+// https://leetcode.cn/submissions/detail/391685602/
 ```
 
 ## 583. 两个字符串的删除操作
@@ -6502,7 +8273,56 @@ private:
 <https://leetcode.cn/problems/delete-operation-for-two-strings/>
 
 ```cpp
+class Solution {
+public:
+    int minDistance(const string &word1, const string &word2) {
+        int n1 = word1.size(), n2 = word2.size();
+        memo = vector<vector<int >>(n1, vector<int>(n2, -1));
+        return minDistance(word1, n1 - 1, word2, n2 - 1);
+    }
 
+private:
+    // 子串 s1[0..i] s2[0..j] 的最小删除步数
+    int minDistance(const string &s1, int i, const string &s2, int j) {
+        if (i < 0) {
+            // 删除 s2[0..j]
+            // s1""
+            // s2[0..j]
+            return j + 1;
+        }
+        if (j < 0) {
+            // 删除 s1[0..i]
+            // s1[0..i]
+            // s2""
+            return i + 1;
+        }
+        if (memo[i][j] == -1) {
+            if (s1[i] == s2[j]) {
+                // s1[0..i-1][i]
+                // s2[0..j-1][j]
+                memo[i][j] = minDistance(s1, i - 1, s2, j - 1);
+            } else {
+                // 删除 s1[i] s2[j]
+                // s1[0..i-1][i]
+                // s2[0..j-1][j]
+                int sp1 = minDistance(s1, i - 1, s2, j - 1) + 2;
+                // 删除 s2[j]
+                // s1[0..i]
+                // s2[0..j-1][j]
+                int sp2 = minDistance(s1, i, s2, j - 1) + 1;
+                // 删除 s1[i]
+                // s1[0..i-1][i]
+                // s2[0..j]
+                int sp3 = minDistance(s1, i - 1, s2, j) + 1;
+                memo[i][j] = min(min(sp1, sp2), sp3);
+            }
+        }
+        return memo[i][j];
+    }
+
+    vector<vector<int>> memo;
+};
+// https://leetcode.cn/submissions/detail/391609762/
 ```
 
 ## 617. 合并二叉树
@@ -6510,7 +8330,76 @@ private:
 <https://leetcode.cn/problems/merge-two-binary-trees/>
 
 ```cpp
+class Solution {
+public:
+    TreeNode *mergeTrees(TreeNode *root1, TreeNode *root2) {
+        if (root1 == nullptr) {
+            return root2;
+        }
+        if (root2 == nullptr) {
+            return root1;
+        }
+        auto *mRoot = new TreeNode(root1->val + root2->val);
+        mRoot->left = mergeTrees(root1->left, root2->left);
+        mRoot->right = mergeTrees(root1->right, root2->right);
+        return mRoot;
+    }
+};
+// https://leetcode.cn/submissions/detail/391479419/
+```
 
+```cpp
+class Solution {
+public:
+    TreeNode *mergeTrees(TreeNode *root1, TreeNode *root2) {
+        queue<TreeNode *> q1, q2, mq;
+        TreeNode *mRoot = merge(root1, root2);
+        if (root1 != nullptr && root2 != nullptr) {
+            q1.push(root1);
+            q2.push(root2);
+            mq.push(mRoot);
+        }
+        while (!mq.empty()) {
+            TreeNode *node1 = q1.front();
+            TreeNode *node2 = q2.front();
+            TreeNode *mNode = mq.front();
+            q1.pop();
+            q2.pop();
+            mq.pop();
+            // left
+            TreeNode *left1 = node1->left;
+            TreeNode *left2 = node2->left;
+            mNode->left = merge(left1, left2);
+            if (left1 != nullptr && left2 != nullptr) {
+                q1.push(left1);
+                q2.push(left2);
+                mq.push(mNode->left);
+            }
+            // right
+            TreeNode *right1 = node1->right;
+            TreeNode *right2 = node2->right;
+            mNode->right = merge(right1, right2);
+            if (right1 != nullptr && right2 != nullptr) {
+                q1.push(right1);
+                q2.push(right2);
+                mq.push(mNode->right);
+            }
+        }
+        return mRoot;
+    }
+
+private:
+    TreeNode *merge(TreeNode *node1, TreeNode *node2) {
+        if (node1 == nullptr) {
+            return node2;
+        }
+        if (node2 == nullptr) {
+            return node1;
+        }
+        return new TreeNode(node1->val + node2->val);
+    }
+};
+// https://leetcode.cn/submissions/detail/391479988/
 ```
 
 ## 652. 寻找重复的子树
@@ -6518,7 +8407,31 @@ private:
 <https://leetcode.cn/problems/find-duplicate-subtrees/>
 
 ```cpp
+class Solution {
+public:
+    vector<TreeNode *> findDuplicateSubtrees(TreeNode *root) {
+        postorder(root);
+        return ans;
+    }
 
+private:
+    string postorder(TreeNode *root) {
+        if (root == nullptr) {
+            return "#";
+        }
+        string left = postorder(root->left);
+        string right = postorder(root->right);
+        string res = left + "," + right + "," + to_string(root->val);
+        if (++counter[res] == 2) {
+            ans.push_back(root);
+        }
+        return res;
+    }
+    
+    vector<TreeNode *> ans;
+    unordered_map<string, int> counter;
+};
+// https://leetcode.cn/submissions/detail/391592721/
 ```
 
 ## 654. 最大二叉树
@@ -6526,7 +8439,75 @@ private:
 <https://leetcode.cn/problems/maximum-binary-tree/>
 
 ```cpp
+class Solution {
+public:
+    TreeNode *constructMaximumBinaryTree(vector<int> &nums) {
+        return constructMaximumBinaryTree(nums, 0, nums.size() - 1);
+    }
 
+private:
+    TreeNode *constructMaximumBinaryTree(const vector<int> &nums, int lo, int hi) {
+        if (lo > hi) {
+            return nullptr;
+        }
+        int maxIndex = lo;
+        for (int i = lo + 1; i <= hi; ++i) {
+            if (nums[i] > nums[maxIndex]) {
+                maxIndex = i;
+            }
+        }
+        auto *root = new TreeNode(nums[maxIndex]);
+        root->left = constructMaximumBinaryTree(nums, lo, maxIndex - 1);
+        root->right = constructMaximumBinaryTree(nums, maxIndex + 1, hi);
+        return root;
+    }
+};
+// https://leetcode.cn/submissions/detail/391474764/
+```
+
+```cpp
+class Solution {
+public:
+    TreeNode *constructMaximumBinaryTree(vector<int> &nums) {
+        return constructMaximumBinaryTree(nums, 0, nums.size() - 1);
+    }
+
+private:
+    TreeNode *constructMaximumBinaryTree(const vector<int> &nums, int lo, int hi) {
+        if (lo > hi) {
+            return nullptr;
+        }
+        auto maxIter = max_element(nums.begin() + lo, nums.begin() + hi + 1);
+        int maxIndex = distance(nums.begin(), maxIter);
+        auto *root = new TreeNode(nums[maxIndex]);
+        root->left = constructMaximumBinaryTree(nums, lo, maxIndex - 1);
+        root->right = constructMaximumBinaryTree(nums, maxIndex + 1, hi);
+        return root;
+    }
+};
+// https://leetcode.cn/submissions/detail/391560045/
+```
+
+```cpp
+class Solution {
+public:
+    TreeNode *constructMaximumBinaryTree(vector<int> &nums) {
+        vector<TreeNode *> stack;
+        for (int x: nums) {
+            auto *cur = new TreeNode(x);
+            while (!stack.empty() && stack.back()->val < x) {
+                cur->left = stack.back();
+                stack.pop_back();
+            }
+            if (!stack.empty()) {
+                stack.back()->right = cur;
+            }
+            stack.push_back(cur);
+        }
+        return stack.front();
+    }
+};
+// https://leetcode.cn/submissions/detail/391475493/
 ```
 
 ## 695. 岛屿的最大面积
@@ -6534,7 +8515,40 @@ private:
 <https://leetcode.cn/problems/max-area-of-island/>
 
 ```cpp
+class Solution {
+public:
+    int maxAreaOfIsland(vector<vector<int>> &grid) {
+        int ans = 0;
+        for (int row = 0; row < grid.size(); ++row) {
+            for (int col = 0; col < grid[0].size(); ++col) {
+                if (grid[row][col] == LAND) {
+                    area = 0;
+                    floodFill(grid, row, col);
+                    ans = max(ans, area);
+                }
+            }
+        }
+        return ans;
+    }
 
+private:
+    void floodFill(vector<vector<int>> &grid, int row, int col) {
+        if (row < 0 || row >= grid.size() || col < 0 || col >= grid[0].size() || grid[row][col] == WATER) {
+            return;
+        }
+        ++area;
+        grid[row][col] = WATER;
+        floodFill(grid, row, col + 1);
+        floodFill(grid, row, col - 1);
+        floodFill(grid, row + 1, col);
+        floodFill(grid, row - 1, col);
+    }
+
+    int area = 0;
+    static const int LAND = 1;
+    static const int WATER = 0;
+};
+// https://leetcode.cn/submissions/detail/391610657/
 ```
 
 ## 698. 划分为 K 个相等的子集
@@ -6542,7 +8556,305 @@ private:
 <https://leetcode.cn/problems/partition-to-k-equal-sum-subsets/>
 
 ```cpp
+class Solution {
+public:
+    bool canPartitionKSubsets(vector<int> &nums, int k) {
+        if (k > nums.size()) {
+            return false;
+        }
+        int sum = accumulate(nums.begin(), nums.end(), 0);
+        if (sum % k != 0) {
+            return false;
+        }
+        this->target = sum / k;
+        this->used = 0;
+        this->pathSums = vector<int>(k);
+        return backtrack(nums, k, 0, -1);
+    }
 
+private:
+    // 遍历『决策森林』的 k 棵『决策树』
+    // 一棵『决策树』的『路径』代表一个『等和子集』
+    // tree = 第几棵『决策树』，取 [0..k-1] 为值
+    // edge =『决策树』的『边』，取数组 nums 的索引为值
+    // pathSums[tree] = 第几棵『决策树』的『路径和』
+    bool backtrack(vector<int> &nums, int k, int tree, int edge) {
+        bool res = false;
+        if (tree == k) {
+            res = true;
+        } else if (pathSums[tree] == target) {
+            // 通过缓存，对同一个『森林』，优化『树』的遍历，避免『路径+路径』重复
+            // 例如 [1->2->3] 和 [4->5->6] 分别是两条『路径』
+            // 如果 A.[1->2->3] -> B.[4->5->6] -> C.[] 是不行的
+            // 那么 A.[4->5->6] -> B.[1->2->3] -> C.[] 也是不行的
+            // 因为 C 的可选『边』是一样的
+            if (memo.count(used) == 0) {
+                // 遍历下一棵『决策树』
+                memo[used] = backtrack(nums, k, tree + 1, -1);
+            }
+            res = memo[used];
+        } else {
+            // 通过去重，对同一棵树，优化『边』的遍历，避免『边+边』重复
+            // 例如 1 和 2 分别是两条『边』，[1->2] 和 [2->1] 是重复的
+            while (++edge < nums.size()) {
+                // 检查第 edge 位是否为 1
+                // 即 nums[edge] 是否已经被其他『树』使用
+                if (((used >> edge) & 1) == 1) {
+                    continue;
+                }
+                int x = nums[edge];
+                if (pathSums[tree] + x > target) {
+                    continue;
+                }
+                pathSums[tree] += x;
+                //『或』运算，将第 edge 位修改为 1
+                used |= 1 << edge;
+                res = backtrack(nums, k, tree, edge);
+                if (res) {
+                    break;
+                }
+                pathSums[tree] -= x;
+                //『异或』运算，将第 edge 位修改为 0
+                used ^= 1 << edge;
+            }
+        }
+        return res;
+    }
+
+    int target;
+    int used;
+    vector<int> pathSums;
+    unordered_map<int, bool> memo;
+};
+// https://leetcode.cn/submissions/detail/391673705/
+```
+
+```cpp
+class Solution {
+public:
+    bool canPartitionKSubsets(vector<int> &nums, int k) {
+        if (k > nums.size()) {
+            return false;
+        }
+        int sum = accumulate(nums.begin(), nums.end(), 0);
+        if (sum % k != 0) {
+            return false;
+        }
+        this->target = sum / k;
+        this->used = 0;
+        this->pathSums = vector<int>(k);
+        return dfs(nums, k, 0, -1);
+    }
+
+private:
+    // 遍历『决策森林』的 k 棵『决策树』
+    // 一棵『决策树』的『路径』代表一个『等和子集』
+    // tree = 第几棵『决策树』，取 [0..k-1] 为值
+    // vertex =『决策树』的『顶点』，取数组 nums 的索引为值
+    // pathSums[tree] = 第几棵『决策树』的『路径和』
+    bool dfs(vector<int> &nums, int k, int tree, int vertex) {
+        int x = (vertex == -1 ? 0 : nums[vertex]);
+        if (vertex >= 0) {
+            pathSums[tree] += x;
+            //『或』运算，将第 vertex 位修改为 1
+            used |= 1 << vertex;
+        }
+        bool res = false;
+        if (tree == k) {
+            res = true;
+        } else if (pathSums[tree] == target) {
+            // 通过缓存，对同一个『森林』，优化『树』的遍历，避免『路径+路径』重复
+            // 例如 [1->2->3] 和 [4->5->6] 分别是两条『路径』
+            // 如果 A.[1->2->3] -> B.[4->5->6] -> C.[] 是不行的
+            // 那么 A.[4->5->6] -> B.[1->2->3] -> C.[] 也是不行的
+            // 因为 C 的可选『边』是一样的
+            if (memo.count(used) == 0) {
+                // 遍历下一棵『决策树』
+                memo[used] = dfs(nums, k, tree + 1, -1);
+            }
+            res = memo[used];
+        } else {
+            // 通过去重，对同一棵树，优化『边』的遍历，避免『边+边』重复
+            // 例如 1 和 2 分别是两条『边』，[1->2] 和 [2->1] 是重复的
+            int v = vertex;
+            while (++v < nums.size()) {
+                // 检查第 vertex 位是否为 1
+                // 即 nums[vertex] 是否已经被其他『树』使用
+                if (((used >> v) & 1) == 1) {
+                    continue;
+                }
+                if (pathSums[tree] + nums[v] > target) {
+                    continue;
+                }
+                res = dfs(nums, k, tree, v);
+                if (res) {
+                    break;
+                }
+            }
+        }
+        if (vertex >= 0 && !res) {
+            pathSums[tree] -= x;
+            //『异或』运算，将第 vertex 位修改为 0
+            used ^= 1 << vertex;
+        }
+        return res;
+    }
+
+    int used;
+    int target;
+    vector<int> pathSums;
+    unordered_map<int, bool> memo;
+};
+// https://leetcode.cn/submissions/detail/391672477/
+```
+
+```cpp
+class Solution {
+public:
+    bool canPartitionKSubsets(vector<int> &nums, int k) {
+        if (k > nums.size()) {
+            return false;
+        }
+        int sum = accumulate(nums.begin(), nums.end(), 0);
+        if (sum % k != 0) {
+            return false;
+        }
+        this->target = sum / k;
+        this->used = string(16, '0');
+        this->pathSums = vector<int>(k);
+        return backtrack(nums, k, 0, -1);
+    }
+
+private:
+    // 遍历『决策森林』的 k 棵『决策树』
+    // 一棵『决策树』的『路径』代表一个『等和子集』
+    // tree = 第几棵『决策树』，取 [0..k-1] 为值
+    // edge =『决策树』的『边』，取数组 nums 的索引为值
+    // pathSums[tree] = 第几棵『决策树』的『路径和』
+    bool backtrack(vector<int> &nums, int k, int tree, int edge) {
+        bool res = false;
+        if (tree == k) {
+            res = true;
+        } else if (pathSums[tree] == target) {
+            // 通过缓存，对同一个『森林』，优化『树』的遍历，避免『路径+路径』重复
+            // 例如 [1->2->3] 和 [4->5->6] 分别是两条『路径』
+            // 如果 A.[1->2->3] -> B.[4->5->6] -> C.[] 是不行的
+            // 那么 A.[4->5->6] -> B.[1->2->3] -> C.[] 也是不行的
+            // 因为 C 的可选『边』是一样的
+            if (memo.count(used) == 0) {
+                // 遍历下一棵『决策树』
+                memo[used] = backtrack(nums, k, tree + 1, -1);
+            }
+            res = memo[used];
+        } else {
+            // 通过去重，对同一棵树，优化『边』的遍历，避免『边+边』重复
+            // 例如 1 和 2 分别是两条『边』，[1->2] 和 [2->1] 是重复的
+            while (++edge < nums.size()) {
+                // 检查第 edge 位是否为 1
+                // 即 nums[edge] 是否已经被其他『树』使用
+                if (used[edge] == '1') {
+                    continue;
+                }
+                int x = nums[edge];
+                if (pathSums[tree] + x > target) {
+                    continue;
+                }
+                pathSums[tree] += x;
+                used[edge] = '1';
+                res = backtrack(nums, k, tree, edge);
+                if (res) {
+                    break;
+                }
+                pathSums[tree] -= x;
+                used[edge] = '0';
+            }
+        }
+        return res;
+    }
+
+    int target;
+    string used;
+    vector<int> pathSums;
+    unordered_map<string, bool> memo;
+};
+// https://leetcode.cn/submissions/detail/391674688/
+```
+
+```cpp
+class Solution {
+public:
+    bool canPartitionKSubsets(vector<int> &nums, int k) {
+        if (k > nums.size()) {
+            return false;
+        }
+        int sum = accumulate(nums.begin(), nums.end(), 0);
+        if (sum % k != 0) {
+            return false;
+        }
+        this->target = sum / k;
+        this->used = string(16, '0');
+        this->pathSums = vector<int>(k);
+        return dfs(nums, k, 0, -1);
+    }
+
+private:
+    // 遍历『决策森林』的 k 棵『决策树』
+    // 一棵『决策树』的『路径』代表一个『等和子集』
+    // tree = 第几棵『决策树』，取 [0..k-1] 为值
+    // vertex =『决策树』的『顶点』，取数组 nums 的索引为值
+    // pathSums[tree] = 第几棵『决策树』的『路径和』
+    bool dfs(vector<int> &nums, int k, int tree, int vertex) {
+        int x = (vertex == -1 ? 0 : nums[vertex]);
+        if (vertex >= 0) {
+            pathSums[tree] += x;
+            used[vertex] = '1';
+        }
+        bool res = false;
+        if (tree == k) {
+            res = true;
+        } else if (pathSums[tree] == target) {
+            // 通过缓存，对同一个『森林』，优化『树』的遍历，避免『路径+路径』重复
+            // 例如 [1->2->3] 和 [4->5->6] 分别是两条『路径』
+            // 如果 A.[1->2->3] -> B.[4->5->6] -> C.[] 是不行的
+            // 那么 A.[4->5->6] -> B.[1->2->3] -> C.[] 也是不行的
+            // 因为 C 的可选『边』是一样的
+            if (memo.count(used) == 0) {
+                // 遍历下一棵『决策树』
+                memo[used] = dfs(nums, k, tree + 1, -1);
+            }
+            res = memo[used];
+        } else {
+            // 通过去重，对同一棵树，优化『边』的遍历，避免『边+边』重复
+            // 例如 1 和 2 分别是两条『边』，[1->2] 和 [2->1] 是重复的
+            int v = vertex;
+            while (++v < nums.size()) {
+                // 检查第 vertex 位是否为 1
+                // 即 nums[vertex] 是否已经被其他『树』使用
+                if (used[v] == '1') {
+                    continue;
+                }
+                if (pathSums[tree] + nums[v] > target) {
+                    continue;
+                }
+                res = dfs(nums, k, tree, v);
+                if (res) {
+                    break;
+                }
+            }
+        }
+        if (vertex >= 0 && !res) {
+            pathSums[tree] -= x;
+            used[vertex] = '0';
+        }
+        return res;
+    }
+
+    int target;
+    string used;
+    vector<int> pathSums;
+    unordered_map<string, bool> memo;
+};
+// https://leetcode.cn/submissions/detail/391673056/
 ```
 
 ## 700. 二叉搜索树中的搜索
@@ -6550,7 +8862,42 @@ private:
 <https://leetcode.cn/problems/search-in-a-binary-search-tree/>
 
 ```cpp
+class Solution {
+public:
+    TreeNode *searchBST(TreeNode *root, int val) {
+        if (root == nullptr) {
+            return nullptr;
+        }
+        if (val < root->val) {
+            return searchBST(root->left, val);
+        }
+        if (root->val < val) {
+            return searchBST(root->right, val);
+        }
+        return root;
+    }
+};
+// https://leetcode.cn/submissions/detail/391480458/
+```
 
+```cpp
+class Solution {
+public:
+    TreeNode *searchBST(TreeNode *root, int val) {
+        TreeNode *ptr = root;
+        while (ptr != nullptr) {
+            if (val < ptr->val) {
+                ptr = ptr->left;
+            } else if (ptr->val < val) {
+                ptr = ptr->right;
+            } else {
+                return ptr;
+            }
+        }
+        return nullptr;
+    }
+};
+// https://leetcode.cn/submissions/detail/391480302/
 ```
 
 ## 701. 二叉搜索树中的插入操作
@@ -6558,7 +8905,52 @@ private:
 <https://leetcode.cn/problems/insert-into-a-binary-search-tree/>
 
 ```cpp
+class Solution {
+public:
+    TreeNode *insertIntoBST(TreeNode *root, int val) {
+        if (root == nullptr) {
+            return new TreeNode(val);
+        }
+        if (val < root->val) {
+            root->left = insertIntoBST(root->left, val);
+        }
+        if (root->val < val) {
+            root->right = insertIntoBST(root->right, val);
+        }
+        return root;
+    }
+};
+// https://leetcode.cn/submissions/detail/391480771/
+```
 
+```cpp
+class Solution {
+public:
+    TreeNode *insertIntoBST(TreeNode *root, int val) {
+        auto *x = new TreeNode(val);;
+        if (root == nullptr) {
+            return x;
+        }
+        TreeNode *ptr = root;
+        while (true) {
+            if (val < ptr->val) {
+                if (ptr->left == nullptr) {
+                    ptr->left = x;
+                    break;
+                }
+                ptr = ptr->left;
+            } else {
+                if (ptr->right == nullptr) {
+                    ptr->right = x;
+                    break;
+                }
+                ptr = ptr->right;
+            }
+        }
+        return root;
+    }
+};
+// https://leetcode.cn/submissions/detail/391481734/
 ```
 
 ## 704. 二分查找
@@ -6566,7 +8958,24 @@ private:
 <https://leetcode.cn/problems/binary-search/>
 
 ```cpp
-
+class Solution {
+public:
+    int search(vector<int> &nums, int target) {
+        int lo = 0, hi = nums.size() - 1;
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (target < nums[mid]) {
+                hi = mid - 1;
+            } else if (nums[mid] < target) {
+                lo = mid + 1;
+            } else {
+                return mid;
+            }
+        }
+        return -1;
+    }
+};
+// https://leetcode.cn/submissions/detail/391555844/
 ```
 
 ## 712. 两个字符串的最小 ASCII 删除和
@@ -6574,7 +8983,73 @@ private:
 <https://leetcode.cn/problems/minimum-ascii-delete-sum-for-two-strings/>
 
 ```cpp
+class Solution {
+public:
+    int minimumDeleteSum(const string &s1, const string &s2) {
+        int n1 = s1.size(), n2 = s2.size();
+        memo = vector<vector<int >>(n1, vector<int>(n2, -1));
+        sum1 = prefixSum(s1);
+        sum2 = prefixSum(s2);
+        return minimumDeleteSum(s1, n1 - 1, s2, n2 - 1);
+    }
 
+private:
+    // 子串 s1[0..i] s2[0..j] 的最小 ASCII 删除和
+    int minimumDeleteSum(const string &s1, int i, const string &s2, int j) {
+        if (i < 0 && j < 0) {
+            return 0;
+        }
+        if (i < 0) {
+            // 删除 s2[0..j]
+            // s1""
+            // s2[0..j]
+            return sum2[j];
+        }
+        if (j < 0) {
+            // 删除 s1[0..i]
+            // s1[0..i]
+            // s2""
+            return sum1[i];
+        }
+        if (memo[i][j] == -1) {
+            if (s1[i] == s2[j]) {
+                // s1[0..i-1][i]
+                // s2[0..j-1][j]
+                memo[i][j] = minimumDeleteSum(s1, i - 1, s2, j - 1);
+            } else {
+                // 删除 s1[i] s2[j]
+                // s1[0..i-1][i]
+                // s2[0..j-1][j]
+                int sp1 = minimumDeleteSum(s1, i - 1, s2, j - 1) + s1[i] + s2[j];
+                // 删除 s2[j]
+                // s1[0..i]
+                // s2[0..j-1][j]
+                int sp2 = minimumDeleteSum(s1, i, s2, j - 1) + s2[j];
+                // 删除 s1[i]
+                // s1[0..i-1][i]
+                // s2[0..j]
+                int sp3 = minimumDeleteSum(s1, i - 1, s2, j) + s1[i];
+                memo[i][j] = min(min(sp1, sp2), sp3);
+            }
+        }
+        return memo[i][j];
+    }
+
+    vector<int> prefixSum(const string &s) {
+        size_t n = s.size();
+        vector<int> sum(n);
+        sum[0] = s[0];
+        for (int i = 1; i < n; ++i) {
+            sum[i] = sum[i - 1] + s[i];
+        }
+        return sum;
+    }
+
+    vector<int> sum1;
+    vector<int> sum2;
+    vector<vector<int>> memo;
+};
+// https://leetcode.cn/submissions/detail/391610248/
 ```
 
 ## 714. 买卖股票的最佳时机含手续费
@@ -6582,7 +9057,26 @@ private:
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/>
 
 ```cpp
-
+class Solution {
+public:
+    int maxProfit(vector<int> &prices, int fee) {
+        size_t n = prices.size();
+        // dp[i][0] = 第 i 天，空仓状态下的最大利润
+        // dp[i][1] = 第 i 天，持仓状态下的最大利润
+        vector<vector<int>> dp(n, vector<int>(2));
+        dp[0][0] = 0;
+        dp[0][1] = -prices[0] - fee;
+        for (int i = 1; i < n; ++i) {
+            // dp[i - 1][0]             >= dp[i - 1][0] - prices[i] - fee
+            // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+            // => dp[i][0] >= dp[i][1]
+            dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+            dp[i][1] = max(dp[i - 1][0] - prices[i] - fee, dp[i - 1][1]);
+        }
+        return dp[n - 1][0];
+    }
+};
+// https://leetcode.cn/submissions/detail/391485800/
 ```
 
 ## 739. 每日温度
@@ -6590,7 +9084,23 @@ private:
 <https://leetcode.cn/problems/daily-temperatures/>
 
 ```cpp
-
+class Solution {
+public:
+    vector<int> dailyTemperatures(vector<int> &temperatures) {
+        int n = temperatures.size();
+        vector<int> ans(n);
+        stack<int> s;
+        for (int i = n - 1; i >= 0; --i) {
+            while (!s.empty() && temperatures[s.top()] <= temperatures[i]) {
+                s.pop();
+            }
+            ans[i] = s.empty() ? 0 : s.top() - i;
+            s.push(i);
+        }
+        return ans;
+    }
+};
+// https://leetcode.cn/submissions/detail/374196946/
 ```
 
 ## 743. 网络延迟时间
@@ -6606,7 +9116,63 @@ private:
 <https://leetcode.cn/problems/open-the-lock/>
 
 ```cpp
+class Solution {
+public:
+    int openLock(vector<string> &deadends, const string &target) {
+        unordered_set<string> marked(deadends.begin(), deadends.end());
+        deque<string> q;
+        string source = "0000";
+        if (marked.count(source) == 0) {
+            marked.insert(source);
+            q.push_back(source);
+        }
+        int count = 0;
+        while (!q.empty()) {
+            size_t n = q.size();
+            for (int i = 0; i < n; ++i) {
+                string s = q.front();
+                q.pop_front();
+                if (s == target) {
+                    return count;
+                }
+                for (int j = 0; j < 4; ++j) {
+                    string plus = plusOne(s, j);
+                    if (marked.count(plus) == 0) {
+                        marked.insert(plus);
+                        q.push_back(plus);
+                    }
+                    string minus = minusOne(s, j);
+                    if (marked.count(minus) == 0) {
+                        marked.insert(minus);
+                        q.push_back(minus);
+                    }
+                }
+            }
+            ++count;
+        }
+        return -1;
+    }
 
+private:
+    string plusOne(string s, int j) {
+        if (s[j] == '9') {
+            s[j] = '0';
+        } else {
+            s[j] += 1;
+        }
+        return s;
+    }
+
+    string minusOne(string s, int j) {
+        if (s[j] == '0') {
+            s[j] = '9';
+        } else {
+            s[j] -= 1;
+        }
+        return s;
+    }
+};
+// https://leetcode.cn/submissions/detail/391691915/
 ```
 
 ## 785. 判断二分图
@@ -6614,7 +9180,42 @@ private:
 <https://leetcode.cn/problems/is-graph-bipartite/>
 
 ```cpp
+class Solution {
+public:
+    bool isBipartite(vector<vector<int>> &graph) {
+        size_t n = graph.size();
+        marked = vector<bool>(n);
+        color = vector<bool>(n);
+        for (int v = 0; v < n; ++v) {
+            if (!marked[v]) {
+                dfs(graph, v);
+                if (!bipartite) {
+                    break;
+                }
+            }
+        }
+        return bipartite;
+    }
 
+private:
+    void dfs(const vector<vector<int>> &graph, int v) {
+        marked[v] = true;
+        for (const auto &w: graph[v]) {
+            if (!marked[w]) {
+                color[w] = !color[v];
+                dfs(graph, w);
+            } else if (color[w] == color[v]) {
+                bipartite = false;
+                return;
+            }
+        }
+    }
+
+    vector<bool> marked;
+    vector<bool> color;
+    bool bipartite = true;
+};
+// https://leetcode.cn/submissions/detail/391658390/
 ```
 
 ## 797. 所有可能的路径
@@ -6622,7 +9223,61 @@ private:
 <https://leetcode.cn/problems/all-paths-from-source-to-target/>
 
 ```cpp
+class Solution {
+public:
+    vector<vector<int>> allPathsSourceTarget(vector<vector<int>> &graph) {
+        target = graph.size() - 1;
+        path.push_back(0);
+        backtrack(graph, 0);
+        path.pop_back();
+        return ans;
+    }
 
+private:
+    void backtrack(const vector<vector<int>> &graph, int v) {
+        if (v == target) {
+            ans.push_back(path);
+        }
+        for (const auto &w: graph[v]) {
+            path.push_back(w);
+            backtrack(graph, w);
+            path.pop_back();
+        }
+    }
+
+    int target;
+    vector<int> path;
+    vector<vector<int>> ans;
+};
+// https://leetcode.cn/submissions/detail/391682733/
+```
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> allPathsSourceTarget(vector<vector<int>> &graph) {
+        target = graph.size() - 1;
+        dfs(graph, 0);
+        return ans;
+    }
+
+private:
+    void dfs(const vector<vector<int>> &graph, int v) {
+        path.push_back(v);
+        if (v == target) {
+            ans.push_back(path);
+        }
+        for (const auto &w: graph[v]) {
+            dfs(graph, w);
+        }
+        path.pop_back();
+    }
+
+    int target;
+    vector<int> path;
+    vector<vector<int>> ans;
+};
+// https://leetcode.cn/submissions/detail/391682898/
 ```
 
 ## 846. 一手顺子
@@ -6630,7 +9285,63 @@ private:
 <https://leetcode.cn/problems/hand-of-straights/>
 
 ```cpp
+class Solution {
+public:
+    bool isNStraightHand(vector<int> &hand, int groupSize) {
+        if (hand.size() % groupSize != 0) {
+            return false;
+        }
+        unordered_map<int, int> counter;
+        for (const auto &card: hand) {
+            ++counter[card];
+        }
+        priority_queue<int, vector<int>, greater<>> min_pq(hand.begin(), hand.end());
+        while (!min_pq.empty()) {
+            int smallest = min_pq.top();
+            min_pq.pop();
+            if (counter[smallest] > 0) {
+                for (int i = 0; i < groupSize; ++i) {
+                    int card = smallest + i;
+                    if (counter[card] == 0) {
+                        return false;
+                    }
+                    --counter[card];
+                }
+            }
+        }
+        return true;
+    }
+};
+// https://leetcode.cn/submissions/detail/391661877/
+```
 
+```cpp
+class Solution {
+public:
+    bool isNStraightHand(vector<int> &hand, int groupSize) {
+        if (hand.size() % groupSize != 0) {
+            return false;
+        }
+        sort(hand.begin(), hand.end());
+        unordered_map<int, int> counter;
+        for (const auto &card: hand) {
+            ++counter[card];
+        }
+        for (const auto &card: hand) {
+            if (counter[card] > 0) {
+                for (int i = 0; i < groupSize; ++i) {
+                    int d = card + i;
+                    if (counter[d] == 0) {
+                        return false;
+                    }
+                    --counter[d];
+                }
+            }
+        }
+        return true;
+    }
+};
+// https://leetcode.cn/submissions/detail/391661565/
 ```
 
 ## 875. 爱吃香蕉的珂珂
@@ -6638,7 +9349,35 @@ private:
 <https://leetcode.cn/problems/koko-eating-bananas/>
 
 ```cpp
+class Solution {
+public:
+    int minEatingSpeed(vector<int> &piles, int h) {
+        int lo = 1;
+        int hi = *max_element(piles.begin(), piles.end());
+        int ans = lo;
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (canFinish(piles, h, mid)) {
+                ans = mid;
+                hi = mid - 1;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        return ans;
+    }
 
+private:
+    // 当吃香蕉的速度为 k 时，是否能在 h 小时内吃完
+    bool canFinish(const vector<int> &piles, int h, int k) {
+        long hours = 0;
+        for (const auto &p: piles) {
+            hours += (p - 1) / k + 1;
+        }
+        return hours <= h;
+    }
+};
+// https://leetcode.cn/submissions/detail/391558423/
 ```
 
 ## 876. 链表的中间结点
@@ -6646,7 +9385,19 @@ private:
 <https://leetcode-cn.com/problems/middle-of-the-linked-list/>
 
 ```cpp
-
+class Solution {
+public:
+    ListNode *middleNode(ListNode *head) {
+        ListNode *slow = head;
+        ListNode *fast = head;
+        while (fast != nullptr && fast->next != nullptr) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        return slow;
+    }
+};
+// https://leetcode.cn/submissions/detail/341374792/
 ```
 
 ## 886. 可能的二分法
@@ -6654,7 +9405,52 @@ private:
 <https://leetcode.cn/problems/possible-bipartition/>
 
 ```cpp
+class Solution {
+public:
+    bool possibleBipartition(int n, vector<vector<int>> &dislikes) {
+        vector<vector<int>> graph(n);
+        for (const auto &d: dislikes) {
+            int v = d[0] - 1, w = d[1] - 1;
+            graph[v].push_back(w);
+            graph[w].push_back(v);
+        }
+        return isBipartite(graph);
+    }
 
+private:
+    bool isBipartite(vector<vector<int>> &graph) {
+        size_t n = graph.size();
+        marked = vector<bool>(n);
+        color = vector<bool>(n);
+        for (int v = 0; v < n; ++v) {
+            if (!marked[v]) {
+                dfs(graph, v);
+                if (!bipartite) {
+                    break;
+                }
+            }
+        }
+        return bipartite;
+    }
+
+    void dfs(const vector<vector<int>> &graph, int v) {
+        marked[v] = true;
+        for (const auto &w: graph[v]) {
+            if (!marked[w]) {
+                color[w] = !color[v];
+                dfs(graph, w);
+            } else if (color[w] == color[v]) {
+                bipartite = false;
+                return;
+            }
+        }
+    }
+
+    vector<bool> marked;
+    vector<bool> color;
+    bool bipartite = true;
+};
+// https://leetcode.cn/submissions/detail/391446702/
 ```
 
 ## 889. 根据前序和后序遍历构造二叉树
@@ -6662,7 +9458,39 @@ private:
 <https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/>
 
 ```cpp
+class Solution {
+public:
+    TreeNode *constructFromPrePost(vector<int> &preorder, vector<int> &postorder) {
+        for (int i = 0; i < postorder.size(); ++i) {
+            valToIndex[postorder[i]] = i;
+        }
+        return buildTree(preorder, 0, preorder.size() - 1,
+                         postorder, 0, postorder.size() - 1);
+    }
 
+private:
+    TreeNode *buildTree(const vector<int> &preorder, int preStart, int preEnd,
+                        const vector<int> &postorder, int postStart, int postEnd) {
+        if (preStart > preEnd) {
+            return nullptr;
+        }
+        int rootVal = preorder[preStart];
+        auto *root = new TreeNode(rootVal);
+        if (preStart < preEnd) {
+            int leftRootVal = preorder[preStart + 1];
+            int postLeftRoot = valToIndex[leftRootVal];
+            int leftSize = postLeftRoot - postStart + 1;
+            root->left = buildTree(preorder, preStart + 1, preStart + leftSize,
+                                   postorder, postStart, postLeftRoot);
+            root->right = buildTree(preorder, preStart + leftSize + 1, preEnd,
+                                    postorder, postLeftRoot + 1, postEnd);
+        }
+        return root;
+    }
+
+    unordered_map<int, int> valToIndex;
+};
+// https://leetcode.cn/submissions/detail/391590416/
 ```
 
 ## 905. 按奇偶排序数组
@@ -6670,7 +9498,34 @@ private:
 <https://leetcode.cn/problems/sort-array-by-parity/>
 
 ```cpp
-
+class Solution {
+public:
+    vector<int> sortArrayByParity(vector<int> &nums) {
+        int n = nums.size();
+        // nums[0..i]   Even
+        // nums(i..j)   Scanning
+        // nums[j..n-1] Odd
+        int i = -1, j = n;
+        while (true) {
+            while (nums[++i] % 2 == 0) {
+                if (i == n - 1) {
+                    break;
+                }
+            }
+            while (nums[--j] % 2 == 1) {
+                if (j == 0) {
+                    break;
+                }
+            }
+            if (i >= j) {
+                break;
+            }
+            swap(nums[i], nums[j]);
+        }
+        return nums;
+    }
+};
+// https://leetcode.cn/submissions/detail/362462181/
 ```
 
 ## 912. 排序数组
@@ -6678,7 +9533,149 @@ private:
 <https://leetcode.cn/problems/sort-an-array/>
 
 ```cpp
+class Solution {
+public:
+    vector<int> sortArray(vector<int> &nums) {
+        random_device rd;
+        mt19937 g(rd());
+        shuffle(nums.begin(), nums.end(), g);
+        sort(nums, 0, nums.size() - 1);
+        return nums;
+    }
 
+private:
+    void sort(vector<int> &nums, int lo, int hi) {
+        if (lo >= hi) {
+            return;
+        }
+        int j = partition(nums, lo, hi);
+        sort(nums, lo, j - 1);
+        sort(nums, j + 1, hi);
+    }
+
+    int partition(vector<int> &nums, int lo, int hi) {
+        int v = nums[lo];
+        int i = lo, j = hi + 1;
+        while (true) {
+            while (nums[++i] < v) {
+                if (i == hi) {
+                    break;
+                }
+            }
+            while (nums[--j] > v) {
+                if (j == lo) {
+                    break;
+                }
+            }
+            if (i >= j) {
+                break;
+            }
+            swap(nums[i], nums[j]);
+        }
+        swap(nums[lo], nums[j]);
+        return j;
+    }
+};
+// https://leetcode.cn/submissions/detail/366420620/
+```
+
+```cpp
+class Solution {
+public:
+    vector<int> sortArray(vector<int> &nums) {
+        random_device rd;
+        mt19937 g(rd());
+        shuffle(nums.begin(), nums.end(), g);
+        stack<pair<int, int>> s;
+        s.emplace(0, nums.size() - 1);
+        while (!s.empty()) {
+            pair<int, int> p = s.top();
+            s.pop();
+            int lo = p.first;
+            int hi = p.second;
+            if (lo < hi) {
+                int j = partition(nums, lo, hi);
+                s.emplace(j + 1, hi);
+                s.emplace(lo, j - 1);
+            }
+        }
+        return nums;
+    }
+
+private:
+    int partition(vector<int> &nums, int lo, int hi) {
+        int v = nums[lo];
+        int i = lo, j = hi + 1;
+        while (true) {
+            while (nums[++i] < v) {
+                if (i == hi) {
+                    break;
+                }
+            }
+            while (nums[--j] > v) {
+                if (j == lo) {
+                    break;
+                }
+            }
+            if (i >= j) {
+                break;
+            }
+            swap(nums[i], nums[j]);
+        }
+        swap(nums[lo], nums[j]);
+        return j;
+    }
+};
+// https://leetcode.cn/submissions/detail/391553984/
+```
+
+```cpp
+class Solution {
+public:
+    vector<int> sortArray(vector<int> &nums) {
+        random_device rd;
+        mt19937 g(rd());
+        shuffle(nums.begin(), nums.end(), g);
+        int n = nums.size();
+        // k = 1..n
+        for (int k = n / 2; k >= 1; --k) {
+            sink(nums, k, n);
+        }
+        int k = n;
+        while (k > 1) {
+            exch(nums, 1, k--);
+            sink(nums, 1, k);
+        }
+        return nums;
+    }
+
+private:
+    // i, j = 1..n
+    bool less(const vector<int> &nums, int i, int j) {
+        return nums[i - 1] < nums[j - 1];
+    }
+
+    // i, j = 1..n
+    void exch(vector<int> &nums, int i, int j) {
+        swap(nums[i - 1], nums[j - 1]);
+    }
+
+    // k = 1..n
+    void sink(vector<int> &nums, int k, int n) {
+        while (k <= n / 2) {
+            int j = 2 * k;
+            if (j + 1 <= n && less(nums, j, j + 1)) {
+                ++j;
+            }
+            if (less(nums, j, k)) {
+                break;
+            }
+            exch(nums, j, k);
+            k = j;
+        }
+    }
+};
+// https://leetcode.cn/submissions/detail/364251319/
 ```
 
 ## 921. 使括号有效的最少添加
@@ -6686,7 +9683,35 @@ private:
 <https://leetcode.cn/problems/minimum-add-to-make-parentheses-valid/>
 
 ```cpp
-
+// 性质一 一个「合法」括号组合的左括号数量一定等于右括号数量
+// 性质二 对于一个「合法」的括号字符串组合 p，必然对于
+// 任何 0 <= i < len(p) 都有：子串 p[0..i] 中
+// 左括号的数量都大于或等于右括号的数量
+class Solution {
+public:
+    int minAddToMakeValid(const string &s) {
+        int insertLeft = 0; // 已插入左括号的数量
+        int needRight = 0;  // 待插入右括号的数量
+        for (const auto &ch: s) {
+            if (ch == '(') {
+                ++needRight;
+            }
+            if (ch == ')') {
+                --needRight;
+                // 性质二
+                if (needRight == -1) {
+                    // A).. -> A()..
+                    //『必须立即』在位置 i 前插入 1 个左括号
+                    // 否则，后续任何插入都不能使区间 [0..i] 的匹配有效
+                    ++insertLeft;
+                    needRight = 0;
+                }
+            }
+        }
+        return insertLeft + needRight;
+    }
+};
+// https://leetcode.cn/submissions/detail/391711538/
 ```
 
 ## 922. 按奇偶排序数组 II
@@ -6694,7 +9719,27 @@ private:
 <https://leetcode.cn/problems/sort-array-by-parity-ii/>
 
 ```cpp
-
+class Solution {
+public:
+    vector<int> sortArrayByParityII(vector<int> &nums) {
+        size_t n = nums.size();
+        int i = 0, j = 1;
+        while (true) {
+            while (i <= n - 2 && nums[i] % 2 == 0) {
+                i += 2;
+            }
+            while (j <= n - 1 && nums[j] % 2 == 1) {
+                j += 2;
+            }
+            if (i > n - 2 || j > n - 1) {
+                break;
+            }
+            swap(nums[i], nums[j]);
+        }
+        return nums;
+    }
+};
+// https://leetcode.cn/submissions/detail/391453490/
 ```
 
 ## 931. 下降路径最小和
@@ -6702,7 +9747,39 @@ private:
 <https://leetcode.cn/problems/minimum-falling-path-sum/>
 
 ```cpp
+class Solution {
+public:
+    int minFallingPathSum(vector<vector<int>> &matrix) {
+        int n = matrix.size();
+        memo = vector<vector<int>>(n, vector<int>(n, INT_MIN));
+        int ans = INT_MAX;
+        for (int col = 0; col < n; ++col) {
+            ans = min(ans, minFallingPathSum(matrix, n - 1, col));
+        }
+        return ans;
+    }
 
+private:
+    // 从 matrix[0][0..n-1] 到 matrix[row][col] 的最小下降路径和
+    int minFallingPathSum(const vector<vector<int>> &matrix, int row, int col) {
+        if (col < 0 || col >= matrix[0].size()) {
+            return INT_MAX;
+        }
+        if (row == 0) {
+            return matrix[row][col];
+        }
+        if (memo[row][col] == INT_MIN) {
+            int sp1 = minFallingPathSum(matrix, row - 1, col - 1);
+            int sp2 = minFallingPathSum(matrix, row - 1, col);
+            int sp3 = minFallingPathSum(matrix, row - 1, col + 1);
+            memo[row][col] = min(min(sp1, sp2), sp3) + matrix[row][col];
+        }
+        return memo[row][col];
+    }
+
+    vector<vector<int>> memo;
+};
+// https://leetcode.cn/submissions/detail/391536809/
 ```
 
 ## 986. 区间列表的交集
@@ -6710,7 +9787,31 @@ private:
 <https://leetcode.cn/problems/interval-list-intersections/>
 
 ```cpp
-
+class Solution {
+public:
+    vector<vector<int>> intervalIntersection(vector<vector<int>> &firstList, vector<vector<int>> &secondList) {
+        vector<vector<int>> ans;
+        int i = 0, j = 0;
+        while (i < firstList.size() && j < secondList.size()) {
+            int start1 = firstList[i][0], end1 = firstList[i][1];
+            int start2 = secondList[j][0], end2 = secondList[j][1];
+            if (end1 < start2) { // 不相交
+                ++i;
+            } else if (end2 < start1) { // 不相交
+                ++j;
+            } else { // 相交
+                ans.push_back({max(start1, start2), min(end1, end2)});
+                if (end1 < end2) {
+                    ++i;
+                } else {
+                    ++j;
+                }
+            }
+        }
+        return ans;
+    }
+};
+// https://leetcode.cn/submissions/detail/391665219/
 ```
 
 ## 990. 等式方程的可满足性
@@ -6718,7 +9819,79 @@ private:
 <https://leetcode.cn/problems/satisfiability-of-equality-equations/>
 
 ```cpp
+class UF {
+public:
+    explicit UF(int n) {
+        parent = vector<int>(n);
+        rank = vector<int>(n);
+        for (int i = 0; i < n; ++i) {
+            parent[i] = i;
+        }
+        sz = n;
+    }
 
+    int find(int p) {
+        while (p != parent[p]) {
+            parent[p] = parent[parent[p]];
+            p = parent[p];
+        }
+        return p;
+    }
+
+    void unionn(int p, int q) {
+        int rootP = find(p);
+        int rootQ = find(q);
+        if (rootP != rootQ) {
+            if (rank[rootP] < rank[rootQ]) {
+                parent[rootP] = rootQ;
+            } else if (rank[rootQ] < rank[rootP]) {
+                parent[rootQ] = rootP;
+            } else {
+                parent[rootP] = rootQ;
+                ++rank[rootQ];
+            }
+            --sz;
+        }
+    }
+
+    bool connected(int p, int q) {
+        return find(p) == find(q);
+    }
+
+    int size() {
+        return sz;
+    }
+
+private:
+    vector<int> parent;
+    vector<int> rank;
+    int sz;
+};
+
+class Solution {
+public:
+    bool equationsPossible(vector<string> &equations) {
+        UF uf(26);
+        for (const auto &s: equations) {
+            if (s[1] == '=') {
+                int p = s[0] - 'a';
+                int q = s[3] - 'a';
+                uf.unionn(p, q);
+            }
+        }
+        for (const auto &s: equations) {
+            if (s[1] == '!') {
+                int p = s[0] - 'a';
+                int q = s[3] - 'a';
+                if (uf.connected(p, q)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+};
+// https://leetcode.cn/submissions/detail/391555130/
 ```
 
 ## 1011. 在 D 天内送达包裹的能力
@@ -6726,7 +9899,43 @@ private:
 <https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/>
 
 ```cpp
+class Solution {
+public:
+    int shipWithinDays(vector<int> &weights, int days) {
+        int lo = 0, hi = 0;
+        for (const auto &w: weights) {
+            lo = max(lo, w);
+            hi += w;
+        }
+        int ans = lo;
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (canFinish(weights, days, mid)) {
+                ans = mid;
+                hi = mid - 1;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        return ans;
+    }
 
+private:
+    // 当船的运载能力为 capacity 时，是否能在 days 天内送完。
+    bool canFinish(const vector<int> &weights, int days, int capacity) {
+        size_t n = weights.size();
+        int i = 0, minDays = 0;
+        while (i < n) {
+            int sum = 0;
+            while (i < n && sum + weights[i] <= capacity) {
+                sum += weights[i++];
+            }
+            ++minDays;
+        }
+        return minDays <= days;
+    }
+};
+// https://leetcode.cn/submissions/detail/391455411/
 ```
 
 ## 1020. 飞地的数量
@@ -6734,7 +9943,47 @@ private:
 <https://leetcode.cn/problems/number-of-enclaves/>
 
 ```cpp
+class Solution {
+public:
+    int numEnclaves(vector<vector<int>> &grid) {
+        int m = grid.size(), n = grid[0].size();
+        // 淹没与左右边界的陆地相连的岛屿
+        for (int row = 0; row < m; ++row) {
+            floodFill(grid, row, 0);
+            floodFill(grid, row, n - 1);
+        }
+        // 淹没与上下边界的陆地相连的岛屿
+        for (int col = 0; col < n; ++col) {
+            floodFill(grid, 0, col);
+            floodFill(grid, m - 1, col);
+        }
+        int count = 0;
+        for (int row = 0; row < m; ++row) {
+            for (int col = 0; col < n; ++col) {
+                if (grid[row][col] == LAND) {
+                    ++count;
+                }
+            }
+        }
+        return count;
+    }
 
+private:
+    void floodFill(vector<vector<int>> &grid, int row, int col) {
+        if (row < 0 || row >= grid.size() || col < 0 || col >= grid[0].size() || grid[row][col] == WATER) {
+            return;
+        }
+        grid[row][col] = WATER;
+        floodFill(grid, row, col + 1);
+        floodFill(grid, row, col - 1);
+        floodFill(grid, row + 1, col);
+        floodFill(grid, row - 1, col);
+    }
+
+    static const int LAND = 1;
+    static const int WATER = 0;
+};
+// https://leetcode.cn/submissions/detail/391547657/
 ```
 
 ## 1024. 视频拼接
@@ -6742,7 +9991,44 @@ private:
 <https://leetcode.cn/problems/video-stitching/>
 
 ```cpp
-
+// 测试用例
+// [[0,1],[6,8],[0,2],[5,6],[0,4],[0,3],[6,7],[1,3],[4,7],[1,4],[2,5],[2,6],[3,4],[4,5],[5,7],[6,9]]
+// 9
+// 排序后
+// [[0,4],[0,3],[0,2],[0,1],[1,4],[1,3],[2,6],[2,5],[3,4],[4,7],[4,5],[5,7],[5,6],[6,9],[6,8],[6,7]]
+// 删除被覆盖区间后 [0,4],[2,6],[4,7],[6,9]
+// 虽然 [2,6],[4,7] 都与 [0,4] 相交，但是只取 end 最大的区间 [4,7]
+// 正确答案 [0,4],[4,7],[6,9]
+// 相似题目 1288. 删除被覆盖区间 https://leetcode.cn/problems/remove-covered-intervals/
+class Solution {
+public:
+    int videoStitching(vector<vector<int>> &clips, int time) {
+        sort(clips.begin(), clips.end(),
+             [](const vector<int> &a, const vector<int> &b) {
+                 if (a[0] == b[0]) {
+                     return a[1] > b[1];
+                 }
+                 return a[0] < b[0];
+             });
+        size_t n = clips.size();
+        int i = 0, maxEnd = 0, count = 0;
+        // 当 clips[i] 与 [0, maxEnd] 重叠（相交或被覆盖）时
+        while (i < n && clips[i][0] <= maxEnd) {
+            // 记录与 [0, maxEnd] 重叠的所有区间中最大的 end
+            int nextEnd = clips[i][1];
+            while (++i < n && clips[i][0] <= maxEnd) {
+                nextEnd = max(nextEnd, clips[i][1]);
+            }
+            maxEnd = nextEnd;
+            ++count;
+            if (maxEnd >= time) {
+                return count;
+            }
+        }
+        return -1;
+    }
+};
+// https://leetcode.cn/submissions/detail/391550144/
 ```
 
 ## 1143. 最长公共子序列
@@ -6750,7 +10036,93 @@ private:
 <https://leetcode.cn/problems/longest-common-subsequence/>
 
 ```cpp
+class Solution {
+public:
+    int longestCommonSubsequence(string text1, string text2) {
+        size_t n1 = text1.size();
+        size_t n2 = text2.size();
+        // text1[0..i-1] = text1 的长度为 i 的前缀
+        // text2[0..j-1] = text2 的长度为 j 的前缀
+        // dp[i][j] = LCS(text1[0..i-1], text2[0..j-1]) 的长度
+        vector<vector<int>> dp(n1 + 1, vector<int>(n2 + 1, 0));
+        for (int i = 1; i <= n1; ++i) {
+            for (int j = 1; j <= n2; ++j) {
+                // text1[i-1] = text2[j-1]
+                if (text1[i - 1] == text2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                    // text1[i-1] != text2[j-1]
 
+                    // text1[i-1] 是公共字符，text2[j-1] 是公共字符
+                    // dp[i][j-1] = dp[i-1][j-1] + 1
+                    // dp[i-1][j] = dp[i-1][j-1] + 1
+                    // dp[i][j] = dp[i][j-1] = dp[i-1][j] = dp[i-1][j-1] + 1
+
+                    // text1[i-1] 是公共字符，text2[j-1] 不是公共字符
+                    // dp[i][j-1] = dp[i-1][j-1] + 1
+                    // dp[i-1][j] = dp[i-1][j-1]
+                    // dp[i][j-1] > dp[i-1][j]
+                    // dp[i][j] = dp[i][j-1]
+
+                    // text1[i-1] 不是公共字符，text2[j-1] 是公共字符
+                    // dp[i][j-1] = dp[i-1][j-1]
+                    // dp[i-1][j] = dp[i-1][j-1] + 1
+                    // dp[i][j-1] < dp[i-1][j]
+                    // dp[i][j] = dp[i-1][j]
+
+                    // text1[i-1] 不是公共字符，text2[j-1] 不是公共字符
+                    // dp[i][j] = dp[i][j-1] = dp[i-1][j] = dp[i-1][j-1]
+
+                    // if (dp[i][j - 1] > dp[i - 1][j]) {
+                    //     dp[i][j] = dp[i][j - 1];
+                    // } else if (dp[i][j - 1] < dp[i - 1][j]) {
+                    //     dp[i][j] = dp[i - 1][j];
+                    // } else if (dp[i][j - 1] > dp[i - 1][j - 1]) {
+                    //     dp[i][j] = dp[i - 1][j - 1] + 1;
+                    // } else {
+                    //     dp[i][j] = dp[i - 1][j - 1];
+                    // }
+                    dp[i][j] = max(dp[i][j - 1], dp[i - 1][j]);
+                }
+            }
+        }
+        return dp[n1][n2];
+    }
+};
+// https://leetcode.cn/submissions/detail/391705625/
+```
+
+```cpp
+class Solution {
+public:
+    int longestCommonSubsequence(const string &text1, const string &text2) {
+        int n1 = text1.size();
+        int n2 = text2.size();
+        memo = vector<vector<int >>(n1, vector<int>(n2, -1));
+        return longestCommonSubsequence(text1, n1 - 1, text2, n2 - 1);
+    }
+
+private:
+    // LCS(text1[0..i], text2[0..j]) 的长度
+    int longestCommonSubsequence(const string &text1, int i, const string &text2, int j) {
+        if (i < 0 || j < 0) {
+            return 0;
+        }
+        if (memo[i][j] == -1) {
+            if (text1[i] == text2[j]) {
+                memo[i][j] = longestCommonSubsequence(text1, i - 1, text2, j - 1) + 1;
+            } else {
+                int sp1 = longestCommonSubsequence(text1, i, text2, j - 1);
+                int sp2 = longestCommonSubsequence(text1, i - 1, text2, j);
+                memo[i][j] = max(sp1, sp2);
+            }
+        }
+        return memo[i][j];
+    }
+
+    vector<vector<int>> memo;
+};
+// https://leetcode.cn/submissions/detail/391706010/
 ```
 
 ## 1254. 统计封闭岛屿的数目
@@ -6758,7 +10130,48 @@ private:
 <https://leetcode.cn/problems/number-of-closed-islands/>
 
 ```cpp
+class Solution {
+public:
+    int closedIsland(vector<vector<int>> &grid) {
+        int m = grid.size(), n = grid[0].size();
+        // 淹没与左右边界的陆地相连的岛屿
+        for (int row = 0; row < m; ++row) {
+            floodFill(grid, row, 0);
+            floodFill(grid, row, n - 1);
+        }
+        // 淹没与上下边界的陆地相连的岛屿
+        for (int col = 0; col < n; ++col) {
+            floodFill(grid, 0, col);
+            floodFill(grid, m - 1, col);
+        }
+        int count = 0;
+        for (int row = 0; row < m; ++row) {
+            for (int col = 0; col < n; ++col) {
+                if (grid[row][col] == LAND) {
+                    floodFill(grid, row, col);
+                    ++count;
+                }
+            }
+        }
+        return count;
+    }
 
+private:
+    void floodFill(vector<vector<int>> &grid, int row, int col) {
+        if (row < 0 || row >= grid.size() || col < 0 || col >= grid[0].size() || grid[row][col] == WATER) {
+            return;
+        }
+        grid[row][col] = WATER;
+        floodFill(grid, row, col + 1);
+        floodFill(grid, row, col - 1);
+        floodFill(grid, row + 1, col);
+        floodFill(grid, row - 1, col);
+    }
+
+    static const int LAND = 0;
+    static const int WATER = 1;
+};
+// https://leetcode.cn/submissions/detail/391545466/
 ```
 
 ## 1288. 删除被覆盖区间
@@ -6766,7 +10179,31 @@ private:
 <https://leetcode.cn/problems/remove-covered-intervals/>
 
 ```cpp
-
+class Solution {
+public:
+    int removeCoveredIntervals(vector<vector<int>> &intervals) {
+        sort(intervals.begin(), intervals.end(),
+             [](const vector<int> &a, const vector<int> &b) {
+                 if (a[0] == b[0]) {
+                     return a[1] > b[1];
+                 }
+                 return a[0] < b[0];
+             });
+        int n = intervals.size();
+        int count = n;
+        int maxEnd = 0;
+        for (int i = 0; i < n; ++i) {
+            int end = intervals[i][1];
+            if (end <= maxEnd) {
+                --count;
+            } else {
+                maxEnd = end;
+            }
+        }
+        return count;
+    }
+};
+// https://leetcode.cn/submissions/detail/391549454/
 ```
 
 ## 1382. 将二叉搜索树变平衡
@@ -6774,7 +10211,39 @@ private:
 <https://leetcode.cn/problems/balance-a-binary-search-tree/>
 
 ```cpp
+class Solution {
+public:
+    TreeNode *balanceBST(TreeNode *root) {
+        dfs(root);
+        return sortedArrayToBST(inorder, 0, inorder.size() - 1);
+    }
 
+private:
+    // 深度优先搜索，获取中序遍历结果 inorder
+    void dfs(const TreeNode *root) {
+        if (root == nullptr) {
+            return;
+        }
+        dfs(root->left);
+        inorder.push_back(root->val);
+        dfs(root->right);
+    }
+
+    // 将有序数组 nums[lo..hi] 转换为二叉搜索树
+    TreeNode *sortedArrayToBST(const vector<int> &nums, int lo, int hi) {
+        if (lo > hi) {
+            return nullptr;
+        }
+        int mid = lo + (hi - lo) / 2;
+        auto *root = new TreeNode(nums[mid]);
+        root->left = sortedArrayToBST(nums, lo, mid - 1);
+        root->right = sortedArrayToBST(nums, mid + 1, hi);
+        return root;
+    }
+
+    vector<int> inorder;
+};
+// https://leetcode.cn/submissions/detail/391591931/
 ```
 
 ## 1514. 概率最大的路径
@@ -6790,7 +10259,38 @@ private:
 <https://leetcode.cn/problems/minimum-insertions-to-balance-a-parentheses-string/>
 
 ```cpp
-
+class Solution {
+public:
+    int minInsertions(const string &s) {
+        int insertLeft = 0;  // 已插入左括号的数量
+        int insertRight = 0; // 已插入右括号的数量
+        int needRight = 0;   // 待插入右括号的数量
+        for (const auto &ch: s) {
+            if (ch == '(') {
+                // A((B)(.. -> A((B))(..
+                if (needRight % 2 == 1) {
+                    //『必须立即』在位置 i 前插入 1 个右括号
+                    // 否则，后续任何插入都不能使区间 [0..i-1] 的匹配有效
+                    ++insertRight;
+                    --needRight;
+                }
+                needRight += 2;
+            }
+            if (ch == ')') {
+                --needRight;
+                // A).. -> A()..
+                if (needRight == -1) {
+                    //『必须立即』在位置 i 前插入 1 个左括号
+                    // 否则，后续任何插入都不能使区间 [0..i] 的匹配有效
+                    ++insertLeft;
+                    needRight = 1;
+                }
+            }
+        }
+        return insertLeft + insertRight + needRight;
+    }
+};
+// https://leetcode.cn/submissions/detail/391706454/
 ```
 
 ## 1584. 连接所有点的最小费用
@@ -6814,7 +10314,46 @@ private:
 <https://leetcode.cn/problems/count-sub-islands/>
 
 ```cpp
+class Solution {
+public:
+    int countSubIslands(vector<vector<int>> &grid1, vector<vector<int>> &grid2) {
+        int m = grid2.size(), n = grid2[0].size();
+        for (int row = 0; row < m; ++row) {
+            for (int col = 0; col < n; ++col) {
+                // 淹没『非子岛屿』
+                if (grid2[row][col] == LAND && grid1[row][col] == WATER) {
+                    floodFill(grid2, row, col);
+                }
+            }
+        }
+        int count = 0;
+        for (int row = 0; row < m; ++row) {
+            for (int col = 0; col < n; ++col) {
+                if (grid2[row][col] == LAND) {
+                    floodFill(grid2, row, col);
+                    ++count;
+                }
+            }
+        }
+        return count;
+    }
 
+private:
+    void floodFill(vector<vector<int>> &grid, int row, int col) {
+        if (row < 0 || row >= grid.size() || col < 0 || col >= grid[0].size() || grid[row][col] == WATER) {
+            return;
+        }
+        grid[row][col] = WATER;
+        floodFill(grid, row, col + 1);
+        floodFill(grid, row, col - 1);
+        floodFill(grid, row + 1, col);
+        floodFill(grid, row - 1, col);
+    }
+
+    static const int LAND = 1;
+    static const int WATER = 0;
+};
+// https://leetcode.cn/submissions/detail/391548193/
 ```
 
 ## CtCI 02.02. 返回倒数第 K 个节点
@@ -6822,5 +10361,20 @@ private:
 <https://leetcode-cn.com/problems/kth-node-from-end-of-list-lcci/>
 
 ```cpp
-
+class Solution {
+public:
+    int kthToLast(ListNode *head, int k) {
+        ListNode *slow = head;
+        ListNode *fast = head;
+        for (int i = 1; i <= k; ++i) {
+            fast = fast->next;
+        }
+        while (fast != nullptr) {
+            slow = slow->next;
+            fast = fast->next;
+        }
+        return slow->val;
+    }
+};
+// https://leetcode.cn/submissions/detail/368845869/
 ```
