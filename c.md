@@ -85,168 +85,104 @@
 - [179. 最大数](#179-最大数)
 - [188. 买卖股票的最佳时机 IV](#188-买卖股票的最佳时机-iv)
 - [189. 轮转数组](#189-轮转数组)
+- [198. 打家劫舍](#198-打家劫舍)
+- [199. 二叉树的右视图](#199-二叉树的右视图)
+- [200. 岛屿数量](#200-岛屿数量)
+- [203. 移除链表元素](#203-移除链表元素)
+- [206. 反转链表](#206-反转链表)
+- [207. 课程表](#207-课程表)
+- [210. 课程表 II](#210-课程表-ii)
+- [213. 打家劫舍 II](#213-打家劫舍-ii)
+- [215. 数组中的第 K 个最大元素](#215-数组中的第-k-个最大元素)
+- [216. 组合总和 III](#216-组合总和-iii)
+- [222. 完全二叉树的节点个数](#222-完全二叉树的节点个数)
+- [225. 用队列实现栈](#225-用队列实现栈)
+- [226. 翻转二叉树](#226-翻转二叉树)
+- [230. 二叉搜索树中第 K 小的元素](#230-二叉搜索树中第-k-小的元素)
+- [232. 用栈实现队列](#232-用栈实现队列)
+- [234. 回文链表](#234-回文链表)
+- [235. 二叉搜索树的最近公共祖先](#235-二叉搜索树的最近公共祖先)
+- [236. 二叉树的最近公共祖先](#236-二叉树的最近公共祖先)
+- [237. 删除链表中的节点](#237-删除链表中的节点)
+- [239. 滑动窗口最大值](#239-滑动窗口最大值)
+- [253. 会议室 II](#253-会议室-ii)
+- [283. 移动零](#283-移动零)
+- [297. 二叉树的序列化与反序列化](#297-二叉树的序列化与反序列化)
+- [300. 最长递增子序列](#300-最长递增子序列)
+- [303. 区域和检索 - 数组不可变](#303-区域和检索---数组不可变)
+- [309. 最佳买卖股票时机含冷冻期](#309-最佳买卖股票时机含冷冻期)
+- [315. 计算右侧小于当前元素的个数](#315-计算右侧小于当前元素的个数)
+- [322. 零钱兑换](#322-零钱兑换)
+- [337. 打家劫舍 III](#337-打家劫舍-iii)
+- [344. 反转字符串](#344-反转字符串)
+- [354. 俄罗斯套娃信封问题](#354-俄罗斯套娃信封问题)
+- [394. 字符串解码](#394-字符串解码)
+- [416. 分割等和子集](#416-分割等和子集)
+- [435. 无重叠区间](#435-无重叠区间)
+- [438. 找到字符串中所有字母异位词](#438-找到字符串中所有字母异位词)
+- [445. 两数相加 II](#445-两数相加-ii)
+- [450. 删除二叉搜索树中的节点](#450-删除二叉搜索树中的节点)
+- [452. 用最少数量的箭引爆气球](#452-用最少数量的箭引爆气球)
+- [460. LFU 缓存](#460-lfu-缓存)
+- [493. 翻转对](#493-翻转对)
+- [494. 目标和](#494-目标和)
+- [496. 下一个更大元素 I](#496-下一个更大元素-i)
+- [503. 下一个更大元素 II](#503-下一个更大元素-ii)
+- [509. 斐波那契数](#509-斐波那契数)
+- [516. 最长回文子序列](#516-最长回文子序列)
+- [518. 零钱兑换 II](#518-零钱兑换-ii)
+- [538. 把二叉搜索树转换为累加树](#538-把二叉搜索树转换为累加树)
+- [543. 二叉树的直径](#543-二叉树的直径)
+- [567. 字符串的排列](#567-字符串的排列)
+- [583. 两个字符串的删除操作](#583-两个字符串的删除操作)
+- [617. 合并二叉树](#617-合并二叉树)
+- [652. 寻找重复的子树](#652-寻找重复的子树)
+- [654. 最大二叉树](#654-最大二叉树)
+- [695. 岛屿的最大面积](#695-岛屿的最大面积)
+- [698. 划分为 K 个相等的子集](#698-划分为-k-个相等的子集)
+- [700. 二叉搜索树中的搜索](#700-二叉搜索树中的搜索)
+- [701. 二叉搜索树中的插入操作](#701-二叉搜索树中的插入操作)
+- [704. 二分查找](#704-二分查找)
+- [712. 两个字符串的最小 ASCII 删除和](#712-两个字符串的最小-ascii-删除和)
+- [714. 买卖股票的最佳时机含手续费](#714-买卖股票的最佳时机含手续费)
+- [739. 每日温度](#739-每日温度)
+- [743. 网络延迟时间](#743-网络延迟时间)
+- [752. 打开转盘锁](#752-打开转盘锁)
+- [785. 判断二分图](#785-判断二分图)
+- [797. 所有可能的路径](#797-所有可能的路径)
+- [846. 一手顺子](#846-一手顺子)
+- [875. 爱吃香蕉的珂珂](#875-爱吃香蕉的珂珂)
+- [876. 链表的中间结点](#876-链表的中间结点)
+- [886. 可能的二分法](#886-可能的二分法)
+- [889. 根据前序和后序遍历构造二叉树](#889-根据前序和后序遍历构造二叉树)
+- [905. 按奇偶排序数组](#905-按奇偶排序数组)
+- [912. 排序数组](#912-排序数组)
+- [921. 使括号有效的最少添加](#921-使括号有效的最少添加)
+- [922. 按奇偶排序数组 II](#922-按奇偶排序数组-ii)
+- [931. 下降路径最小和](#931-下降路径最小和)
+- [986. 区间列表的交集](#986-区间列表的交集)
+- [990. 等式方程的可满足性](#990-等式方程的可满足性)
+- [1011. 在 D 天内送达包裹的能力](#1011-在-d-天内送达包裹的能力)
+- [1020. 飞地的数量](#1020-飞地的数量)
+- [1024. 视频拼接](#1024-视频拼接)
+- [1143. 最长公共子序列](#1143-最长公共子序列)
+- [1254. 统计封闭岛屿的数目](#1254-统计封闭岛屿的数目)
+- [1288. 删除被覆盖区间](#1288-删除被覆盖区间)
+- [1382. 将二叉搜索树变平衡](#1382-将二叉搜索树变平衡)
+- [1514. 概率最大的路径](#1514-概率最大的路径)
+- [1541. 平衡括号字符串的最少插入次数](#1541-平衡括号字符串的最少插入次数)
+- [1584. 连接所有点的最小费用](#1584-连接所有点的最小费用)
+- [1631. 最小体力消耗路径](#1631-最小体力消耗路径)
+- [1905. 统计子岛屿](#1905-统计子岛屿)
+- [CtCI 02.02. 返回倒数第 K 个节点](#ctci-0202-返回倒数第-k-个节点)
 
 ## 1. 两数之和
 
-```c
-typedef struct {
-    int key;
-    int val;
-    UT_hash_handle hh;
-} HashMapItem;
-
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
-int *twoSum(const int *nums, int numsSize, int target, int *returnSize) {
-    *returnSize = 2;
-    int *ans = malloc(sizeof(int[*returnSize]));
-    ans[0] = -1;
-    ans[1] = -1;
-    HashMapItem *valToIndex = NULL;
-    for (int i = 0; i < numsSize; ++i) {
-        int x = nums[i];
-        int need = target - x;
-        HashMapItem *item;
-        HASH_FIND_INT(valToIndex, &need, item);
-        if (item != NULL) {
-            ans[0] = item->val;
-            ans[1] = i;
-            break;
-        }
-        item = malloc(sizeof(HashMapItem));
-        item->key = x;
-        item->val = i;
-        HASH_ADD_INT(valToIndex, key, item);
-    }
-    HashMapItem *cur, *tmp;
-    HASH_ITER(hh, valToIndex, cur, tmp) {
-        HASH_DEL(valToIndex, cur);
-        free(cur);
-    }
-    return ans;
-}
-// https://leetcode.cn/submissions/detail/391303012/
-```
-
 ## 2. 两数相加
-
-```c
-struct ListNode *addTwoNumbers(struct ListNode *l1, struct ListNode *l2) {
-    struct ListNode *dummyHead = malloc(sizeof(struct ListNode));
-    dummyHead->val = -1;
-    dummyHead->next = NULL;
-    struct ListNode *ptr = dummyHead;
-    int carry = 0;
-    while (l1 != NULL || l2 != NULL || carry > 0) {
-        int sum = carry;
-        if (l1 != NULL) {
-            sum += l1->val;
-            l1 = l1->next;
-        }
-        if (l2 != NULL) {
-            sum += l2->val;
-            l2 = l2->next;
-        }
-        struct ListNode *x = malloc(sizeof(struct ListNode));
-        x->val = sum % 10;
-        x->next = NULL;
-        ptr->next = x;
-        ptr = ptr->next;
-        carry = sum / 10;
-    }
-    struct ListNode *head = dummyHead->next;
-    free(dummyHead);
-    return head;
-}
-// https://leetcode.cn/submissions/detail/391145173/
-```
 
 ## 3. 无重复字符的最长子串
 
-```c
-typedef struct {
-    int key;
-    UT_hash_handle hh;
-} HashSetItem;
-
-int lengthOfLongestSubstring(char *s) {
-    int ans = 0;
-    HashSetItem *window = NULL;
-    // s[left..right) = Window Substring
-    // s[right..n-1]  = Scanning
-    int left = 0, right = 0;
-    size_t n = strlen(s);
-    while (right < n) {
-        int add = s[right];
-        HashSetItem *item;
-        HASH_FIND_INT(window, &add, item);
-        if (item == NULL) {
-            item = malloc(sizeof(HashSetItem));
-            item->key = add;
-            HASH_ADD_INT(window, key, item);
-            ++right;
-        } else {
-            while (left <= right) {
-                int del = s[left++];
-                HASH_FIND_INT(window, &del, item);
-                HASH_DEL(window, item);
-                if (add == del) {
-                    break;
-                }
-            }
-        }
-        ans = fmax(ans, right - left);
-    }
-    HashSetItem *cur, *tmp;
-    HASH_ITER(hh, window, cur, tmp) {
-        HASH_DEL(window, cur);
-        free(cur);
-    }
-    HASH_CLEAR(hh, window);
-    return ans;
-}
-// https://leetcode.cn/submissions/detail/391410268/
-```
-
 ## 4. 寻找两个正序数组的中位数
-
-```c
-// 寻找两个正序数组 nums1 和 nums2 从小到大排列的第 k 个数
-int getKthElement(const int *nums1, int nums1Size, int start1, const int *nums2, int nums2Size, int start2, int k) {
-    if (start1 == nums1Size) {
-        return nums2[start2 + k - 1];
-    }
-    if (start2 == nums2Size) {
-        return nums1[start1 + k - 1];
-    }
-    if (k == 1) {
-        return fmin(nums1[start1], nums2[start2]);
-    }
-    int half = k / 2;
-    int i = fmin(nums1Size - 1, start1 + half - 1);
-    int j = fmin(nums2Size - 1, start2 + half - 1);
-    if (nums1[i] < nums2[j]) {
-        // 排除 nums1[start1..i] 共 i-start1+1 个元素
-        return getKthElement(nums1, nums1Size, i + 1, nums2, nums2Size, start2, k - (i - start1 + 1));
-    } else {
-        // 排除 nums2[start2..j] 共 j-start2+1 个元素
-        return getKthElement(nums1, nums1Size, start1, nums2, nums2Size, j + 1, k - (j - start2 + 1));
-    }
-}
-
-double findMedianSortedArrays(const int *nums1, int nums1Size, const int *nums2, int nums2Size) {
-    int total = nums1Size + nums2Size;
-    int half = total / 2;
-    if (total % 2 == 0) {
-        int k1 = getKthElement(nums1, nums1Size, 0, nums2, nums2Size, 0, half);
-        int k2 = getKthElement(nums1, nums1Size, 0, nums2, nums2Size, 0, half + 1);
-        return (k1 + k2) / 2.0;
-    }
-    return getKthElement(nums1, nums1Size, 0, nums2, nums2Size, 0, half + 1);
-}
-// https://leetcode.cn/submissions/detail/388294156/
-```
 
 ## 5. 最长回文子串
 
@@ -402,38 +338,384 @@ double findMedianSortedArrays(const int *nums1, int nums1Size, const int *nums2,
 
 ## 165. 比较版本号
 
-> String
-
 <https://leetcode.cn/problems/compare-version-numbers/>
 
 ## 167. 两数之和 II - 输入有序数组
-
-> Array, TwoPointers
 
 <https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/>
 
 ## 169. 多数元素
 
-> Array, HashTable, Sorting
-
 <https://leetcode.cn/problems/majority-element/>
 
-
 ## 179. 最大数
-
-> String, Sorting
 
 <https://leetcode.cn/problems/largest-number/>
 
 ## 188. 买卖股票的最佳时机 IV
 
-> 2DArray, DP, Stock
-
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/>
 
 ## 189. 轮转数组
 
-> Array
-
 <https://leetcode.cn/problems/rotate-array/>
 
+## 198. 打家劫舍
+
+<https://leetcode.cn/problems/house-robber/>
+
+## 199. 二叉树的右视图
+
+<https://leetcode.cn/problems/binary-tree-right-side-view/>
+
+## 200. 岛屿数量
+
+<https://leetcode.cn/problems/number-of-islands/>
+
+## 203. 移除链表元素
+
+<https://leetcode-cn.com/problems/remove-linked-list-elements/>
+
+## 206. 反转链表
+
+<https://leetcode-cn.com/problems/reverse-linked-list/>
+
+## 207. 课程表
+
+<https://leetcode.cn/problems/course-schedule/>
+
+## 210. 课程表 II
+
+<https://leetcode.cn/problems/course-schedule-ii/>
+
+## 213. 打家劫舍 II
+
+<https://leetcode.cn/problems/house-robber-ii/>
+
+## 215. 数组中的第 K 个最大元素
+
+<https://leetcode.cn/problems/kth-largest-element-in-an-array/>
+
+## 216. 组合总和 III
+
+<https://leetcode.cn/problems/combination-sum-iii/>
+
+## 222. 完全二叉树的节点个数
+
+<https://leetcode.cn/problems/count-complete-tree-nodes/>
+
+## 225. 用队列实现栈
+
+<https://leetcode.cn/problems/implement-stack-using-queues/>
+
+## 226. 翻转二叉树
+
+<https://leetcode.cn/problems/invert-binary-tree/>
+
+## 230. 二叉搜索树中第 K 小的元素
+
+<https://leetcode.cn/problems/kth-smallest-element-in-a-bst/>
+
+## 232. 用栈实现队列
+
+<https://leetcode.cn/problems/implement-queue-using-stacks/>
+
+## 234. 回文链表
+
+<https://leetcode.cn/problems/palindrome-linked-list/>
+
+## 235. 二叉搜索树的最近公共祖先
+
+<https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/>
+
+## 236. 二叉树的最近公共祖先
+
+<https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/>
+
+## 237. 删除链表中的节点
+
+<https://leetcode-cn.com/problems/delete-node-in-a-linked-list/>
+
+## 239. 滑动窗口最大值
+
+<https://leetcode.cn/problems/sliding-window-maximum/>
+
+## 253. 会议室 II
+
+<https://leetcode.cn/problems/meeting-rooms-ii/>
+
+## 283. 移动零
+
+<https://leetcode-cn.com/problems/move-zeroes/>
+
+## 297. 二叉树的序列化与反序列化
+
+<https://leetcode.cn/problems/serialize-and-deserialize-binary-tree/>
+
+## 300. 最长递增子序列
+
+<https://leetcode.cn/problems/longest-increasing-subsequence/>
+
+## 303. 区域和检索 - 数组不可变
+
+<https://leetcode.cn/problems/range-sum-query-immutable/>
+
+## 309. 最佳买卖股票时机含冷冻期
+
+<https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/>
+
+## 315. 计算右侧小于当前元素的个数
+
+<https://leetcode.cn/problems/count-of-smaller-numbers-after-self/>
+
+## 322. 零钱兑换
+
+<https://leetcode.cn/problems/coin-change/>
+
+## 337. 打家劫舍 III
+
+<https://leetcode.cn/problems/house-robber-iii/>
+
+## 344. 反转字符串
+
+<https://leetcode.cn/problems/reverse-string/>
+
+## 354. 俄罗斯套娃信封问题
+
+<https://leetcode.cn/problems/russian-doll-envelopes/>
+
+## 394. 字符串解码
+
+<https://leetcode.cn/problems/decode-string/>
+
+## 416. 分割等和子集
+
+<https://leetcode.cn/problems/partition-equal-subset-sum/>
+
+## 435. 无重叠区间
+
+<https://leetcode.cn/problems/non-overlapping-intervals/>
+
+## 438. 找到字符串中所有字母异位词
+
+<https://leetcode.cn/problems/find-all-anagrams-in-a-string/>
+
+## 445. 两数相加 II
+
+<https://leetcode.cn/problems/add-two-numbers-ii/>
+
+## 450. 删除二叉搜索树中的节点
+
+<https://leetcode.cn/problems/delete-node-in-a-bst/>
+
+## 452. 用最少数量的箭引爆气球
+
+<https://leetcode.cn/problems/minimum-number-of-arrows-to-burst-balloons/>
+
+## 460. LFU 缓存
+
+<https://leetcode.cn/problems/lfu-cache/>
+
+## 493. 翻转对
+
+<https://leetcode.cn/problems/reverse-pairs/>
+
+## 494. 目标和
+
+<https://leetcode.cn/problems/target-sum/>
+
+## 496. 下一个更大元素 I
+
+<https://leetcode.cn/problems/next-greater-element-i/>
+
+## 503. 下一个更大元素 II
+
+<https://leetcode.cn/problems/next-greater-element-ii/>
+
+## 509. 斐波那契数
+
+<https://leetcode.cn/problems/fibonacci-number/>
+
+## 516. 最长回文子序列
+
+<https://leetcode.cn/problems/longest-palindromic-subsequence/>
+
+## 518. 零钱兑换 II
+
+<https://leetcode.cn/problems/coin-change-2/>
+
+## 538. 把二叉搜索树转换为累加树
+
+<https://leetcode.cn/problems/convert-bst-to-greater-tree/>
+
+## 543. 二叉树的直径
+
+<https://leetcode.cn/problems/diameter-of-binary-tree/>
+
+## 567. 字符串的排列
+
+<https://leetcode.cn/problems/permutation-in-string/>
+
+## 583. 两个字符串的删除操作
+
+<https://leetcode.cn/problems/delete-operation-for-two-strings/>
+
+## 617. 合并二叉树
+
+<https://leetcode.cn/problems/merge-two-binary-trees/>
+
+## 652. 寻找重复的子树
+
+<https://leetcode.cn/problems/find-duplicate-subtrees/>
+
+## 654. 最大二叉树
+
+<https://leetcode.cn/problems/maximum-binary-tree/>
+
+## 695. 岛屿的最大面积
+
+<https://leetcode.cn/problems/max-area-of-island/>
+
+## 698. 划分为 K 个相等的子集
+
+<https://leetcode.cn/problems/partition-to-k-equal-sum-subsets/>
+
+## 700. 二叉搜索树中的搜索
+
+<https://leetcode.cn/problems/search-in-a-binary-search-tree/>
+
+## 701. 二叉搜索树中的插入操作
+
+<https://leetcode.cn/problems/insert-into-a-binary-search-tree/>
+
+## 704. 二分查找
+
+<https://leetcode.cn/problems/binary-search/>
+
+## 712. 两个字符串的最小 ASCII 删除和
+
+<https://leetcode.cn/problems/minimum-ascii-delete-sum-for-two-strings/>
+
+## 714. 买卖股票的最佳时机含手续费
+
+<https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/>
+
+## 739. 每日温度
+
+<https://leetcode.cn/problems/daily-temperatures/>
+
+## 743. 网络延迟时间
+
+<https://leetcode.cn/problems/network-delay-time/>
+
+## 752. 打开转盘锁
+
+<https://leetcode.cn/problems/open-the-lock/>
+
+## 785. 判断二分图
+
+<https://leetcode.cn/problems/is-graph-bipartite/>
+
+## 797. 所有可能的路径
+
+<https://leetcode.cn/problems/all-paths-from-source-to-target/>
+
+## 846. 一手顺子
+
+<https://leetcode.cn/problems/hand-of-straights/>
+
+## 875. 爱吃香蕉的珂珂
+
+<https://leetcode.cn/problems/koko-eating-bananas/>
+
+## 876. 链表的中间结点
+
+<https://leetcode-cn.com/problems/middle-of-the-linked-list/>
+
+## 886. 可能的二分法
+
+<https://leetcode.cn/problems/possible-bipartition/>
+
+## 889. 根据前序和后序遍历构造二叉树
+
+<https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/>
+
+## 905. 按奇偶排序数组
+
+<https://leetcode.cn/problems/sort-array-by-parity/>
+
+## 912. 排序数组
+
+<https://leetcode.cn/problems/sort-an-array/>
+
+## 921. 使括号有效的最少添加
+
+<https://leetcode.cn/problems/minimum-add-to-make-parentheses-valid/>
+
+## 922. 按奇偶排序数组 II
+
+<https://leetcode.cn/problems/sort-array-by-parity-ii/>
+
+## 931. 下降路径最小和
+
+<https://leetcode.cn/problems/minimum-falling-path-sum/>
+
+## 986. 区间列表的交集
+
+<https://leetcode.cn/problems/interval-list-intersections/>
+
+## 990. 等式方程的可满足性
+
+<https://leetcode.cn/problems/satisfiability-of-equality-equations/>
+
+## 1011. 在 D 天内送达包裹的能力
+
+<https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/>
+
+## 1020. 飞地的数量
+
+<https://leetcode.cn/problems/number-of-enclaves/>
+
+## 1024. 视频拼接
+
+<https://leetcode.cn/problems/video-stitching/>
+
+## 1143. 最长公共子序列
+
+<https://leetcode.cn/problems/longest-common-subsequence/>
+
+## 1254. 统计封闭岛屿的数目
+
+<https://leetcode.cn/problems/number-of-closed-islands/>
+
+## 1288. 删除被覆盖区间
+
+<https://leetcode.cn/problems/remove-covered-intervals/>
+
+## 1382. 将二叉搜索树变平衡
+
+<https://leetcode.cn/problems/balance-a-binary-search-tree/>
+
+## 1514. 概率最大的路径
+
+<https://leetcode.cn/problems/path-with-maximum-probability/>
+
+## 1541. 平衡括号字符串的最少插入次数
+
+<https://leetcode.cn/problems/minimum-insertions-to-balance-a-parentheses-string/>
+
+## 1584. 连接所有点的最小费用
+
+<https://leetcode.cn/problems/min-cost-to-connect-all-points/>
+
+## 1631. 最小体力消耗路径
+
+<https://leetcode.cn/problems/path-with-minimum-effort/>
+
+## 1905. 统计子岛屿
+
+<https://leetcode.cn/problems/count-sub-islands/>
+
+## CtCI 02.02. 返回倒数第 K 个节点
+
+<https://leetcode-cn.com/problems/kth-node-from-end-of-list-lcci/>
