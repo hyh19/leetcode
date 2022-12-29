@@ -3800,7 +3800,24 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode-cn.com/problems/linked-list-cycle-ii/>
 
 ```c
-
+struct ListNode *detectCycle(struct ListNode *head) {
+    struct ListNode *slow = head;
+    struct ListNode *fast = head;
+    while (fast != NULL && fast->next != NULL) {
+        slow = slow->next;
+        fast = fast->next->next;
+        if (slow == fast) {
+            fast = head;
+            while (slow != fast) {
+                slow = slow->next;
+                fast = fast->next;
+            }
+            return slow;
+        }
+    }
+    return NULL;
+}
+// https://leetcode.cn/submissions/detail/388497010/
 ```
 
 ## 143. 重排链表
@@ -3808,7 +3825,46 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode.cn/problems/reorder-list/>
 
 ```c
+struct ListNode *reverseList(struct ListNode *head) {
+    struct ListNode *reverseHead = NULL;
+    while (head != NULL) {
+        struct ListNode *x = head->next;
+        head->next = reverseHead;
+        reverseHead = head;
+        head = x;
+    }
+    return reverseHead;
+}
 
+void reorderList(struct ListNode *head) {
+    struct ListNode *slow = head;
+    struct ListNode *fast = head;
+    while (fast->next != NULL && fast->next->next != NULL) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    struct ListNode *x = slow->next;
+    slow->next = NULL;
+    struct ListNode *reverseHead = reverseList(x);
+    struct ListNode *dummyHead = malloc(sizeof(struct ListNode));
+    dummyHead->val = 0;
+    dummyHead->next = NULL;
+    struct ListNode *ptr = dummyHead;
+    while (head != NULL) {
+        if (head != NULL) {
+            ptr->next = head;
+            ptr = ptr->next;
+            head = head->next;
+        }
+        if (reverseHead != NULL) {
+            ptr->next = reverseHead;
+            ptr = ptr->next;
+            reverseHead = reverseHead->next;
+        }
+    }
+    free(dummyHead);
+}
+// https://leetcode.cn/submissions/detail/390337010/
 ```
 
 ## 144. 二叉树的前序遍历
@@ -3816,7 +3872,29 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode.cn/problems/binary-tree-preorder-traversal/>
 
 ```c
+int *ans;
+int ansSize;
 
+void dfs(struct TreeNode *root) {
+    if (root == NULL) {
+        return;
+    }
+    ans[ansSize++] = root->val;
+    dfs(root->left);
+    dfs(root->right);
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *preorderTraversal(struct TreeNode *root, int *returnSize) {
+    ans = malloc(sizeof(int[100]));
+    ansSize = 0;
+    dfs(root);
+    *returnSize = ansSize;
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391148343/
 ```
 
 ## 145. 二叉树的后序遍历
@@ -3824,7 +3902,29 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode.cn/problems/binary-tree-postorder-traversal/>
 
 ```c
+int *ans;
+int ansSize;
 
+void dfs(struct TreeNode *root) {
+    if (root == NULL) {
+        return;
+    }
+    dfs(root->left);
+    dfs(root->right);
+    ans[ansSize++] = root->val;
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *postorderTraversal(struct TreeNode *root, int *returnSize) {
+    ans = malloc(sizeof(int[100]));
+    ansSize = 0;
+    dfs(root);
+    *returnSize = ansSize;
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391149127/
 ```
 
 ## 146. LRU 缓存
@@ -3832,7 +3932,198 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode.cn/problems/lru-cache/>
 
 ```c
+struct MyListNode {
+    int key;
+    int val;
+    struct MyListNode *prev;
+    struct MyListNode *next;
+};
 
+typedef struct {
+    struct MyListNode *first;
+    struct MyListNode *last;
+    int size;
+} MyDoublyLinkedList;
+
+MyDoublyLinkedList *myListCreate() {
+    MyDoublyLinkedList *obj = malloc(sizeof(MyDoublyLinkedList));
+    obj->first = NULL;
+    obj->last = NULL;
+    obj->size = 0;
+    return obj;
+}
+
+void myListAddLast(MyDoublyLinkedList *obj, struct MyListNode *x) {
+    if (obj->size == 0) {
+        obj->first = x;
+        obj->last = x;
+    } else {
+        obj->last->next = x;
+        x->prev = obj->last;
+        obj->last = x;
+    }
+    obj->size++;
+}
+
+void myListRemoveFirst(MyDoublyLinkedList *obj) {
+    struct MyListNode *x = obj->first;
+    if (obj->size == 1) {
+        obj->first = NULL;
+        obj->last = NULL;
+    } else {
+        obj->first = obj->first->next;
+        obj->first->prev = NULL;
+    }
+    free(x);
+    obj->size--;
+}
+
+void myListRemoveLast(MyDoublyLinkedList *obj) {
+    struct MyListNode *x = obj->last;
+    if (obj->size == 1) {
+        obj->first = NULL;
+        obj->last = NULL;
+    } else {
+        obj->last = obj->last->prev;
+        obj->last->next = NULL;
+    }
+    free(x);
+    obj->size--;
+}
+
+void myListRemove(MyDoublyLinkedList *obj, struct MyListNode *x) {
+    if (x == obj->first) {
+        myListRemoveFirst(obj);
+    } else if (x == obj->last) {
+        myListRemoveLast(obj);
+    } else {
+        x->prev->next = x->next;
+        x->next->prev = x->prev;
+        free(x);
+        obj->size--;
+    }
+}
+
+struct MyListNode *myListGetFirst(MyDoublyLinkedList *obj) {
+    return obj->first;
+}
+
+bool myListEmpty(MyDoublyLinkedList *obj) {
+    return obj->first == NULL;
+}
+
+void myListFree(MyDoublyLinkedList *obj) {
+    struct MyListNode *p = obj->first;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    free(obj);
+}
+
+typedef struct {
+    int key;
+    struct MyListNode *val;
+    UT_hash_handle hh;
+} HashMapItem;
+
+typedef struct {
+    MyDoublyLinkedList *list;
+    HashMapItem *keyToNode;
+    int capacity;
+} LRUCache;
+
+LRUCache *lRUCacheCreate(int capacity) {
+    LRUCache *obj = malloc(sizeof(LRUCache));
+    obj->list = myListCreate();
+    obj->keyToNode = NULL;
+    obj->capacity = capacity;
+    return obj;
+}
+
+bool lRUCacheContains(LRUCache *obj, int key) {
+    HashMapItem *item;
+    HASH_FIND_INT(obj->keyToNode, &key, item);
+    return item != NULL;
+}
+
+bool lRUCacheFull(LRUCache *obj) {
+    return HASH_COUNT(obj->keyToNode) == obj->capacity;
+}
+
+void lRUCacheAdd(LRUCache *obj, int key, int val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->key = key;
+    x->val = val;
+    x->prev = NULL;
+    x->next = NULL;
+    myListAddLast(obj->list, x);
+    HashMapItem *item = malloc(sizeof(HashMapItem));
+    item->key = key;
+    item->val = x;
+    HASH_ADD_INT(obj->keyToNode, key, item);
+}
+
+void lRUCacheRemove(LRUCache *obj) {
+    int key = myListGetFirst(obj->list)->key;
+    myListRemoveFirst(obj->list);
+    HashMapItem *item;
+    HASH_FIND_INT(obj->keyToNode, &key, item);
+    HASH_DEL(obj->keyToNode, item);
+    free(item);
+}
+
+int lRUCacheTouch(LRUCache *obj, int key, int val) {
+    HashMapItem *item;
+    HASH_FIND_INT(obj->keyToNode, &key, item);
+    struct MyListNode *x = item->val;
+    int newVal = x->val;
+    if (val != INT_MIN) {
+        newVal = val;
+    }
+    myListRemove(obj->list, x);
+    x = malloc(sizeof(struct MyListNode));
+    x->key = key;
+    x->val = newVal;
+    x->prev = NULL;
+    x->next = NULL;
+    myListAddLast(obj->list, x);
+    item->val = x;
+    return newVal;
+}
+
+int lRUCacheGet(LRUCache *obj, int key) {
+    if (lRUCacheContains(obj, key)) {
+        return lRUCacheTouch(obj, key, INT_MIN);
+    }
+    return -1;
+}
+
+void lRUCachePut(LRUCache *obj, int key, int val) {
+    if (obj->capacity > 0) {
+        if (lRUCacheContains(obj, key)) {
+            lRUCacheTouch(obj, key, val);
+        } else {
+            if (lRUCacheFull(obj)) {
+                lRUCacheRemove(obj);
+            }
+            lRUCacheAdd(obj, key, val);
+        }
+    }
+}
+
+void lRUCacheFree(LRUCache *obj) {
+    myListFree(obj->list);
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, obj->keyToNode, cur, tmp) {
+        HASH_DEL(obj->keyToNode, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, obj->keyToNode);
+    free(obj);
+}
+// https://leetcode.cn/submissions/detail/391164207/
 ```
 
 ## 153. 寻找旋转排序数组中的最小值
@@ -3840,7 +4131,19 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/>
 
 ```c
-
+int findMin(const int *nums, int numsSize) {
+    int lo = 0, hi = numsSize - 1;
+    while (lo < hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (nums[mid] < nums[hi]) {
+            hi = mid;
+        } else {
+            lo = mid + 1;
+        }
+    }
+    return nums[lo];
+}
+// https://leetcode.cn/submissions/detail/388261001/
 ```
 
 ## 155. 最小栈
@@ -3848,7 +4151,123 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode.cn/problems/min-stack/>
 
 ```c
+typedef struct {
+    int **array;
+    int capacity;
+    int size;
+} MinStack;
 
+MinStack *minStackCreate() {
+    MinStack *obj = malloc(sizeof(MinStack));
+    obj->size = 0;
+    obj->capacity = 8;
+    obj->array = malloc(sizeof(int *) * obj->capacity);
+    return obj;
+}
+
+void minStackPush(MinStack *obj, int val) {
+    if (obj->size == obj->capacity) {
+        obj->capacity *= 2;
+        obj->array = realloc(obj->array, sizeof(int *) * obj->capacity);
+    }
+    int min;
+    if (obj->size == 0) {
+        min = val;
+    } else {
+        min = fmin(val, obj->array[obj->size - 1][1]);
+    }
+    int *x = malloc(sizeof(int[2]));
+    x[0] = val;
+    x[1] = min;
+    obj->array[obj->size++] = x;
+}
+
+void minStackPop(MinStack *obj) {
+    free(obj->array[obj->size - 1]);
+    obj->size--;
+    if (obj->size > 0 && obj->size == obj->capacity / 4) {
+        obj->capacity /= 2;
+        obj->array = realloc(obj->array, sizeof(int *) * obj->capacity);
+    }
+}
+
+int minStackTop(MinStack *obj) {
+    return obj->array[obj->size - 1][0];
+}
+
+int minStackGetMin(MinStack *obj) {
+    return obj->array[obj->size - 1][1];
+}
+
+void minStackFree(MinStack *obj) {
+    while (obj->size > 0) {
+        free(obj->array[obj->size - 1]);
+        obj->size--;
+    }
+    free(obj);
+}
+// https://leetcode.cn/submissions/detail/391358555/
+```
+
+```c
+struct MyListNode {
+    int val;
+    int min;
+    struct MyListNode *next;
+};
+
+typedef struct {
+    struct MyListNode *first;
+} MinStack;
+
+MinStack *minStackCreate() {
+    MinStack *obj = malloc(sizeof(MinStack));
+    obj->first = NULL;
+    return obj;
+}
+
+void minStackPush(MinStack *obj, int val) {
+    int min;
+    if (obj->first == NULL) {
+        min = val;
+    } else {
+        min = fmin(val, obj->first->min);
+    }
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->val = val;
+    x->min = min;
+    x->next = obj->first;
+    obj->first = x;
+}
+
+void minStackPop(MinStack *obj) {
+    struct MyListNode *x = obj->first;
+    if (x->next == NULL) {
+        obj->first = NULL;
+    } else {
+        obj->first = obj->first->next;
+    }
+    free(x);
+}
+
+int minStackTop(MinStack *obj) {
+    return obj->first->val;
+}
+
+int minStackGetMin(MinStack *obj) {
+    return obj->first->min;
+}
+
+void minStackFree(MinStack *obj) {
+    struct MyListNode *p = obj->first;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    free(obj);
+}
+// https://leetcode.cn/submissions/detail/391358999/
 ```
 
 ## 160. 相交链表
@@ -3856,7 +4275,16 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode-cn.com/problems/intersection-of-two-linked-lists/>
 
 ```c
-
+struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *headB) {
+    struct ListNode *ptrA = headA;
+    struct ListNode *ptrB = headB;
+    while (ptrA != ptrB) {
+        ptrA = (ptrA == NULL ? headB : ptrA->next);
+        ptrB = (ptrB == NULL ? headA : ptrB->next);
+    }
+    return ptrA;
+}
+// https://leetcode.cn/submissions/detail/388496097/
 ```
 
 ## 165. 比较版本号
@@ -3864,7 +4292,37 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode.cn/problems/compare-version-numbers/>
 
 ```c
-
+int compareVersion(char *version1, char *version2) {
+    size_t n1 = strlen(version1);
+    size_t n2 = strlen(version2);
+    int i = 0, j = 0;
+    while (i < n1 || j < n2) {
+        int r1 = 0;
+        while (i < n1) {
+            char c = version1[i++];
+            if (c == '.') {
+                break;
+            }
+            r1 = r1 * 10 + (c - '0');
+        }
+        int r2 = 0;
+        while (j < n2) {
+            char c = version2[j++];
+            if (c == '.') {
+                break;
+            }
+            r2 = r2 * 10 + (c - '0');
+        }
+        if (r1 > r2) {
+            return 1;
+        }
+        if (r1 < r2) {
+            return -1;
+        }
+    }
+    return 0;
+}
+// https://leetcode.cn/submissions/detail/391412644/
 ```
 
 ## 167. 两数之和 II - 输入有序数组
@@ -3872,7 +4330,30 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/>
 
 ```c
-
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *twoSum(const int *numbers, int numbersSize, int target, int *returnSize) {
+    *returnSize = 2;
+    int *ans = malloc(sizeof(int[*returnSize]));
+    ans[0] = -1;
+    ans[1] = -1;
+    int i = 0, j = numbersSize - 1;
+    while (i < j) {
+        int sum = numbers[i] + numbers[j];
+        if (sum < target) {
+            ++i;
+        } else if (sum > target) {
+            --j;
+        } else {
+            ans[0] = i + 1;
+            ans[1] = j + 1;
+            break;
+        }
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391137863/
 ```
 
 ## 169. 多数元素
@@ -3880,7 +4361,25 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode.cn/problems/majority-element/>
 
 ```c
-
+int majorityElement(const int *nums, int numsSize) {
+    int candidate = INT_MIN;
+    int count = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        int x = nums[i];
+        if (count == 0) {
+            candidate = x;
+            count = 1;
+        } else {
+            if (x == candidate) {
+                ++count;
+            } else {
+                --count;
+            }
+        }
+    }
+    return candidate;
+}
+// https://leetcode.cn/submissions/detail/390334818/
 ```
 
 ## 179. 最大数
@@ -3888,7 +4387,33 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode.cn/problems/largest-number/>
 
 ```c
+int cmp(const void *a, const void *b) {
+    const int arg1 = *(const int *) a;
+    const int arg2 = *(const int *) b;
+    char *str1 = malloc(sizeof(char[20]));
+    sprintf(str1, "%d%d", arg1, arg2);
+    char *str2 = malloc(sizeof(char[20]));
+    sprintf(str2, "%d%d", arg2, arg1);
+    int res = strcmp(str2, str1);
+    free(str1);
+    free(str2);
+    return res;
+}
 
+char *largestNumber(int *nums, int numsSize) {
+    qsort(nums, numsSize, sizeof(int), cmp);
+    if (nums[0] == 0) {
+        return "0";
+    }
+    char *ans = calloc(1000, sizeof(char));
+    char *p = ans;
+    for (int i = 0; i < numsSize; i++) {
+        sprintf(p, "%d", nums[i]);
+        p += strlen(p);
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391328967/
 ```
 
 ## 188. 买卖股票的最佳时机 IV
@@ -3896,7 +4421,35 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/>
 
 ```c
-
+int maxProfit(int k, int *prices, int pricesSize) {
+    if (k <= 0 || pricesSize <= 1) {
+        return 0;
+    }
+    // dp[t][i][0] = 交易次数限制为 t 时，第 i 天，空仓状态下的最大利润
+    // dp[t][i][1] = 交易次数限制为 t 时，第 i 天，持仓状态下的最大利润
+    int dp[k + 1][pricesSize][2];
+    // 交易次数限制为 0 时
+    // 填写第 0 个 pricesSize x 2 矩阵
+    for (int i = 0; i < pricesSize; ++i) {
+        dp[0][i][0] = 0;
+        dp[0][i][1] = INT_MIN;
+    }
+    // 交易次数限制为 [1..k] 时
+    for (int t = 1; t <= k; ++t) {
+        // 填写第 t 个 pricesSize x 2 矩阵
+        dp[t][0][0] = 0;
+        dp[t][0][1] = -prices[0];
+        for (int i = 1; i < pricesSize; ++i) {
+            // dp[t][i - 1][0]             >= dp[t - 1][i - 1][0] - prices[i]
+            // dp[t][i - 1][1] + prices[i] >= dp[t][i - 1][1]
+            // => dp[t][i][0] >= dp[t][i][1]
+            dp[t][i][0] = fmax(dp[t][i - 1][0], dp[t][i - 1][1] + prices[i]);
+            dp[t][i][1] = fmax(dp[t - 1][i - 1][0] - prices[i], dp[t][i - 1][1]);
+        }
+    }
+    return dp[k][pricesSize - 1][0];
+}
+// https://leetcode.cn/submissions/detail/390323619/
 ```
 
 ## 189. 轮转数组
@@ -3904,7 +4457,27 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode.cn/problems/rotate-array/>
 
 ```c
+void swap(int *a, int *b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
 
+void reverse(int *nums, int lo, int hi) {
+    while (lo < hi) {
+        swap(&nums[lo++], &nums[hi--]);
+    }
+}
+
+void rotate(int *nums, int numsSize, int k) {
+    k %= numsSize;
+    if (k > 0) {
+        reverse(nums, 0, numsSize - 1);
+        reverse(nums, 0, k - 1);
+        reverse(nums, k, numsSize - 1);
+    }
+}
+// https://leetcode.cn/submissions/detail/388259314/
 ```
 
 ## 198. 打家劫舍
@@ -3912,7 +4485,35 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode.cn/problems/house-robber/>
 
 ```c
+// max({sum(subseq) | subseq 是数组 nums 的不连续子序列})
+int subseqSum(int *nums, int numsSize) {
+    if (numsSize == 0) {
+        return 0;
+    }
+    if (numsSize == 1) {
+        return nums[0];
+    }
+    if (numsSize == 2) {
+        return fmax(nums[0], nums[1]);
+    }
+    // dp[i] = max({sum(subseq) | subseq 是子数组 nums[0..i] 的不连续子序列})
+    int dp[numsSize];
+    dp[0] = nums[0];
+    dp[1] = fmax(nums[0], nums[1]);
+    for (int i = 2; i < numsSize; ++i) {
+        // 包含 nums[i]
+        int sp1 = dp[i - 2] + nums[i];
+        // 不包含 nums[i]
+        int sp2 = dp[i - 1];
+        dp[i] = fmax(sp1, sp2);
+    }
+    return dp[numsSize - 1];
+}
 
+int rob(int *nums, int numsSize) {
+    return subseqSum(nums, numsSize);
+}
+// https://leetcode.cn/submissions/detail/390318894/
 ```
 
 ## 199. 二叉树的右视图
@@ -3920,7 +4521,402 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode.cn/problems/binary-tree-right-side-view/>
 
 ```c
+static const int MAXSIZE = 100;
 
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *rightSideView(struct TreeNode *root, int *returnSize) {
+    int *ans = malloc(sizeof(int[MAXSIZE]));
+    *returnSize = 0;
+    struct TreeNode **queue = malloc(sizeof(struct TreeNode *) * MAXSIZE);
+    int first = 0, last = 0;
+    if (root != NULL) {
+        queue[last++] = root;
+    }
+    while (first < last) {
+        ans[(*returnSize)++] = queue[last - 1]->val;
+        int n = last - first;
+        for (int i = 0; i < n; ++i) {
+            struct TreeNode *x = queue[first++];
+            struct TreeNode *left = x->left;
+            if (left != NULL) {
+                queue[last++] = left;
+            }
+            struct TreeNode *right = x->right;
+            if (right != NULL) {
+                queue[last++] = right;
+            }
+        }
+    }
+    free(queue);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391290281/
+```
+
+```c
+typedef struct TreeNode *Value;
+
+struct MyListNode {
+    Value val;
+    struct MyListNode *prev;
+    struct MyListNode *next;
+};
+
+typedef struct {
+    struct MyListNode *first;
+    struct MyListNode *last;
+    int size;
+} MyLinkedListDeque;
+
+MyLinkedListDeque *myDequeCreate() {
+    MyLinkedListDeque *obj = malloc(sizeof(MyLinkedListDeque));
+    obj->first = NULL;
+    obj->last = NULL;
+    obj->size = 0;
+    return obj;
+}
+
+void myDequePushFront(MyLinkedListDeque *obj, Value val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->val = val;
+    x->prev = NULL;
+    x->next = NULL;
+    if (obj->size == 0) {
+        obj->first = x;
+        obj->last = x;
+    } else {
+        x->next = obj->first;
+        obj->first->prev = x;
+        obj->first = x;
+    }
+    obj->size++;
+}
+
+void myDequePushBack(MyLinkedListDeque *obj, Value val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->val = val;
+    x->prev = NULL;
+    x->next = NULL;
+    if (obj->size == 0) {
+        obj->first = x;
+        obj->last = x;
+    } else {
+        obj->last->next = x;
+        x->prev = obj->last;
+        obj->last = x;
+    }
+    obj->size++;
+}
+
+Value myDequePopFront(MyLinkedListDeque *obj) {
+    Value val = obj->first->val;
+    struct MyListNode *x = obj->first;
+    if (obj->size == 1) {
+        obj->first = NULL;
+        obj->last = NULL;
+    } else {
+        obj->first = obj->first->next;
+        obj->first->prev = NULL;
+    }
+    free(x);
+    obj->size--;
+    return val;
+}
+
+Value myDequePopBack(MyLinkedListDeque *obj) {
+    Value val = obj->last->val;
+    struct MyListNode *x = obj->last;
+    if (obj->size == 1) {
+        obj->first = NULL;
+        obj->last = NULL;
+    } else {
+        obj->last = obj->last->prev;
+        obj->last->next = NULL;
+    }
+    free(x);
+    obj->size--;
+    return val;
+}
+
+Value myDequePeekFront(MyLinkedListDeque *obj) {
+    return obj->first->val;
+}
+
+Value myDequePeekBack(MyLinkedListDeque *obj) {
+    return obj->last->val;
+}
+
+int myDequeSize(MyLinkedListDeque *obj) {
+    return obj->size;
+}
+
+bool myDequeEmpty(MyLinkedListDeque *obj) {
+    return obj->size == 0;
+}
+
+void myDequeFree(MyLinkedListDeque *obj) {
+    struct MyListNode *p = obj->first;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    free(obj);
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *rightSideView(struct TreeNode *root, int *returnSize) {
+    *returnSize = 0;
+    int ansCapacity = 8;
+    int *ans = malloc(sizeof(int[ansCapacity]));
+    MyLinkedListDeque *deque = myDequeCreate();
+    if (root != NULL) {
+        myDequePushBack(deque, root);
+    }
+    while (!myDequeEmpty(deque)) {
+        if (*returnSize == ansCapacity) {
+            ansCapacity *= 2;
+            ans = realloc(ans, sizeof(int[ansCapacity]));
+        }
+        ans[(*returnSize)++] = myDequePeekBack(deque)->val;
+        int n = myDequeSize(deque);
+        for (int i = 0; i < n; ++i) {
+            struct TreeNode *x = myDequePopFront(deque);
+            struct TreeNode *left = x->left;
+            if (left != NULL) {
+                myDequePushBack(deque, left);
+            }
+            struct TreeNode *right = x->right;
+            if (right != NULL) {
+                myDequePushBack(deque, right);
+            }
+        }
+    }
+    myDequeFree(deque);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391409700/
+```
+
+```c
+typedef struct TreeNode *Value;
+
+struct MyListNode {
+    Value val;
+    struct MyListNode *next;
+};
+
+typedef struct {
+    struct MyListNode *first;
+    struct MyListNode *last;
+    int size;
+} MyLinkedListQueue;
+
+MyLinkedListQueue *myQueueCreate() {
+    MyLinkedListQueue *obj = malloc(sizeof(MyLinkedListQueue));
+    obj->first = NULL;
+    obj->last = NULL;
+    obj->size = 0;
+    return obj;
+}
+
+void myQueuePush(MyLinkedListQueue *obj, Value val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->val = val;
+    x->next = NULL;
+    if (obj->size == 0) {
+        obj->first = x;
+        obj->last = x;
+    } else {
+        obj->last->next = x;
+        obj->last = x;
+    }
+    obj->size++;
+}
+
+Value myQueuePop(MyLinkedListQueue *obj) {
+    Value val = obj->first->val;
+    struct MyListNode *x = obj->first;
+    if (obj->size == 1) {
+        obj->first = NULL;
+        obj->last = NULL;
+    } else {
+        obj->first = obj->first->next;
+    }
+    free(x);
+    obj->size--;
+    return val;
+}
+
+Value myQueuePeek(MyLinkedListQueue *obj) {
+    return obj->first->val;
+}
+
+int myQueueSize(MyLinkedListQueue *obj) {
+    return obj->size;
+}
+
+bool myQueueEmpty(MyLinkedListQueue *obj) {
+    return obj->size == 0;
+}
+
+void myQueueFree(MyLinkedListQueue *obj) {
+    struct MyListNode *p = obj->first;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    free(obj);
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *rightSideView(struct TreeNode *root, int *returnSize) {
+    *returnSize = 0;
+    int ansCapacity = 8;
+    int *ans = malloc(sizeof(int[ansCapacity]));
+    MyLinkedListQueue *queue = myQueueCreate();
+    if (root != NULL) {
+        myQueuePush(queue, root);
+    }
+    while (!myQueueEmpty(queue)) {
+        if (*returnSize == ansCapacity) {
+            ansCapacity *= 2;
+            ans = realloc(ans, sizeof(int[ansCapacity]));
+        }
+        ans[(*returnSize)++] = myQueuePeek(queue)->val;
+        int n = myQueueSize(queue);
+        for (int i = 0; i < n; ++i) {
+            struct TreeNode *x = myQueuePop(queue);
+            struct TreeNode *right = x->right;
+            if (right != NULL) {
+                myQueuePush(queue, right);
+            }
+            struct TreeNode *left = x->left;
+            if (left != NULL) {
+                myQueuePush(queue, left);
+            }
+        }
+    }
+    myQueueFree(queue);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391407911/
+```
+
+```c
+typedef struct TreeNode *Value;
+
+typedef struct {
+    Value *array;
+    int capacity;
+    int size;
+    int first;
+    int last;
+} MyResizingArrayQueue;
+
+MyResizingArrayQueue *myQueueCreate() {
+    MyResizingArrayQueue *obj = malloc(sizeof(MyResizingArrayQueue));
+    obj->first = 0;
+    obj->last = 0;
+    obj->size = 0;
+    obj->capacity = 8;
+    obj->array = malloc(sizeof(Value) * obj->capacity);
+    return obj;
+}
+
+void myQueueResize(MyResizingArrayQueue *obj, int capacity) {
+    Value *copy = malloc(sizeof(Value) * capacity);
+    for (int i = 0; i < obj->size; ++i) {
+        copy[i] = obj->array[(obj->first + i) % obj->capacity];
+    }
+    free(obj->array);
+    obj->array = copy;
+    obj->first = 0;
+    obj->last = obj->size;
+    obj->capacity = capacity;
+}
+
+void myQueuePush(MyResizingArrayQueue *obj, Value val) {
+    if (obj->size == obj->capacity) {
+        myQueueResize(obj, obj->capacity * 2);
+    }
+    obj->array[obj->last++] = val;
+    if (obj->last == obj->capacity) {
+        obj->last = 0;
+    }
+    obj->size++;
+}
+
+Value myQueuePop(MyResizingArrayQueue *obj) {
+    Value val = obj->array[obj->first++];
+    if (obj->first == obj->capacity) {
+        obj->first = 0;
+    }
+    obj->size--;
+    if (obj->size > 0 && obj->size == obj->capacity / 4) {
+        myQueueResize(obj, obj->capacity / 2);
+    }
+    return val;
+}
+
+Value myQueuePeek(MyResizingArrayQueue *obj) {
+    return obj->array[obj->first];
+}
+
+int myQueueSize(MyResizingArrayQueue *obj) {
+    return obj->size;
+}
+
+bool myQueueEmpty(MyResizingArrayQueue *obj) {
+    return obj->size == 0;
+}
+
+void myQueueFree(MyResizingArrayQueue *obj) {
+    free(obj->array);
+    free(obj);
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *rightSideView(struct TreeNode *root, int *returnSize) {
+    *returnSize = 0;
+    int ansCapacity = 8;
+    int *ans = malloc(sizeof(int[ansCapacity]));
+    MyResizingArrayQueue *queue = myQueueCreate();
+    if (root != NULL) {
+        myQueuePush(queue, root);
+    }
+    while (!myQueueEmpty(queue)) {
+        if (*returnSize == ansCapacity) {
+            ansCapacity *= 2;
+            ans = realloc(ans, sizeof(int[ansCapacity]));
+        }
+        ans[(*returnSize)++] = myQueuePeek(queue)->val;
+        int n = myQueueSize(queue);
+        for (int i = 0; i < n; ++i) {
+            struct TreeNode *x = myQueuePop(queue);
+            struct TreeNode *right = x->right;
+            if (right != NULL) {
+                myQueuePush(queue, right);
+            }
+            struct TreeNode *left = x->left;
+            if (left != NULL) {
+                myQueuePush(queue, left);
+            }
+        }
+    }
+    myQueueFree(queue);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391292419/
 ```
 
 ## 200. 岛屿数量
@@ -3928,7 +4924,33 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode.cn/problems/number-of-islands/>
 
 ```c
+static const char LAND = '1';
+static const char WATER = '0';
 
+void floodFill(char **grid, int gridSize, int *gridColSize, int row, int col) {
+    if (row < 0 || row >= gridSize || col < 0 || col >= *gridColSize || grid[row][col] == WATER) {
+        return;
+    }
+    grid[row][col] = WATER;
+    floodFill(grid, gridSize, gridColSize, row, col + 1);
+    floodFill(grid, gridSize, gridColSize, row, col - 1);
+    floodFill(grid, gridSize, gridColSize, row + 1, col);
+    floodFill(grid, gridSize, gridColSize, row - 1, col);
+}
+
+int numIslands(char **grid, int gridSize, int *gridColSize) {
+    int count = 0;
+    for (int row = 0; row < gridSize; ++row) {
+        for (int col = 0; col < *gridColSize; ++col) {
+            if (grid[row][col] == LAND) {
+                floodFill(grid, gridSize, gridColSize, row, col);
+                ++count;
+            }
+        }
+    }
+    return count;
+}
+// https://leetcode.cn/submissions/detail/391254735/
 ```
 
 ## 203. 移除链表元素
@@ -3936,7 +4958,25 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode-cn.com/problems/remove-linked-list-elements/>
 
 ```c
-
+struct ListNode *removeElements(struct ListNode *head, int val) {
+    struct ListNode *dummyHead = malloc(sizeof(struct ListNode));
+    dummyHead->val = -1;
+    dummyHead->next = head;
+    struct ListNode *ptr = dummyHead;
+    while (ptr != NULL && ptr->next != NULL) {
+        if (ptr->next->val == val) {
+            struct ListNode *x = ptr->next;
+            ptr->next = ptr->next->next;
+            free(x);
+        } else {
+            ptr = ptr->next;
+        }
+    }
+    head = dummyHead->next;
+    free(dummyHead);
+    return head;
+}
+// https://leetcode.cn/submissions/detail/391147229/
 ```
 
 ## 206. 反转链表
@@ -3944,7 +4984,17 @@ bool hasCycle(struct ListNode *head) {
 <https://leetcode-cn.com/problems/reverse-linked-list/>
 
 ```c
-
+struct ListNode *reverseList(struct ListNode *head) {
+    struct ListNode *reverseHead = NULL;
+    while (head != NULL) {
+        struct ListNode *x = head->next;
+        head->next = reverseHead;
+        reverseHead = head;
+        head = x;
+    }
+    return reverseHead;
+}
+// https://leetcode.cn/submissions/detail/388498618/
 ```
 
 ## 207. 课程表
