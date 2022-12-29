@@ -5830,7 +5830,78 @@ public:
 <https://leetcode.cn/problems/combination-sum-iii/>
 
 ```cpp
+class Solution {
+public:
+    vector<vector<int>> combinationSum3(int k, int n) {
+        backtrack(k, n, 0);
+        return ans;
+    }
 
+private:
+    // edge = 取 [1..9] 为值
+    void backtrack(int k, int n, int edge) {
+        if (path.size() == k && pathSum == n) {
+            ans.push_back(path);
+        } else if (path.size() < k && pathSum < n) {
+            // 避免重复，从 edge + 1 开始选择
+            // 例如 [1->2] 和 [2->1] 是重复的
+            while (++edge <= 9) {
+                if (pathSum + edge <= n) {
+                    pathSum += edge;
+                    path.push_back(edge);
+                    backtrack(k, n, edge);
+                    pathSum -= edge;
+                    path.pop_back();
+                }
+            }
+        }
+    }
+
+    int pathSum = 0;
+    vector<int> path; // 取 [1..9] 为元素
+    vector<vector<int>> ans;
+};
+// https://leetcode.cn/submissions/detail/391648230/
+```
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> combinationSum3(int k, int n) {
+        dfs(k, n, 0);
+        return ans;
+    }
+
+private:
+    // vertex = 取 [1..9] 为值
+    void dfs(int k, int n, int vertex) {
+        if (vertex > 0) {
+            pathSum += vertex;
+            path.push_back(vertex);
+        }
+        if (path.size() == k && pathSum == n) {
+            ans.push_back(path);
+        } else if (path.size() < k && pathSum < n) {
+            // 避免重复，从 vertex + 1 开始选择
+            // 例如 [1->2] 和 [2->1] 是重复的
+            int v = vertex;
+            while (++v <= 9) {
+                if (pathSum + v <= n) {
+                    dfs(k, n, v);
+                }
+            }
+        }
+        if (vertex > 0) {
+            pathSum -= vertex;
+            path.pop_back();
+        }
+    }
+
+    int pathSum = 0;
+    vector<int> path; // 取 [1..9] 为元素
+    vector<vector<int>> ans;
+};
+// https://leetcode.cn/submissions/detail/391648558/
 ```
 
 ## 222. 完全二叉树的节点个数
@@ -5838,7 +5909,59 @@ public:
 <https://leetcode.cn/problems/count-complete-tree-nodes/>
 
 ```cpp
+class Solution {
+public:
+    int countNodes(TreeNode *root) {
+        if (root == nullptr) {
+            return 0;
+        }
+        int leftHeight = 0;
+        TreeNode *ptr = root;
+        while (ptr != nullptr) {
+            ++leftHeight;
+            ptr = ptr->left;
+        }
+        int rightHeight = 0;
+        ptr = root->right;
+        while (ptr != nullptr) {
+            ++rightHeight;
+            ptr = ptr->right;
+        }
+        if (leftHeight == rightHeight) {
+            return (1 << leftHeight) - 1;
+        }
+        return 1 + countNodes(root->left) + countNodes(root->right);
+    }
+};
+// https://leetcode.cn/submissions/detail/391482036/
+```
 
+```cpp
+class Solution {
+public:
+    int countNodes(TreeNode *root) {
+        if (root == nullptr) {
+            return 0;
+        }
+        int leftHeight = 0;
+        TreeNode *ptr = root;
+        while (ptr != nullptr) {
+            ++leftHeight;
+            ptr = ptr->left;
+        }
+        int rightHeight = 0;
+        ptr = root->right;
+        while (ptr != nullptr) {
+            ++rightHeight;
+            ptr = ptr->right;
+        }
+        if (leftHeight == rightHeight) {
+            return pow(2, leftHeight) - 1;
+        }
+        return 1 + countNodes(root->left) + countNodes(root->right);
+    }
+};
+// https://leetcode.cn/submissions/detail/368826005/
 ```
 
 ## 225. 用队列实现栈
@@ -5846,7 +5969,35 @@ public:
 <https://leetcode.cn/problems/implement-stack-using-queues/>
 
 ```cpp
+class MyStack {
+public:
+    MyStack() = default;
 
+    void push(int x) {
+        q.push(x);
+        for (int i = 1; i < q.size(); ++i) {
+            q.push(pop());
+        }
+    }
+
+    int pop() {
+        int x = q.front();
+        q.pop();
+        return x;
+    }
+
+    int top() {
+        return q.front();
+    }
+
+    bool empty() {
+        return q.empty();
+    }
+
+private:
+    queue<int> q;
+};
+// https://leetcode.cn/submissions/detail/391689349/
 ```
 
 ## 226. 翻转二叉树
@@ -5854,7 +6005,39 @@ public:
 <https://leetcode.cn/problems/invert-binary-tree/>
 
 ```cpp
+class Solution {
+public:
+    TreeNode *invertTree(TreeNode *root) {
+        if (root == nullptr) {
+            return nullptr;
+        }
+        TreeNode *left = invertTree(root->left);
+        TreeNode *right = invertTree(root->right);
+        root->left = right;
+        root->right = left;
+        return root;
+    }
+};
+// https://leetcode.cn/submissions/detail/368818458/
+```
 
+```cpp
+class Solution {
+public:
+    TreeNode *invertTree(TreeNode *root) {
+        if (root == nullptr) {
+            return root;
+        }
+        TreeNode *left = root->left;
+        TreeNode *right = root->right;
+        root->left = right;
+        root->right = left;
+        invertTree(left);
+        invertTree(right);
+        return root;
+    }
+};
+// https://leetcode.cn/submissions/detail/391476173/
 ```
 
 ## 230. 二叉搜索树中第 K 小的元素
@@ -5862,7 +6045,40 @@ public:
 <https://leetcode.cn/problems/kth-smallest-element-in-a-bst/>
 
 ```cpp
+class Solution {
+public:
+    int kthSmallest(TreeNode *root, int k) {
+        return select(root, k - 1);
+    }
 
+private:
+    int select(const TreeNode *root, int rank) {
+        if (root == nullptr) {
+            return -1;
+        }
+        int leftSize = size(root->left);
+        if (rank < leftSize) {
+            return select(root->left, rank);
+        }
+        if (leftSize < rank) {
+            return select(root->right, rank - leftSize - 1);
+        }
+        return root->val;
+    }
+
+    int size(TreeNode *root) {
+        if (root == nullptr) {
+            return 0;
+        }
+        if (memo.count(root) == 0) {
+            memo[root] = 1 + size(root->left) + size(root->right);
+        }
+        return memo[root];
+    }
+
+    unordered_map<TreeNode *, int> memo;
+};
+// https://leetcode.cn/submissions/detail/391659318/
 ```
 
 ## 232. 用栈实现队列
@@ -5870,7 +6086,51 @@ public:
 <https://leetcode.cn/problems/implement-queue-using-stacks/>
 
 ```cpp
+/**
+ * -----------------------------| |-------------------------------
+ * pop <- top Left Stack bottom | | bottom Right Stack top <- push
+ * -----------------------------| |-------------------------------
+ */
+class MyQueue {
+public:
+    MyQueue() = default;
 
+    void push(int x) {
+        rightStack.push(x);
+    }
+
+    int pop() {
+        if (leftStack.empty()) {
+            move();
+        }
+        int x = leftStack.top();
+        leftStack.pop();
+        return x;
+    }
+
+    int peek() {
+        if (leftStack.empty()) {
+            move();
+        }
+        return leftStack.top();
+    }
+
+    bool empty() {
+        return leftStack.empty() && rightStack.empty();
+    }
+
+private:
+    void move() {
+        while (!rightStack.empty()) {
+            leftStack.push(rightStack.top());
+            rightStack.pop();
+        }
+    }
+
+    stack<int> leftStack;
+    stack<int> rightStack;
+};
+// https://leetcode.cn/submissions/detail/391690927/
 ```
 
 ## 234. 回文链表
@@ -5878,7 +6138,99 @@ public:
 <https://leetcode.cn/problems/palindrome-linked-list/>
 
 ```cpp
+class Solution {
+public:
+    bool isPalindrome(ListNode *head) {
+        // 寻找链表的中点（偶数个节点时选择左侧），即前半部分链表的尾节点
+        ListNode *slow = head;
+        ListNode *fast = head;
+        while (fast->next != nullptr && fast->next->next != nullptr) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        // 翻转后半部分链表
+        ListNode *reverseHead = reverseList(slow->next);
+        slow->next = nullptr;
+        // 判断是否回文链表
+        ListNode *left = head;
+        ListNode *right = reverseHead;
+        while (right != nullptr) {
+            if (left->val != right->val) {
+                return false;
+            }
+            left = left->next;
+            right = right->next;
+        }
+        // 还原链表
+        slow->next = reverseList(reverseHead);
+        return true;
+    }
 
+private:
+    ListNode *reverseList(ListNode *head) {
+        ListNode *reverseHead = nullptr;
+        while (head != nullptr) {
+            ListNode *next = head->next;
+            head->next = reverseHead;
+            reverseHead = head;
+            head = next;
+        }
+        return reverseHead;
+    }
+};
+// https://leetcode.cn/submissions/detail/391561066/
+```
+
+```cpp
+class Solution {
+public:
+    bool isPalindrome(ListNode *head) {
+        stack<ListNode *> s;
+        ListNode *ptr = head;
+        while (ptr != nullptr) {
+            s.push(ptr);
+            ptr = ptr->next;
+        }
+        ptr = head;
+        while (!s.empty()) {
+            ListNode *x = s.top();
+            s.pop();
+            if (ptr->val != x->val) {
+                return false;
+            }
+            ptr = ptr->next;
+        }
+        return true;
+    }
+};
+// https://leetcode.cn/submissions/detail/391561549/
+```
+
+```cpp
+class Solution {
+public:
+    bool isPalindrome(ListNode *head) {
+        ptr = head;
+        dfs(head);
+        return ans;
+    }
+
+private:
+    void dfs(const ListNode *head) {
+        if (head == nullptr) {
+            return;
+        }
+        dfs(head->next);
+        if (head->val != ptr->val) {
+            ans = false;
+        }
+        ptr = ptr->next;
+    }
+
+    bool ans = true;
+    ListNode *ptr = nullptr;
+};
+// https://leetcode.cn/submissions/detail/366671977/
 ```
 
 ## 235. 二叉搜索树的最近公共祖先
