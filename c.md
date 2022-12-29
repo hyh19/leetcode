@@ -181,7 +181,44 @@
 <https://leetcode-cn.com/problems/two-sum/>
 
 ```c
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashMapItem;
 
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *twoSum(const int *nums, int numsSize, int target, int *returnSize) {
+    *returnSize = 2;
+    int *ans = malloc(sizeof(int[*returnSize]));
+    ans[0] = -1;
+    ans[1] = -1;
+    HashMapItem *valToIndex = NULL;
+    for (int i = 0; i < numsSize; ++i) {
+        int x = nums[i];
+        int need = target - x;
+        HashMapItem *item;
+        HASH_FIND_INT(valToIndex, &need, item);
+        if (item != NULL) {
+            ans[0] = item->val;
+            ans[1] = i;
+            break;
+        }
+        item = malloc(sizeof(HashMapItem));
+        item->key = x;
+        item->val = i;
+        HASH_ADD_INT(valToIndex, key, item);
+    }
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, valToIndex, cur, tmp) {
+        HASH_DEL(valToIndex, cur);
+        free(cur);
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391303012/
 ```
 
 ## 2. 两数相加
@@ -189,7 +226,34 @@
 <https://leetcode-cn.com/problems/add-two-numbers/>
 
 ```c
-
+struct ListNode *addTwoNumbers(struct ListNode *l1, struct ListNode *l2) {
+    struct ListNode *dummyHead = malloc(sizeof(struct ListNode));
+    dummyHead->val = -1;
+    dummyHead->next = NULL;
+    struct ListNode *ptr = dummyHead;
+    int carry = 0;
+    while (l1 != NULL || l2 != NULL || carry > 0) {
+        int sum = carry;
+        if (l1 != NULL) {
+            sum += l1->val;
+            l1 = l1->next;
+        }
+        if (l2 != NULL) {
+            sum += l2->val;
+            l2 = l2->next;
+        }
+        struct ListNode *x = malloc(sizeof(struct ListNode));
+        x->val = sum % 10;
+        x->next = NULL;
+        ptr->next = x;
+        ptr = ptr->next;
+        carry = sum / 10;
+    }
+    struct ListNode *head = dummyHead->next;
+    free(dummyHead);
+    return head;
+}
+// https://leetcode.cn/submissions/detail/391145173/
 ```
 
 ## 3. 无重复字符的最长子串
@@ -197,7 +261,48 @@
 <https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/>
 
 ```c
+typedef struct {
+    int key;
+    UT_hash_handle hh;
+} HashSetItem;
 
+int lengthOfLongestSubstring(char *s) {
+    int ans = 0;
+    HashSetItem *window = NULL;
+    // s[left..right) = Window Substring
+    // s[right..n-1]  = Scanning
+    int left = 0, right = 0;
+    size_t n = strlen(s);
+    while (right < n) {
+        int add = s[right];
+        HashSetItem *item;
+        HASH_FIND_INT(window, &add, item);
+        if (item == NULL) {
+            item = malloc(sizeof(HashSetItem));
+            item->key = add;
+            HASH_ADD_INT(window, key, item);
+            ++right;
+        } else {
+            while (left <= right) {
+                int del = s[left++];
+                HASH_FIND_INT(window, &del, item);
+                HASH_DEL(window, item);
+                if (add == del) {
+                    break;
+                }
+            }
+        }
+        ans = fmax(ans, right - left);
+    }
+    HashSetItem *cur, *tmp;
+    HASH_ITER(hh, window, cur, tmp) {
+        HASH_DEL(window, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, window);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391410268/
 ```
 
 ## 4. 寻找两个正序数组的中位数
@@ -205,7 +310,40 @@
 <https://leetcode.cn/problems/median-of-two-sorted-arrays/>
 
 ```c
+// 寻找两个正序数组 nums1 和 nums2 从小到大排列的第 k 个数
+int getKthElement(const int *nums1, int nums1Size, int start1, const int *nums2, int nums2Size, int start2, int k) {
+    if (start1 == nums1Size) {
+        return nums2[start2 + k - 1];
+    }
+    if (start2 == nums2Size) {
+        return nums1[start1 + k - 1];
+    }
+    if (k == 1) {
+        return fmin(nums1[start1], nums2[start2]);
+    }
+    int half = k / 2;
+    int i = fmin(nums1Size - 1, start1 + half - 1);
+    int j = fmin(nums2Size - 1, start2 + half - 1);
+    if (nums1[i] < nums2[j]) {
+        // 排除 nums1[start1..i] 共 i-start1+1 个元素
+        return getKthElement(nums1, nums1Size, i + 1, nums2, nums2Size, start2, k - (i - start1 + 1));
+    } else {
+        // 排除 nums2[start2..j] 共 j-start2+1 个元素
+        return getKthElement(nums1, nums1Size, start1, nums2, nums2Size, j + 1, k - (j - start2 + 1));
+    }
+}
 
+double findMedianSortedArrays(const int *nums1, int nums1Size, const int *nums2, int nums2Size) {
+    int total = nums1Size + nums2Size;
+    int half = total / 2;
+    if (total % 2 == 0) {
+        int k1 = getKthElement(nums1, nums1Size, 0, nums2, nums2Size, 0, half);
+        int k2 = getKthElement(nums1, nums1Size, 0, nums2, nums2Size, 0, half + 1);
+        return (k1 + k2) / 2.0;
+    }
+    return getKthElement(nums1, nums1Size, 0, nums2, nums2Size, 0, half + 1);
+}
+// https://leetcode.cn/submissions/detail/388294156/
 ```
 
 ## 5. 最长回文子串
@@ -213,7 +351,45 @@
 <https://leetcode.cn/problems/longest-palindromic-substring/>
 
 ```c
+// 返回字符串 s 中以 s[i] 和 s[j] 为中心的最长回文子串
+char *longestPalindromeCenter(const char *s, int i, int j, size_t *len) {
+    size_t n = strlen(s);
+    while (i >= 0 && j < n && s[i] == s[j]) {
+        --i;
+        ++j;
+    }
+    char *res = calloc(j - i, sizeof(char));
+    *len = j - i - 1;
+    return strncpy(res, s + i + 1, j - i - 1);
+}
 
+char *longestPalindrome(char *s) {
+    size_t len = 0;
+    char *ans = malloc(0);
+    size_t n = strlen(s);
+    for (int i = 0; i < n; ++i) {
+        size_t len1;
+        char *s1 = longestPalindromeCenter(s, i, i, &len1);
+        if (len1 > len) {
+            free(ans);
+            ans = s1;
+            len = len1;
+        } else {
+            free(s1);
+        }
+        size_t len2;
+        char *s2 = longestPalindromeCenter(s, i, i + 1, &len2);
+        if (len2 > len) {
+            free(ans);
+            ans = s2;
+            len = len2;
+        } else {
+            free(s2);
+        }
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391338749/
 ```
 
 ## 7. 整数反转
@@ -229,7 +405,22 @@
 <https://leetcode.cn/problems/container-with-most-water/>
 
 ```c
-
+int maxArea(const int *height, int heightSize) {
+    int i = 0, j = heightSize - 1;
+    int ans = 0;
+    while (i < j) {
+        int w = j - i;
+        int h = fmin(height[i], height[j]);
+        ans = fmax(ans, w * h);
+        if (height[i] < height[j]) {
+            ++i;
+        } else {
+            --j;
+        }
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/388261355/
 ```
 
 ## 14. 最长公共前缀
@@ -237,7 +428,34 @@
 <https://leetcode.cn/problems/longest-common-prefix/>
 
 ```c
+char *longestCommonPrefixTwo(char *s1, char *s2) {
+    int len = fmin(strlen(s1), strlen(s2));
+    int i = 0;
+    while (i < len && s1[i] == s2[i]) {
+        ++i;
+    }
+    char *res = calloc(i + 1, sizeof(char));
+    strncpy(res, s1, i);
+    return res;
+}
 
+char *longestCommonPrefixRange(char **strs, int lo, int hi) {
+    if (lo == hi) {
+        return strs[lo];
+    }
+    int mid = lo + (hi - lo) / 2;
+    char *left = longestCommonPrefixRange(strs, lo, mid);
+    char *right = longestCommonPrefixRange(strs, mid + 1, hi);
+    char *res = longestCommonPrefixTwo(left, right);
+    free(left);
+    free(right);
+    return res;
+}
+
+char *longestCommonPrefix(char **strs, int strsSize) {
+    return longestCommonPrefixRange(strs, 0, strsSize - 1);
+}
+// https://leetcode.cn/submissions/detail/391332707/
 ```
 
 ## 15. 三数之和
@@ -245,7 +463,85 @@
 <https://leetcode-cn.com/problems/3sum/>
 
 ```c
+int cmp(const void *a, const void *b) {
+    int arg1 = *(const int *) a;
+    int arg2 = *(const int *) b;
+    return arg1 - arg2;
+}
 
+// 返回升序数组 nums[lo..hi] 中所有和为 target 且不重复的二元组
+int **twoSum(const int *nums, int numsSize, int lo, int hi, long target, int *returnSize) {
+    int capacity = 4;
+    int **res = malloc(sizeof(int *) * capacity);
+    *returnSize = 0;
+    while (lo < hi) {
+        int first = nums[lo], second = nums[hi];
+        int sum = first + second;
+        if (sum < target) {
+            while (++lo < hi && nums[lo] == first) {}
+        } else if (sum > target) {
+            while (lo < --hi && nums[hi] == second) {}
+        } else {
+            int *t = malloc(sizeof(int[2]));
+            t[0] = first;
+            t[1] = second;
+            if (*returnSize == capacity) {
+                capacity *= 2;
+                res = realloc(res, sizeof(int *) * capacity);
+            }
+            res[(*returnSize)++] = t;
+            while (++lo < hi && nums[lo] == first) {}
+            while (lo < --hi && nums[hi] == second) {}
+        }
+    }
+    return res;
+}
+
+// 返回升序数组 nums[lo..hi] 中所有和为 target 且不重复的 k 元组
+int **kSum(int k, const int *nums, int numsSize, int lo, int hi, long target, int *returnSize) {
+    *returnSize = 0;
+    if (hi - lo + 1 < k) {
+        return NULL;
+    }
+    if (k == 2) {
+        return twoSum(nums, numsSize, lo, hi, target, returnSize);
+    }
+    int capacity = 4;
+    int **res = malloc(sizeof(int *) * capacity);
+    int i = lo;
+    while (i <= hi) {
+        int curNum = nums[i];
+        int size;
+        int **sub = kSum(k - 1, nums, numsSize, i + 1, hi, target - curNum, &size);
+        for (int j = 0; j < size; ++j) {
+            sub[j] = realloc(sub[j], sizeof(int[k]));
+            sub[j][k - 1] = curNum;
+            if (*returnSize == capacity) {
+                capacity *= 2;
+                res = realloc(res, sizeof(int *) * capacity);
+            }
+            res[(*returnSize)++] = sub[j];
+        }
+        while (++i <= hi && nums[i] == curNum) {}
+    }
+    return res;
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **threeSum(int *nums, int numsSize, int *returnSize, int **returnColumnSizes) {
+    qsort(nums, numsSize, sizeof(int), cmp);
+    int **ans = kSum(3, nums, numsSize, 0, numsSize - 1, 0, returnSize);
+    *returnColumnSizes = malloc(sizeof(int[*returnSize]));
+    for (int i = 0; i < *returnSize; ++i) {
+        (*returnColumnSizes)[i] = 3;
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391331223/
 ```
 
 ## 18. 四数之和
@@ -253,7 +549,85 @@
 <https://leetcode.cn/problems/4sum/>
 
 ```c
+int cmp(const void *a, const void *b) {
+    int arg1 = *(const int *) a;
+    int arg2 = *(const int *) b;
+    return arg1 - arg2;
+}
 
+// 返回升序数组 nums[lo..hi] 中所有和为 target 且不重复的二元组
+int **twoSum(const int *nums, int numsSize, int lo, int hi, long target, int *returnSize) {
+    int capacity = 4;
+    int **res = malloc(sizeof(int *) * capacity);
+    *returnSize = 0;
+    while (lo < hi) {
+        int first = nums[lo], second = nums[hi];
+        int sum = first + second;
+        if (sum < target) {
+            while (++lo < hi && nums[lo] == first) {}
+        } else if (sum > target) {
+            while (lo < --hi && nums[hi] == second) {}
+        } else {
+            int *t = malloc(sizeof(int[2]));
+            t[0] = first;
+            t[1] = second;
+            if (*returnSize == capacity) {
+                capacity *= 2;
+                res = realloc(res, sizeof(int *) * capacity);
+            }
+            res[(*returnSize)++] = t;
+            while (++lo < hi && nums[lo] == first) {}
+            while (lo < --hi && nums[hi] == second) {}
+        }
+    }
+    return res;
+}
+
+// 返回升序数组 nums[lo..hi] 中所有和为 target 且不重复的 k 元组
+int **kSum(int k, const int *nums, int numsSize, int lo, int hi, long target, int *returnSize) {
+    *returnSize = 0;
+    if (hi - lo + 1 < k) {
+        return NULL;
+    }
+    if (k == 2) {
+        return twoSum(nums, numsSize, lo, hi, target, returnSize);
+    }
+    int capacity = 4;
+    int **res = malloc(sizeof(int *) * capacity);
+    int i = lo;
+    while (i <= hi) {
+        int curNum = nums[i];
+        int size;
+        int **sub = kSum(k - 1, nums, numsSize, i + 1, hi, target - curNum, &size);
+        for (int j = 0; j < size; ++j) {
+            sub[j] = realloc(sub[j], sizeof(int[k]));
+            sub[j][k - 1] = curNum;
+            if (*returnSize == capacity) {
+                capacity *= 2;
+                res = realloc(res, sizeof(int *) * capacity);
+            }
+            res[(*returnSize)++] = sub[j];
+        }
+        while (++i <= hi && nums[i] == curNum) {}
+    }
+    return res;
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **fourSum(int *nums, int numsSize, int target, int *returnSize, int **returnColumnSizes) {
+    qsort(nums, numsSize, sizeof(int), cmp);
+    int **ans = kSum(4, nums, numsSize, 0, numsSize - 1, target, returnSize);
+    *returnColumnSizes = malloc(sizeof(int[*returnSize]));
+    for (int i = 0; i < *returnSize; ++i) {
+        (*returnColumnSizes)[i] = 4;
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391331753/
 ```
 
 ## 19. 删除链表的倒数第 N 个结点
@@ -261,7 +635,30 @@
 <https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/>
 
 ```c
-
+struct ListNode *removeNthFromEnd(struct ListNode *head, int n) {
+    struct ListNode *dummyHead = malloc(sizeof(struct ListNode));
+    dummyHead->val = -1;
+    dummyHead->next = head;
+    struct ListNode *slow = dummyHead;
+    struct ListNode *fast = dummyHead;
+    for (int i = 1; i <= n; ++i) {
+        fast = fast->next;
+    }
+    while (fast != NULL && fast->next != NULL) {
+        slow = slow->next;
+        fast = fast->next;
+    }
+    struct ListNode *x = slow->next;
+    if (x == head) { // 删除的是头结点
+        head = head->next;
+    } else {
+        slow->next = x->next;
+    }
+    free(x);
+    free(dummyHead);
+    return head;
+}
+// https://leetcode.cn/submissions/detail/391143669/
 ```
 
 ## 20. 有效的括号
@@ -269,7 +666,198 @@
 <https://leetcode-cn.com/problems/valid-parentheses/>
 
 ```c
+typedef char Value;
 
+struct MyListNode {
+    Value val;
+    struct MyListNode *next;
+};
+
+typedef struct {
+    struct MyListNode *first;
+    int size;
+} MyLinkedListStack;
+
+MyLinkedListStack *myStackCreate() {
+    MyLinkedListStack *obj = malloc(sizeof(MyLinkedListStack));
+    obj->first = NULL;
+    obj->size = 0;
+    return obj;
+}
+
+void myStackPush(MyLinkedListStack *obj, Value val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->val = val;
+    x->next = NULL;
+    if (obj->size == 0) {
+        obj->first = x;
+    } else {
+        x->next = obj->first;
+        obj->first = x;
+    }
+    obj->size++;
+}
+
+Value myStackPop(MyLinkedListStack *obj) {
+    Value val = obj->first->val;
+    struct MyListNode *x = obj->first;
+    if (obj->size == 1) {
+        obj->first = NULL;
+    } else {
+        obj->first = obj->first->next;
+    }
+    free(x);
+    obj->size--;
+    return val;
+}
+
+Value myStackPeek(MyLinkedListStack *obj) {
+    return obj->first->val;
+}
+
+int myStackSize(MyLinkedListStack *obj) {
+    return obj->size;
+}
+
+bool myStackEmpty(MyLinkedListStack *obj) {
+    return obj->size == 0;
+}
+
+void myStackFree(MyLinkedListStack *obj) {
+    struct MyListNode *p = obj->first;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    free(obj);
+}
+
+bool isValid(char *s) {
+    size_t n = strlen(s);
+    if (n % 2 == 1) {
+        return false;
+    }
+    MyLinkedListStack *stack = myStackCreate();
+    for (int i = 0; i < n; ++i) {
+        char c = s[i];
+        switch (c) {
+            case '(': {
+                myStackPush(stack, ')');
+                break;
+            }
+            case '[': {
+                myStackPush(stack, ']');
+                break;
+            }
+            case '{': {
+                myStackPush(stack, '}');
+                break;
+            }
+            default: {
+                if (myStackEmpty(stack) || myStackPop(stack) != c) {
+                    myStackFree(stack);
+                    return false;
+                }
+            }
+        }
+    }
+    bool ans = myStackEmpty(stack);
+    myStackFree(stack);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391408357/
+```
+
+```c
+typedef char Value;
+
+typedef struct {
+    Value *array;
+    int capacity;
+    int size;
+} MyResizingArrayStack;
+
+MyResizingArrayStack *myStackCreate() {
+    MyResizingArrayStack *obj = malloc(sizeof(MyResizingArrayStack));
+    obj->size = 0;
+    obj->capacity = 8;
+    obj->array = malloc(sizeof(Value) * obj->capacity);
+    return obj;
+}
+
+void myStackResize(MyResizingArrayStack *obj, int capacity) {
+    obj->array = realloc(obj->array, sizeof(Value) * capacity);
+    obj->capacity = capacity;
+}
+
+void myStackPush(MyResizingArrayStack *obj, Value val) {
+    if (obj->size == obj->capacity) {
+        myStackResize(obj, obj->capacity * 2);
+    }
+    obj->array[obj->size++] = val;
+}
+
+Value myStackPop(MyResizingArrayStack *obj) {
+    Value val = obj->array[obj->size - 1];
+    obj->size--;
+    if (obj->size > 0 && obj->size == obj->capacity / 4) {
+        myStackResize(obj, obj->capacity / 2);
+    }
+    return val;
+}
+
+Value myStackPeek(MyResizingArrayStack *obj) {
+    return obj->array[obj->size - 1];
+}
+
+int myStackSize(MyResizingArrayStack *obj) {
+    return obj->size;
+}
+
+bool myStackEmpty(MyResizingArrayStack *obj) {
+    return obj->size == 0;
+}
+
+void myStackFree(MyResizingArrayStack *obj) {
+    free(obj->array);
+    free(obj);
+}
+
+bool isValid(char *s) {
+    size_t n = strlen(s);
+    if (n % 2 == 1) {
+        return false;
+    }
+    MyResizingArrayStack *stack = myStackCreate();
+    for (int i = 0; i < n; ++i) {
+        char c = s[i];
+        switch (c) {
+            case '(': {
+                myStackPush(stack, ')');
+                break;
+            }
+            case '[': {
+                myStackPush(stack, ']');
+                break;
+            }
+            case '{': {
+                myStackPush(stack, '}');
+                break;
+            }
+            default: {
+                if (myStackEmpty(stack) || myStackPop(stack) != c) {
+                    myStackFree(stack);
+                    return false;
+                }
+            }
+        }
+    }
+    bool ans = myStackEmpty(stack);
+    myStackFree(stack);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391363710/
 ```
 
 ## 21. 合并两个有序链表
@@ -277,7 +865,27 @@
 <https://leetcode-cn.com/problems/merge-two-sorted-lists/>
 
 ```c
-
+struct ListNode *mergeTwoLists(struct ListNode *list1, struct ListNode *list2) {
+    struct ListNode *dummyHead = malloc(sizeof(struct ListNode));
+    dummyHead->val = 0;
+    dummyHead->next = NULL;
+    struct ListNode *ptr = dummyHead;
+    while (list1 != NULL && list2 != NULL) {
+        if (list1->val < list2->val) {
+            ptr->next = list1;
+            list1 = list1->next;
+        } else {
+            ptr->next = list2;
+            list2 = list2->next;
+        }
+        ptr = ptr->next;
+    }
+    ptr->next = (list1 == NULL ? list2 : list1);
+    struct ListNode *head = dummyHead->next;
+    free(dummyHead);
+    return head;
+}
+// https://leetcode.cn/submissions/detail/391146231/
 ```
 
 ## 22. 括号生成
@@ -285,7 +893,62 @@
 <https://leetcode.cn/problems/generate-parentheses/>
 
 ```c
+int left;  // 已使用的『左括号』数量
+int right; // 已使用的『右括号』数量
+char *path;   // 取 '(', ')' 为元素
+int pathSize;
+char **ans;
+int ansSize;
+int ansCapacity;
 
+void backtrack(int n) {
+    // 对于一个「合法」的括号字符串组合 p，必然对于任何 0 <= i < len(p) 都有：
+    // 子串 p[0..i] 中左括号的数量都大于或等于右括号的数量
+    if (left < right || left > n) {
+        return;
+    }
+    // 一个「合法」括号组合的左括号数量一定等于右括号数量
+    if (left == n && right == n) {
+        char *res = calloc(2 * n + 1, sizeof(char));
+        strcpy(res, path);
+        if (ansSize == ansCapacity) {
+            ansCapacity *= 2;
+            ans = realloc(ans, sizeof(char *) * ansCapacity);
+
+        }
+        ans[ansSize++] = res;
+        return;
+    }
+    // edge = 取 '(', ')' 为值
+    // 使用『左括号』
+    path[pathSize++] = '(';
+    ++left;
+    backtrack(n);
+    --pathSize;
+    --left;
+    // 使用『右括号』
+    path[pathSize++] = ')';
+    ++right;
+    backtrack(n);
+    --pathSize;
+    --right;
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char **generateParenthesis(int n, int *returnSize) {
+    path = calloc(2 * n + 1, sizeof(char));
+    ansCapacity = 8;
+    ans = malloc(sizeof(char *) * ansCapacity);
+    ansSize = pathSize = 0;
+    left = 0, right = 0;
+    backtrack(n);
+    *returnSize = ansSize;
+    free(path);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391307976/
 ```
 
 ## 23. 合并 K 个升序链表
@@ -293,7 +956,44 @@
 <https://leetcode-cn.com/problems/merge-k-sorted-lists/>
 
 ```c
+struct ListNode *mergeTwoLists(struct ListNode *list1, struct ListNode *list2) {
+    struct ListNode *dummyHead = malloc(sizeof(struct ListNode));
+    dummyHead->val = 0;
+    dummyHead->next = NULL;
+    struct ListNode *ptr = dummyHead;
+    while (list1 != NULL && list2 != NULL) {
+        if (list1->val < list2->val) {
+            ptr->next = list1;
+            list1 = list1->next;
+        } else {
+            ptr->next = list2;
+            list2 = list2->next;
+        }
+        ptr = ptr->next;
+    }
+    ptr->next = (list1 == NULL ? list2 : list1);
+    struct ListNode *head = dummyHead->next;
+    free(dummyHead);
+    return head;
+}
 
+struct ListNode *mergeKListsRange(struct ListNode **lists, int lo, int hi) {
+    if (lo > hi) {
+        return NULL;
+    }
+    if (lo == hi) {
+        return lists[lo];
+    }
+    int mid = lo + (hi - lo) / 2;
+    struct ListNode *left = mergeKListsRange(lists, lo, mid);
+    struct ListNode *right = mergeKListsRange(lists, mid + 1, hi);
+    return mergeTwoLists(left, right);
+}
+
+struct ListNode *mergeKLists(struct ListNode **lists, int listsSize) {
+    return mergeKListsRange(lists, 0, listsSize - 1);
+}
+// https://leetcode.cn/submissions/detail/391146811/
 ```
 
 ## 24. 两两交换链表中的节点
@@ -301,7 +1001,18 @@
 <https://leetcode-cn.com/problems/swap-nodes-in-pairs/>
 
 ```c
-
+struct ListNode *swapPairs(struct ListNode *head) {
+    if (head == NULL || head->next == NULL) {
+        return head;
+    }
+    struct ListNode *x = head;
+    struct ListNode *y = head->next;
+    struct ListNode *z = head->next->next;
+    y->next = x;
+    x->next = swapPairs(z);
+    return y;
+}
+// https://leetcode.cn/submissions/detail/388499130/
 ```
 
 ## 25. K 个一组翻转链表
@@ -309,7 +1020,32 @@
 <https://leetcode.cn/problems/reverse-nodes-in-k-group/>
 
 ```c
+struct ListNode *reverseList(struct ListNode *head) {
+    struct ListNode *reverseHead = NULL;
+    while (head != NULL) {
+        struct ListNode *x = head->next;
+        head->next = reverseHead;
+        reverseHead = head;
+        head = x;
+    }
+    return reverseHead;
+}
 
+struct ListNode *reverseKGroup(struct ListNode *head, int k) {
+    struct ListNode *ptr = head;
+    for (int i = 1; i <= k - 1 && ptr != NULL; ++i) {
+        ptr = ptr->next;
+    }
+    if (ptr == NULL) {
+        return head;
+    }
+    struct ListNode *nextGroup = ptr->next;
+    ptr->next = NULL;
+    struct ListNode *reverseHead = reverseList(head);
+    head->next = reverseKGroup(nextGroup, k);
+    return reverseHead;
+}
+// https://leetcode.cn/submissions/detail/390357194/
 ```
 
 ## 26. 删除有序数组中的重复项
@@ -317,7 +1053,26 @@
 <https://leetcode.cn/problems/remove-duplicates-from-sorted-array/>
 
 ```c
+void swap(int *a, int *b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
 
+int removeDuplicates(int *nums, int numsSize) {
+    // [0..i-1] 不重复元素区间
+    // [i..j-1] 重复元素区间
+    // [j..n-1] 扫描区间
+    int i = 0, j = 0;
+    while (j < numsSize) {
+        while (j + 1 < numsSize && nums[j] == nums[j + 1]) {
+            ++j;
+        }
+        swap(&nums[i++], &nums[j++]);
+    }
+    return i;
+}
+// https://leetcode.cn/submissions/detail/388245066/
 ```
 
 ## 27. 移除元素
@@ -325,7 +1080,31 @@
 <https://leetcode.cn/problems/remove-element/>
 
 ```c
+void swap(int *a, int *b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
 
+int removeElement(int *nums, int numsSize, int val) {
+    // nums[0..i-1]   != val
+    // nums[i..j]     Scanning
+    // nums[j+1..n-1] == val
+    int i = 0, j = numsSize - 1;
+    while (i <= j) {
+        while (i <= j && nums[i] != val) {
+            ++i;
+        }
+        while (i <= j && nums[j] == val) {
+            --j;
+        }
+        if (i <= j) {
+            swap(&nums[i++], &nums[j--]);
+        }
+    }
+    return i;
+}
+// https://leetcode.cn/submissions/detail/388242647/
 ```
 
 ## 28. 实现 strStr()
@@ -333,7 +1112,60 @@
 <https://leetcode.cn/problems/implement-strstr/>
 
 ```c
+static const int R = 256;
 
+int strStr(char *haystack, char *needle) {
+    size_t n = strlen(haystack);
+    size_t m = strlen(needle);
+    int right[R];
+    memset(right, -1, sizeof(right));
+    for (int j = 0; j < m; ++j) {
+        right[needle[j]] = j;
+    }
+    int skip;
+    for (int i = 0; i + m <= n; i += skip) {
+        skip = 0;
+        for (int j = m - 1; j >= 0; --j) {
+            if (needle[j] != haystack[i + j]) {
+                skip = fmax(1, j - right[haystack[i + j]]);
+                break;
+            }
+        }
+        if (skip == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+// https://leetcode.cn/submissions/detail/391414985/
+```
+
+```c
+static const int R = 256;
+
+int strStr(char *haystack, char *needle) {
+    size_t n = strlen(haystack);
+    size_t m = strlen(needle);
+    int dfa[R][m];
+    memset(dfa, 0, sizeof(dfa));
+    dfa[needle[0]][0] = 1;
+    for (int x = 0, j = 1; j < m; ++j) {
+        for (int c = 0; c < R; ++c) {
+            dfa[c][j] = dfa[c][x];
+        }
+        dfa[needle[j]][j] = j + 1;
+        x = dfa[needle[j]][x];
+    }
+    int i, j;
+    for (i = 0, j = 0; i < n && j < m; ++i) {
+        j = dfa[haystack[i]][j];
+    }
+    if (j == m) {
+        return i - m;
+    }
+    return -1;
+}
+// https://leetcode.cn/submissions/detail/391414571/
 ```
 
 ## 33. 搜索旋转排序数组
