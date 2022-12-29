@@ -1173,7 +1173,32 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/search-in-rotated-sorted-array/>
 
 ```c
-
+int search(const int *nums, int numsSize, int target) {
+    int lo = 0, hi = numsSize - 1;
+    while (lo <= hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (nums[mid] == target) {
+            return mid;
+        }
+        // 当 lo = hi 时，nums[lo] = nums[mid] = nums[hi]，
+        // 此时 nums[mid] < target <= nums[hi] 不成立
+        if (nums[mid] <= nums[hi]) {
+            if (nums[mid] < target && target <= nums[hi]) {
+                lo = mid + 1;
+            } else {
+                hi = mid - 1;
+            }
+        } else {
+            if (nums[lo] <= target && target < nums[mid]) {
+                hi = mid - 1;
+            } else {
+                lo = mid + 1;
+            }
+        }
+    }
+    return -1;
+}
+// https://leetcode.cn/submissions/detail/391135962/
 ```
 
 ## 34. 在排序数组中查找元素的第一个和最后一个位置
@@ -1181,7 +1206,38 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/>
 
 ```c
+int binarySearch(const int *nums, int numsSize, int target, bool lower) {
+    int res = -1;
+    int lo = 0, hi = numsSize - 1;
+    while (lo <= hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (target < nums[mid]) {
+            hi = mid - 1;
+        } else if (nums[mid] < target) {
+            lo = mid + 1;
+        } else {
+            res = mid;
+            if (lower) {
+                hi = mid - 1;
+            } else {
+                lo = mid + 1;
+            }
+        }
+    }
+    return res;
+}
 
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *searchRange(const int *nums, int numsSize, int target, int *returnSize) {
+    *returnSize = 2;
+    int *ans = malloc(sizeof(int[*returnSize]));
+    ans[0] = binarySearch(nums, numsSize, target, true);
+    ans[1] = binarySearch(nums, numsSize, target, false);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391139603/
 ```
 
 ## 37. 解数独
@@ -1189,7 +1245,57 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/sudoku-solver/>
 
 ```c
+// board[row][col] 填入数字 ch 是否有效
+bool isValid(char **board, int boardSize, int row, int col, char ch) {
+    for (int i = 0; i < boardSize; ++i) {
+        // 同一行
+        if (board[row][i] == ch) {
+            return false;
+        }
+        // 同一列
+        if (board[i][col] == ch) {
+            return false;
+        }
+        // 同九宫
+        if (board[(row / 3) * 3 + i / 3][(col / 3) * 3 + i % 3] == ch) {
+            return false;
+        }
+    }
+    return true;
+}
 
+// 遍历『决策森林』
+// tree  = row
+// level = (row, col)
+bool backtrack(char **board, int boardSize, int row, int col) {
+    bool res = false;
+    if (row == boardSize - 1 && col == boardSize - 1) {
+        res = true;
+    } else if (row < boardSize - 1 && col == boardSize - 1) {
+        // 遍历下一棵『决策树』
+        res = backtrack(board, boardSize, row + 1, -1);
+    } else if (board[row][col + 1] != '.') {
+        res = backtrack(board, boardSize, row, col + 1);
+    } else {
+        // edge = ['1'..'9']
+        for (char ch = '1'; ch <= '9'; ++ch) {
+            if (isValid(board, boardSize, row, col + 1, ch)) {
+                board[row][col + 1] = ch;
+                res = backtrack(board, boardSize, row, col + 1);
+                if (res) {
+                    break;
+                }
+                board[row][col + 1] = '.';
+            }
+        }
+    }
+    return res;
+}
+
+void solveSudoku(char **board, int boardSize, int *boardColSize) {
+    backtrack(board, boardSize, 0, -1);
+}
+// https://leetcode.cn/submissions/detail/390328577/
 ```
 
 ## 39. 组合总和
@@ -1197,7 +1303,71 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/combination-sum/>
 
 ```c
+int *path;
+int pathSum;
+int pathSize;
+int pathCapacity;
 
+int **ans;
+int ansSize;
+int *ansColSize;
+int ansCapacity;
+
+void backtrack(int *candidates, int candidatesSize, int target, int edge) {
+    if (pathSum == target) {
+        size_t n = sizeof(int[pathSize]);
+        int *res = malloc(n);
+        memcpy(res, path, n);
+        if (ansSize == ansCapacity) {
+            ansCapacity *= 2;
+            ans = realloc(ans, sizeof(int *) * ansCapacity);
+            ansColSize = realloc(ansColSize, sizeof(int[ansCapacity]));
+        }
+        ans[ansSize] = res;
+        ansColSize[ansSize++] = pathSize;
+        return;
+    }
+    if (edge == -1) {
+        edge = 0;
+    }
+    // 避免重复，从 edge 开始选择
+    // 例如 [1->2] 和 [2->1] 是重复的
+    while (edge < candidatesSize) {
+        int x = candidates[edge];
+        if (pathSum + x <= target) {
+            pathSum += x;
+            if (pathSize == pathCapacity) {
+                pathCapacity *= 2;
+                path = realloc(path, sizeof(int[pathCapacity]));
+            }
+            path[pathSize++] = x;
+            backtrack(candidates, candidatesSize, target, edge);
+            pathSum -= x;
+            --pathSize;
+        }
+        ++edge;
+    }
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **combinationSum(int *candidates, int candidatesSize, int target, int *returnSize, int **returnColumnSizes) {
+    ansCapacity = 8;
+    ans = malloc(sizeof(int *) * ansCapacity);
+    ansColSize = malloc(sizeof(int[ansCapacity]));
+    pathCapacity = 8;
+    path = malloc(sizeof(int[pathCapacity]));
+    ansSize = pathSize = pathSum = 0;
+    backtrack(candidates, candidatesSize, target, -1);
+    *returnSize = ansSize;
+    *returnColumnSizes = ansColSize;
+    free(path);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391266359/
 ```
 
 ## 40. 组合总和 II
@@ -1205,7 +1375,76 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/combination-sum-ii/>
 
 ```c
+int *path;
+int pathSum;
+int pathSize;
+int pathCapacity;
 
+int **ans;
+int ansSize;
+int *ansColSize;
+int ansCapacity;
+
+void backtrack(int *candidates, int candidatesSize, int target, int edge) {
+    if (pathSum == target) {
+        size_t n = sizeof(int[pathSize]);
+        int *res = malloc(n);
+        memcpy(res, path, n);
+        if (ansSize == ansCapacity) {
+            ansCapacity *= 2;
+            ans = realloc(ans, sizeof(int *) * ansCapacity);
+            ansColSize = realloc(ansColSize, sizeof(int[ansCapacity]));
+        }
+        ans[ansSize] = res;
+        ansColSize[ansSize++] = pathSize;
+        return;
+    }
+    int prev = INT_MIN;
+    // 避免重复，从 edge 开始选择
+    // 例如 [1->2] 和 [2->1] 是重复的
+    while (++edge < candidatesSize) {
+        int x = candidates[edge];
+        if (x != prev && pathSum + x <= target) {
+            prev = x;
+            pathSum += x;
+            if (pathSize == pathCapacity) {
+                pathCapacity *= 2;
+                path = realloc(path, sizeof(int[pathCapacity]));
+            }
+            path[pathSize++] = x;
+            backtrack(candidates, candidatesSize, target, edge);
+            pathSum -= x;
+            --pathSize;
+        }
+    }
+}
+
+int cmp(const void *a, const void *b) {
+    int arg1 = *(const int *) a;
+    int arg2 = *(const int *) b;
+    return arg1 - arg2;
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **combinationSum2(int *candidates, int candidatesSize, int target, int *returnSize, int **returnColumnSizes) {
+    qsort(candidates, candidatesSize, sizeof(int), cmp);
+    ansCapacity = 8;
+    ans = malloc(sizeof(int *) * ansCapacity);
+    ansColSize = malloc(sizeof(int[ansCapacity]));
+    pathCapacity = 8;
+    path = malloc(sizeof(int[pathCapacity]));
+    ansSize = pathSize = pathSum = 0;
+    backtrack(candidates, candidatesSize, target, -1);
+    *returnSize = ansSize;
+    *returnColumnSizes = ansColSize;
+    free(path);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391276138/
 ```
 
 ## 42. 接雨水
@@ -1213,7 +1452,26 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/trapping-rain-water/>
 
 ```c
-
+int trap(int *height, int heightSize) {
+    // leftMax[i] = max(height[0..i])
+    int leftMax[heightSize];
+    leftMax[0] = height[0];
+    for (int i = 1; i <= heightSize - 1; ++i) {
+        leftMax[i] = fmax(height[i], leftMax[i - 1]);
+    }
+    // rightMax[i] = max(height[i..heightSize-1])
+    int rightMax[heightSize];
+    rightMax[heightSize - 1] = height[heightSize - 1];
+    for (int i = heightSize - 2; i >= 0; --i) {
+        rightMax[i] = fmax(height[i], rightMax[i + 1]);
+    }
+    int sum = 0;
+    for (int i = 0; i < heightSize; ++i) {
+        sum += fmin(leftMax[i], rightMax[i]) - height[i];
+    }
+    return sum;
+}
+// https://leetcode.cn/submissions/detail/390335614/
 ```
 
 ## 46. 全排列
@@ -1221,7 +1479,62 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/permutations/>
 
 ```c
+int *path;
+int pathSize;
+bool *marked;
 
+int **ans;
+int ansSize;
+int *ansColSize;
+int ansCapacity;
+
+void backtrack(int *nums, int numsSize) {
+    if (pathSize == numsSize) {
+        size_t n = sizeof(int[pathSize]);
+        int *res = malloc(n);
+        memcpy(res, path, n);
+        if (ansSize == ansCapacity) {
+            ansCapacity *= 2;
+            ans = realloc(ans, sizeof(int *) * ansCapacity);
+            ansColSize = realloc(ansColSize, sizeof(int[ansCapacity]));
+        }
+        ans[ansSize] = res;
+        ansColSize[ansSize++] = pathSize;
+        return;
+    }
+    // edge = 取数组 nums 的索引为值
+    for (int edge = 0; edge < numsSize; ++edge) {
+        if (!marked[edge]) {
+            marked[edge] = true;
+            path[pathSize++] = nums[edge];
+            backtrack(nums, numsSize);
+            marked[edge] = false;
+            --pathSize;
+        }
+    }
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **permute(int *nums, int numsSize, int *returnSize, int **returnColumnSizes) {
+    ansCapacity = 8;
+    ans = malloc(sizeof(int *) * ansCapacity);
+    ansColSize = malloc(sizeof(int[ansCapacity]));
+    path = malloc(sizeof(int[numsSize]));
+    ansSize = pathSize = 0;
+    marked = malloc(sizeof(bool[numsSize]));
+    memset(marked, 0, sizeof(bool[numsSize]));
+    backtrack(nums, numsSize);
+    *returnSize = ansSize;
+    *returnColumnSizes = ansColSize;
+    free(path);
+    free(marked);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391276999/
 ```
 
 ## 47. 全排列 II
@@ -1229,7 +1542,72 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/permutations-ii/>
 
 ```c
+int *path;
+int pathSize;
+bool *marked;
 
+int **ans;
+int ansSize;
+int *ansColSize;
+int ansCapacity;
+
+void backtrack(int *nums, int numsSize) {
+    if (pathSize == numsSize) {
+        size_t n = sizeof(int[pathSize]);
+        int *res = malloc(n);
+        memcpy(res, path, n);
+        if (ansSize == ansCapacity) {
+            ansCapacity *= 2;
+            ans = realloc(ans, sizeof(int *) * ansCapacity);
+            ansColSize = realloc(ansColSize, sizeof(int[ansCapacity]));
+        }
+        ans[ansSize] = res;
+        ansColSize[ansSize++] = pathSize;
+        return;
+    }
+    int prev = INT_MIN;
+    // edge = 取数组 nums 的索引为值
+    for (int edge = 0; edge < numsSize; ++edge) {
+        int x = nums[edge];
+        if (!marked[edge] && x != prev) {
+            prev = x;
+            marked[edge] = true;
+            path[pathSize++] = x;
+            backtrack(nums, numsSize);
+            marked[edge] = false;
+            --pathSize;
+        }
+    }
+}
+
+int cmp(const void *a, const void *b) {
+    int arg1 = *(const int *) a;
+    int arg2 = *(const int *) b;
+    return arg1 - arg2;
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **permuteUnique(int *nums, int numsSize, int *returnSize, int **returnColumnSizes) {
+    qsort(nums, numsSize, sizeof(int), cmp);
+    ansCapacity = 8;
+    ans = malloc(sizeof(int *) * ansCapacity);
+    ansColSize = malloc(sizeof(int[ansCapacity]));
+    path = malloc(sizeof(int[numsSize]));
+    ansSize = pathSize = 0;
+    marked = malloc(sizeof(bool[numsSize]));
+    memset(marked, 0, sizeof(bool[numsSize]));
+    backtrack(nums, numsSize);
+    *returnSize = ansSize;
+    *returnColumnSizes = ansColSize;
+    free(path);
+    free(marked);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391277468/
 ```
 
 ## 51. N 皇后
@@ -1237,7 +1615,86 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/n-queens/>
 
 ```c
+char ***ans;
+int ansSize;
+int ansCapacity;
+int *ansColSize;
 
+// board[row][col] 放置 Q 是否有效
+bool isValid(char **board, int n, int row, int col) {
+    // 同一列
+    for (int r = row - 1; r >= 0; --r) {
+        if (board[r][col] == 'Q') {
+            return false;
+        }
+    }
+    // 右斜线
+    for (int r = row - 1, c = col + 1; r >= 0 && c < n; --r, ++c) {
+        if (board[r][c] == 'Q') {
+            return false;
+        }
+    }
+    // 左斜线
+    for (int r = row - 1, c = col - 1; r >= 0 && c >= 0; --r, --c) {
+        if (board[r][c] == 'Q') {
+            return false;
+        }
+    }
+    return true;
+}
+
+// level = row
+void backtrack(char **board, int n, int row) {
+    if (row == n - 1) {
+        char **sol = malloc(sizeof(char *) * n);
+        for (int i = 0; i < n; ++i) {
+            sol[i] = calloc(n + 1, sizeof(char));
+            strcpy(sol[i], board[i]);
+        }
+        if (ansSize == ansCapacity) {
+            ansCapacity *= 2;
+            ans = realloc(ans, sizeof(char *) * ansCapacity);
+            ansColSize = realloc(ansColSize, sizeof(int[ansCapacity]));
+        }
+        ans[ansSize] = sol;
+        ansColSize[ansSize++] = n;
+        return;
+    }
+    // edge = col
+    for (int col = 0; col < n; ++col) {
+        if (isValid(board, n, row + 1, col)) {
+            board[row + 1][col] = 'Q';
+            backtrack(board, n, row + 1);
+            board[row + 1][col] = '.';
+        }
+    }
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+char ***solveNQueens(int n, int *returnSize, int **returnColumnSizes) {
+    ansSize = 0;
+    ansCapacity = 8;
+    ans = malloc(sizeof(char **) * ansCapacity);
+    ansColSize = malloc(sizeof(int[ansCapacity]));
+    char **board = malloc(sizeof(char *) * n);
+    for (int i = 0; i < n; ++i) {
+        board[i] = calloc(n + 1, sizeof(char));
+        memset(board[i], '.', sizeof(char[n]));
+    }
+    backtrack(board, n, -1);
+    *returnSize = ansSize;
+    *returnColumnSizes = ansColSize;
+    for (int i = 0; i < n; ++i) {
+        free(board[i]);
+    }
+    free(board);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391342236/
 ```
 
 ## 52. N 皇后 II
@@ -1245,7 +1702,62 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/n-queens-ii/>
 
 ```c
+int ans;
 
+// board[row][col] 放置 Q 是否有效
+bool isValid(char **board, int n, int row, int col) {
+    // 同一列
+    for (int r = row - 1; r >= 0; --r) {
+        if (board[r][col] == 'Q') {
+            return false;
+        }
+    }
+    // 右斜线
+    for (int r = row - 1, c = col + 1; r >= 0 && c < n; --r, ++c) {
+        if (board[r][c] == 'Q') {
+            return false;
+        }
+    }
+    // 左斜线
+    for (int r = row - 1, c = col - 1; r >= 0 && c >= 0; --r, --c) {
+        if (board[r][c] == 'Q') {
+            return false;
+        }
+    }
+    return true;
+}
+
+// level = row
+void backtrack(char **board, int n, int row) {
+    if (row == n - 1) {
+        ++ans;
+        return;
+    }
+    // edge = col
+    for (int col = 0; col < n; ++col) {
+        if (isValid(board, n, row + 1, col)) {
+            board[row + 1][col] = 'Q';
+            backtrack(board, n, row + 1);
+            board[row + 1][col] = '.';
+        }
+    }
+}
+
+int totalNQueens(int n) {
+    ans = 0;
+    char **board = malloc(sizeof(char *) * n);
+    for (int i = 0; i < n; ++i) {
+        board[i] = calloc(n + 1, sizeof(char));
+        memset(board[i], '.', sizeof(char[n]));
+    }
+    backtrack(board, n, -1);
+    for (int i = 0; i < n; ++i) {
+        free(board[i]);
+    }
+    free(board);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/390810027/
 ```
 
 ## 53. 最大子数组和
@@ -1253,7 +1765,18 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/maximum-subarray/>
 
 ```c
-
+int maxSubArray(int *nums, int numsSize) {
+    // dp[i] = max({sum(subarray) | subarray 是以 nums[i] 结尾的子数组})
+    int dp[numsSize];
+    dp[0] = nums[0];
+    int ans = dp[0];
+    for (int i = 1; i < numsSize; ++i) {
+        dp[i] = fmax(nums[i], nums[i] + dp[i - 1]);
+        ans = fmax(ans, dp[i]);
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/390340097/
 ```
 
 ## 56. 合并区间
@@ -1261,7 +1784,50 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/merge-intervals/>
 
 ```c
+int cmp(const void *a, const void *b) {
+    const int *arg1 = *(const int **) a;
+    const int *arg2 = *(const int **) b;
+    if (arg1[0] == arg2[0]) {
+        return arg2[1] - arg1[1];
+    }
+    return arg1[0] - arg2[0];
+}
 
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **merge(int **intervals, int intervalsSize, int *intervalsColSize, int *returnSize, int **returnColumnSizes) {
+    qsort(intervals, intervalsSize, sizeof(int *), cmp);
+    int **ans = malloc(sizeof(int *) * intervalsSize);
+    *returnColumnSizes = malloc(sizeof(int[intervalsSize]));
+    *returnSize = 0;
+    int mStart = intervals[0][0];
+    int mEnd = intervals[0][1];
+    for (int i = 1; i < intervalsSize; ++i) {
+        int start = intervals[i][0];
+        int end = intervals[i][1];
+        if (start <= mEnd) { // 重叠
+            mEnd = fmax(mEnd, end);
+        } else { // 不重叠
+            int *t = malloc(sizeof(int[2]));
+            t[0] = mStart;
+            t[1] = mEnd;
+            ans[*returnSize] = t;
+            (*returnColumnSizes)[(*returnSize)++] = 2;
+            mStart = start;
+            mEnd = end;
+        }
+    }
+    int *t = malloc(sizeof(int[2]));
+    t[0] = mStart;
+    t[1] = mEnd;
+    ans[*returnSize] = t;
+    (*returnColumnSizes)[(*returnSize)++] = 2;
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391304543/
 ```
 
 ## 64. 最小路径和
@@ -1269,7 +1835,33 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/minimum-path-sum/>
 
 ```c
+// 从 grid[0][0] 到 grid[row][col] 的最小路径和
+int minPathSumMemo(int **grid, int gridColSize, int row, int col, int *memo) {
+    if (row < 0 || col < 0) {
+        return INT_MAX;
+    }
+    if (row == 0 && col == 0) {
+        return grid[row][col];
+    }
+    int *p = memo + row * gridColSize + col;
+    if (*p == -1) {
+        int sp1 = minPathSumMemo(grid, gridColSize, row - 1, col, memo);
+        int sp2 = minPathSumMemo(grid, gridColSize, row, col - 1, memo);
+        *p = fmin(sp1, sp2) + grid[row][col];
+    }
+    return *p;
+}
 
+int minPathSum(int **grid, int gridSize, const int *gridColSize) {
+    int memo[gridSize][*gridColSize];
+    for (int i = 0; i < gridSize; ++i) {
+        for (int j = 0; j < *gridColSize; ++j) {
+            memo[i][j] = -1;
+        }
+    }
+    return minPathSumMemo(grid, *gridColSize, gridSize - 1, *gridColSize - 1, memo[0]);
+}
+// https://leetcode.cn/submissions/detail/391222469/
 ```
 
 ## 69. x 的平方根
@@ -1277,7 +1869,25 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/sqrtx/>
 
 ```c
-
+int mySqrt(int x) {
+    if (x == 0) {
+        return 0;
+    }
+    int lo = 1, hi = x;
+    while (lo <= hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (mid <= x / mid && (mid + 1) > x / (mid + 1)) {
+            return mid;
+        }
+        if (mid <= x / mid) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return -1;
+}
+// https://leetcode.cn/submissions/detail/391140272/
 ```
 
 ## 70. 爬楼梯
@@ -1285,7 +1895,25 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/climbing-stairs/>
 
 ```c
-
+int climbStairs(int n) {
+    if (n == 1) {
+        return 1;
+    }
+    if (n == 2) {
+        return 2;
+    }
+    // dp[i] = 楼梯有 i 阶时，有几种不同的方法
+    int *dp = (int *) malloc((n + 1) * sizeof(int));
+    dp[1] = 1;
+    dp[2] = 2;
+    for (int i = 3; i <= n; i++) {
+        dp[i] = dp[i - 1] + dp[i - 2];
+    }
+    int ans = dp[n];
+    free(dp);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/388295323/
 ```
 
 ## 72. 编辑距离
@@ -1293,7 +1921,122 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/edit-distance/>
 
 ```c
+// 子串 s1[0..i] s2[0..j] 的最小编辑距离
+int minDistanceMemo(const char *s1, int i, const char *s2, int j, int *memo) {
+    if (i < 0) {
+        // 插入 s2[0..j] 到 s1
+        // s1""
+        // s2[0..j]
+        return j + 1;
+    }
+    if (j < 0) {
+        // 删除 s1[0..i]
+        // s1[0..i]
+        // s2""
+        return i + 1;
+    }
+    int *p = memo + i * strlen(s2) + j;
+    if (*p == -1) {
+        if (s1[i] == s2[j]) {
+            // s1[0..i-1][i]
+            // s2[0..j-1][j]
+            *p = minDistanceMemo(s1, i - 1, s2, j - 1, memo);
+        } else {
+            // 替换 s1[i] 为 s2[j]
+            // s1[0..i-1][i]
+            // s2[0..j-1][j]
+            int sp1 = minDistanceMemo(s1, i - 1, s2, j - 1, memo) + 1;
+            // 插入 s2[j] 到 s1
+            // s1[0..i]
+            // s2[0..j-1][j]
+            int sp2 = minDistanceMemo(s1, i, s2, j - 1, memo) + 1;
+            // 删除 s1[i]
+            // s1[0..i-1][i]
+            // s2[0..j]
+            int sp3 = minDistanceMemo(s1, i - 1, s2, j, memo) + 1;
+            *p = fmin(fmin(sp1, sp2), sp3);
+        }
+    }
+    return *p;
+}
 
+int minDistance(char *word1, char *word2) {
+    int n1 = strlen(word1);
+    int n2 = strlen(word2);
+    if (n1 == 0) {
+        return n2;
+    }
+    if (n2 == 0) {
+        return n1;
+    }
+    int memo[n1][n2];
+    for (int i = 0; i < n1; ++i) {
+        for (int j = 0; j < n2; ++j) {
+            memo[i][j] = -1;
+        }
+    }
+    return minDistanceMemo(word1, n1 - 1, word2, n2 - 1, memo[0]);
+}
+// https://leetcode.cn/submissions/detail/391221572/
+```
+
+```c
+int **memo;
+
+// 子串 s1[0..i] s2[0..j] 的最小编辑距离
+int minDistanceMemo(const char *s1, int i, const char *s2, int j) {
+    if (i < 0) {
+        // 插入 s2[0..j] 到 s1
+        // s1""
+        // s2[0..j]
+        return j + 1;
+    }
+    if (j < 0) {
+        // 删除 s1[0..i]
+        // s1[0..i]
+        // s2""
+        return i + 1;
+    }
+    if (memo[i][j] == -1) {
+        if (s1[i] == s2[j]) {
+            // s1[0..i-1][i]
+            // s2[0..j-1][j]
+            memo[i][j] = minDistanceMemo(s1, i - 1, s2, j - 1);
+        } else {
+            // 替换 s1[i] 为 s2[j]
+            // s1[0..i-1][i]
+            // s2[0..j-1][j]
+            int sp1 = minDistanceMemo(s1, i - 1, s2, j - 1) + 1;
+            // 插入 s2[j] 到 s1
+            // s1[0..i]
+            // s2[0..j-1][j]
+            int sp2 = minDistanceMemo(s1, i, s2, j - 1) + 1;
+            // 删除 s1[i]
+            // s1[0..i-1][i]
+            // s2[0..j]
+            int sp3 = minDistanceMemo(s1, i - 1, s2, j) + 1;
+            memo[i][j] = fmin(fmin(sp1, sp2), sp3);
+        }
+    }
+    return memo[i][j];
+}
+
+int minDistance(char *word1, char *word2) {
+    int n1 = strlen(word1);
+    int n2 = strlen(word2);
+    memo = malloc(sizeof(int *) * n1);
+    for (int i = 0; i < n1; ++i) {
+        memo[i] = malloc(sizeof(int) * n2);
+        memset(memo[i], -1, sizeof(int) * n2);
+    }
+    int ans = minDistanceMemo(word1, n1 - 1, word2, n2 - 1);
+    for (int i = 0; i < n1; ++i) {
+        free(memo[i]);
+    }
+    free(memo);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391221155/
 ```
 
 ## 75. 颜色分类
@@ -1301,7 +2044,27 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/sort-colors/>
 
 ```c
+void swap(int *a, int *b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
 
+void sortColors(int *nums, int numsSize) {
+    int v = 1;
+    int i = 0, lt = 0, gt = numsSize - 1;
+    while (i <= gt) {
+        int x = nums[i];
+        if (x < v) {
+            swap(&nums[lt++], &nums[i++]);
+        } else if (x > v) {
+            swap(&nums[i], &nums[gt--]);
+        } else {
+            ++i;
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/388293077/
 ```
 
 ## 76. 最小覆盖子串
@@ -1309,7 +2072,89 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/minimum-window-substring/>
 
 ```c
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashMapItem;
 
+char *minWindow(char *s, char *t) {
+    size_t sLength = strlen(s), tLength = strlen(t);
+    HashMapItem *need = NULL;
+    for (int i = 0; i < tLength; ++i) {
+        int ch = t[i];
+        HashMapItem *needItem;
+        HASH_FIND_INT(need, &ch, needItem);
+        if (needItem == NULL) {
+            needItem = malloc(sizeof(HashMapItem));
+            needItem->key = ch;
+            needItem->val = 0;
+            HASH_ADD_INT(need, key, needItem);
+        }
+        needItem->val++;
+    }
+    int valid = 0;
+    int start = 0, len = INT_MAX;
+    // s[left..right) = Window Substring
+    // s[right..tLength-1]  = Scanning
+    int left = 0, right = 0;
+    HashMapItem *window = NULL;
+    while (right < sLength) {
+        int add = s[right++];
+        HashMapItem *needItem;
+        HASH_FIND_INT(need, &add, needItem);
+        if (needItem != NULL) {
+            HashMapItem *winItem;
+            HASH_FIND_INT(window, &add, winItem);
+            if (winItem == NULL) {
+                winItem = malloc(sizeof(HashMapItem));
+                winItem->key = add;
+                winItem->val = 0;
+                HASH_ADD_INT(window, key, winItem);
+            }
+            if (++winItem->val == needItem->val) {
+                ++valid;
+            }
+        }
+        if (valid == HASH_COUNT(need)) {
+            while (left <= right) {
+                int del = s[left];
+                HASH_FIND_INT(need, &del, needItem);
+                HashMapItem *winItem;
+                HASH_FIND_INT(window, &del, winItem);
+                if (needItem != NULL && winItem->val == needItem->val) {
+                    break;
+                }
+                if (needItem != NULL) {
+                    winItem->val--;
+                }
+                ++left;
+            }
+            if (right - left < len) {
+                start = left;
+                len = right - left;
+            }
+        }
+    }
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, need, cur, tmp) {
+        HASH_DEL(need, cur);
+        free(cur);
+    }
+    HASH_ITER(hh, window, cur, tmp) {
+        HASH_DEL(window, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, need);
+    HASH_CLEAR(hh, window);
+    if (len < INT_MAX) {
+        char *ans = calloc(len + 1, sizeof(char));
+        strncpy(ans, s + start, len);
+        return ans;
+    }
+    return "";
+}
+// https://leetcode.cn/submissions/detail/391352061/
 ```
 
 ## 77. 组合
@@ -1317,7 +2162,56 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/combinations/>
 
 ```c
+int *path;
+int pathSize;
 
+int **ans;
+int ansSize;
+int *ansColSize;
+int ansCapacity;
+
+// edge = 取 [1..n] 为值
+void backtrack(int n, int k, int edge) {
+    if (pathSize == k) {
+        size_t size = sizeof(int[pathSize]);
+        int *res = malloc(size);
+        memcpy(res, path, size);
+        if (ansSize == ansCapacity) {
+            ansCapacity *= 2;
+            ans = realloc(ans, sizeof(int *) * ansCapacity);
+            ansColSize = realloc(ansColSize, sizeof(int[ansCapacity]));
+        }
+        ans[ansSize] = res;
+        ansColSize[ansSize++] = pathSize;
+        return;
+    }
+    // 避免重复，从 edge + 1 开始选择
+    // 例如 [1->2] 和 [2->1] 是重复的
+    while (++edge <= n) {
+        path[pathSize++] = edge;
+        backtrack(n, k, edge);
+        --pathSize;
+    }
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **combine(int n, int k, int *returnSize, int **returnColumnSizes) {
+    ansCapacity = 8;
+    ans = malloc(sizeof(int *) * ansCapacity);
+    ansColSize = malloc(sizeof(int[ansCapacity]));
+    path = malloc(sizeof(int[k]));
+    ansSize = pathSize = 0;
+    backtrack(n, k, 0);
+    *returnSize = ansSize;
+    *returnColumnSizes = ansColSize;
+    free(path);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391269316/
 ```
 
 ## 78. 子集
@@ -1325,7 +2219,46 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/subsets/>
 
 ```c
+int *path;
+int pathSize;
 
+int **ans;
+int ansSize;
+int *ansColSize;
+
+// edge = 取数组 nums 的索引为值
+void backtrack(int *nums, int numsSize, int edge) {
+    size_t n = sizeof(int[pathSize]);
+    int *res = malloc(n);
+    memcpy(res, path, n);
+    ans[ansSize] = res;
+    ansColSize[ansSize++] = pathSize;
+    // 避免重复，从 edge + 1 开始选择
+    // 例如 [1->2] 和 [2->1] 是重复的
+    while (++edge < numsSize) {
+        path[pathSize++] = nums[edge];
+        backtrack(nums, numsSize, edge);
+        --pathSize;
+    }
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **subsets(int *nums, int numsSize, int *returnSize, int **returnColumnSizes) {
+    *returnSize = 1 << numsSize;
+    ans = malloc(sizeof(int *) * (*returnSize));
+    ansColSize = malloc(sizeof(int[*returnSize]));
+    path = malloc(sizeof(int[numsSize]));
+    ansSize = pathSize = 0;
+    backtrack(nums, numsSize, -1);
+    *returnColumnSizes = ansColSize;
+    free(path);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391268181/
 ```
 
 ## 81. 搜索旋转排序数组 II
@@ -1333,7 +2266,35 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/search-in-rotated-sorted-array-ii/>
 
 ```c
-
+bool search(const int *nums, int numsSize, int target) {
+    int lo = 0, hi = numsSize - 1;
+    while (lo <= hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (nums[mid] == target) {
+            return true;
+        }
+        if (nums[lo] == nums[mid] && nums[mid] == nums[hi]) {
+            ++lo;
+            --hi;
+        } else {
+            if (nums[mid] <= nums[hi]) {
+                if (nums[mid] < target && target <= nums[hi]) {
+                    lo = mid + 1;
+                } else {
+                    hi = mid - 1;
+                }
+            } else {
+                if (nums[lo] <= target && target < nums[mid]) {
+                    hi = mid - 1;
+                } else {
+                    lo = mid + 1;
+                }
+            }
+        }
+    }
+    return false;
+}
+// https://leetcode.cn/submissions/detail/391136413/
 ```
 
 ## 83. 删除排序链表中的重复元素
@@ -1341,7 +2302,20 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/remove-duplicates-from-sorted-list/>
 
 ```c
-
+struct ListNode *deleteDuplicates(struct ListNode *head) {
+    struct ListNode *ptr = head;
+    while (ptr != NULL && ptr->next != NULL) {
+        if (ptr->val == ptr->next->val) {
+            struct ListNode *x = ptr->next;
+            ptr->next = x->next;
+            free(x);
+        } else {
+            ptr = ptr->next;
+        }
+    }
+    return head;
+}
+// https://leetcode.cn/submissions/detail/388678148/
 ```
 
 ## 86. 分隔链表
@@ -1349,7 +2323,34 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/partition-list/>
 
 ```c
-
+struct ListNode *partition(struct ListNode *head, int x) {
+    struct ListNode *lessDummyHead = malloc(sizeof(struct ListNode));
+    lessDummyHead->val = 0;
+    lessDummyHead->next = NULL;
+    struct ListNode *lessPtr = lessDummyHead;
+    struct ListNode *greaterDummyHead = malloc(sizeof(struct ListNode));
+    greaterDummyHead->val = 0;
+    greaterDummyHead->next = NULL;
+    struct ListNode *greaterPtr = greaterDummyHead;
+    while (head != NULL) {
+        if (head->val < x) {
+            lessPtr->next = head;
+            lessPtr = lessPtr->next;
+        } else {
+            greaterPtr->next = head;
+            greaterPtr = greaterPtr->next;
+        }
+        head = head->next;
+    }
+    lessPtr->next = NULL;
+    greaterPtr->next = NULL;
+    lessPtr->next = greaterDummyHead->next;
+    head = lessDummyHead->next;
+    free(lessDummyHead);
+    free(greaterDummyHead);
+    return head;
+}
+// https://leetcode.cn/submissions/detail/390337923/
 ```
 
 ## 90. 子集 II
@@ -1357,7 +2358,59 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/subsets-ii/>
 
 ```c
+int *path;
+int pathSize;
 
+int **ans;
+int ansSize;
+int *ansColSize;
+
+// edge = 取数组 nums 的索引为值
+void backtrack(int *nums, int numsSize, int edge) {
+    size_t n = sizeof(int[pathSize]);
+    int *res = malloc(n);
+    memcpy(res, path, n);
+    ans[ansSize] = res;
+    ansColSize[ansSize++] = pathSize;
+    int prev = INT_MIN;
+    // 避免重复，从 edge + 1 开始选择
+    // 例如 [1->2] 和 [2->1] 是重复的
+    while (++edge < numsSize) {
+        int x = nums[edge];
+        if (x != prev) {
+            prev = x;
+            path[pathSize++] = x;
+            backtrack(nums, numsSize, edge);
+            --pathSize;
+        }
+    }
+}
+
+int cmp(const void *a, const void *b) {
+    int arg1 = *(const int *) a;
+    int arg2 = *(const int *) b;
+    return arg1 - arg2;
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **subsetsWithDup(int *nums, int numsSize, int *returnSize, int **returnColumnSizes) {
+    qsort(nums, numsSize, sizeof(int), cmp);
+    const int MAXSIZE = 1 << numsSize;
+    ans = malloc(sizeof(int *) * MAXSIZE);
+    ansColSize = malloc(sizeof(int[MAXSIZE]));
+    path = malloc(sizeof(int[numsSize]));
+    ansSize = pathSize = 0;
+    backtrack(nums, numsSize, -1);
+    *returnSize = ansSize;
+    *returnColumnSizes = ansColSize;
+    free(path);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391268588/
 ```
 
 ## 92. 反转链表 II
@@ -1365,7 +2418,39 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode-cn.com/problems/reverse-linked-list-ii/>
 
 ```c
+// 翻转链表的前 n 个节点，返回翻转后的头节点
+struct ListNode *reverseList(struct ListNode *head, int n) {
+    if (head == NULL || head->next == NULL || n <= 1) {
+        return head;
+    }
+    struct ListNode *reverseHead = NULL;
+    struct ListNode *ptr = head;
+    while (ptr != NULL && n > 0) {
+        struct ListNode *next = ptr->next;
+        ptr->next = reverseHead;
+        reverseHead = ptr;
+        ptr = next;
+        --n;
+    }
+    head->next = ptr;
+    return reverseHead;
+}
 
+struct ListNode *reverseBetween(struct ListNode *head, int left, int right) {
+    if (head == NULL || head->next == NULL) {
+        return head;
+    }
+    if (left == 1) {
+        return reverseList(head, right);
+    }
+    struct ListNode *ptr = head;
+    for (int i = 1; i <= left - 2; ++i) {
+        ptr = ptr->next;
+    }
+    ptr->next = reverseList(ptr->next, right - left + 1);
+    return head;
+}
+// https://leetcode.cn/submissions/detail/390357612/
 ```
 
 ## 94. 二叉树的中序遍历
@@ -1373,7 +2458,29 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/binary-tree-inorder-traversal/>
 
 ```c
+int *ans;
+int ansSize;
 
+void dfs(struct TreeNode *root) {
+    if (root == NULL) {
+        return;
+    }
+    dfs(root->left);
+    ans[ansSize++] = root->val;
+    dfs(root->right);
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *inorderTraversal(struct TreeNode *root, int *returnSize) {
+    ans = malloc(sizeof(int[100]));
+    ansSize = 0;
+    dfs(root);
+    *returnSize = ansSize;
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391148748/
 ```
 
 ## 95. 不同的二叉搜索树 II
@@ -1381,7 +2488,51 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/unique-binary-search-trees-ii/>
 
 ```c
+// 返回所有由 [lo..hi] 组成的节点值互不相同的不同二叉搜索树
+struct TreeNode **generateTreesRange(int lo, int hi, int *returnSize) {
+    if (lo > hi) {
+        struct TreeNode **res = malloc(sizeof(struct TreeNode *));
+        res[0] = NULL;
+        *returnSize = 1;
+        return res;
+    }
+    int capacity = 8;
+    struct TreeNode **res = malloc(sizeof(struct TreeNode *) * capacity);
+    *returnSize = 0;
+    // 根节点为 i
+    for (int i = lo; i <= hi; ++i) {
+        // 左子树由 [lo..i-1] 组成
+        int leftSize;
+        struct TreeNode **leftTrees = generateTreesRange(lo, i - 1, &leftSize);
+        // 右子树由 [i+1..hi] 组成
+        int rightSize;
+        struct TreeNode **rightTrees = generateTreesRange(i + 1, hi, &rightSize);
+        for (int l = 0; l < leftSize; ++l) {
+            for (int r = 0; r < rightSize; ++r) {
+                struct TreeNode *root = malloc(sizeof(struct TreeNode));
+                root->val = i;
+                root->left = leftTrees[l];
+                root->right = rightTrees[r];
+                if (*returnSize == capacity) {
+                    capacity *= 2;
+                    res = realloc(res, sizeof(struct TreeNode *) * capacity);
+                }
+                res[(*returnSize)++] = root;
+            }
+        }
+        free(leftTrees);
+        free(rightTrees);
+    }
+    return res;
+}
 
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+struct TreeNode **generateTrees(int n, int *returnSize) {
+    return generateTreesRange(1, n, returnSize);
+}
+// https://leetcode.cn/submissions/detail/391154235/
 ```
 
 ## 96. 不同的二叉搜索树
@@ -1389,7 +2540,48 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/unique-binary-search-trees/>
 
 ```c
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashMapItem;
 
+HashMapItem *memo = NULL;
+
+int numTreesMemo(int n) {
+    if (n == 0) {
+        return 1;
+    }
+    HashMapItem *item;
+    HASH_FIND_INT(memo, &n, item);
+    if (item == NULL) {
+        item = malloc(sizeof(HashMapItem));
+        item->key = n;
+        item->val = 0;
+        // 根节点为 x_i
+        for (int i = 1; i <= n; ++i) {
+            // 左子树由 i-1 个数字 x1 < x2 < ... < x_i-1 组成
+            int left = numTreesMemo(i - 1);
+            // 右子树由 n-i 个数字 x_i+1 < x_i+2 < ... < x_n 组成
+            int right = numTreesMemo(n - i);
+            item->val += left * right;
+        }
+        HASH_ADD_INT(memo, key, item);
+    }
+    return item->val;
+}
+
+int numTrees(int n) {
+    int ans = numTreesMemo(n);
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, memo, cur, tmp) {
+        HASH_DEL(memo, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, memo);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391159484/
 ```
 
 ## 98. 验证二叉搜索树
@@ -1397,7 +2589,27 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/validate-binary-search-tree/>
 
 ```c
+bool bst;
 
+// 检查二叉树是否在区间 (lower, upper) 内，递归过程中确定是否满足二叉搜索树的性质
+bool lowerUpper(struct TreeNode *root, long lower, long upper) {
+    if (root == NULL) {
+        return true;
+    }
+    if (root->val <= lower || root->val >= upper) {
+        bst = false;
+        return false;
+    }
+    return lowerUpper(root->left, lower, root->val) &&
+           lowerUpper(root->right, root->val, upper);
+}
+
+bool isValidBST(struct TreeNode *root) {
+    bst = true;
+    lowerUpper(root, LONG_MIN, LONG_MAX);
+    return bst;
+}
+// https://leetcode.cn/submissions/detail/391165182/
 ```
 
 ## 100. 相同的树
@@ -1405,7 +2617,17 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/same-tree/>
 
 ```c
-
+bool isSameTree(struct TreeNode *p, struct TreeNode *q) {
+    if (p == NULL && q == NULL) {
+        return true;
+    }
+    if (p == NULL || q == NULL || p->val != q->val) {
+        return false;
+    }
+    return isSameTree(p->left, q->left) &&
+           isSameTree(p->right, q->right);
+}
+// https://leetcode.cn/submissions/detail/391150354/
 ```
 
 ## 102. 二叉树的层序遍历
@@ -1413,7 +2635,275 @@ int strStr(char *haystack, char *needle) {
 <https://leetcode.cn/problems/binary-tree-level-order-traversal/>
 
 ```c
+static const int MAXSIZE = 2000;
 
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes) {
+    *returnSize = 0;
+    *returnColumnSizes = malloc(sizeof(int) * MAXSIZE);
+    int **ans = malloc(sizeof(int *) * MAXSIZE);
+    struct TreeNode **queue = malloc(sizeof(struct TreeNode *) * MAXSIZE);
+    int first = 0, last = 0;
+    if (root != NULL) {
+        queue[last++] = root;
+    }
+    while (first < last) {
+        int n = last - first;
+        int *level = malloc(sizeof(int) * n);
+        for (int i = 0; i < n; ++i) {
+            struct TreeNode *x = queue[first++];
+            level[i] = x->val;
+            struct TreeNode *left = x->left;
+            if (left != NULL) {
+                queue[last++] = left;
+            }
+            struct TreeNode *right = x->right;
+            if (right != NULL) {
+                queue[last++] = right;
+            }
+        }
+        ans[*returnSize] = level;
+        (*returnColumnSizes)[(*returnSize)++] = n;
+    }
+    free(queue);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/390966123/
+```
+
+```c
+typedef struct TreeNode *Value;
+
+struct MyListNode {
+    Value val;
+    struct MyListNode *next;
+};
+
+typedef struct {
+    struct MyListNode *first;
+    struct MyListNode *last;
+    int size;
+} MyLinkedListQueue;
+
+MyLinkedListQueue *myQueueCreate() {
+    MyLinkedListQueue *obj = malloc(sizeof(MyLinkedListQueue));
+    obj->first = NULL;
+    obj->last = NULL;
+    obj->size = 0;
+    return obj;
+}
+
+void myQueuePush(MyLinkedListQueue *obj, Value val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->val = val;
+    x->next = NULL;
+    if (obj->size == 0) {
+        obj->first = x;
+        obj->last = x;
+    } else {
+        obj->last->next = x;
+        obj->last = x;
+    }
+    obj->size++;
+}
+
+Value myQueuePop(MyLinkedListQueue *obj) {
+    Value val = obj->first->val;
+    struct MyListNode *x = obj->first;
+    if (obj->size == 1) {
+        obj->first = NULL;
+        obj->last = NULL;
+    } else {
+        obj->first = obj->first->next;
+    }
+    free(x);
+    obj->size--;
+    return val;
+}
+
+Value myQueuePeek(MyLinkedListQueue *obj) {
+    return obj->first->val;
+}
+
+int myQueueSize(MyLinkedListQueue *obj) {
+    return obj->size;
+}
+
+bool myQueueEmpty(MyLinkedListQueue *obj) {
+    return obj->size == 0;
+}
+
+void myQueueFree(MyLinkedListQueue *obj) {
+    struct MyListNode *p = obj->first;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    free(obj);
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes) {
+    *returnSize = 0;
+    int capacity = 8;
+    int **ans = malloc(sizeof(int *) * capacity);
+    *returnColumnSizes = malloc(sizeof(int[capacity]));
+    MyLinkedListQueue *queue = myQueueCreate();
+    if (root != NULL) {
+        myQueuePush(queue, root);
+    }
+    while (!myQueueEmpty(queue)) {
+        int size = myQueueSize(queue);
+        int *level = malloc(sizeof(int[size]));
+        for (int i = 0; i < size; ++i) {
+            struct TreeNode *x = myQueuePop(queue);
+            level[i] = x->val;
+            struct TreeNode *left = x->left;
+            if (left != NULL) {
+                myQueuePush(queue, left);
+            }
+            struct TreeNode *right = x->right;
+            if (right != NULL) {
+                myQueuePush(queue, right);
+            }
+        }
+        if (*returnSize == capacity) {
+            capacity *= 2;
+            ans = realloc(ans, sizeof(int *) * capacity);
+            *returnColumnSizes = realloc(*returnColumnSizes, sizeof(int[capacity]));
+        }
+        ans[*returnSize] = level;
+        (*returnColumnSizes)[(*returnSize)++] = size;
+    }
+    myQueueFree(queue);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391406846/
+```
+
+```c
+typedef struct TreeNode *Value;
+
+typedef struct {
+    Value *array;
+    int capacity;
+    int size;
+    int first;
+    int last;
+} MyResizingArrayQueue;
+
+MyResizingArrayQueue *myQueueCreate() {
+    MyResizingArrayQueue *obj = malloc(sizeof(MyResizingArrayQueue));
+    obj->first = 0;
+    obj->last = 0;
+    obj->size = 0;
+    obj->capacity = 8;
+    obj->array = malloc(sizeof(Value) * obj->capacity);
+    return obj;
+}
+
+void myQueueResize(MyResizingArrayQueue *obj, int capacity) {
+    Value *copy = malloc(sizeof(Value) * capacity);
+    for (int i = 0; i < obj->size; ++i) {
+        copy[i] = obj->array[(obj->first + i) % obj->capacity];
+    }
+    free(obj->array);
+    obj->array = copy;
+    obj->first = 0;
+    obj->last = obj->size;
+    obj->capacity = capacity;
+}
+
+void myQueuePush(MyResizingArrayQueue *obj, Value val) {
+    if (obj->size == obj->capacity) {
+        myQueueResize(obj, obj->capacity * 2);
+    }
+    obj->array[obj->last++] = val;
+    if (obj->last == obj->capacity) {
+        obj->last = 0;
+    }
+    obj->size++;
+}
+
+Value myQueuePop(MyResizingArrayQueue *obj) {
+    Value val = obj->array[obj->first++];
+    if (obj->first == obj->capacity) {
+        obj->first = 0;
+    }
+    obj->size--;
+    if (obj->size > 0 && obj->size == obj->capacity / 4) {
+        myQueueResize(obj, obj->capacity / 2);
+    }
+    return val;
+}
+
+Value myQueuePeek(MyResizingArrayQueue *obj) {
+    return obj->array[obj->first];
+}
+
+int myQueueSize(MyResizingArrayQueue *obj) {
+    return obj->size;
+}
+
+bool myQueueEmpty(MyResizingArrayQueue *obj) {
+    return obj->size == 0;
+}
+
+void myQueueFree(MyResizingArrayQueue *obj) {
+    free(obj->array);
+    free(obj);
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes) {
+    *returnSize = 0;
+    int capacity = 8;
+    int **ans = malloc(sizeof(int *) * capacity);
+    *returnColumnSizes = malloc(sizeof(int[capacity]));
+    MyResizingArrayQueue *queue = myQueueCreate();
+    if (root != NULL) {
+        myQueuePush(queue, root);
+    }
+    while (!myQueueEmpty(queue)) {
+        int size = myQueueSize(queue);
+        int *level = malloc(sizeof(int[size]));
+        for (int i = 0; i < size; ++i) {
+            struct TreeNode *x = myQueuePop(queue);
+            level[i] = x->val;
+            struct TreeNode *left = x->left;
+            if (left != NULL) {
+                myQueuePush(queue, left);
+            }
+            struct TreeNode *right = x->right;
+            if (right != NULL) {
+                myQueuePush(queue, right);
+            }
+        }
+        if (*returnSize == capacity) {
+            capacity *= 2;
+            ans = realloc(ans, sizeof(int *) * capacity);
+            *returnColumnSizes = realloc(*returnColumnSizes, sizeof(int[capacity]));
+        }
+        ans[*returnSize] = level;
+        (*returnColumnSizes)[(*returnSize)++] = size;
+    }
+    myQueueFree(queue);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391362861/
 ```
 
 ## 103. 二叉树的锯齿形层序遍历
