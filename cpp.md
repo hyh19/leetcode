@@ -1322,7 +1322,35 @@ private:
 <https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/>
 
 ```cpp
+class Solution {
+public:
+    vector<int> searchRange(vector<int> &nums, int target) {
+        return {binarySearch(nums, target, true), binarySearch(nums, target, false)};
+    }
 
+private:
+    int binarySearch(const vector<int> &nums, int target, bool lower) {
+        int res = -1;
+        int lo = 0, hi = nums.size() - 1;
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (target < nums[mid]) {
+                hi = mid - 1;
+            } else if (nums[mid] < target) {
+                lo = mid + 1;
+            } else {
+                res = mid;
+                if (lower) {
+                    hi = mid - 1;
+                } else {
+                    lo = mid + 1;
+                }
+            }
+        }
+        return res;
+    }
+};
+// https://leetcode.cn/submissions/detail/361626206/
 ```
 
 ## 37. 解数独
@@ -1330,7 +1358,127 @@ private:
 <https://leetcode.cn/problems/sudoku-solver/>
 
 ```cpp
+class Solution {
+public:
+    void solveSudoku(vector<vector<char>> &board) {
+        backtrack(board, 0, -1);
+    }
 
+private:
+    // 遍历『决策森林』
+    // tree  = row
+    // level = (row, col)
+    bool backtrack(vector<vector<char>> &board, int row, int col) {
+        size_t n = board.size();
+        bool res = false;
+        if (row == n - 1 && col == n - 1) {
+            res = true;
+        } else if (row < n - 1 && col == n - 1) {
+            // 遍历下一棵『决策树』
+            res = backtrack(board, row + 1, -1);
+        } else if (board[row][col + 1] != '.') {
+            res = backtrack(board, row, col + 1);
+        } else {
+            // edge = ['1'..'9']
+            for (char ch = '1'; ch <= '9'; ++ch) {
+                if (isValid(board, row, col + 1, ch)) {
+                    board[row][col + 1] = ch;
+                    res = backtrack(board, row, col + 1);
+                    if (res) {
+                        break;
+                    }
+                    board[row][col + 1] = '.';
+                }
+            }
+        }
+        return res;
+    }
+
+    // board[row][col] 填入数字 ch 是否有效
+    bool isValid(const vector<vector<char>> &board, int row, int col, char ch) {
+        size_t n = board.size();
+        for (int i = 0; i < n; ++i) {
+            // 同一行
+            if (board[row][i] == ch) {
+                return false;
+            }
+            // 同一列
+            if (board[i][col] == ch) {
+                return false;
+            }
+            // 同九宫
+            if (board[(row / 3) * 3 + i / 3][(col / 3) * 3 + i % 3] == ch) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+// https://leetcode.cn/submissions/detail/391487129/
+```
+
+```cpp
+class Solution {
+public:
+    void solveSudoku(vector<vector<char>> &board) {
+        dfs(board, 0, -1, '#');
+    }
+
+private:
+    // 遍历『决策森林』
+    // tree  = row
+    // level = (row, col)
+    bool dfs(vector<vector<char>> &board, int row, int col, char ch) {
+        if (col >= 0 && ch != '#') {
+            board[row][col] = ch;
+        }
+        size_t n = board.size();
+        bool res = false;
+        if (row == n - 1 && col == n - 1) {
+            res = true;
+        } else if (row < n - 1 && col == n - 1) {
+            // 遍历下一棵『决策树』
+            res = dfs(board, row + 1, -1, '#');
+        } else if (board[row][col + 1] != '.') {
+            res = dfs(board, row, col + 1, '#');
+        } else {
+            // vertex = ['1'..'9']
+            for (char c = '1'; c <= '9'; ++c) {
+                if (isValid(board, row, col + 1, c)) {
+                    res = dfs(board, row, col + 1, c);
+                    if (res) {
+                        break;
+                    }
+                }
+            }
+        }
+        if (col >= 0 && ch != '#' && !res) {
+            board[row][col] = '.';
+        }
+        return res;
+    }
+
+    // board[row][col] 填入数字 ch 是否有效
+    bool isValid(const vector<vector<char>> &board, int row, int col, char ch) {
+        size_t n = board.size();
+        for (int i = 0; i < n; ++i) {
+            // 同一行
+            if (board[row][i] == ch) {
+                return false;
+            }
+            // 同一列
+            if (board[i][col] == ch) {
+                return false;
+            }
+            // 同九宫
+            if (board[(row / 3) * 3 + i / 3][(col / 3) * 3 + i % 3] == ch) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+// https://leetcode.cn/submissions/detail/391487374/
 ```
 
 ## 39. 组合总和
@@ -1338,7 +1486,126 @@ private:
 <https://leetcode.cn/problems/combination-sum/>
 
 ```cpp
+class Solution {
+public:
+    vector<vector<int>> combinationSum(vector<int> &candidates, int target) {
+        backtrack(candidates, target, -1);
+        return ans;
+    }
 
+private:
+    // edge = 取数组 nums 的索引为值
+    void backtrack(vector<int> &candidates, int target, int edge) {
+        if (pathSum == target) {
+            ans.push_back(path);
+            return;
+        }
+        if (edge == -1) {
+            edge = 0;
+        }
+        // 避免重复，从 edge 开始选择
+        // 例如 [1->2] 和 [2->1] 是重复的
+        while (edge < candidates.size()) {
+            int x = candidates[edge];
+            if (pathSum + x <= target) {
+                pathSum += x;
+                path.push_back(x);
+                backtrack(candidates, target, edge);
+                pathSum -= x;
+                path.pop_back();
+            }
+            ++edge;
+        }
+    }
+
+
+    int pathSum = 0;
+    vector<int> path; // 取 nums[edge] 为元素
+    vector<vector<int>> ans;
+};
+// https://leetcode.cn/submissions/detail/391611129/
+```
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> combinationSum(vector<int> &candidates, int target) {
+        dfs(candidates, target, -1);
+        return ans;
+    }
+
+private:
+    // vertex = 取数组 nums 的索引为值
+    void dfs(vector<int> &candidates, int target, int vertex) {
+        int x = (vertex == -1 ? 0 : candidates[vertex]);
+        if (vertex >= 0) {
+            pathSum += x;
+            path.push_back(x);
+        }
+        if (pathSum == target) {
+            ans.push_back(path);
+        } else {
+            // 避免重复，从 vertex 开始选择
+            // 例如 [1->2] 和 [2->1] 是重复的
+            int v = (vertex == -1 ? 0 : vertex);
+            while (v < candidates.size()) {
+                if (pathSum + candidates[v] <= target) {
+                    dfs(candidates, target, v);
+                }
+                ++v;
+            }
+        }
+        if (vertex >= 0) {
+            pathSum -= x;
+            path.pop_back();
+        }
+    }
+
+    int pathSum = 0;
+    vector<int> path; // 取 nums[vertex] 为元素
+    vector<vector<int>> ans;
+};
+// https://leetcode.cn/submissions/detail/391611523/
+```
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> combinationSum(vector<int> &candidates, int target) {
+        return combinationSum(candidates, candidates.size() - 1, target);
+    }
+
+private:
+    // 子数组 candidates[0..i] 和为 target 的不同组合
+    vector<vector<int>> combinationSum(const vector<int> &candidates, int i, int target) {
+        if (i < 0 || target <= 0) {
+            return {};
+        }
+        // memo[i][target]
+        string key = to_string(i) + "," + to_string(target);
+        if (memo.count(key) == 0) {
+            int x = candidates[i];
+            vector<vector<int>> sp1 = combinationSum(candidates, i - 1, target); // 不包含 x
+            vector<vector<int>> sp2 = combinationSum(candidates, i, target - x); // 包含 x
+            vector<vector<int>> res;
+            for (const auto &v: sp1) {
+                res.push_back(v);
+            }
+            for (auto &v: sp2) {
+                v.push_back(x);
+                res.push_back(v);
+            }
+            if (target == x) {
+                res.push_back({x});
+            }
+            memo[key] = res;
+        }
+        return memo[key];
+    }
+
+    unordered_map<string, vector<vector<int>>> memo;
+};
+// https://leetcode.cn/submissions/detail/391611871/
 ```
 
 ## 40. 组合总和 II
@@ -1346,7 +1613,87 @@ private:
 <https://leetcode.cn/problems/combination-sum-ii/>
 
 ```cpp
+class Solution {
+public:
+    vector<vector<int>> combinationSum2(vector<int> &candidates, int target) {
+        sort(candidates.begin(), candidates.end());
+        backtrack(candidates, target, -1);
+        return ans;
+    }
 
+private:
+    // edge = 取数组 nums 的索引为值
+    void backtrack(vector<int> &candidates, int target, int edge) {
+        if (pathSum == target) {
+            ans.push_back(path);
+            return;
+        }
+        int prev = INT_MIN;
+        // 避免重复，从 edge + 1 开始选择
+        // 例如 [1->2] 和 [2->1] 是重复的
+        while (++edge < candidates.size()) {
+            int x = candidates[edge];
+            if (x != prev && pathSum + x <= target) {
+                prev = x;
+                pathSum += x;
+                path.push_back(x);
+                backtrack(candidates, target, edge);
+                pathSum -= x;
+                path.pop_back();
+            }
+        }
+    }
+
+    int pathSum = 0;
+    vector<int> path; // 取 nums[edge] 为元素
+    vector<vector<int>> ans;
+};
+// https://leetcode.cn/submissions/detail/391645813/
+```
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> combinationSum2(vector<int> &candidates, int target) {
+        sort(candidates.begin(), candidates.end());
+        dfs(candidates, target, -1);
+        return ans;
+    }
+
+private:
+    // vertex = 取数组 nums 的索引为值
+    void dfs(vector<int> &candidates, int target, int vertex) {
+        int x = (vertex == -1 ? 0 : candidates[vertex]);
+        if (vertex >= 0) {
+            pathSum += x;
+            path.push_back(x);
+        }
+        if (pathSum == target) {
+            ans.push_back(path);
+        } else {
+            int prev = INT_MIN;
+            // 避免重复，从 vertex + 1 开始选择
+            // 例如 [1->2] 和 [2->1] 是重复的
+            int v = vertex;
+            while (++v < candidates.size()) {
+                int y = candidates[v];
+                if (y != prev && pathSum + y <= target) {
+                    prev = y;
+                    dfs(candidates, target, v);
+                }
+            }
+        }
+        if (vertex >= 0) {
+            pathSum -= x;
+            path.pop_back();
+        }
+    }
+
+    int pathSum = 0;
+    vector<int> path; // 取 nums[vertex] 为元素
+    vector<vector<int>> ans;
+};
+// https://leetcode.cn/submissions/detail/391646248/
 ```
 
 ## 42. 接雨水
@@ -1354,7 +1701,60 @@ private:
 <https://leetcode.cn/problems/trapping-rain-water/>
 
 ```cpp
+class Solution {
+public:
+    int trap(vector<int> &height) {
+        int n = height.size();
+        // leftMax[i] = max(height[0..i])
+        vector<int> leftMax(height);
+        for (int i = 1; i <= n - 1; ++i) {
+            leftMax[i] = max(height[i], leftMax[i - 1]);
+        }
+        // rightMax[i] = max(height[i..n-1])
+        vector<int> rightMax(height);
+        for (int i = n - 2; i >= 0; --i) {
+            rightMax[i] = max(height[i], rightMax[i + 1]);
+        }
+        int sum = 0;
+        for (int i = 0; i < n; ++i) {
+            sum += min(leftMax[i], rightMax[i]) - height[i];
+        }
+        return sum;
+    }
+};
+// https://leetcode.cn/submissions/detail/391524644/
+```
 
+```cpp
+class Solution {
+public:
+    int trap(vector<int> &height) {
+        int sum = 0;
+        // [0..i-1]   Computed
+        // [i..j]     Scanning
+        // [j+1..n-1] Computed
+        int i = 0, j = height.size() - 1;
+        // leftMax = max(height[0..i])
+        int leftMax = INT_MIN;
+        // rightMax = max(height[j..n-1])
+        int rightMax = INT_MIN;
+        // When i = j, height[i] = height[j] = max(height[0..n-1])
+        // height[i] = max(height[0..i]) = leftMax = rightMax = max(height[j..n-1]) = height[j]
+        while (i <= j) {
+            leftMax = max(leftMax, height[i]);
+            rightMax = max(rightMax, height[j]);
+            if (leftMax < rightMax) {
+                // max(height[0..i]) = leftMax < rightMax = max(height[j..n-1]) <= max(height[i..n-1])
+                sum += (leftMax - height[i++]);
+            } else {
+                // max(height[0..j]) >= max(height[0..i]) = leftMax >= rightMax = max(height[j..n-1])
+                sum += (rightMax - height[j--]);
+            }
+        }
+        return sum;
+    }
+};
+// https://leetcode.cn/submissions/detail/391525299/
 ```
 
 ## 46. 全排列
@@ -1362,7 +1762,77 @@ private:
 <https://leetcode.cn/problems/permutations/>
 
 ```cpp
+class Solution {
+public:
+    vector<vector<int>> permute(vector<int> &nums) {
+        marked = vector<bool>(nums.size());
+        backtrack(nums);
+        return ans;
+    }
 
+private:
+    void backtrack(vector<int> &nums) {
+        size_t n = nums.size();
+        if (path.size() == n) {
+            ans.push_back(path);
+            return;
+        }
+        // edge = 取数组 nums 的索引为值
+        for (int edge = 0; edge < n; ++edge) {
+            if (!marked[edge]) {
+                marked[edge] = true;
+                path.push_back(nums[edge]);
+                backtrack(nums);
+                marked[edge] = false;
+                path.pop_back();
+            }
+        }
+    }
+
+    vector<bool> marked;
+    vector<int> path; // 取 nums[edge] 为元素
+    vector<vector<int>> ans;
+};
+// https://leetcode.cn/submissions/detail/391646741/
+```
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> permute(vector<int> &nums) {
+        marked = vector<bool>(nums.size());
+        dfs(nums, -1);
+        return ans;
+    }
+
+private:
+    // vertex = 取数组 nums 的索引为值
+    void dfs(vector<int> &nums, int vertex) {
+        if (vertex >= 0) {
+            marked[vertex] = true;
+            path.push_back(nums[vertex]);
+        }
+        size_t n = nums.size();
+        if (path.size() == n) {
+            ans.push_back(path);
+        } else {
+            for (int v = 0; v < n; ++v) {
+                if (!marked[v]) {
+                    dfs(nums, v);
+                }
+            }
+        }
+        if (vertex >= 0) {
+            marked[vertex] = false;
+            path.pop_back();
+        }
+    }
+
+    vector<bool> marked;
+    vector<int> path; // 取 nums[vertex] 为元素
+    vector<vector<int>> ans;
+};
+// https://leetcode.cn/submissions/detail/391647039/
 ```
 
 ## 47. 全排列 II
@@ -1370,7 +1840,85 @@ private:
 <https://leetcode.cn/problems/permutations-ii/>
 
 ```cpp
+class Solution {
+public:
+    vector<vector<int>> permuteUnique(vector<int> &nums) {
+        marked = vector<bool>(nums.size());
+        sort(nums.begin(), nums.end());
+        backtrack(nums);
+        return ans;
+    }
 
+private:
+    void backtrack(vector<int> &nums) {
+        size_t n = nums.size();
+        if (path.size() == n) {
+            ans.push_back(path);
+            return;
+        }
+        int prev = INT_MIN;
+        // edge = 取数组 nums 的索引为值
+        for (int edge = 0; edge < n; ++edge) {
+            int x = nums[edge];
+            if (!marked[edge] && x != prev) {
+                prev = x;
+                marked[edge] = true;
+                path.push_back(x);
+                backtrack(nums);
+                marked[edge] = false;
+                path.pop_back();
+            }
+        }
+    }
+
+    vector<bool> marked;
+    vector<int> path; // 取 nums[edge] 为元素
+    vector<vector<int>> ans;
+};
+// https://leetcode.cn/submissions/detail/391647483/
+```
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> permuteUnique(vector<int> &nums) {
+        marked = vector<bool>(nums.size());
+        sort(nums.begin(), nums.end());
+        dfs(nums, -1);
+        return ans;
+    }
+
+private:
+    // vertex = 取数组 nums 的索引为值
+    void dfs(vector<int> &nums, int vertex) {
+        if (vertex >= 0) {
+            marked[vertex] = true;
+            path.push_back(nums[vertex]);
+        }
+        size_t n = nums.size();
+        if (path.size() == n) {
+            ans.push_back(path);
+        } else {
+            int prev = INT_MIN;
+            for (int v = 0; v < n; ++v) {
+                int x = nums[v];
+                if (!marked[v] && x != prev) {
+                    prev = x;
+                    dfs(nums, v);
+                }
+            }
+        }
+        if (vertex >= 0) {
+            marked[vertex] = false;
+            path.pop_back();
+        }
+    }
+
+    vector<bool> marked;
+    vector<int> path; // 取 nums[vertex] 为元素
+    vector<vector<int>> ans;
+};
+// https://leetcode.cn/submissions/detail/391647867/
 ```
 
 ## 51. N 皇后
@@ -1378,7 +1926,243 @@ private:
 <https://leetcode.cn/problems/n-queens/>
 
 ```cpp
+class Solution {
+public:
+    vector<vector<string>> solveNQueens(int n) {
+        vector<string> board(n, string(n, '.'));
+        backtrack(board, -1);
+        return ans;
+    }
 
+private:
+    // level = row
+    void backtrack(vector<string> &board, int row) {
+        size_t n = board.size();
+        if (row == n - 1) {
+            ans.push_back(board);
+            return;
+        }
+        // edge = col
+        for (int col = 0; col < n; ++col) {
+            if (isValid(board, row + 1, col)) {
+                board[row + 1][col] = 'Q';
+                backtrack(board, row + 1);
+                board[row + 1][col] = '.';
+            }
+        }
+    }
+
+    // board[row][col] 放置 Q 是否有效
+    bool isValid(const vector<string> &board, int row, int col) {
+        size_t n = board.size();
+        // 同一列
+        for (int r = row - 1; r >= 0; --r) {
+            if (board[r][col] == 'Q') {
+                return false;
+            }
+        }
+        // 右斜线
+        for (int r = row - 1, c = col + 1; r >= 0 && c < n; --r, ++c) {
+            if (board[r][c] == 'Q') {
+                return false;
+            }
+        }
+        // 左斜线
+        for (int r = row - 1, c = col - 1; r >= 0 && c >= 0; --r, --c) {
+            if (board[r][c] == 'Q') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    vector<vector<string>> ans;
+};
+// https://leetcode.cn/submissions/detail/391683202/
+```
+
+```cpp
+class Solution {
+public:
+    vector<vector<string>> solveNQueens(int n) {
+        vector<string> board(n, string(n, '.'));
+        dfs(board, -1, -1);
+        return ans;
+    }
+
+private:
+    // level  = row
+    // vertex = col
+    void dfs(vector<string> &board, int row, int col) {
+        if (row >= 0) {
+            board[row][col] = 'Q';
+        }
+        size_t n = board.size();
+        if (row == n - 1) {
+            ans.push_back(board);
+        } else {
+            for (int c = 0; c < n; ++c) {
+                if (isValid(board, row + 1, c)) {
+                    dfs(board, row + 1, c);
+                }
+            }
+        }
+        if (row >= 0) {
+            board[row][col] = '.';
+        }
+    }
+
+    // board[row][col] 放置 Q 是否有效
+    bool isValid(const vector<string> &board, int row, int col) {
+        size_t n = board.size();
+        // 同一列
+        for (int r = row - 1; r >= 0; --r) {
+            if (board[r][col] == 'Q') {
+                return false;
+            }
+        }
+        // 右斜线
+        for (int r = row - 1, c = col + 1; r >= 0 && c < n; --r, ++c) {
+            if (board[r][c] == 'Q') {
+                return false;
+            }
+        }
+        // 左斜线
+        for (int r = row - 1, c = col - 1; r >= 0 && c >= 0; --r, --c) {
+            if (board[r][c] == 'Q') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    vector<vector<string>> ans;
+};
+// https://leetcode.cn/submissions/detail/391683597/
+```
+
+```cpp
+class Solution {
+public:
+    vector<vector<string>> solveNQueens(int n) {
+        vector<string> board(n, string(n, '.'));
+        backtrack(board, 0, -1);
+        return ans;
+    }
+
+private:
+    // 遍历『决策森林』
+    // tree  = row
+    // level = (row, col)
+    void backtrack(vector<string> &board, int row, int col) {
+        size_t n = board.size();
+        if (row == n) {
+            ans.push_back(board);
+        } else if (col >= 0 && board[row][col] == 'Q') {
+            if (isValid(board, row, col)) {
+                // 遍历下一棵『决策树』
+                backtrack(board, row + 1, -1);
+            }
+        } else if (col + 1 < n) {
+            // edge = 'Q', '.'
+            board[row][col + 1] = 'Q';
+            backtrack(board, row, col + 1);
+            board[row][col + 1] = '.';
+            backtrack(board, row, col + 1);
+        }
+    }
+
+    // board[row][col] 放置 Q 是否有效
+    bool isValid(const vector<string> &board, int row, int col) {
+        size_t n = board.size();
+        // 同一列
+        for (int r = row - 1; r >= 0; --r) {
+            if (board[r][col] == 'Q') {
+                return false;
+            }
+        }
+        // 右斜线
+        for (int r = row - 1, c = col + 1; r >= 0 && c < n; --r, ++c) {
+            if (board[r][c] == 'Q') {
+                return false;
+            }
+        }
+        // 左斜线
+        for (int r = row - 1, c = col - 1; r >= 0 && c >= 0; --r, --c) {
+            if (board[r][c] == 'Q') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    vector<vector<string>> ans;
+};
+// https://leetcode.cn/submissions/detail/391683426/
+```
+
+```cpp
+class Solution {
+public:
+    vector<vector<string>> solveNQueens(int n) {
+        vector<string> board(n, string(n, '.'));
+        dfs(board, 0, -1, '-');
+        return ans;
+    }
+
+private:
+    // 遍历『决策森林』
+    // tree   = row
+    // level  = (row, col)
+    // vertex = 'Q', '.'
+    void dfs(vector<string> &board, int row, int col, char ch) {
+        if (col >= 0) {
+            board[row][col] = ch;
+        }
+        size_t n = board.size();
+        if (row == n) {
+            ans.push_back(board);
+        } else if (col >= 0 && board[row][col] == 'Q') {
+            if (isValid(board, row, col)) {
+                // 遍历下一棵『决策树』
+                dfs(board, row + 1, -1, '-');
+            }
+        } else if (col + 1 < n) {
+            dfs(board, row, col + 1, 'Q');
+            dfs(board, row, col + 1, '.');
+        }
+        if (col >= 0) {
+            board[row][col] = '.';
+        }
+    }
+
+    // board[row][col] 放置 Q 是否有效
+    bool isValid(const vector<string> &board, int row, int col) {
+        size_t n = board.size();
+        // 同一列
+        for (int r = row - 1; r >= 0; --r) {
+            if (board[r][col] == 'Q') {
+                return false;
+            }
+        }
+        // 右斜线
+        for (int r = row - 1, c = col + 1; r >= 0 && c < n; --r, ++c) {
+            if (board[r][c] == 'Q') {
+                return false;
+            }
+        }
+        // 左斜线
+        for (int r = row - 1, c = col - 1; r >= 0 && c >= 0; --r, --c) {
+            if (board[r][c] == 'Q') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    vector<vector<string>> ans;
+};
+// https://leetcode.cn/submissions/detail/391683761/
 ```
 
 ## 52. N 皇后 II
@@ -1386,7 +2170,121 @@ private:
 <https://leetcode.cn/problems/n-queens-ii/>
 
 ```cpp
+class Solution {
+public:
+    int totalNQueens(int n) {
+        vector<string> board(n, string(n, '.'));
+        backtrack(board, -1);
+        return ans;
+    }
 
+private:
+    // path  = 棋盘的放置方案 board
+    // level = 棋盘的行 row
+    void backtrack(vector<string> &board, int row) {
+        size_t n = board.size();
+        if (row == n - 1) {
+            ++ans;
+            return;
+        }
+        // edge = 棋盘的列 col
+        for (int col = 0; col < n; ++col) {
+            if (isValid(board, row + 1, col)) {
+                board[row + 1][col] = 'Q';
+                backtrack(board, row + 1);
+                board[row + 1][col] = '.';
+            }
+        }
+    }
+
+    // 在 board[row][col] 放置 Q 是否合法
+    bool isValid(const vector<string> &board, int row, int col) {
+        size_t n = board.size();
+        // 检查同一列
+        for (int r = row - 1; r >= 0; --r) {
+            if (board[r][col] == 'Q') {
+                return false;
+            }
+        }
+        // 检查右斜线
+        for (int r = row - 1, c = col + 1; r >= 0 && c <= n - 1; --r, ++c) {
+            if (board[r][c] == 'Q') {
+                return false;
+            }
+        }
+        // 检查左斜线
+        for (int r = row - 1, c = col - 1; r >= 0 && c >= 0; --r, --c) {
+            if (board[r][c] == 'Q') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    int ans;
+};
+// https://leetcode.cn/submissions/detail/391550847/
+```
+
+```cpp
+class Solution {
+public:
+    int totalNQueens(int n) {
+        vector<string> board(n, string(n, '.'));
+        dfs(board, -1, -1);
+        return ans;
+    }
+
+private:
+    // path   = 棋盘的放置方案 board
+    // level  = 棋盘的行 row
+    // vertex = 棋盘的列 col
+    void dfs(vector<string> &board, int row, int col) {
+        if (row >= 0) {
+            board[row][col] = 'Q';
+        }
+        size_t n = board.size();
+        if (row == n - 1) {
+            ++ans;
+        } else {
+            for (int c = 0; c < n; ++c) {
+                if (isValid(board, row + 1, c)) {
+                    dfs(board, row + 1, c);
+                }
+            }
+        }
+        if (row >= 0) {
+            board[row][col] = '.';
+        }
+    }
+
+    // 返回在 board[row][col] 放置 Q 是否合法
+    bool isValid(const vector<string> &board, int row, int col) {
+        size_t n = board.size();
+        // 检查同一列
+        for (int r = row - 1; r >= 0; --r) {
+            if (board[r][col] == 'Q') {
+                return false;
+            }
+        }
+        // 检查右斜线
+        for (int r = row - 1, c = col + 1; r >= 0 && c <= n - 1; --r, ++c) {
+            if (board[r][c] == 'Q') {
+                return false;
+            }
+        }
+        // 检查左斜线
+        for (int r = row - 1, c = col - 1; r >= 0 && c >= 0; --r, --c) {
+            if (board[r][c] == 'Q') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    int ans;
+};
+// https://leetcode.cn/submissions/detail/391551222/
 ```
 
 ## 53. 最大子数组和
@@ -1394,7 +2292,50 @@ private:
 <https://leetcode.cn/problems/maximum-subarray/>
 
 ```cpp
+class Solution {
+public:
+    int maxSubArray(vector<int> &nums) {
+        // dp[i] = max({sum(subarray) | subarray 是以 nums[i] 结尾的子数组})
+        vector<int> dp(nums);
+        int ans = dp[0];
+        for (int i = 1; i < nums.size(); ++i) {
+            dp[i] = max(nums[i], nums[i] + dp[i - 1]);
+            ans = max(ans, dp[i]);
+        }
+        return ans;
+    }
+};
+// https://leetcode.cn/submissions/detail/391534620/
+```
 
+```cpp
+class Solution {
+public:
+    int maxSubArray(vector<int> &nums) {
+        size_t n = nums.size();
+        memo = vector<int>(n, INT_MIN);
+        int ans = INT_MIN;
+        for (int i = 0; i < n; ++i) {
+            ans = max(ans, maxSubArray(nums, i));
+        }
+        return ans;
+    }
+
+private:
+    // max({sum(subarray) | subarray 是以 nums[i] 结尾的子数组})
+    int maxSubArray(const vector<int> &nums, int i) {
+        if (i < 0) {
+            return 0;
+        }
+        if (memo[i] == INT_MIN) {
+            memo[i] = max(nums[i], maxSubArray(nums, i - 1) + nums[i]);
+        }
+        return memo[i];
+    }
+
+    vector<int> memo;
+};
+// https://leetcode.cn/submissions/detail/391535137/
 ```
 
 ## 56. 合并区间
