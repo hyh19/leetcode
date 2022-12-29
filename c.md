@@ -5018,7 +5018,41 @@ struct ListNode *reverseList(struct ListNode *head) {
 <https://leetcode.cn/problems/house-robber-ii/>
 
 ```c
+// max({sum(subseq) | subseq 是子数组 nums[lo..hi] 的不连续子序列})
+int subseqSum(int *nums, int numsSize, int lo, int hi) {
+    int n = hi - lo + 1;
+    if (n == 0) {
+        return 0;
+    }
+    if (n == 1) {
+        return nums[lo];
+    }
+    if (n == 2) {
+        return fmax(nums[lo], nums[lo + 1]);
+    }
+    // dp[i] = max({sum(subseq) | subseq 是子数组 nums[lo..lo+i] 的不连续子序列})
+    int dp[n];
+    dp[0] = nums[lo];
+    dp[1] = fmax(nums[lo], nums[lo + 1]);
+    for (int i = 2; i < n; ++i) {
+        // 包含 nums[lo+i]
+        int sp1 = dp[i - 2] + nums[lo + i];
+        // 不包含 nums[lo+i]
+        int sp2 = dp[i - 1];
+        dp[i] = fmax(sp1, sp2);
+    }
+    return dp[n - 1];
+}
 
+int rob(int *nums, int numsSize) {
+    if (numsSize == 1) {
+        return nums[0];
+    }
+    int sp1 = subseqSum(nums, numsSize, 0, numsSize - 2);
+    int sp2 = subseqSum(nums, numsSize, 1, numsSize - 1);
+    return fmax(sp1, sp2);
+}
+// https://leetcode.cn/submissions/detail/391167123/
 ```
 
 ## 215. 数组中的第 K 个最大元素
@@ -5026,7 +5060,56 @@ struct ListNode *reverseList(struct ListNode *head) {
 <https://leetcode.cn/problems/kth-largest-element-in-an-array/>
 
 ```c
+void swap(int *a, int *b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
 
+int partition(int *nums, int lo, int hi) {
+    int v = nums[lo];
+    int i = lo, j = hi + 1;
+    while (true) {
+        while (nums[++i] < v) {
+            if (i == hi) {
+                break;
+            }
+        }
+        while (nums[--j] > v) {
+            if (j == lo) {
+                break;
+            }
+        }
+        if (i >= j) {
+            break;
+        }
+        swap(&nums[i], &nums[j]);
+    }
+    swap(&nums[lo], &nums[j]);
+    return j;
+}
+
+// 返回数组 nums 从小到大排在第 rank 位的元素，排位从 0 开始计算，
+// 相当于有 rank 个元素小于该元素。
+int qselect(int *nums, int numsSize, int rank) {
+    int lo = 0, hi = numsSize - 1;
+    while (lo < hi) {
+        int j = partition(nums, lo, hi);
+        if (rank < j) {
+            hi = j - 1;
+        } else if (j < rank) {
+            lo = j + 1;
+        } else {
+            return nums[j];
+        }
+    }
+    return nums[lo];
+}
+
+int findKthLargest(int *nums, int numsSize, int k) {
+    return qselect(nums, numsSize, numsSize - k);
+}
+// https://leetcode.cn/submissions/detail/390816223/
 ```
 
 ## 216. 组合总和 III
@@ -5034,7 +5117,61 @@ struct ListNode *reverseList(struct ListNode *head) {
 <https://leetcode.cn/problems/combination-sum-iii/>
 
 ```c
+int *path;
+int pathSum;
+int pathSize;
 
+int **ans;
+int ansSize;
+int *ansColSize;
+int ansCapacity;
+
+// edge = 取 [1..9] 为值
+void backtrack(int k, int n, int edge) {
+    if (pathSize == k && pathSum == n) {
+        size_t size = sizeof(int[pathSize]);
+        int *res = malloc(size);
+        memcpy(res, path, size);
+        if (ansSize == ansCapacity) {
+            ansCapacity *= 2;
+            ans = realloc(ans, sizeof(int *) * ansCapacity);
+            ansColSize = realloc(ansColSize, sizeof(int[ansCapacity]));
+        }
+        ans[ansSize] = res;
+        ansColSize[ansSize++] = pathSize;
+    } else if (pathSize < k && pathSum < n) {
+        // 避免重复，从 edge + 1 开始选择
+        // 例如 [1->2] 和 [2->1] 是重复的
+        while (++edge <= 9) {
+            if (pathSum + edge <= n) {
+                pathSum += edge;
+                path[pathSize++] = edge;
+                backtrack(k, n, edge);
+                pathSum -= edge;
+                --pathSize;
+            }
+        }
+    }
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **combinationSum3(int k, int n, int *returnSize, int **returnColumnSizes) {
+    ansCapacity = 8;
+    ans = malloc(sizeof(int *) * ansCapacity);
+    ansColSize = malloc(sizeof(int[ansCapacity]));
+    path = malloc(sizeof(int[k]));
+    ansSize = pathSum = pathSize = 0;
+    backtrack(k, n, 0);
+    *returnSize = ansSize;
+    *returnColumnSizes = ansColSize;
+    free(path);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391277988/
 ```
 
 ## 222. 完全二叉树的节点个数
@@ -5042,7 +5179,28 @@ struct ListNode *reverseList(struct ListNode *head) {
 <https://leetcode.cn/problems/count-complete-tree-nodes/>
 
 ```c
-
+int countNodes(struct TreeNode *root) {
+    if (root == NULL) {
+        return 0;
+    }
+    int leftHeight = 0;
+    struct TreeNode *ptr = root;
+    while (ptr != NULL) {
+        ++leftHeight;
+        ptr = ptr->left;
+    }
+    int rightHeight = 0;
+    ptr = root->right;
+    while (ptr != NULL) {
+        ++rightHeight;
+        ptr = ptr->right;
+    }
+    if (leftHeight == rightHeight) {
+        return (1 << leftHeight) - 1;
+    }
+    return 1 + countNodes(root->left) + countNodes(root->right);
+}
+// https://leetcode.cn/submissions/detail/390008475/
 ```
 
 ## 225. 用队列实现栈
@@ -5050,7 +5208,82 @@ struct ListNode *reverseList(struct ListNode *head) {
 <https://leetcode.cn/problems/implement-stack-using-queues/>
 
 ```c
+struct MyListNode {
+    int val;
+    struct MyListNode *next;
+};
 
+typedef struct {
+    struct MyListNode *first;
+    struct MyListNode *last;
+} MyStack;
+
+MyStack *myStackCreate() {
+    MyStack *obj = malloc(sizeof(MyStack));
+    obj->first = NULL;
+    obj->last = NULL;
+    return obj;
+}
+
+void myStackPush(MyStack *obj, int val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->val = val;
+    x->next = NULL;
+    if (obj->first == NULL) {
+        obj->first = x;
+        obj->last = x;
+    } else {
+        // 入队
+        obj->last->next = x;
+        obj->last = x;
+        struct MyListNode *last = obj->last;
+        while (obj->first != last) {
+            int temp = obj->first->val;
+            // 出队
+            struct MyListNode *dequeueNode = obj->first;
+            obj->first = obj->first->next;
+            free(dequeueNode);
+            // 入队
+            struct MyListNode *enqueueNode = malloc(sizeof(struct MyListNode));
+            enqueueNode->val = temp;
+            enqueueNode->next = NULL;
+            obj->last->next = enqueueNode;
+            obj->last = enqueueNode;
+        }
+    }
+}
+
+int myStackPop(MyStack *obj) {
+    int val = obj->first->val;
+    struct MyListNode *x = obj->first;
+    if (x->next == NULL) {
+        obj->first = NULL;
+        obj->last = NULL;
+    } else {
+        obj->first = obj->first->next;
+    }
+    free(x);
+    return val;
+}
+
+int myStackTop(MyStack *obj) {
+    return obj->first->val;
+}
+
+bool myStackEmpty(MyStack *obj) {
+    return obj->first == NULL;
+}
+
+void myStackFree(MyStack *obj) {
+    struct MyListNode *p = obj->first;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    free(obj);
+}
+// https://leetcode.cn/submissions/detail/391359845/
 ```
 
 ## 226. 翻转二叉树
@@ -5058,7 +5291,17 @@ struct ListNode *reverseList(struct ListNode *head) {
 <https://leetcode.cn/problems/invert-binary-tree/>
 
 ```c
-
+struct TreeNode *invertTree(struct TreeNode *root) {
+    if (root == NULL) {
+        return NULL;
+    }
+    struct TreeNode *left = invertTree(root->left);
+    struct TreeNode *right = invertTree(root->right);
+    root->left = right;
+    root->right = left;
+    return root;
+}
+// https://leetcode.cn/submissions/detail/390002049/
 ```
 
 ## 230. 二叉搜索树中第 K 小的元素
@@ -5066,7 +5309,53 @@ struct ListNode *reverseList(struct ListNode *head) {
 <https://leetcode.cn/problems/kth-smallest-element-in-a-bst/>
 
 ```c
+typedef struct {
+    struct TreeNode *key;
+    int val;
+    UT_hash_handle hh;
+} HashMapItem;
 
+HashMapItem *memo = NULL;
+
+int size(struct TreeNode *root) {
+    if (root == NULL) {
+        return 0;
+    }
+    HashMapItem *item;
+    HASH_FIND_PTR(memo, &root, item);
+    if (item == NULL) {
+        item = malloc(sizeof(HashMapItem));
+        item->key = root;
+        item->val = 1 + size(root->left) + size(root->right);
+        HASH_ADD_PTR(memo, key, item);
+    }
+    return item->val;
+}
+
+int qselect(struct TreeNode *root, int rank) {
+    if (root == NULL) {
+        return -1;
+    }
+    int leftSize = size(root->left);
+    if (rank < leftSize) {
+        return qselect(root->left, rank);
+    }
+    if (leftSize < rank) {
+        return qselect(root->right, rank - leftSize - 1);
+    }
+    return root->val;
+}
+
+int kthSmallest(struct TreeNode *root, int k) {
+    int ans = qselect(root, k - 1);
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, memo, cur, tmp) {
+        HASH_DEL(memo, cur);
+        free(cur);
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391279273/
 ```
 
 ## 232. 用栈实现队列
@@ -5074,7 +5363,106 @@ struct ListNode *reverseList(struct ListNode *head) {
 <https://leetcode.cn/problems/implement-queue-using-stacks/>
 
 ```c
+struct MyListNode {
+    int val;
+    struct MyListNode *next;
+};
 
+/**
+ * -----------------------------| |-------------------------------
+ * pop <- top Left Stack bottom | | bottom Right Stack top <- push
+ * -----------------------------| |-------------------------------
+ */
+typedef struct {
+    struct MyListNode *leftFirst;
+    struct MyListNode *rightFirst;
+} MyQueue;
+
+MyQueue *myQueueCreate() {
+    MyQueue *obj = malloc(sizeof(MyQueue));
+    obj->leftFirst = NULL;
+    obj->rightFirst = NULL;
+    return obj;
+}
+
+void myQueuePush(MyQueue *obj, int val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->val = val;
+    x->next = NULL;
+    if (obj->rightFirst == NULL) {
+        obj->rightFirst = x;
+    } else {
+        x->next = obj->rightFirst;
+        obj->rightFirst = x;
+    }
+}
+
+void myQueueMove(MyQueue *obj) {
+    while (obj->rightFirst != NULL) {
+        int temp = obj->rightFirst->val;
+        // 出栈
+        struct MyListNode *popNode = obj->rightFirst;
+        if (popNode->next == NULL) {
+            obj->rightFirst = NULL;
+        } else {
+            obj->rightFirst = obj->rightFirst->next;
+        }
+        free(popNode);
+        // 入栈
+        struct MyListNode *pushNode = malloc(sizeof(struct MyListNode));
+        pushNode->val = temp;
+        pushNode->next = NULL;
+        if (obj->leftFirst == NULL) {
+            obj->leftFirst = pushNode;
+        } else {
+            pushNode->next = obj->leftFirst;
+            obj->leftFirst = pushNode;
+        }
+    }
+}
+
+int myQueuePop(MyQueue *obj) {
+    if (obj->leftFirst == NULL) {
+        myQueueMove(obj);
+    }
+    int val = obj->leftFirst->val;
+    struct MyListNode *x = obj->leftFirst;
+    if (x->next == NULL) {
+        obj->leftFirst = NULL;
+    } else {
+        obj->leftFirst = obj->leftFirst->next;
+    }
+    free(x);
+    return val;
+}
+
+int myQueuePeek(MyQueue *obj) {
+    if (obj->leftFirst == NULL) {
+        myQueueMove(obj);
+    }
+    return obj->leftFirst->val;
+}
+
+bool myQueueEmpty(MyQueue *obj) {
+    return obj->leftFirst == NULL && obj->rightFirst == NULL;
+}
+
+void myQueueFree(MyQueue *obj) {
+    struct MyListNode *p = obj->leftFirst;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    p = obj->rightFirst;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    free(obj);
+}
+// https://leetcode.cn/submissions/detail/391359552/
 ```
 
 ## 234. 回文链表
@@ -5082,7 +5470,45 @@ struct ListNode *reverseList(struct ListNode *head) {
 <https://leetcode.cn/problems/palindrome-linked-list/>
 
 ```c
+struct ListNode *reverseList(struct ListNode *head) {
+    struct ListNode *reverseHead = NULL;
+    while (head != NULL) {
+        struct ListNode *x = head->next;
+        head->next = reverseHead;
+        reverseHead = head;
+        head = x;
+    }
+    return reverseHead;
+}
 
+bool isPalindrome(struct ListNode *head) {
+    // 寻找链表的中点（偶数个节点时选择左侧），即前半部分链表的尾节点
+    struct ListNode *mid = head;
+    struct ListNode *ptr = head;
+    while (ptr->next != NULL && ptr->next->next != NULL) {
+        mid = mid->next;
+        ptr = ptr->next->next;
+    }
+    // 翻转后半部分链表
+    struct ListNode *reverseHead = reverseList(mid->next);
+    mid->next = NULL;
+    // 判断是否回文链表
+    struct ListNode *left = head;
+    struct ListNode *right = reverseHead;
+    while (right != NULL) {
+        if (left->val != right->val) {
+            // 还原链表
+            mid->next = reverseList(reverseHead);
+            return false;
+        }
+        left = left->next;
+        right = right->next;
+    }
+    // 还原链表
+    mid->next = reverseList(reverseHead);
+    return true;
+}
+// https://leetcode.cn/submissions/detail/391144641/
 ```
 
 ## 235. 二叉搜索树的最近公共祖先
@@ -5090,7 +5516,23 @@ struct ListNode *reverseList(struct ListNode *head) {
 <https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/>
 
 ```c
-
+struct TreeNode *lowestCommonAncestor(struct TreeNode *root, struct TreeNode *p, struct TreeNode *q) {
+    // 保持 p < q
+    if (p->val > q->val) {
+        return lowestCommonAncestor(root, q, p);
+    }
+    if (p->val <= root->val && root->val <= q->val) {
+        return root;
+    }
+    if (q->val < root->val) {
+        return lowestCommonAncestor(root->left, p, q);
+    }
+    if (root->val < p->val) {
+        return lowestCommonAncestor(root->right, p, q);
+    }
+    return NULL;
+}
+// https://leetcode.cn/submissions/detail/390008893/
 ```
 
 ## 236. 二叉树的最近公共祖先
@@ -5098,7 +5540,33 @@ struct ListNode *reverseList(struct ListNode *head) {
 <https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/>
 
 ```c
+struct TreeNode *lca;
 
+// 在子树中查找节点 p 或 q，递归过程中确定『最近公共祖先』
+bool find(struct TreeNode *root, struct TreeNode *p, struct TreeNode *q) {
+    if (root == NULL) {
+        return false;
+    }
+    if (root == p || root == q) {
+        // 如果 lca(p,q) = p 或 q，则此处的 lca = root 是最终答案
+        lca = root;
+        return true;
+    }
+    bool left = find(root->left, p, q);
+    bool right = find(root->right, p, q);
+    if (left && right) {
+        // 否则返回到某祖先节点处的 lca = root 才是最终答案
+        lca = root;
+    }
+    return left || right;
+}
+
+struct TreeNode *lowestCommonAncestor(struct TreeNode *root, struct TreeNode *p, struct TreeNode *q) {
+    lca = root;
+    find(root, p, q);
+    return lca;
+}
+// https://leetcode.cn/submissions/detail/391165936/
 ```
 
 ## 237. 删除链表中的节点
@@ -5106,7 +5574,13 @@ struct ListNode *reverseList(struct ListNode *head) {
 <https://leetcode-cn.com/problems/delete-node-in-a-linked-list/>
 
 ```c
-
+void deleteNode(struct ListNode *node) {
+    node->val = node->next->val;
+    struct ListNode *delNode = node->next;
+    node->next = delNode->next;
+    free(delNode);
+}
+// https://leetcode.cn/submissions/detail/388679220/
 ```
 
 ## 239. 滑动窗口最大值
@@ -5114,7 +5588,175 @@ struct ListNode *reverseList(struct ListNode *head) {
 <https://leetcode.cn/problems/sliding-window-maximum/>
 
 ```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *maxSlidingWindow(const int *nums, int numsSize, int k, int *returnSize) {
+    int *ans = malloc(sizeof(int[numsSize]));
+    int ansSize = 0;
+    int queue[numsSize];
+    int first = 0, last = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        // nums[i] = 进入窗口的数字
+        int x = nums[i];
+        while (first < last && queue[last - 1] < x) {
+            --last;
+        }
+        queue[last++] = x;
+        if (i < k - 1) {
+            continue;
+        }
+        // nums[i-k] = 退出窗口的数字
+        if (i >= k && nums[i - k] == queue[first]) {
+            ++first;
+        }
+        ans[ansSize++] = queue[first];
+    }
+    *returnSize = ansSize;
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391282668/
+```
 
+```c
+typedef int Value;
+
+struct MyListNode {
+    Value val;
+    struct MyListNode *prev;
+    struct MyListNode *next;
+};
+
+typedef struct {
+    struct MyListNode *first;
+    struct MyListNode *last;
+    int size;
+} MyLinkedListDeque;
+
+MyLinkedListDeque *myDequeCreate() {
+    MyLinkedListDeque *obj = malloc(sizeof(MyLinkedListDeque));
+    obj->first = NULL;
+    obj->last = NULL;
+    obj->size = 0;
+    return obj;
+}
+
+void myDequePushFront(MyLinkedListDeque *obj, Value val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->val = val;
+    x->prev = NULL;
+    x->next = NULL;
+    if (obj->size == 0) {
+        obj->first = x;
+        obj->last = x;
+    } else {
+        x->next = obj->first;
+        obj->first->prev = x;
+        obj->first = x;
+    }
+    obj->size++;
+}
+
+void myDequePushBack(MyLinkedListDeque *obj, Value val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->val = val;
+    x->prev = NULL;
+    x->next = NULL;
+    if (obj->size == 0) {
+        obj->first = x;
+        obj->last = x;
+    } else {
+        obj->last->next = x;
+        x->prev = obj->last;
+        obj->last = x;
+    }
+    obj->size++;
+}
+
+Value myDequePopFront(MyLinkedListDeque *obj) {
+    Value val = obj->first->val;
+    struct MyListNode *x = obj->first;
+    if (obj->size == 1) {
+        obj->first = NULL;
+        obj->last = NULL;
+    } else {
+        obj->first = obj->first->next;
+        obj->first->prev = NULL;
+    }
+    free(x);
+    obj->size--;
+    return val;
+}
+
+Value myDequePopBack(MyLinkedListDeque *obj) {
+    Value val = obj->last->val;
+    struct MyListNode *x = obj->last;
+    if (obj->size == 1) {
+        obj->first = NULL;
+        obj->last = NULL;
+    } else {
+        obj->last = obj->last->prev;
+        obj->last->next = NULL;
+    }
+    free(x);
+    obj->size--;
+    return val;
+}
+
+Value myDequePeekFront(MyLinkedListDeque *obj) {
+    return obj->first->val;
+}
+
+Value myDequePeekBack(MyLinkedListDeque *obj) {
+    return obj->last->val;
+}
+
+int myDequeSize(MyLinkedListDeque *obj) {
+    return obj->size;
+}
+
+bool myDequeEmpty(MyLinkedListDeque *obj) {
+    return obj->size == 0;
+}
+
+void myDequeFree(MyLinkedListDeque *obj) {
+    struct MyListNode *p = obj->first;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    free(obj);
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *maxSlidingWindow(const int *nums, int numsSize, int k, int *returnSize) {
+    int *ans = malloc(sizeof(int[numsSize]));
+    int ansSize = 0;
+    MyLinkedListDeque *deque = myDequeCreate();
+    for (int i = 0; i < numsSize; ++i) {
+        // nums[i] = 进入窗口的数字
+        int x = nums[i];
+        while (!myDequeEmpty(deque) && myDequePeekBack(deque) < x) {
+            myDequePopBack(deque);
+        }
+        myDequePushBack(deque, x);
+        if (i < k - 1) {
+            continue;
+        }
+        // nums[i-k] = 退出窗口的数字
+        if (i >= k && nums[i - k] == myDequePeekFront(deque)) {
+            myDequePopFront(deque);
+        }
+        ans[ansSize++] = myDequePeekFront(deque);
+    }
+    *returnSize = ansSize;
+    myDequeFree(deque);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391409356/
 ```
 
 ## 253. 会议室 II
@@ -5130,7 +5772,27 @@ struct ListNode *reverseList(struct ListNode *head) {
 <https://leetcode-cn.com/problems/move-zeroes/>
 
 ```c
+void swap(int *a, int *b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
 
+void moveZeroes(int *nums, int numsSize) {
+    // [0..i-1] != 0
+    // [i..j-1] == 0
+    // [j..n-1] Scanning
+    int i = 0, j = 0;
+    while (j < numsSize) {
+        while (j < numsSize && nums[j] == 0) {
+            ++j;
+        }
+        if (j < numsSize) {
+            swap(&nums[i++], &nums[j++]);
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/388242252/
 ```
 
 ## 297. 二叉树的序列化与反序列化
@@ -5138,7 +5800,67 @@ struct ListNode *reverseList(struct ListNode *head) {
 <https://leetcode.cn/problems/serialize-and-deserialize-binary-tree/>
 
 ```c
+/** Encodes a tree to a single string. */
+char *serialize(struct TreeNode *root) {
+    if (root == NULL) {
+        char *res = calloc(2, sizeof(char));
+        strcpy(res, "#");
+        return res;
+    }
+    char *left = serialize(root->left);
+    char *right = serialize(root->right);
+    char *res = calloc(strlen(left) + strlen(right) + 8, sizeof(char));
+    sprintf(res, "%d,%s,%s", root->val, left, right);
+    free(left);
+    free(right);
+    return res;
+}
 
+struct TreeNode *buildTree(char **strs, int *index) {
+    char *s = strs[(*index)++];
+    if (strcmp(s, "#") == 0) {
+        return NULL;
+    }
+    struct TreeNode *root = malloc(sizeof(struct TreeNode));
+    root->val = atoi(s);
+    root->left = buildTree(strs, index);
+    root->right = buildTree(strs, index);
+    return root;
+}
+
+/** Decodes your encoded data to tree. */
+struct TreeNode *deserialize(char *data) {
+    int size = 0, capacity = 8;
+    char **strs = malloc(sizeof(char *) * capacity);
+    int i = 0;
+    size_t n = strlen(data);
+    while (i < n) {
+        int start = i, len = 0;
+        while (i < n) {
+            if (data[i++] == ',') {
+                break;
+            }
+            ++len;
+        }
+        char *s = calloc(len + 1, sizeof(char));
+        strncpy(s, data + start, len);
+        if (len > 0) {
+            if (size == capacity) {
+                capacity *= 2;
+                strs = realloc(strs, sizeof(char *) * capacity);
+            }
+            strs[size++] = s;
+        }
+    }
+    int index = 0;
+    struct TreeNode *root = buildTree(strs, &index);
+    for (int j = 0; j < size; ++j) {
+        free(strs[j]);
+    }
+    free(strs);
+    return root;
+}
+// https://leetcode.cn/submissions/detail/391416610/
 ```
 
 ## 300. 最长递增子序列
@@ -5146,7 +5868,24 @@ struct ListNode *reverseList(struct ListNode *head) {
 <https://leetcode.cn/problems/longest-increasing-subsequence/>
 
 ```c
-
+int lengthOfLIS(const int *nums, int numsSize) {
+    // dp[i] = max({length(subsequence) | subsequence 是以 nums[i] 结尾的严格递增子序列})
+    int dp[numsSize];
+    dp[0] = 1;
+    int ans = dp[0];
+    for (int i = 1; i < numsSize; ++i) {
+        int res = 1;
+        for (int j = i - 1; j >= 0; --j) {
+            if (nums[j] < nums[i]) {
+                res = fmax(res, dp[j] + 1);
+            }
+        }
+        dp[i] = res;
+        ans = fmax(ans, dp[i]);
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/390338661/
 ```
 
 ## 303. 区域和检索 - 数组不可变
