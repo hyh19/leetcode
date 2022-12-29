@@ -178,159 +178,311 @@
 
 ## 1. 两数之和
 
+<https://leetcode-cn.com/problems/two-sum/>
+
 ## 2. 两数相加
+
+<https://leetcode-cn.com/problems/add-two-numbers/>
 
 ## 3. 无重复字符的最长子串
 
+<https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/>
+
 ## 4. 寻找两个正序数组的中位数
+
+<https://leetcode.cn/problems/median-of-two-sorted-arrays/>
 
 ## 5. 最长回文子串
 
+<https://leetcode.cn/problems/longest-palindromic-substring/>
+
 ## 7. 整数反转
+
+<https://leetcode.cn/problems/reverse-integer/>
 
 ## 11. 盛最多水的容器
 
+<https://leetcode.cn/problems/container-with-most-water/>
+
 ## 14. 最长公共前缀
+
+<https://leetcode.cn/problems/longest-common-prefix/>
 
 ## 15. 三数之和
 
+<https://leetcode-cn.com/problems/3sum/>
+
 ## 18. 四数之和
+
+<https://leetcode.cn/problems/4sum/>
 
 ## 19. 删除链表的倒数第 N 个结点
 
+<https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/>
+
 ## 20. 有效的括号
+
+<https://leetcode-cn.com/problems/valid-parentheses/>
 
 ## 21. 合并两个有序链表
 
+<https://leetcode-cn.com/problems/merge-two-sorted-lists/>
+
 ## 22. 括号生成
+
+<https://leetcode.cn/problems/generate-parentheses/>
 
 ## 23. 合并 K 个升序链表
 
+<https://leetcode-cn.com/problems/merge-k-sorted-lists/>
+
 ## 24. 两两交换链表中的节点
+
+<https://leetcode-cn.com/problems/swap-nodes-in-pairs/>
 
 ## 25. K 个一组翻转链表
 
+<https://leetcode.cn/problems/reverse-nodes-in-k-group/>
+
 ## 26. 删除有序数组中的重复项
+
+<https://leetcode.cn/problems/remove-duplicates-from-sorted-array/>
 
 ## 27. 移除元素
 
+<https://leetcode.cn/problems/remove-element/>
+
 ## 28. 实现 strStr()
+
+<https://leetcode.cn/problems/implement-strstr/>
 
 ## 33. 搜索旋转排序数组
 
+<https://leetcode.cn/problems/search-in-rotated-sorted-array/>
+
 ## 34. 在排序数组中查找元素的第一个和最后一个位置
+
+<https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/>
 
 ## 37. 解数独
 
+<https://leetcode.cn/problems/sudoku-solver/>
+
 ## 39. 组合总和
+
+<https://leetcode.cn/problems/combination-sum/>
 
 ## 40. 组合总和 II
 
+<https://leetcode.cn/problems/combination-sum-ii/>
+
 ## 42. 接雨水
+
+<https://leetcode.cn/problems/trapping-rain-water/>
 
 ## 46. 全排列
 
+<https://leetcode.cn/problems/permutations/>
+
 ## 47. 全排列 II
+
+<https://leetcode.cn/problems/permutations-ii/>
 
 ## 51. N 皇后
 
+<https://leetcode.cn/problems/n-queens/>
+
 ## 52. N 皇后 II
+
+<https://leetcode.cn/problems/n-queens-ii/>
 
 ## 53. 最大子数组和
 
+<https://leetcode.cn/problems/maximum-subarray/>
+
 ## 56. 合并区间
+
+<https://leetcode.cn/problems/merge-intervals/>
 
 ## 64. 最小路径和
 
+<https://leetcode.cn/problems/minimum-path-sum/>
+
 ## 69. x 的平方根
+
+<https://leetcode.cn/problems/sqrtx/>
 
 ## 70. 爬楼梯
 
+<https://leetcode.cn/problems/climbing-stairs/>
+
 ## 72. 编辑距离
+
+<https://leetcode.cn/problems/edit-distance/>
 
 ## 75. 颜色分类
 
+<https://leetcode.cn/problems/sort-colors/>
+
 ## 76. 最小覆盖子串
+
+<https://leetcode.cn/problems/minimum-window-substring/>
 
 ## 77. 组合
 
+<https://leetcode.cn/problems/combinations/>
+
 ## 78. 子集
+
+<https://leetcode.cn/problems/subsets/>
 
 ## 81. 搜索旋转排序数组 II
 
+<https://leetcode.cn/problems/search-in-rotated-sorted-array-ii/>
+
 ## 83. 删除排序链表中的重复元素
+
+<https://leetcode.cn/problems/remove-duplicates-from-sorted-list/>
 
 ## 86. 分隔链表
 
+<https://leetcode.cn/problems/partition-list/>
+
 ## 90. 子集 II
+
+<https://leetcode.cn/problems/subsets-ii/>
 
 ## 92. 反转链表 II
 
+<https://leetcode-cn.com/problems/reverse-linked-list-ii/>
+
 ## 94. 二叉树的中序遍历
+
+<https://leetcode.cn/problems/binary-tree-inorder-traversal/>
 
 ## 95. 不同的二叉搜索树 II
 
+<https://leetcode.cn/problems/unique-binary-search-trees-ii/>
+
 ## 96. 不同的二叉搜索树
+
+<https://leetcode.cn/problems/unique-binary-search-trees/>
 
 ## 98. 验证二叉搜索树
 
+<https://leetcode.cn/problems/validate-binary-search-tree/>
+
 ## 100. 相同的树
+
+<https://leetcode.cn/problems/same-tree/>
 
 ## 102. 二叉树的层序遍历
 
+<https://leetcode.cn/problems/binary-tree-level-order-traversal/>
+
 ## 103. 二叉树的锯齿形层序遍历
+
+<https://leetcode-cn.com/problems/binary-tree-zigzag-level-order-traversal/>
 
 ## 104. 二叉树的最大深度
 
+<https://leetcode.cn/problems/maximum-depth-of-binary-tree/>
+
 ## 105. 从前序与中序遍历序列构造二叉树
+
+<https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/>
 
 ## 106. 从中序与后序遍历序列构造二叉树
 
+<https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/>
+
 ## 107. 二叉树的层序遍历 II
+
+<https://leetcode-cn.com/problems/binary-tree-level-order-traversal-ii/>
 
 ## 108. 将有序数组转换为二叉搜索树
 
+<https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/>
+
 ## 110. 平衡二叉树
+
+<https://leetcode.cn/problems/balanced-binary-tree/>
 
 ## 111. 二叉树的最小深度
 
+<https://leetcode.cn/problems/minimum-depth-of-binary-tree/>
+
 ## 112. 路径总和
+
+<https://leetcode.cn/problems/path-sum/>
 
 ## 114. 二叉树展开为链表
 
+<https://leetcode.cn/problems/flatten-binary-tree-to-linked-list/>
+
 ## 116. 填充每个节点的下一个右侧节点指针
+
+<https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/>
 
 ## 121. 买卖股票的最佳时机
 
+<https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/>
+
 ## 122. 买卖股票的最佳时机 II
+
+<https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/>
 
 ## 123. 买卖股票的最佳时机 III
 
+<https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iii/>
+
 ## 125. 验证回文串
+
+<https://leetcode.cn/problems/valid-palindrome/>
 
 ## 128. 最长连续序列
 
+<https://leetcode.cn/problems/longest-consecutive-sequence/>
+
 ## 130. 被围绕的区域
+
+<https://leetcode.cn/problems/surrounded-regions/>
 
 ## 136. 只出现一次的数字
 
+<https://leetcode.cn/problems/single-number/>
+
 ## 141. 环形链表
+
+<https://leetcode-cn.com/problems/linked-list-cycle/>
 
 ## 142. 环形链表 II
 
+<https://leetcode-cn.com/problems/linked-list-cycle-ii/>
+
 ## 143. 重排链表
+
+<https://leetcode.cn/problems/reorder-list/>
 
 ## 144. 二叉树的前序遍历
 
+<https://leetcode.cn/problems/binary-tree-preorder-traversal/>
+
 ## 145. 二叉树的后序遍历
 
+<https://leetcode.cn/problems/binary-tree-postorder-traversal/>
+
 ## 146. LRU 缓存
+
+<https://leetcode.cn/problems/lru-cache/>
 
 ## 153. 寻找旋转排序数组中的最小值
 
 <https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/>
 
 ## 155. 最小栈
+
+<https://leetcode.cn/problems/min-stack/>
 
 ## 160. 相交链表
 
