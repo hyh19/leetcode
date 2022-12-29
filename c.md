@@ -5893,7 +5893,32 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/range-sum-query-immutable/>
 
 ```c
+typedef struct {
+    int *sums;
+} NumArray;
 
+NumArray *numArrayCreate(const int *nums, int numsSize) {
+    NumArray *obj = malloc(sizeof(NumArray));
+    obj->sums = malloc(sizeof(int[numsSize]));
+    obj->sums[0] = nums[0];
+    for (int i = 1; i < numsSize; ++i) {
+        obj->sums[i] = obj->sums[i - 1] + nums[i];
+    }
+    return obj;
+}
+
+int numArraySumRange(NumArray *obj, int left, int right) {
+    if (left == 0) {
+        return obj->sums[right];
+    }
+    return obj->sums[right] - obj->sums[left - 1];
+}
+
+void numArrayFree(NumArray *obj) {
+    free(obj->sums);
+    free(obj);
+}
+// https://leetcode.cn/submissions/detail/391360132/
 ```
 
 ## 309. 最佳买卖股票时机含冷冻期
@@ -5901,7 +5926,27 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/>
 
 ```c
-
+int maxProfit(int *prices, int pricesSize) {
+    if (pricesSize <= 1) {
+        return 0;
+    }
+    // dp[i][0] = 第 i 天，空仓状态下的最大利润
+    // dp[i][1] = 第 i 天，持仓状态下的最大利润
+    int dp[pricesSize][2];
+    dp[0][0] = 0;
+    dp[0][1] = -prices[0];
+    dp[1][0] = fmax(dp[0][0], dp[0][1] + prices[1]);
+    dp[1][1] = fmax(dp[0][0] - prices[1], dp[0][1]);
+    for (int i = 2; i < pricesSize; ++i) {
+        // dp[i - 1][0]             >= dp[i - 2][0] >= p[i - 2][0] - prices[i]
+        // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+        // => dp[i][0] >= dp[i][1]
+        dp[i][0] = fmax(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+        dp[i][1] = fmax(dp[i - 2][0] - prices[i], dp[i - 1][1]);
+    }
+    return dp[pricesSize - 1][0];
+}
+// https://leetcode.cn/submissions/detail/390322797/
 ```
 
 ## 315. 计算右侧小于当前元素的个数
@@ -5909,7 +5954,57 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/count-of-smaller-numbers-after-self/>
 
 ```c
+int *counts;
 
+struct Pair {
+    int val;
+    int idx;
+};
+
+void merge(struct Pair *pairs, struct Pair *aux, int lo, int mid, int hi) {
+    for (int k = lo; k <= hi; ++k) {
+        aux[k] = pairs[k];
+    }
+    int i = lo, j = mid + 1;
+    for (int k = lo; k <= hi; ++k) {
+        if (i > mid || (j <= hi && aux[j].val < aux[i].val)) {
+            pairs[k] = aux[j++];
+        } else {
+            // aux[mid+1..j) < aux[i]
+            counts[aux[i].idx] += (j - mid - 1);
+            pairs[k] = aux[i++];
+        }
+    }
+}
+
+void sort(struct Pair *pairs, struct Pair *aux, int lo, int hi) {
+    if (lo >= hi) {
+        return;
+    }
+    int mid = lo + (hi - lo) / 2;
+    sort(pairs, aux, lo, mid);
+    sort(pairs, aux, mid + 1, hi);
+    merge(pairs, aux, lo, mid, hi);
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *countSmaller(const int *nums, int numsSize, int *returnSize) {
+    *returnSize = numsSize;
+    counts = calloc(numsSize, sizeof(int));
+    struct Pair *pairs = malloc(sizeof(struct Pair) * numsSize);
+    for (int i = 0; i < numsSize; ++i) {
+        struct Pair p = {nums[i], i};
+        pairs[i] = p;
+    }
+    struct Pair *aux = malloc(sizeof(struct Pair) * numsSize);
+    sort(pairs, aux, 0, numsSize - 1);
+    free(pairs);
+    free(aux);
+    return counts;
+}
+// https://leetcode.cn/submissions/detail/391357126/
 ```
 
 ## 322. 零钱兑换
@@ -5917,7 +6012,26 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/coin-change/>
 
 ```c
-
+int coinChange(const int *coins, int coinsSize, int amount) {
+    // dp[i] = 凑成总金额 i 所需的最少的硬币个数
+    int dp[amount + 1];
+    memset(dp, 0, sizeof(dp));
+    for (int i = 1; i <= amount; ++i) {
+        int res = INT_MAX;
+        // c       = 选择放入的硬币
+        // i-c     = 剩余总金额
+        // dp[i-c] = 凑成剩余总金额所需的最少的硬币个数
+        for (int j = 0; j < coinsSize; ++j) {
+            int x = i - coins[j];
+            if (x >= 0 && dp[x] != -1) {
+                res = fmin(res, dp[x] + 1);
+            }
+        }
+        dp[i] = (res == INT_MAX ? -1 : res);
+    }
+    return dp[amount];
+}
+// https://leetcode.cn/submissions/detail/390181811/
 ```
 
 ## 337. 打家劫舍 III
@@ -5925,7 +6039,51 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/house-robber-iii/>
 
 ```c
+typedef struct {
+    struct TreeNode *key;
+    int val;
+    UT_hash_handle hh;
+} HashMapItem;
 
+HashMapItem *memo = NULL;
+
+// 在二叉树 root，能盗取的最高金额
+int robMemo(struct TreeNode *root) {
+    if (root == NULL) {
+        return 0;
+    }
+    HashMapItem *item;
+    HASH_FIND_PTR(memo, &root, item);
+    if (item == NULL) {
+        item = malloc(sizeof(HashMapItem));
+        item->key = root;
+        // 不偷 root
+        int sp1 = robMemo(root->left) + robMemo(root->right);
+        // 偷 root
+        int sp2 = root->val;
+        if (root->left != NULL) {
+            sp2 += robMemo(root->left->left) + robMemo(root->left->right);
+        }
+        if (root->right != NULL) {
+            sp2 += robMemo(root->right->left) + robMemo(root->right->right);
+        }
+        item->val = fmax(sp1, sp2);
+        HASH_ADD_PTR(memo, key, item);
+    }
+    return item->val;
+}
+
+int rob(struct TreeNode *root) {
+    int ans = robMemo(root);
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, memo, cur, tmp) {
+        HASH_DEL(memo, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, memo);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391279016/
 ```
 
 ## 344. 反转字符串
@@ -5933,7 +6091,19 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/reverse-string/>
 
 ```c
+void swap(char *a, char *b) {
+    char t = *a;
+    *a = *b;
+    *b = t;
+}
 
+void reverseString(char *s, int sSize) {
+    int i = 0, j = sSize - 1;
+    while (i < j) {
+        swap(&s[i++], &s[j--]);
+    }
+}
+// https://leetcode.cn/submissions/detail/390151784/
 ```
 
 ## 354. 俄罗斯套娃信封问题
@@ -5949,7 +6119,312 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/decode-string/>
 
 ```c
+typedef char *Value;
 
+struct MyListNode {
+    Value val;
+    struct MyListNode *next;
+};
+
+typedef struct {
+    struct MyListNode *first;
+    int size;
+} MyLinkedListStack;
+
+MyLinkedListStack *myStackCreate() {
+    MyLinkedListStack *obj = malloc(sizeof(MyLinkedListStack));
+    obj->first = NULL;
+    obj->size = 0;
+    return obj;
+}
+
+void myStackPush(MyLinkedListStack *obj, Value val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->val = val;
+    x->next = NULL;
+    if (obj->size == 0) {
+        obj->first = x;
+    } else {
+        x->next = obj->first;
+        obj->first = x;
+    }
+    obj->size++;
+}
+
+Value myStackPop(MyLinkedListStack *obj) {
+    Value val = obj->first->val;
+    struct MyListNode *x = obj->first;
+    if (obj->size == 1) {
+        obj->first = NULL;
+    } else {
+        obj->first = obj->first->next;
+    }
+    free(x);
+    obj->size--;
+    return val;
+}
+
+Value myStackPeek(MyLinkedListStack *obj) {
+    return obj->first->val;
+}
+
+int myStackSize(MyLinkedListStack *obj) {
+    return obj->size;
+}
+
+bool myStackEmpty(MyLinkedListStack *obj) {
+    return obj->size == 0;
+}
+
+void myStackFree(MyLinkedListStack *obj) {
+    struct MyListNode *p = obj->first;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    free(obj);
+}
+
+char *repeatedString(char *s, int k) {
+    char *res = calloc(k * strlen(s) + 1, sizeof(char));
+    char *p = res;
+    for (int i = 1; i <= k; ++i) {
+        sprintf(p, "%s", s);
+        p += strlen(p);
+    }
+    return res;
+}
+
+char *decodeString(char *s) {
+    MyLinkedListStack *stack = myStackCreate();
+    int i = 0;
+    size_t n = strlen(s);
+    while (i < n) {
+        int start = i;
+        size_t len = 0;
+        while (i < n && isdigit(s[i])) {
+            ++i;
+            ++len;
+        }
+        if (len > 0) {
+            char *digits = calloc(len + 1, sizeof(char));
+            strncpy(digits, s + start, len);
+            myStackPush(stack, digits);
+        }
+        while (i < n && s[i] == '[') {
+            myStackPush(stack, "[");
+            ++i;
+        }
+        start = i;
+        len = 0;
+        while (i < n && isalpha(s[i])) {
+            ++i;
+            ++len;
+        }
+        if (len > 0) {
+            char *letters = calloc(len + 1, sizeof(char));
+            strncpy(letters, s + start, len);
+            myStackPush(stack, letters);
+        }
+        while (i < n && s[i] == ']') {
+            char **strs = malloc(sizeof(char *) * myStackSize(stack));
+            int count = 0;
+            len = 0;
+            while (!myStackEmpty(stack)) {
+                char *str = myStackPop(stack);
+                if (strcmp(str, "[") == 0) {
+                    break;
+                }
+                len += strlen(str);
+                strs[count++] = str;
+            }
+            char *letters = calloc(len + 1, sizeof(char));
+            char *p = letters;
+            for (int k = count - 1; k >= 0; --k) {
+                sprintf(p, "%s", strs[k]);
+                p += strlen(p);
+            }
+            char *digits = myStackPop(stack);
+            char *rep = repeatedString(letters, atoi(digits));
+            myStackPush(stack, rep);
+            for (int k = 0; k < count; ++k) {
+                free(strs[k]);
+            }
+            free(strs);
+            ++i;
+        }
+    }
+    char **strs = malloc(sizeof(char *) * myStackSize(stack));
+    int count = 0;
+    size_t len = 0;
+    while (!myStackEmpty(stack)) {
+        char *str = myStackPop(stack);
+        len += strlen(str);
+        strs[count++] = str;
+    }
+    char *ans = calloc(len + 1, sizeof(char));
+    char *p = ans;
+    for (int k = count - 1; k >= 0; --k) {
+        sprintf(p, "%s", strs[k]);
+        p += strlen(p);
+    }
+    for (int k = 0; k < count; ++k) {
+        free(strs[k]);
+    }
+    free(strs);
+    myStackFree(stack);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391413487/
+```
+
+```c
+typedef char *Value;
+
+typedef struct {
+    Value *array;
+    int capacity;
+    int size;
+} MyResizingArrayStack;
+
+MyResizingArrayStack *myStackCreate() {
+    MyResizingArrayStack *obj = malloc(sizeof(MyResizingArrayStack));
+    obj->size = 0;
+    obj->capacity = 8;
+    obj->array = malloc(sizeof(Value) * obj->capacity);
+    return obj;
+}
+
+void myStackResize(MyResizingArrayStack *obj, int capacity) {
+    obj->array = realloc(obj->array, sizeof(Value) * capacity);
+    obj->capacity = capacity;
+}
+
+void myStackPush(MyResizingArrayStack *obj, Value val) {
+    if (obj->size == obj->capacity) {
+        myStackResize(obj, obj->capacity * 2);
+    }
+    obj->array[obj->size++] = val;
+}
+
+Value myStackPop(MyResizingArrayStack *obj) {
+    Value val = obj->array[obj->size - 1];
+    obj->size--;
+    if (obj->size > 0 && obj->size == obj->capacity / 4) {
+        myStackResize(obj, obj->capacity / 2);
+    }
+    return val;
+}
+
+Value myStackPeek(MyResizingArrayStack *obj) {
+    return obj->array[obj->size - 1];
+}
+
+int myStackSize(MyResizingArrayStack *obj) {
+    return obj->size;
+}
+
+bool myStackEmpty(MyResizingArrayStack *obj) {
+    return obj->size == 0;
+}
+
+void myStackFree(MyResizingArrayStack *obj) {
+    free(obj->array);
+    free(obj);
+}
+
+char *repeatedString(char *s, int k) {
+    char *res = calloc(k * strlen(s) + 1, sizeof(char));
+    char *p = res;
+    for (int i = 1; i <= k; ++i) {
+        sprintf(p, "%s", s);
+        p += strlen(p);
+    }
+    return res;
+}
+
+char *decodeString(char *s) {
+    MyResizingArrayStack *stack = myStackCreate();
+    int i = 0;
+    size_t n = strlen(s);
+    while (i < n) {
+        int start = i;
+        size_t len = 0;
+        while (i < n && isdigit(s[i])) {
+            ++i;
+            ++len;
+        }
+        if (len > 0) {
+            char *digits = calloc(len + 1, sizeof(char));
+            strncpy(digits, s + start, len);
+            myStackPush(stack, digits);
+        }
+        while (i < n && s[i] == '[') {
+            myStackPush(stack, "[");
+            ++i;
+        }
+        start = i;
+        len = 0;
+        while (i < n && isalpha(s[i])) {
+            ++i;
+            ++len;
+        }
+        if (len > 0) {
+            char *letters = calloc(len + 1, sizeof(char));
+            strncpy(letters, s + start, len);
+            myStackPush(stack, letters);
+        }
+        while (i < n && s[i] == ']') {
+            char **strs = malloc(sizeof(char *) * myStackSize(stack));
+            int count = 0;
+            len = 0;
+            while (!myStackEmpty(stack)) {
+                char *str = myStackPop(stack);
+                if (strcmp(str, "[") == 0) {
+                    break;
+                }
+                len += strlen(str);
+                strs[count++] = str;
+            }
+            char *letters = calloc(len + 1, sizeof(char));
+            char *p = letters;
+            for (int k = count - 1; k >= 0; --k) {
+                sprintf(p, "%s", strs[k]);
+                p += strlen(p);
+            }
+            char *digits = myStackPop(stack);
+            char *rep = repeatedString(letters, atoi(digits));
+            myStackPush(stack, rep);
+            for (int k = 0; k < count; ++k) {
+                free(strs[k]);
+            }
+            free(strs);
+            ++i;
+        }
+    }
+    char **strs = malloc(sizeof(char *) * myStackSize(stack));
+    int count = 0;
+    size_t len = 0;
+    while (!myStackEmpty(stack)) {
+        char *str = myStackPop(stack);
+        len += strlen(str);
+        strs[count++] = str;
+    }
+    char *ans = calloc(len + 1, sizeof(char));
+    char *p = ans;
+    for (int k = count - 1; k >= 0; --k) {
+        sprintf(p, "%s", strs[k]);
+        p += strlen(p);
+    }
+    for (int k = 0; k < count; ++k) {
+        free(strs[k]);
+    }
+    free(strs);
+    myStackFree(stack);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391413256/
 ```
 
 ## 416. 分割等和子集
@@ -5957,7 +6432,49 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/partition-equal-subset-sum/>
 
 ```c
+// 数组 nums 是否存在和为 sum 的子集
+bool hasSubsetSum(const int *nums, int numsSize, int sum) {
+    int n = numsSize;
+    // dp[i][j] = 子数组 nums[0..i-1] 是否存在和为 j 的子集
+    bool dp[n + 1][sum + 1];
+    // 和为 0
+    for (int i = 1; i <= n; ++i) {
+        dp[i][0] = true;
+    }
+    // 空数组
+    for (int j = 1; j <= sum; ++j) {
+        dp[0][j] = false;
+    }
+    // 空集的和为 0，空集是任何数组的子集，包括空数组
+    dp[0][0] = true;
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 1; j <= sum; ++j) {
+            int x = nums[i - 1];
+            if (j >= x) {
+                // 不包含 x
+                bool sp1 = dp[i - 1][j];
+                // 包含 x
+                bool sp2 = dp[i - 1][j - x];
+                dp[i][j] = sp1 || sp2;
+            } else {
+                dp[i][j] = dp[i - 1][j];
+            }
+        }
+    }
+    return dp[n][sum];
+}
 
+bool canPartition(int *nums, int numsSize) {
+    int sum = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        sum += nums[i];
+    }
+    if (sum % 2 == 1) {
+        return false;
+    }
+    return hasSubsetSum(nums, numsSize, sum / 2);
+}
+// https://leetcode.cn/submissions/detail/390450156/
 ```
 
 ## 435. 无重叠区间
@@ -5965,7 +6482,33 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/non-overlapping-intervals/>
 
 ```c
+int cmp(const void *a, const void *b) {
+    const int *arg1 = *(const int **) a;
+    const int *arg2 = *(const int **) b;
+    return arg1[1] - arg2[1];
+}
 
+// 区间数组 intervals 无重叠区间的最大数量
+int maxNonOverlappingIntervals(int **intervals, int intervalsSize) {
+    qsort(intervals, intervalsSize, sizeof(int *), cmp);
+    int count = 0;
+    int minEnd = INT_MIN;
+    for (int i = 0; i < intervalsSize; ++i) {
+        int start = intervals[i][0];
+        int end = intervals[i][1];
+        if (start < minEnd) {
+            continue;
+        }
+        ++count;
+        minEnd = end;
+    }
+    return count;
+}
+
+int eraseOverlapIntervals(int **intervals, int intervalsSize, int *intervalsColSize) {
+    return intervalsSize - maxNonOverlappingIntervals(intervals, intervalsSize);
+}
+// https://leetcode.cn/submissions/detail/391305215/
 ```
 
 ## 438. 找到字符串中所有字母异位词
@@ -5973,7 +6516,86 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/find-all-anagrams-in-a-string/>
 
 ```c
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashMapItem;
 
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *findAnagrams(char *s, char *p, int *returnSize) {
+    size_t sLength = strlen(s), pLength = strlen(p);
+    HashMapItem *need = NULL;
+    for (int i = 0; i < pLength; ++i) {
+        int ch = p[i];
+        HashMapItem *needItem;
+        HASH_FIND_INT(need, &ch, needItem);
+        if (needItem == NULL) {
+            needItem = malloc(sizeof(HashMapItem));
+            needItem->key = ch;
+            needItem->val = 0;
+            HASH_ADD_INT(need, key, needItem);
+        }
+        needItem->val++;
+    }
+    int *ans = malloc(sizeof(int[sLength]));
+    *returnSize = 0;
+    int valid = 0;
+    // s[left..right) = Window Substring
+    // s[right..n-1]  = Scanning
+    int left = 0, right = 0;
+    HashMapItem *window = NULL;
+    while (right < sLength) {
+        int add = s[right++];
+        HashMapItem *needItem;
+        HASH_FIND_INT(need, &add, needItem);
+        if (needItem != NULL) {
+            HashMapItem *winItem;
+            HASH_FIND_INT(window, &add, winItem);
+            if (winItem == NULL) {
+                winItem = malloc(sizeof(HashMapItem));
+                winItem->key = add;
+                winItem->val = 0;
+                HASH_ADD_INT(window, key, winItem);
+            }
+            if (++winItem->val == needItem->val) {
+                ++valid;
+            }
+        }
+        if (valid == HASH_COUNT(need)) {
+            while (left < right - pLength) {
+                int del = s[left++];
+                HASH_FIND_INT(need, &del, needItem);
+                if (needItem != NULL) {
+                    HashMapItem *winItem;
+                    HASH_FIND_INT(window, &del, winItem);
+                    if (winItem->val == needItem->val) {
+                        --valid;
+                    }
+                    winItem->val--;
+                }
+            }
+        }
+        if (valid == HASH_COUNT(need)) {
+            ans[(*returnSize)++] = left;
+        }
+    }
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, need, cur, tmp) {
+        HASH_DEL(need, cur);
+        free(cur);
+    }
+    HASH_ITER(hh, window, cur, tmp) {
+        HASH_DEL(window, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, need);
+    HASH_CLEAR(hh, window);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391352490/
 ```
 
 ## 445. 两数相加 II
@@ -5981,7 +6603,45 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/add-two-numbers-ii/>
 
 ```c
+struct ListNode *reverseList(struct ListNode *head) {
+    struct ListNode *reverseHead = NULL;
+    while (head != NULL) {
+        struct ListNode *x = head->next;
+        head->next = reverseHead;
+        reverseHead = head;
+        head = x;
+    }
+    return reverseHead;
+}
 
+struct ListNode *addTwoNumbers(struct ListNode *l1, struct ListNode *l2) {
+    l1 = reverseList(l1), l2 = reverseList(l2);
+    struct ListNode *dummyHead = malloc(sizeof(struct ListNode));
+    dummyHead->val = -1;
+    dummyHead->next = NULL;
+    struct ListNode *ptr = dummyHead;
+    int carry = 0;
+    while (l1 != NULL || l2 != NULL || carry > 0) {
+        int sum = carry;
+        if (l1 != NULL) {
+            sum += l1->val;
+            l1 = l1->next;
+        }
+        if (l2 != NULL) {
+            sum += l2->val;
+            l2 = l2->next;
+        }
+        struct ListNode *x = malloc(sizeof(struct ListNode));
+        x->val = sum % 10, x->next = NULL;
+        ptr->next = x;
+        ptr = ptr->next;
+        carry = sum / 10;
+    }
+    struct ListNode *head = dummyHead->next;
+    free(dummyHead);
+    return reverseList(head);
+}
+// https://leetcode.cn/submissions/detail/391145715/
 ```
 
 ## 450. 删除二叉搜索树中的节点
@@ -5989,7 +6649,44 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/delete-node-in-a-bst/>
 
 ```c
+// 删除并返回二叉搜索树 root 的最小节点
+struct TreeNode *deleteMin(struct TreeNode **root) {
+    if ((*root)->left == NULL) {
+        struct TreeNode *x = *root;
+        *root = (*root)->right;
+        return x;
+    }
+    return deleteMin(&(*root)->left);
+}
 
+struct TreeNode *deleteNode(struct TreeNode *root, int key) {
+    if (root == NULL) {
+        return NULL;
+    }
+    if (key < root->val) {
+        root->left = deleteNode(root->left, key);
+    } else if (key > root->val) {
+        root->right = deleteNode(root->right, key);
+    } else {
+        if (root->left == NULL) {
+            struct TreeNode *right = root->right;
+            free(root);
+            return right;
+        }
+        if (root->right == NULL) {
+            struct TreeNode *left = root->left;
+            free(root);
+            return left;
+        }
+        struct TreeNode *x = root;
+        root = deleteMin(&x->right);
+        root->right = x->right;
+        root->left = x->left;
+        free(x);
+    }
+    return root;
+}
+// https://leetcode.cn/submissions/detail/390011388/
 ```
 
 ## 452. 用最少数量的箭引爆气球
@@ -5997,7 +6694,41 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/minimum-number-of-arrows-to-burst-balloons/>
 
 ```c
+int cmp(const void *a, const void *b) {
+    const int *arg1 = *(const int **) a;
+    const int *arg2 = *(const int **) b;
+    if (arg1[1] < arg2[1]) {
+        return -1;
+    } else if (arg1[1] > arg2[1]) {
+        return 1;
+    }
+    return 0;
+}
 
+// 区间数组 intervals 无重叠区间的最大数量
+int maxNonOverlappingIntervals(int **intervals, int intervalsSize) {
+    qsort(intervals, intervalsSize, sizeof(int *), cmp);
+    int count = 0;
+    int minEnd = INT_MIN;
+    for (int i = 0; i < intervalsSize; ++i) {
+        int start = intervals[i][0];
+        int end = intervals[i][1];
+        if (start <= minEnd) {
+            continue;
+        }
+        ++count;
+        minEnd = end;
+    }
+    return count;
+}
+
+int findMinArrowShots(int **points, int pointsSize, int *pointsColSize) {
+    if (pointsSize == 1) {
+        return 1;
+    }
+    return maxNonOverlappingIntervals(points, pointsSize);
+}
+// https://leetcode.cn/submissions/detail/391305538/
 ```
 
 ## 460. LFU 缓存
@@ -6005,7 +6736,247 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/lfu-cache/>
 
 ```c
+struct MyListNode {
+    int key;
+    int val;
+    int freq;
+    struct MyListNode *prev;
+    struct MyListNode *next;
+};
 
+typedef struct {
+    struct MyListNode *first;
+    struct MyListNode *last;
+    int size;
+} MyDoublyLinkedList;
+
+MyDoublyLinkedList *myListCreate() {
+    MyDoublyLinkedList *obj = malloc(sizeof(MyDoublyLinkedList));
+    obj->first = NULL;
+    obj->last = NULL;
+    obj->size = 0;
+    return obj;
+}
+
+void myListAddLast(MyDoublyLinkedList *obj, struct MyListNode *x) {
+    if (obj->size == 0) {
+        obj->first = x;
+        obj->last = x;
+    } else {
+        obj->last->next = x;
+        x->prev = obj->last;
+        obj->last = x;
+    }
+    obj->size++;
+}
+
+void myListRemoveFirst(MyDoublyLinkedList *obj) {
+    struct MyListNode *x = obj->first;
+    if (obj->size == 1) {
+        obj->first = NULL;
+        obj->last = NULL;
+    } else {
+        obj->first = obj->first->next;
+        obj->first->prev = NULL;
+    }
+    free(x);
+    obj->size--;
+}
+
+void myListRemoveLast(MyDoublyLinkedList *obj) {
+    struct MyListNode *x = obj->last;
+    if (obj->size == 1) {
+        obj->first = NULL;
+        obj->last = NULL;
+    } else {
+        obj->last = obj->last->prev;
+        obj->last->next = NULL;
+    }
+    free(x);
+    obj->size--;
+}
+
+void myListRemove(MyDoublyLinkedList *obj, struct MyListNode *x) {
+    if (x == obj->first) {
+        myListRemoveFirst(obj);
+    } else if (x == obj->last) {
+        myListRemoveLast(obj);
+    } else {
+        x->prev->next = x->next;
+        x->next->prev = x->prev;
+        free(x);
+        obj->size--;
+    }
+}
+
+struct MyListNode *myListGetFirst(MyDoublyLinkedList *obj) {
+    return obj->first;
+}
+
+bool myListEmpty(MyDoublyLinkedList *obj) {
+    return obj->first == NULL;
+}
+
+void myListFree(MyDoublyLinkedList *obj) {
+    struct MyListNode *p = obj->first;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    free(obj);
+}
+
+typedef struct {
+    int key;
+    void *val;
+    UT_hash_handle hh;
+} HashMapItem;
+
+typedef struct {
+    HashMapItem *keyToNode;
+    HashMapItem *freqToList;
+    int minFreq;
+    int capacity;
+} LFUCache;
+
+LFUCache *lFUCacheCreate(int capacity) {
+    LFUCache *obj = malloc(sizeof(LFUCache));
+    obj->keyToNode = NULL;
+    obj->freqToList = NULL;
+    obj->minFreq = 0;
+    obj->capacity = capacity;
+    return obj;
+}
+
+bool lFUCacheContains(LFUCache *obj, int key) {
+    HashMapItem *item;
+    HASH_FIND_INT(obj->keyToNode, &key, item);
+    return item != NULL;
+}
+
+bool lFUCacheFull(LFUCache *obj) {
+    return HASH_COUNT(obj->keyToNode) == obj->capacity;
+}
+
+void lFUCacheAdd(LFUCache *obj, int key, int val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->key = key;
+    x->val = val;
+    x->freq = 1;
+    x->prev = NULL;
+    x->next = NULL;
+    HashMapItem *addNodeItem = malloc(sizeof(HashMapItem));
+    addNodeItem->key = key;
+    addNodeItem->val = x;
+    HASH_ADD_INT(obj->keyToNode, key, addNodeItem);
+    int minFreq = 1;
+    HashMapItem *minFreqItem;
+    HASH_FIND_INT(obj->freqToList, &minFreq, minFreqItem);
+    if (minFreqItem == NULL) {
+        minFreqItem = malloc(sizeof(HashMapItem));
+        minFreqItem->key = minFreq;
+        minFreqItem->val = myListCreate();
+        HASH_ADD_INT(obj->freqToList, key, minFreqItem);
+    }
+    MyDoublyLinkedList *list = (MyDoublyLinkedList *) minFreqItem->val;
+    myListAddLast(list, x);
+    obj->minFreq = 1;
+}
+
+void lFUCacheRemove(LFUCache *obj) {
+    HashMapItem *minFreqItem;
+    HASH_FIND_INT(obj->freqToList, &obj->minFreq, minFreqItem);
+    MyDoublyLinkedList *minFreqList = (MyDoublyLinkedList *) minFreqItem->val;
+    int delNodeKey = myListGetFirst(minFreqList)->key;
+    HashMapItem *delNodeItem;
+    HASH_FIND_INT(obj->keyToNode, &delNodeKey, delNodeItem);
+    HASH_DEL(obj->keyToNode, delNodeItem);
+    free(delNodeItem);
+    myListRemoveFirst(minFreqList);
+    if (myListEmpty(minFreqList)) {
+        HASH_DEL(obj->freqToList, minFreqItem);
+        free(minFreqItem);
+    }
+}
+
+int lFUCacheTouch(LFUCache *obj, int key, int val) {
+    HashMapItem *nodeItem;
+    HASH_FIND_INT(obj->keyToNode, &key, nodeItem);
+    struct MyListNode *x = (struct MyListNode *) nodeItem->val;
+    int newVal = x->val;
+    if (val != INT_MIN) {
+        newVal = val;
+    }
+    int oldFreq = x->freq;
+    int newFreq = oldFreq + 1;
+    HashMapItem *oldFreqItem;
+    HASH_FIND_INT(obj->freqToList, &oldFreq, oldFreqItem);
+    MyDoublyLinkedList *oldFreqList = (MyDoublyLinkedList *) oldFreqItem->val;
+    myListRemove(oldFreqList, x);
+    if (myListEmpty(oldFreqList)) {
+        HASH_DEL(obj->freqToList, oldFreqItem);
+        free(oldFreqItem);
+        if (obj->minFreq == oldFreq) {
+            obj->minFreq = newFreq;
+        }
+    }
+    x = malloc(sizeof(struct MyListNode));
+    x->key = key;
+    x->val = newVal;
+    x->freq = newFreq;
+    x->prev = NULL;
+    x->next = NULL;
+    nodeItem->val = x;
+    HashMapItem *newFreqItem;
+    HASH_FIND_INT(obj->freqToList, &newFreq, newFreqItem);
+    if (newFreqItem == NULL) {
+        newFreqItem = malloc(sizeof(HashMapItem));
+        newFreqItem->key = newFreq;
+        newFreqItem->val = myListCreate();
+        HASH_ADD_INT(obj->freqToList, key, newFreqItem);
+    }
+    MyDoublyLinkedList *newFreqList = (MyDoublyLinkedList *) newFreqItem->val;
+    myListAddLast(newFreqList, x);
+    return newVal;
+}
+
+int lFUCacheGet(LFUCache *obj, int key) {
+    if (lFUCacheContains(obj, key)) {
+        return lFUCacheTouch(obj, key, INT_MIN);
+    }
+    return -1;
+}
+
+void lFUCachePut(LFUCache *obj, int key, int val) {
+    if (obj->capacity > 0) {
+        if (lFUCacheContains(obj, key)) {
+            lFUCacheTouch(obj, key, val);
+        } else {
+            if (lFUCacheFull(obj)) {
+                lFUCacheRemove(obj);
+            }
+            lFUCacheAdd(obj, key, val);
+        }
+    }
+}
+
+void lFUCacheFree(LFUCache *obj) {
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, obj->keyToNode, cur, tmp) {
+        HASH_DEL(obj->keyToNode, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, obj->keyToNode);
+    HASH_ITER(hh, obj->freqToList, cur, tmp) {
+        myListFree(cur->val);
+        HASH_DEL(obj->freqToList, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, obj->freqToList);
+    free(obj);
+}
+// https://leetcode.cn/submissions/detail/391164820/
 ```
 
 ## 493. 翻转对
@@ -6013,7 +6984,59 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/reverse-pairs/>
 
 ```c
+int ans;
 
+bool isReversePair(const int *nums, int i, int j) {
+    return i < j && (long) nums[i] > (long) 2 * nums[j];
+}
+
+int countReversePairs(const int *nums, int lo, int mid, int hi) {
+    int res = 0;
+    int i = lo, j = mid + 1;
+    while (i <= mid && j <= hi) {
+        if (isReversePair(nums, i, j)) {
+            res += (mid - i + 1);
+            ++j;
+        } else {
+            ++i;
+        }
+    }
+    return res;
+}
+
+void merge(int *nums, int *aux, int lo, int mid, int hi) {
+    for (int k = lo; k <= hi; ++k) {
+        aux[k] = nums[k];
+    }
+    ans += countReversePairs(nums, lo, mid, hi);
+    int i = lo, j = mid + 1;
+    for (int k = lo; k <= hi; ++k) {
+        if (i > mid || (j <= hi && aux[j] < aux[i])) {
+            nums[k] = aux[j++];
+        } else {
+            nums[k] = aux[i++];
+        }
+    }
+}
+
+void sort(int *nums, int *aux, int lo, int hi) {
+    if (lo >= hi) {
+        return;
+    }
+    int mid = lo + (hi - lo) / 2;
+    sort(nums, aux, lo, mid);
+    sort(nums, aux, mid + 1, hi);
+    merge(nums, aux, lo, mid, hi);
+}
+
+int reversePairs(int *nums, int numsSize) {
+    ans = 0;
+    int *aux = malloc(sizeof(int[numsSize]));
+    sort(nums, aux, 0, numsSize - 1);
+    free(aux);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/390847923/
 ```
 
 ## 494. 目标和
@@ -6021,7 +7044,107 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/target-sum/>
 
 ```c
+typedef struct {
+    char *key;
+    int val;
+    UT_hash_handle hh;
+} HashMapItem;
 
+HashMapItem *memo = NULL;
+
+// 子数组 nums[0..i] 目标和为 target 的不同表达式的数目
+int findTargetSumWaysMemo(int *nums, int i, int target) {
+    if (i < 0) {
+        return target == 0 ? 1 : 0;
+    }
+    char *key = calloc(8, sizeof(char));
+    sprintf(key, "%d,%d", i, target);
+    HashMapItem *item;
+    HASH_FIND_STR(memo, key, item);
+    if (item == NULL) {
+        item = malloc(sizeof(HashMapItem));
+        item->key = key;
+
+        int x = nums[i];
+        // x 前添加 + 号
+        // sum(nums[0..i-1]) = target - x
+        int sp1 = findTargetSumWaysMemo(nums, i - 1, target - x);
+        // x 前添加 - 号
+        // sum(nums[0..i-1]) = target + x
+        int sp2 = findTargetSumWaysMemo(nums, i - 1, target + x);
+        item->val = sp1 + sp2;
+        HASH_ADD_STR(memo, key, item);
+    }
+    return item->val;
+}
+
+int findTargetSumWays(int *nums, int numsSize, int target) {
+    int sum = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        sum += nums[i];
+    }
+    if (abs(target) > sum) {
+        return 0;
+    }
+    int ans = findTargetSumWaysMemo(nums, numsSize - 1, target);
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, memo, cur, tmp) {
+        HASH_DEL(memo, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, memo);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391219400/
+```
+
+```c
+// 数组 nums 和为 sum 的子集的数目，其中 nums[i] >= 0, sum >= 0
+int numSubsetSum(const int *nums, int numsSize, int sum) {
+    int n = numsSize;
+    // dp[i][j] = 子数组 nums[0..i-1] 和为 j 的子集的数目
+    int dp[n + 1][sum + 1];
+    // 空数组
+    for (int j = 1; j <= sum; ++j) {
+        dp[0][j] = 0;
+    }
+    // 空集的和为 0，空集是任何数组的子集，包括空数组
+    dp[0][0] = 1;
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 0; j <= sum; ++j) {
+            int x = nums[i - 1];
+            if (j >= x) {
+                // 不包含 x
+                int sp1 = dp[i - 1][j];
+                // 包含 x
+                int sp2 = dp[i - 1][j - x];
+                dp[i][j] = sp1 + sp2;
+            } else {
+                dp[i][j] = dp[i - 1][j];
+            }
+        }
+    }
+    return dp[n][sum];
+}
+
+int findTargetSumWays(const int *nums, int numsSize, int target) {
+    // sum(A) - sum(B) = target
+    // sum(A) = target + sum(B)
+    // sum(A) + sum(A) = target + sum(B) + sum(A)
+    // 2 * sum(A) = target + sum(nums)
+    // sum(A) = (target + sum(nums)) / 2
+    // 问题转化为：数组 nums 中存在几个子集 A
+    // 使得 A 中元素的和为 (target + sum(nums)) / 2
+    int sum = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        sum += nums[i];
+    }
+    if (abs(target) > sum || (sum + target) % 2 == 1) {
+        return 0;
+    }
+    return numSubsetSum(nums, numsSize, (sum + target) / 2);
+}
+// https://leetcode.cn/submissions/detail/390326522/
 ```
 
 ## 496. 下一个更大元素 I
@@ -6029,7 +7152,61 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/next-greater-element-i/>
 
 ```c
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashMapItem;
 
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *nextGreaterElementSP(const int *nums, int numsSize, int *returnSize) {
+    *returnSize = numsSize;
+    int *ans = malloc(sizeof(int[numsSize]));
+    int stack[numsSize];
+    int top = 0;
+    for (int i = numsSize - 1; i >= 0; --i) {
+        int x = nums[i];
+        while (top > 0 && stack[top - 1] < x) {
+            --top;
+        }
+        ans[i] = top == 0 ? -1 : stack[top - 1];
+        stack[top++] = x;
+    }
+    return ans;
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *nextGreaterElement(int *nums1, int nums1Size, int *nums2, int nums2Size, int *returnSize) {
+    int greaterSize = 0;
+    int *greater = nextGreaterElementSP(nums2, nums2Size, &greaterSize);
+    HashMapItem *valToGreater = NULL;
+    for (int i = 0; i < nums2Size; ++i) {
+        HashMapItem *item = malloc(sizeof(HashMapItem));
+        item->key = nums2[i];
+        item->val = greater[i];
+        HASH_ADD_INT(valToGreater, key, item);
+    }
+    *returnSize = nums1Size;
+    int *ans = malloc(sizeof(int[nums1Size]));
+    for (int i = 0; i < nums1Size; ++i) {
+        HashMapItem *item;
+        HASH_FIND_INT(valToGreater, &nums1[i], item);
+        ans[i] = item->val;
+    }
+    free(greater);
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, valToGreater, cur, tmp) {
+        HASH_DEL(valToGreater, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, valToGreater);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391282019/
 ```
 
 ## 503. 下一个更大元素 II
@@ -6037,7 +7214,193 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/next-greater-element-ii/>
 
 ```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *nextGreaterElements(const int *nums, int numsSize, int *returnSize) {
+    *returnSize = numsSize;
+    int *ans = malloc(sizeof(int[numsSize]));
+    int stack[numsSize];
+    int top = 0;
+    for (int i = 2 * numsSize - 1; i >= 0; --i) {
+        int k = i % numsSize;
+        int x = nums[k];
+        while (top > 0 && stack[top - 1] <= x) {
+            --top;
+        }
+        ans[k] = top == 0 ? -1 : stack[top - 1];
+        stack[top++] = x;
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391280974/
+```
 
+```c
+typedef int Value;
+
+struct MyListNode {
+    Value val;
+    struct MyListNode *next;
+};
+
+typedef struct {
+    struct MyListNode *first;
+    int size;
+} MyLinkedListStack;
+
+MyLinkedListStack *myStackCreate() {
+    MyLinkedListStack *obj = malloc(sizeof(MyLinkedListStack));
+    obj->first = NULL;
+    obj->size = 0;
+    return obj;
+}
+
+void myStackPush(MyLinkedListStack *obj, Value val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->val = val;
+    x->next = NULL;
+    if (obj->size == 0) {
+        obj->first = x;
+    } else {
+        x->next = obj->first;
+        obj->first = x;
+    }
+    obj->size++;
+}
+
+Value myStackPop(MyLinkedListStack *obj) {
+    Value val = obj->first->val;
+    struct MyListNode *x = obj->first;
+    if (obj->size == 1) {
+        obj->first = NULL;
+    } else {
+        obj->first = obj->first->next;
+    }
+    free(x);
+    obj->size--;
+    return val;
+}
+
+Value myStackPeek(MyLinkedListStack *obj) {
+    return obj->first->val;
+}
+
+int myStackSize(MyLinkedListStack *obj) {
+    return obj->size;
+}
+
+bool myStackEmpty(MyLinkedListStack *obj) {
+    return obj->size == 0;
+}
+
+void myStackFree(MyLinkedListStack *obj) {
+    struct MyListNode *p = obj->first;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    free(obj);
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *nextGreaterElements(const int *nums, int numsSize, int *returnSize) {
+    *returnSize = numsSize;
+    int *ans = malloc(sizeof(int[numsSize]));
+    MyLinkedListStack *stack = myStackCreate();
+    for (int i = 2 * numsSize - 1; i >= 0; --i) {
+        int k = i % numsSize;
+        int x = nums[k];
+        while (!myStackEmpty(stack) && myStackPeek(stack) <= x) {
+            myStackPop(stack);
+        }
+        ans[k] = myStackEmpty(stack) ? -1 : myStackPeek(stack);
+        myStackPush(stack, x);
+    }
+    myStackFree(stack);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391408566/
+```
+
+```c
+typedef int Value;
+
+typedef struct {
+    Value *array;
+    int capacity;
+    int size;
+} MyResizingArrayStack;
+
+MyResizingArrayStack *myStackCreate() {
+    MyResizingArrayStack *obj = malloc(sizeof(MyResizingArrayStack));
+    obj->size = 0;
+    obj->capacity = 8;
+    obj->array = malloc(sizeof(Value) * obj->capacity);
+    return obj;
+}
+
+void myStackResize(MyResizingArrayStack *obj, int capacity) {
+    obj->array = realloc(obj->array, sizeof(Value) * capacity);
+    obj->capacity = capacity;
+}
+
+void myStackPush(MyResizingArrayStack *obj, Value val) {
+    if (obj->size == obj->capacity) {
+        myStackResize(obj, obj->capacity * 2);
+    }
+    obj->array[obj->size++] = val;
+}
+
+Value myStackPop(MyResizingArrayStack *obj) {
+    Value val = obj->array[obj->size - 1];
+    obj->size--;
+    if (obj->size > 0 && obj->size == obj->capacity / 4) {
+        myStackResize(obj, obj->capacity / 2);
+    }
+    return val;
+}
+
+Value myStackPeek(MyResizingArrayStack *obj) {
+    return obj->array[obj->size - 1];
+}
+
+int myStackSize(MyResizingArrayStack *obj) {
+    return obj->size;
+}
+
+bool myStackEmpty(MyResizingArrayStack *obj) {
+    return obj->size == 0;
+}
+
+void myStackFree(MyResizingArrayStack *obj) {
+    free(obj->array);
+    free(obj);
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *nextGreaterElements(const int *nums, int numsSize, int *returnSize) {
+    *returnSize = numsSize;
+    int *ans = malloc(sizeof(int[numsSize]));
+    MyResizingArrayStack *stack = myStackCreate();
+    for (int i = 2 * numsSize - 1; i >= 0; --i) {
+        int k = i % numsSize;
+        int x = nums[k];
+        while (!myStackEmpty(stack) && myStackPeek(stack) <= x) {
+            myStackPop(stack);
+        }
+        ans[k] = myStackEmpty(stack) ? -1 : myStackPeek(stack);
+        myStackPush(stack, x);
+    }
+    myStackFree(stack);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391281544/
 ```
 
 ## 509. 斐波那契数
@@ -6045,7 +7408,22 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/fibonacci-number/>
 
 ```c
-
+int fib(int n) {
+    if (n == 0) {
+        return 0;
+    }
+    if (n == 1) {
+        return 1;
+    }
+    int dp[n + 1];
+    dp[0] = 0;
+    dp[1] = 1;
+    for (int i = 2; i <= n; ++i) {
+        dp[i] = dp[i - 1] + dp[i - 2];
+    }
+    return dp[n];
+}
+// https://leetcode.cn/submissions/detail/391142045/
 ```
 
 ## 516. 最长回文子序列
@@ -6053,7 +7431,41 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/longest-palindromic-subsequence/>
 
 ```c
-
+int longestPalindromeSubseq(char *s) {
+    size_t n = strlen(s);
+    // dp[i][j] = 子串 s[i..j] 的最长回文子序列的长度
+    int dp[n][n];
+    // 遍历对角线
+    for (int i = 0; i < n; ++i) {
+        dp[i][i] = 1;
+    }
+    // 遍历下三角形
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < i; ++j) {
+            dp[i][j] = 0;
+        }
+    }
+    // 遍历上三角形
+    for (int i = n - 2; i >= 0; --i) {
+        for (int j = i + 1; j < n; ++j) {
+            if (s[i] == s[j]) {
+                // s[i][i+1..j-1][j]
+                // s   [i+1..j-1]
+                dp[i][j] = dp[i + 1][j - 1] + 2;
+            } else {
+                // s[i..j-1][j]
+                // s[i..j-1]
+                int sp1 = dp[i][j - 1];
+                // s[i][i+1..j]
+                // s   [i+1..j]
+                int sp2 = dp[i + 1][j];
+                dp[i][j] = fmax(sp1, sp2);
+            }
+        }
+    }
+    return dp[0][n - 1];
+}
+// https://leetcode.cn/submissions/detail/391413629/
 ```
 
 ## 518. 零钱兑换 II
@@ -6061,7 +7473,35 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/coin-change-2/>
 
 ```c
-
+int change(int amount, const int *coins, int coinsSize) {
+    // dp[i][j] = 使用硬币 coins[0..i-1] 凑成总金额 j 的组合数
+    int dp[coinsSize + 1][amount + 1];
+    memset(dp, 0, sizeof(dp));
+    // 总金额为 0
+    for (int i = 1; i <= coinsSize; ++i) {
+        dp[i][0] = 1;
+    }
+    // 硬币数为 0
+    for (int j = 1; j <= amount; ++j) {
+        dp[0][j] = 0;
+    }
+    dp[0][0] = 1;
+    for (int i = 1; i <= coinsSize; ++i) {
+        for (int j = 1; j <= amount; ++j) {
+            int x = coins[i - 1];
+            if (j < x) {
+                // 不包含硬币 x
+                dp[i][j] = dp[i - 1][j];
+            } else {
+                int sp1 = dp[i - 1][j]; // 包含    0 个硬币 x
+                int sp2 = dp[i][j - x]; // 包含 >= 1 个硬币 x
+                dp[i][j] = sp1 + sp2;
+            }
+        }
+    }
+    return dp[coinsSize][amount];
+}
+// https://leetcode.cn/submissions/detail/390183862/
 ```
 
 ## 538. 把二叉搜索树转换为累加树
@@ -6069,7 +7509,24 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/convert-bst-to-greater-tree/>
 
 ```c
+int sum;
 
+void dfs(struct TreeNode *root) {
+    if (root == NULL) {
+        return;
+    }
+    dfs(root->right);
+    sum += root->val;
+    root->val = sum;
+    dfs(root->left);
+}
+
+struct TreeNode *convertBST(struct TreeNode *root) {
+    sum = 0;
+    dfs(root);
+    return root;
+}
+// https://leetcode.cn/submissions/detail/391165543/
 ```
 
 ## 543. 二叉树的直径
@@ -6077,7 +7534,24 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/diameter-of-binary-tree/>
 
 ```c
+int diameter;
 
+int maxDepth(struct TreeNode *root) {
+    if (root == NULL) {
+        return 0;
+    }
+    int left = maxDepth(root->left);
+    int right = maxDepth(root->right);
+    diameter = fmax(diameter, left + right);
+    return 1 + fmax(left, right);
+}
+
+int diameterOfBinaryTree(struct TreeNode *root) {
+    diameter = 0;
+    maxDepth(root);
+    return diameter;
+}
+// https://leetcode.cn/submissions/detail/391149966/
 ```
 
 ## 567. 字符串的排列
@@ -6085,7 +7559,83 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/permutation-in-string/>
 
 ```c
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashMapItem;
 
+bool checkInclusion(char *s1, char *s2) {
+    size_t s1Length = strlen(s1), s2Length = strlen(s2);
+    HashMapItem *need = NULL;
+    for (int i = 0; i < s1Length; ++i) {
+        int ch = s1[i];
+        HashMapItem *needItem;
+        HASH_FIND_INT(need, &ch, needItem);
+        if (needItem == NULL) {
+            needItem = malloc(sizeof(HashMapItem));
+            needItem->key = ch;
+            needItem->val = 0;
+            HASH_ADD_INT(need, key, needItem);
+        }
+        needItem->val++;
+    }
+    bool ans = false;
+    int valid = 0;
+    // s2[left..right) = Window Substring
+    // s2[right..n-1]  = Scanning
+    int left = 0, right = 0;
+    HashMapItem *window = NULL;
+    while (right < s2Length) {
+        int add = s2[right++];
+        HashMapItem *needItem;
+        HASH_FIND_INT(need, &add, needItem);
+        if (needItem != NULL) {
+            HashMapItem *winItem;
+            HASH_FIND_INT(window, &add, winItem);
+            if (winItem == NULL) {
+                winItem = malloc(sizeof(HashMapItem));
+                winItem->key = add;
+                winItem->val = 0;
+                HASH_ADD_INT(window, key, winItem);
+            }
+            if (++winItem->val == needItem->val) {
+                ++valid;
+            }
+        }
+        if (valid == HASH_COUNT(need)) {
+            while (left < right - s1Length) {
+                int del = s2[left++];
+                HASH_FIND_INT(need, &del, needItem);
+                if (needItem != NULL) {
+                    HashMapItem *winItem;
+                    HASH_FIND_INT(window, &del, winItem);
+                    if (winItem->val == needItem->val) {
+                        --valid;
+                    }
+                    winItem->val--;
+                }
+            }
+        }
+        if (valid == HASH_COUNT(need)) {
+            ans = true;
+            break;
+        }
+    }
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, need, cur, tmp) {
+        HASH_DEL(need, cur);
+        free(cur);
+    }
+    HASH_ITER(hh, window, cur, tmp) {
+        HASH_DEL(window, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, need);
+    HASH_CLEAR(hh, window);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391353543/
 ```
 
 ## 583. 两个字符串的删除操作
@@ -6093,7 +7643,63 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/delete-operation-for-two-strings/>
 
 ```c
+// 子串 s1[0..i] s2[0..j] 的最小删除步数
+int minDistanceMemo(const char *s1, int i, const char *s2, int j, int *memo) {
+    if (i < 0) {
+        // 删除 s2[0..j]
+        // s1""
+        // s2[0..j]
+        return j + 1;
+    }
+    if (j < 0) {
+        // 删除 s1[0..i]
+        // s1[0..i]
+        // s2""
+        return i + 1;
+    }
+    int *p = memo + i * strlen(s2) + j;
+    if (*p == -1) {
+        if (s1[i] == s2[j]) {
+            // s1[0..i-1][i]
+            // s2[0..j-1][j]
+            *p = minDistanceMemo(s1, i - 1, s2, j - 1, memo);
+        } else {
+            // 删除 s1[i] s2[j]
+            // s1[0..i-1][i]
+            // s2[0..j-1][j]
+            int sp1 = minDistanceMemo(s1, i - 1, s2, j - 1, memo) + 2;
+            // 删除 s2[j]
+            // s1[0..i]
+            // s2[0..j-1][j]
+            int sp2 = minDistanceMemo(s1, i, s2, j - 1, memo) + 1;
+            // 删除 s1[i]
+            // s1[0..i-1][i]
+            // s2[0..j]
+            int sp3 = minDistanceMemo(s1, i - 1, s2, j, memo) + 1;
+            *p = fmin(fmin(sp1, sp2), sp3);
+        }
+    }
+    return *p;
+}
 
+int minDistance(char *word1, char *word2) {
+    int n1 = strlen(word1);
+    int n2 = strlen(word2);
+    if (n1 == 0) {
+        return n2;
+    }
+    if (n2 == 0) {
+        return n1;
+    }
+    int memo[n1][n2];
+    for (int i = 0; i < n1; ++i) {
+        for (int j = 0; j < n2; ++j) {
+            memo[i][j] = -1;
+        }
+    }
+    return minDistanceMemo(word1, n1 - 1, word2, n2 - 1, memo[0]);
+}
+// https://leetcode.cn/submissions/detail/391221823/
 ```
 
 ## 617. 合并二叉树
@@ -6101,7 +7707,20 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/merge-two-binary-trees/>
 
 ```c
-
+struct TreeNode *mergeTrees(struct TreeNode *root1, struct TreeNode *root2) {
+    if (root1 == NULL) {
+        return root2;
+    }
+    if (root2 == NULL) {
+        return root1;
+    }
+    struct TreeNode *mRoot = malloc(sizeof(struct TreeNode));
+    mRoot->val = root1->val + root2->val;
+    mRoot->left = mergeTrees(root1->left, root2->left);
+    mRoot->right = mergeTrees(root1->right, root2->right);
+    return mRoot;
+}
+// https://leetcode.cn/submissions/detail/390003581/
 ```
 
 ## 652. 寻找重复的子树
@@ -6109,7 +7728,64 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/find-duplicate-subtrees/>
 
 ```c
+typedef struct {
+    char *key;
+    int val;
+    UT_hash_handle hh;
+} HashMapItem;
 
+HashMapItem *counter = NULL;
+
+int ansSize;
+int ansCapacity;
+struct TreeNode **ans;
+
+// 深度优先搜索二叉树 root，返回前序遍历结果的字符串表示
+char *dfs(struct TreeNode *root) {
+    if (root == NULL) {
+        return "#";
+    }
+    char *left = dfs(root->left);
+    char *right = dfs(root->right);
+    char *res = calloc(strlen(left) + strlen(right) + 8, sizeof(char));
+    sprintf(res, "%d,%s,%s", root->val, left, right);
+    HashMapItem *item;
+    HASH_FIND_STR(counter, res, item);
+    if (item == NULL) {
+        item = malloc(sizeof(HashMapItem));
+        item->key = res;
+        item->val = 1;
+        HASH_ADD_STR(counter, key, item);
+    } else {
+        if (++item->val == 2) {
+            if (ansSize == ansCapacity) {
+                ansCapacity *= 2;
+                ans = realloc(ans, sizeof(struct TreeNode *) * ansCapacity);
+            }
+            ans[ansSize++] = root;
+        }
+    }
+    return res;
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+struct TreeNode **findDuplicateSubtrees(struct TreeNode *root, int *returnSize) {
+    ansSize = 0;
+    ansCapacity = 8;
+    ans = malloc(sizeof(struct TreeNode *) * ansCapacity);
+    dfs(root);
+    *returnSize = ansSize;
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, counter, cur, tmp) {
+        HASH_DEL(counter, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, counter);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391162980/
 ```
 
 ## 654. 最大二叉树
@@ -6117,7 +7793,27 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/maximum-binary-tree/>
 
 ```c
+struct TreeNode *constructMaximumBinaryTreeRange(const int *nums, int lo, int hi) {
+    if (lo > hi) {
+        return NULL;
+    }
+    int maxIndex = lo;
+    for (int i = maxIndex + 1; i <= hi; ++i) {
+        if (nums[i] > nums[maxIndex]) {
+            maxIndex = i;
+        }
+    }
+    struct TreeNode *root = malloc(sizeof(struct TreeNode));
+    root->val = nums[maxIndex];
+    root->left = constructMaximumBinaryTreeRange(nums, lo, maxIndex - 1);
+    root->right = constructMaximumBinaryTreeRange(nums, maxIndex + 1, hi);
+    return root;
+}
 
+struct TreeNode *constructMaximumBinaryTree(const int *nums, int numsSize) {
+    return constructMaximumBinaryTreeRange(nums, 0, numsSize - 1);
+}
+// https://leetcode.cn/submissions/detail/389151358/
 ```
 
 ## 695. 岛屿的最大面积
@@ -6125,7 +7821,37 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/max-area-of-island/>
 
 ```c
+static const int LAND = 1;
+static const int WATER = 0;
 
+int area;
+
+void floodFill(int **grid, int gridSize, int *gridColSize, int row, int col) {
+    if (row < 0 || row >= gridSize || col < 0 || col >= *gridColSize || grid[row][col] == WATER) {
+        return;
+    }
+    ++area;
+    grid[row][col] = WATER;
+    floodFill(grid, gridSize, gridColSize, row, col + 1);
+    floodFill(grid, gridSize, gridColSize, row, col - 1);
+    floodFill(grid, gridSize, gridColSize, row + 1, col);
+    floodFill(grid, gridSize, gridColSize, row - 1, col);
+}
+
+int maxAreaOfIsland(int **grid, int gridSize, int *gridColSize) {
+    int ans = 0;
+    for (int row = 0; row < gridSize; ++row) {
+        for (int col = 0; col < *gridColSize; ++col) {
+            if (grid[row][col] == LAND) {
+                area = 0;
+                floodFill(grid, gridSize, gridColSize, row, col);
+                ans = fmax(ans, area);
+            }
+        }
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391255004/
 ```
 
 ## 698. 划分为 K 个相等的子集
@@ -6133,7 +7859,96 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/partition-to-k-equal-sum-subsets/>
 
 ```c
+typedef struct {
+    int key;
+    bool val;
+    UT_hash_handle hh;
+} HashMapItem;
 
+HashMapItem *memo = NULL;
+
+int used;
+int target;
+int *pathSums;
+
+// 遍历『决策森林』的 k 棵『决策树』
+// 一棵『决策树』的『路径』代表一个『等和子集』
+// tree = 第几棵『决策树』，取 [0..k-1] 为值
+// edge =『决策树』的『边』，取数组 nums 的索引为值
+// pathSums[tree] = 第几棵『决策树』的『路径和』
+bool backtrack(int *nums, int numsSize, int k, int tree, int edge) {
+    bool res = false;
+    if (tree == k) {
+        res = true;
+    } else if (pathSums[tree] == target) {
+        HashMapItem *item;
+        HASH_FIND_INT(memo, &used, item);
+        // 通过缓存，对同一个『森林』，优化『树』的遍历，避免『路径+路径』重复
+        // 例如 [1->2->3] 和 [4->5->6] 分别是两条『路径』
+        // 如果 A.[1->2->3] -> B.[4->5->6] -> C.[] 是不行的
+        // 那么 A.[4->5->6] -> B.[1->2->3] -> C.[] 也是不行的
+        // 因为 C 的可选『边』是一样的
+        if (item == NULL) {
+            item = malloc(sizeof(HashMapItem));
+            item->key = used;
+            // 遍历下一棵『决策树』
+            item->val = backtrack(nums, numsSize, k, tree + 1, -1);
+            HASH_ADD_INT(memo, key, item);
+        }
+        res = item->val;
+    } else {
+        // 通过去重，对同一棵树，优化『边』的遍历，避免『边+边』重复
+        // 例如 1 和 2 分别是两条『边』，[1->2] 和 [2->1] 是重复的
+        while (++edge < numsSize) {
+            // 检查第 edge 位是否为 1
+            // 即 nums[edge] 是否已经被其他『树』使用
+            if (((used >> edge) & 1) == 1) {
+                continue;
+            }
+            int x = nums[edge];
+            if (pathSums[tree] + x > target) {
+                continue;
+            }
+            pathSums[tree] += x;
+            //『或』运算，将第 edge 位修改为 1
+            used |= (1 << edge);
+            res = backtrack(nums, numsSize, k, tree, edge);
+            if (res) {
+                break;
+            }
+            pathSums[tree] -= x;
+            //『异或』运算，将第 edge 位修改为 0
+            used ^= (1 << edge);
+        }
+    }
+    return res;
+}
+
+bool canPartitionKSubsets(int *nums, int numsSize, int k) {
+    if (k > numsSize) {
+        return false;
+    }
+    int sum = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        sum += nums[i];
+    }
+    if (sum % k != 0) {
+        return false;
+    }
+    used = 0;
+    target = sum / k;
+    pathSums = calloc(k, sizeof(int));
+    bool ans = backtrack(nums, numsSize, k, 0, -1);
+    free(pathSums);
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, memo, cur, tmp) {
+        HASH_DEL(memo, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, memo);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391308942/
 ```
 
 ## 700. 二叉搜索树中的搜索
@@ -6141,7 +7956,19 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/search-in-a-binary-search-tree/>
 
 ```c
-
+struct TreeNode *searchBST(struct TreeNode *root, int val) {
+    if (root == NULL) {
+        return NULL;
+    }
+    if (val < root->val) {
+        return searchBST(root->left, val);
+    }
+    if (root->val < val) {
+        return searchBST(root->right, val);
+    }
+    return root;
+}
+// https://leetcode.cn/submissions/detail/390003878/
 ```
 
 ## 701. 二叉搜索树中的插入操作
@@ -6149,7 +7976,23 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/insert-into-a-binary-search-tree/>
 
 ```c
-
+struct TreeNode *insertIntoBST(struct TreeNode *root, int val) {
+    if (root == NULL) {
+        struct TreeNode *x = malloc(sizeof(struct TreeNode));
+        x->val = val;
+        x->left = NULL;
+        x->right = NULL;
+        return x;
+    }
+    if (val < root->val) {
+        root->left = insertIntoBST(root->left, val);
+    }
+    if (root->val < val) {
+        root->right = insertIntoBST(root->right, val);
+    }
+    return root;
+}
+// https://leetcode.cn/submissions/detail/390007405/
 ```
 
 ## 704. 二分查找
@@ -6157,7 +8000,21 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/binary-search/>
 
 ```c
-
+int search(const int *nums, int numsSize, int target) {
+    int lo = 0, hi = numsSize - 1;
+    while (lo <= hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (target < nums[mid]) {
+            hi = mid - 1;
+        } else if (nums[mid] < target) {
+            lo = mid + 1;
+        } else {
+            return mid;
+        }
+    }
+    return -1;
+}
+// https://leetcode.cn/submissions/detail/391139034/
 ```
 
 ## 712. 两个字符串的最小 ASCII 删除和
@@ -6165,7 +8022,78 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/minimum-ascii-delete-sum-for-two-strings/>
 
 ```c
+int *sum1;
+int *sum2;
 
+int *prefixSum(const char *s) {
+    int n = strlen(s);
+    int *sum = malloc(sizeof(int[n]));
+    sum[0] = s[0];
+    for (int i = 1; i < n; ++i) {
+        sum[i] = sum[i - 1] + s[i];
+    }
+    return sum;
+}
+
+// 子串 s1[0..i] s2[0..j] 的最小 ASCII 删除和
+int minimumDeleteSumMemo(const char *s1, int i, const char *s2, int j, int *memo) {
+    if (i < 0 && j < 0) {
+        return 0;
+    }
+    if (i < 0) {
+        // 删除 s2[0..j]
+        // s1""
+        // s2[0..j]
+        return sum2[j];
+    }
+    if (j < 0) {
+        // 删除 s1[0..i]
+        // s1[0..i]
+        // s2""
+        return sum1[i];
+    }
+    int *p = memo + i * strlen(s2) + j;
+    if (*p == -1) {
+        if (s1[i] == s2[j]) {
+            // s1[0..i-1][i]
+            // s2[0..j-1][j]
+            *p = minimumDeleteSumMemo(s1, i - 1, s2, j - 1, memo);
+        } else {
+            // 删除 s1[i] s2[j]
+            // s1[0..i-1][i]
+            // s2[0..j-1][j]
+            int sp1 = minimumDeleteSumMemo(s1, i - 1, s2, j - 1, memo) + s1[i] + s2[j];
+            // 删除 s2[j]
+            // s1[0..i]
+            // s2[0..j-1][j]
+            int sp2 = minimumDeleteSumMemo(s1, i, s2, j - 1, memo) + s2[j];
+            // 删除 s1[i]
+            // s1[0..i-1][i]
+            // s2[0..j]
+            int sp3 = minimumDeleteSumMemo(s1, i - 1, s2, j, memo) + s1[i];
+            *p = fmin(fmin(sp1, sp2), sp3);
+        }
+    }
+    return *p;
+}
+
+int minimumDeleteSum(char *s1, char *s2) {
+    sum1 = prefixSum(s1);
+    sum2 = prefixSum(s2);
+    int n1 = strlen(s1);
+    int n2 = strlen(s2);
+    int memo[n1][n2];
+    for (int i = 0; i < n1; ++i) {
+        for (int j = 0; j < n2; ++j) {
+            memo[i][j] = -1;
+        }
+    }
+    int ans = minimumDeleteSumMemo(s1, n1 - 1, s2, n2 - 1, memo[0]);
+    free(sum1);
+    free(sum2);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391222316/
 ```
 
 ## 714. 买卖股票的最佳时机含手续费
@@ -6173,7 +8101,22 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/>
 
 ```c
-
+int maxProfit(int *prices, int pricesSize, int fee) {
+    // dp[i][0] = 第 i 天，空仓状态下的最大利润
+    // dp[i][1] = 第 i 天，持仓状态下的最大利润
+    int dp[pricesSize][2];
+    dp[0][0] = 0;
+    dp[0][1] = -prices[0] - fee;
+    for (int i = 1; i < pricesSize; ++i) {
+        // dp[i - 1][0]             >= dp[i - 1][0] - prices[i] - fee
+        // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+        // => dp[i][0] >= dp[i][1]
+        dp[i][0] = fmax(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+        dp[i][1] = fmax(dp[i - 1][0] - prices[i] - fee, dp[i - 1][1]);
+    }
+    return dp[pricesSize - 1][0];
+}
+// https://leetcode.cn/submissions/detail/390322041/
 ```
 
 ## 739. 每日温度
@@ -6181,7 +8124,24 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/daily-temperatures/>
 
 ```c
-
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *dailyTemperatures(const int *temperatures, int temperaturesSize, int *returnSize) {
+    *returnSize = temperaturesSize;
+    int *ans = malloc(sizeof(int[temperaturesSize]));
+    int stack[temperaturesSize];
+    int top = 0;
+    for (int i = temperaturesSize - 1; i >= 0; --i) {
+        while (top > 0 && temperatures[stack[top - 1]] <= temperatures[i]) {
+            --top;
+        }
+        ans[i] = top == 0 ? 0 : (stack[top - 1] - i);
+        stack[top++] = i;
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391282252/
 ```
 
 ## 743. 网络延迟时间
@@ -6197,7 +8157,338 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/open-the-lock/>
 
 ```c
+typedef char *Value;
 
+struct MyListNode {
+    Value val;
+    struct MyListNode *next;
+};
+
+typedef struct {
+    struct MyListNode *first;
+    struct MyListNode *last;
+    int size;
+} MyLinkedListQueue;
+
+MyLinkedListQueue *myQueueCreate() {
+    MyLinkedListQueue *obj = malloc(sizeof(MyLinkedListQueue));
+    obj->first = NULL;
+    obj->last = NULL;
+    obj->size = 0;
+    return obj;
+}
+
+void myQueuePush(MyLinkedListQueue *obj, Value val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->val = val;
+    x->next = NULL;
+    if (obj->size == 0) {
+        obj->first = x;
+        obj->last = x;
+    } else {
+        obj->last->next = x;
+        obj->last = x;
+    }
+    obj->size++;
+}
+
+Value myQueuePop(MyLinkedListQueue *obj) {
+    Value val = obj->first->val;
+    struct MyListNode *x = obj->first;
+    if (obj->size == 1) {
+        obj->first = NULL;
+        obj->last = NULL;
+    } else {
+        obj->first = obj->first->next;
+    }
+    free(x);
+    obj->size--;
+    return val;
+}
+
+Value myQueuePeek(MyLinkedListQueue *obj) {
+    return obj->first->val;
+}
+
+int myQueueSize(MyLinkedListQueue *obj) {
+    return obj->size;
+}
+
+bool myQueueEmpty(MyLinkedListQueue *obj) {
+    return obj->size == 0;
+}
+
+void myQueueFree(MyLinkedListQueue *obj) {
+    struct MyListNode *p = obj->first;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    free(obj);
+}
+
+typedef struct {
+    char *key;
+    UT_hash_handle hh;
+} HashSetItem;
+
+char *plusOne(char *s, int j) {
+    char *copy = calloc(strlen(s) + 1, sizeof(char));
+    strcpy(copy, s);
+    if (copy[j] == '9') {
+        copy[j] = '0';
+    } else {
+        copy[j] += 1;
+    }
+    return copy;
+}
+
+char *minusOne(char *s, int j) {
+    char *copy = calloc(strlen(s) + 1, sizeof(char));
+    strcpy(copy, s);
+    if (copy[j] == '0') {
+        copy[j] = '9';
+    } else {
+        copy[j] -= 1;
+    }
+    return copy;
+}
+
+int openLock(char **deadends, int deadendsSize, char *target) {
+    HashSetItem *marked = NULL;
+    HashSetItem *item;
+    for (int i = 0; i < deadendsSize; ++i) {
+        HASH_FIND_STR(marked, deadends[i], item);
+        if (item == NULL) {
+            item = malloc(sizeof(HashSetItem));
+            item->key = deadends[i];
+            HASH_ADD_STR(marked, key, item);
+        }
+    }
+    MyLinkedListQueue *queue = myQueueCreate();
+    char *source = calloc(5, sizeof(char));
+    strcpy(source, "0000");
+    HASH_FIND_STR(marked, source, item);
+    if (item == NULL) {
+        item = malloc(sizeof(HashSetItem));
+        item->key = source;
+        HASH_ADD_STR(marked, key, item);
+        myQueuePush(queue, source);
+    }
+    int step = 0;
+    bool find = false;
+    while (!myQueueEmpty(queue)) {
+        int size = myQueueSize(queue);
+        for (int i = 0; i < size; ++i) {
+            char *s = myQueuePop(queue);
+            if (strcmp(s, target) == 0) {
+                find = true;
+                break;
+            }
+            for (int j = 0; j < 4; ++j) {
+                char *plus = plusOne(s, j);
+                HASH_FIND_STR(marked, plus, item);
+                if (item == NULL) {
+                    item = malloc(sizeof(HashSetItem));
+                    item->key = plus;
+                    HASH_ADD_STR(marked, key, item);
+                    myQueuePush(queue, plus);
+                }
+                char *minus = minusOne(s, j);
+                HASH_FIND_STR(marked, minus, item);
+                if (item == NULL) {
+                    item = malloc(sizeof(HashSetItem));
+                    item->key = minus;
+                    HASH_ADD_STR(marked, key, item);
+                    myQueuePush(queue, minus);
+                }
+            }
+        }
+        if (find) {
+            break;
+        }
+        ++step;
+    }
+    myQueueFree(queue);
+    HashSetItem *cur, *tmp;
+    HASH_ITER(hh, marked, cur, tmp) {
+        HASH_DEL(marked, cur);
+        free(cur->key);
+        free(cur);
+    }
+    HASH_CLEAR(hh, marked);
+    return find ? step : -1;
+}
+// https://leetcode.cn/submissions/detail/391405703/
+```
+
+```c
+typedef char *Value;
+
+typedef struct {
+    Value *array;
+    int capacity;
+    int size;
+    int first;
+    int last;
+} MyResizingArrayQueue;
+
+MyResizingArrayQueue *myQueueCreate() {
+    MyResizingArrayQueue *obj = malloc(sizeof(MyResizingArrayQueue));
+    obj->first = 0;
+    obj->last = 0;
+    obj->size = 0;
+    obj->capacity = 8;
+    obj->array = malloc(sizeof(Value) * obj->capacity);
+    return obj;
+}
+
+void myQueueResize(MyResizingArrayQueue *obj, int capacity) {
+    Value *copy = malloc(sizeof(Value) * capacity);
+    for (int i = 0; i < obj->size; ++i) {
+        copy[i] = obj->array[(obj->first + i) % obj->capacity];
+    }
+    free(obj->array);
+    obj->array = copy;
+    obj->first = 0;
+    obj->last = obj->size;
+    obj->capacity = capacity;
+}
+
+void myQueuePush(MyResizingArrayQueue *obj, Value val) {
+    if (obj->size == obj->capacity) {
+        myQueueResize(obj, obj->capacity * 2);
+    }
+    obj->array[obj->last++] = val;
+    if (obj->last == obj->capacity) {
+        obj->last = 0;
+    }
+    obj->size++;
+}
+
+Value myQueuePop(MyResizingArrayQueue *obj) {
+    Value val = obj->array[obj->first++];
+    if (obj->first == obj->capacity) {
+        obj->first = 0;
+    }
+    obj->size--;
+    if (obj->size > 0 && obj->size == obj->capacity / 4) {
+        myQueueResize(obj, obj->capacity / 2);
+    }
+    return val;
+}
+
+Value myQueuePeek(MyResizingArrayQueue *obj) {
+    return obj->array[obj->first];
+}
+
+int myQueueSize(MyResizingArrayQueue *obj) {
+    return obj->size;
+}
+
+bool myQueueEmpty(MyResizingArrayQueue *obj) {
+    return obj->size == 0;
+}
+
+void myQueueFree(MyResizingArrayQueue *obj) {
+    free(obj->array);
+    free(obj);
+}
+
+typedef struct {
+    char *key;
+    UT_hash_handle hh;
+} HashSetItem;
+
+char *plusOne(char *s, int j) {
+    char *copy = calloc(strlen(s) + 1, sizeof(char));
+    strcpy(copy, s);
+    if (copy[j] == '9') {
+        copy[j] = '0';
+    } else {
+        copy[j] += 1;
+    }
+    return copy;
+}
+
+char *minusOne(char *s, int j) {
+    char *copy = calloc(strlen(s) + 1, sizeof(char));
+    strcpy(copy, s);
+    if (copy[j] == '0') {
+        copy[j] = '9';
+    } else {
+        copy[j] -= 1;
+    }
+    return copy;
+}
+
+int openLock(char **deadends, int deadendsSize, char *target) {
+    HashSetItem *marked = NULL;
+    HashSetItem *item;
+    for (int i = 0; i < deadendsSize; ++i) {
+        HASH_FIND_STR(marked, deadends[i], item);
+        if (item == NULL) {
+            item = malloc(sizeof(HashSetItem));
+            item->key = deadends[i];
+            HASH_ADD_STR(marked, key, item);
+        }
+    }
+    MyResizingArrayQueue *queue = myQueueCreate();
+    char *source = calloc(5, sizeof(char));
+    strcpy(source, "0000");
+    HASH_FIND_STR(marked, source, item);
+    if (item == NULL) {
+        item = malloc(sizeof(HashSetItem));
+        item->key = source;
+        HASH_ADD_STR(marked, key, item);
+        myQueuePush(queue, source);
+    }
+    int step = 0;
+    bool find = false;
+    while (!myQueueEmpty(queue)) {
+        int size = myQueueSize(queue);
+        for (int i = 0; i < size; ++i) {
+            char *s = myQueuePop(queue);
+            if (strcmp(s, target) == 0) {
+                find = true;
+                break;
+            }
+            for (int j = 0; j < 4; ++j) {
+                char *plus = plusOne(s, j);
+                HASH_FIND_STR(marked, plus, item);
+                if (item == NULL) {
+                    item = malloc(sizeof(HashSetItem));
+                    item->key = plus;
+                    HASH_ADD_STR(marked, key, item);
+                    myQueuePush(queue, plus);
+                }
+                char *minus = minusOne(s, j);
+                HASH_FIND_STR(marked, minus, item);
+                if (item == NULL) {
+                    item = malloc(sizeof(HashSetItem));
+                    item->key = minus;
+                    HASH_ADD_STR(marked, key, item);
+                    myQueuePush(queue, minus);
+                }
+            }
+        }
+        if (find) {
+            break;
+        }
+        ++step;
+    }
+    myQueueFree(queue);
+    HashSetItem *cur, *tmp;
+    HASH_ITER(hh, marked, cur, tmp) {
+        HASH_DEL(marked, cur);
+        free(cur->key);
+        free(cur);
+    }
+    HASH_CLEAR(hh, marked);
+    return find ? step : -1;
+}
+// https://leetcode.cn/submissions/detail/391406185/
 ```
 
 ## 785. 判断二分图
@@ -6205,7 +8496,44 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/is-graph-bipartite/>
 
 ```c
+bool *color;
+bool *marked;
+bool bipartite;
 
+void dfs(int **graph, const int *graphColSize, int v) {
+    marked[v] = true;
+    for (int i = 0; i < graphColSize[v]; ++i) {
+        int w = graph[v][i];
+        if (!marked[w]) {
+            color[w] = !color[v];
+            dfs(graph, graphColSize, w);
+        } else if (color[w] == color[v]) {
+            bipartite = false;
+            return;
+        }
+    }
+}
+
+bool isBipartite(int **graph, int graphSize, int *graphColSize) {
+    bipartite = true;
+    size_t n = sizeof(bool[graphSize]);
+    color = malloc(n);
+    memset(color, 0, n);
+    marked = malloc(n);
+    memset(marked, 0, n);
+    for (int v = 0; v < graphSize; ++v) {
+        if (!marked[v]) {
+            dfs(graph, graphColSize, v);
+            if (!bipartite) {
+                break;
+            }
+        }
+    }
+    free(marked);
+    free(color);
+    return bipartite;
+}
+// https://leetcode.cn/submissions/detail/391278605/
 ```
 
 ## 797. 所有可能的路径
@@ -6213,7 +8541,56 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/all-paths-from-source-to-target/>
 
 ```c
+int *path;
+int pathSize;
 
+int **ans;
+int ansSize;
+int ansCapacity;
+int *ansColSize;
+
+void backtrack(int **graph, int graphSize, int *graphColSize, int v) {
+    if (v == graphSize - 1) {
+        size_t n = sizeof(int[pathSize]);
+        int *res = malloc(n);
+        memcpy(res, path, n);
+        if (ansSize == ansCapacity) {
+            ansCapacity *= 2;
+            ans = realloc(ans, sizeof(int *) * ansCapacity);
+            ansColSize = realloc(ansColSize, sizeof(int[ansCapacity]));
+        }
+        ans[ansSize] = res;
+        ansColSize[ansSize++] = pathSize;
+        return;
+    }
+    for (int col = 0; col < graphColSize[v]; ++col) {
+        int w = graph[v][col];
+        path[pathSize++] = w;
+        backtrack(graph, graphSize, graphColSize, w);
+        --pathSize;
+    }
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **allPathsSourceTarget(int **graph, int graphSize, int *graphColSize, int *returnSize, int **returnColumnSizes) {
+    ansCapacity = 8;
+    ans = malloc(sizeof(int *) * ansCapacity);
+    ansColSize = malloc(sizeof(int[ansCapacity]));
+    path = malloc(sizeof(int[graphSize]));
+    pathSize = ansSize = 0;
+    path[pathSize++] = 0;
+    backtrack(graph, graphSize, graphColSize, 0);
+    --pathSize;
+    *returnSize = ansSize;
+    *returnColumnSizes = ansColSize;
+    free(path);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391340597/
 ```
 
 ## 846. 一手顺子
@@ -6221,7 +8598,64 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/hand-of-straights/>
 
 ```c
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashMapItem;
 
+int cmp(const void *a, const void *b) {
+    int arg1 = *(const int *) a;
+    int arg2 = *(const int *) b;
+    return arg1 - arg2;
+}
+
+bool isNStraightHand(int *hand, int handSize, int groupSize) {
+    if (handSize % groupSize != 0) {
+        return false;
+    }
+    qsort(hand, handSize, sizeof(int), cmp);
+    HashMapItem *counter = NULL;
+    for (int i = 0; i < handSize; ++i) {
+        HashMapItem *item;
+        HASH_FIND_INT(counter, &hand[i], item);
+        if (item == NULL) {
+            item = malloc(sizeof(HashMapItem));
+            item->key = hand[i];
+            item->val = 1;
+            HASH_ADD_INT(counter, key, item);
+        } else {
+            item->val++;
+        }
+    }
+    int ans = true;
+    for (int i = 0; i < handSize; ++i) {
+        HashMapItem *item;
+        HASH_FIND_INT(counter, &hand[i], item);
+        if (item->val > 0) {
+            for (int g = 0; g < groupSize; ++g) {
+                int need = hand[i] + g;
+                HASH_FIND_INT(counter, &need, item);
+                if (item == NULL || item->val == 0) {
+                    ans = false;
+                    break;
+                }
+                item->val--;
+            }
+            if (!ans) {
+                break;
+            }
+        }
+    }
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, counter, cur, tmp) {
+        HASH_DEL(counter, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, counter);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391280261/
 ```
 
 ## 875. 爱吃香蕉的珂珂
@@ -6229,7 +8663,33 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/koko-eating-bananas/>
 
 ```c
+// 当吃香蕉的速度为 k 时，是否能在 h 小时内吃完
+bool canFinish(const int *piles, int pilesSize, int h, int k) {
+    long hours = 0;
+    for (int i = 0; i < pilesSize; ++i) {
+        hours += (piles[i] - 1) / k + 1;
+    }
+    return hours <= h;
+}
 
+int minEatingSpeed(const int *piles, int pilesSize, int h) {
+    int lo = 1, hi = 1;
+    for (int i = 0; i < pilesSize; ++i) {
+        hi = fmax(hi, piles[i]);
+    }
+    int ans = lo;
+    while (lo <= hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (canFinish(piles, pilesSize, h, mid)) {
+            ans = mid;
+            hi = mid - 1;
+        } else {
+            lo = mid + 1;
+        }
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391140971/
 ```
 
 ## 876. 链表的中间结点
@@ -6237,7 +8697,16 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode-cn.com/problems/middle-of-the-linked-list/>
 
 ```c
-
+struct ListNode *middleNode(struct ListNode *head) {
+    struct ListNode *slow = head;
+    struct ListNode *fast = head;
+    while (fast != NULL && fast->next != NULL) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    return slow;
+}
+// https://leetcode.cn/submissions/detail/388495477/
 ```
 
 ## 886. 可能的二分法
@@ -6253,7 +8722,56 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/>
 
 ```c
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashMapItem;
 
+HashMapItem *valueToIndex = NULL;
+
+struct TreeNode *constructFromPrePostRange(const int *preorder, int preStart, int preEnd,
+                                           const int *postorder, int postStart, int postEnd) {
+    if (preStart > preEnd) {
+        return NULL;
+    }
+    int rootVal = preorder[preStart];
+    struct TreeNode *root = malloc(sizeof(struct TreeNode));
+    root->val = rootVal;
+    root->left = NULL;
+    root->right = NULL;
+    if (preStart < preEnd) {
+        int leftRootVal = preorder[preStart + 1];
+        HashMapItem *item;
+        HASH_FIND_INT(valueToIndex, &leftRootVal, item);
+        int postLeftRoot = item->val;
+        int leftSize = postLeftRoot - postStart + 1;
+        root->left = constructFromPrePostRange(preorder, preStart + 1, preStart + leftSize,
+                                               postorder, postStart, postLeftRoot);
+        root->right = constructFromPrePostRange(preorder, preStart + leftSize + 1, preEnd,
+                                                postorder, postLeftRoot + 1, postEnd - 1);
+    }
+    return root;
+}
+
+struct TreeNode *constructFromPrePost(const int *preorder, int preorderSize, const int *postorder, int postorderSize) {
+    for (int i = 0; i < postorderSize; ++i) {
+        HashMapItem *item = malloc(sizeof(HashMapItem));
+        item->key = postorder[i];
+        item->val = i;
+        HASH_ADD_INT(valueToIndex, key, item);
+    }
+    struct TreeNode *root = constructFromPrePostRange(preorder, 0, preorderSize - 1,
+                                                      postorder, 0, postorderSize - 1);
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, valueToIndex, cur, tmp) {
+        HASH_DEL(valueToIndex, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, valueToIndex);
+    return root;
+}
+// https://leetcode.cn/submissions/detail/391157224/
 ```
 
 ## 905. 按奇偶排序数组
@@ -6261,7 +8779,57 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/sort-array-by-parity/>
 
 ```c
+void swap(int *a, int *b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
 
+int *sortArrayByParity(int *nums, int numsSize, int *returnSize) {
+    // nums[0..i]   Even
+    // nums(i..j)   Scanning
+    // nums[j..n-1] Odd
+    int i = -1, j = numsSize;
+    while (true) {
+        while (nums[++i] % 2 == 0) {
+            if (i == numsSize - 1) {
+                break;
+            }
+        }
+        while (nums[--j] % 2 == 1) {
+            if (j == 0) {
+                break;
+            }
+        }
+        if (i >= j) {
+            break;
+        }
+        swap(&nums[i], &nums[j]);
+    }
+    *returnSize = numsSize;
+    return nums;
+}
+// https://leetcode.cn/submissions/detail/388244043/
+```
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *sortArrayByParity(const int *nums, int numsSize, int *returnSize) {
+    int *ans = (int *) malloc(sizeof(int) * numsSize);
+    int left = 0, right = numsSize - 1;
+    for (int i = 0; i < numsSize; ++i) {
+        if (nums[i] % 2 == 0) {
+            ans[left++] = nums[i];
+        } else {
+            ans[right--] = nums[i];
+        }
+    }
+    *returnSize = numsSize;
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/388262248/
 ```
 
 ## 912. 排序数组
@@ -6269,7 +8837,66 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/sort-an-array/>
 
 ```c
+void swap(int *a, int *b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
 
+int partition(int *nums, int lo, int hi) {
+    int v = nums[lo];
+    int i = lo, j = hi + 1;
+    while (true) {
+        while (nums[++i] < v) {
+            if (i == hi) {
+                break;
+            }
+        }
+        while (nums[--j] > v) {
+            if (j == lo) {
+                break;
+            }
+        }
+        if (i >= j) {
+            break;
+        }
+        swap(&nums[i], &nums[j]);
+    }
+    swap(&nums[lo], &nums[j]);
+    return j;
+}
+
+void sort(int *nums, int lo, int hi) {
+    if (lo >= hi) {
+        return;
+    }
+    int j = partition(nums, lo, hi);
+    sort(nums, lo, j - 1);
+    sort(nums, j + 1, hi);
+}
+
+void shuffle(int *array, size_t n) {
+    if (n > 1) {
+        size_t i;
+        for (i = 0; i < n - 1; i++) {
+            size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
+            int t = array[j];
+            array[j] = array[i];
+            array[i] = t;
+        }
+    }
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *sortArray(int *nums, int numsSize, int *returnSize) {
+    shuffle(nums, numsSize);
+    sort(nums, 0, numsSize - 1);
+    *returnSize = numsSize;
+    return nums;
+}
+// https://leetcode.cn/submissions/detail/390818675/
 ```
 
 ## 921. 使括号有效的最少添加
@@ -6277,7 +8904,34 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/minimum-add-to-make-parentheses-valid/>
 
 ```c
-
+// 性质一 一个「合法」括号组合的左括号数量一定等于右括号数量
+// 性质二 对于一个「合法」的括号字符串组合 p，必然对于
+// 任何 0 <= i < len(p) 都有：子串 p[0..i] 中
+// 左括号的数量都大于或等于右括号的数量
+int minAddToMakeValid(char *s) {
+    int insertLeft = 0; // 已插入左括号的数量
+    int needRight = 0;  // 待插入右括号的数量
+    size_t n = strlen(s);
+    for (int i = 0; i < n; ++i) {
+        char ch = s[i];
+        if (ch == '(') {
+            ++needRight;
+        }
+        if (ch == ')') {
+            --needRight;
+            // 性质二
+            if (needRight == -1) {
+                // A).. -> A()..
+                //『必须立即』在位置 i 前插入 1 个左括号
+                // 否则，后续任何插入都不能使区间 [0..i] 的匹配有效
+                ++insertLeft;
+                needRight = 0;
+            }
+        }
+    }
+    return insertLeft + needRight;
+}
+// https://leetcode.cn/submissions/detail/391413883/
 ```
 
 ## 922. 按奇偶排序数组 II
@@ -6285,7 +8939,52 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/sort-array-by-parity-ii/>
 
 ```c
+void swap(int *a, int *b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
 
+int *sortArrayByParityII(int *nums, int numsSize, int *returnSize) {
+    int i = 0, j = 1;
+    while (true) {
+        while (i <= numsSize - 2 && nums[i] % 2 == 0) {
+            i += 2;
+        }
+        while (j <= numsSize - 1 && nums[j] % 2 == 1) {
+            j += 2;
+        }
+        if (i > numsSize - 2 || j > numsSize - 1) {
+            break;
+        }
+        swap(&nums[i], &nums[j]);
+    }
+    *returnSize = numsSize;
+    return nums;
+}
+// https://leetcode.cn/submissions/detail/388245497/
+```
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *sortArrayByParityII(const int *nums, int numsSize, int *returnSize) {
+    int *ans = (int *) malloc(sizeof(int) * numsSize);
+    int left = 0, right = 1;
+    for (int i = 0; i < numsSize; ++i) {
+        if (nums[i] % 2 == 0) {
+            ans[left] = nums[i];
+            left += 2;
+        } else {
+            ans[right] = nums[i];
+            right += 2;
+        }
+    }
+    *returnSize = numsSize;
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/388261972/
 ```
 
 ## 931. 下降路径最小和
@@ -6293,7 +8992,38 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/minimum-falling-path-sum/>
 
 ```c
+// 从 matrix[0][0..n-1] 到 matrix[row][col] 的最小下降路径和
+int minFallingPathSumMemo(int **matrix, int matrixColSize, int row, int col, int *memo) {
+    if (col < 0 || col >= matrixColSize) {
+        return INT_MAX;
+    }
+    if (row == 0) {
+        return matrix[row][col];
+    }
+    int *p = memo + row * matrixColSize + col;
+    if (*p == INT_MIN) {
+        int sp1 = minFallingPathSumMemo(matrix, matrixColSize, row - 1, col - 1, memo);
+        int sp2 = minFallingPathSumMemo(matrix, matrixColSize, row - 1, col, memo);
+        int sp3 = minFallingPathSumMemo(matrix, matrixColSize, row - 1, col + 1, memo);
+        *p = fmin(fmin(sp1, sp2), sp3) + matrix[row][col];
+    }
+    return *p;
+}
 
+int minFallingPathSum(int **matrix, int matrixSize, const int *matrixColSize) {
+    int memo[matrixSize][*matrixColSize];
+    for (int i = 0; i < matrixSize; ++i) {
+        for (int j = 0; j < *matrixColSize; ++j) {
+            memo[i][j] = INT_MIN;
+        }
+    }
+    int ans = INT_MAX;
+    for (int col = 0; col < *matrixColSize; ++col) {
+        ans = fmin(ans, minFallingPathSumMemo(matrix, *matrixColSize, matrixSize - 1, col, memo[0]));
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391222636/
 ```
 
 ## 986. 区间列表的交集
@@ -6301,7 +9031,42 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/interval-list-intersections/>
 
 ```c
-
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **
+intervalIntersection(int **firstList, int firstListSize, int *firstListColSize, int **secondList, int secondListSize,
+                     int *secondListColSize, int *returnSize, int **returnColumnSizes) {
+    int n = firstListSize + secondListSize;
+    int **ans = malloc(sizeof(int *) * n);
+    *returnColumnSizes = malloc(sizeof(int *) * n);
+    *returnSize = 0;
+    int i = 0, j = 0;
+    while (i < firstListSize && j < secondListSize) {
+        int start1 = firstList[i][0], end1 = firstList[i][1];
+        int start2 = secondList[j][0], end2 = secondList[j][1];
+        if (end1 < start2) { // 不相交
+            ++i;
+        } else if (end2 < start1) { // 不相交
+            ++j;
+        } else { // 相交
+            int *t = malloc(sizeof(int[2]));
+            t[0] = fmax(start1, start2);
+            t[1] = fmin(end1, end2);
+            ans[*returnSize] = t;
+            (*returnColumnSizes)[(*returnSize)++] = 2;
+            if (end1 < end2) {
+                ++i;
+            } else {
+                ++j;
+            }
+        }
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391303654/
 ```
 
 ## 990. 等式方程的可满足性
@@ -6309,7 +9074,91 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/satisfiability-of-equality-equations/>
 
 ```c
+typedef struct {
+    int *parent;
+    int *rank;
+    int size;
+} UF;
 
+UF *UFCreate(int n) {
+    UF *obj = malloc(sizeof(UF));
+    obj->parent = malloc(sizeof(int[n]));
+    obj->rank = malloc(sizeof(int[n]));
+    obj->size = n;
+    for (int i = 0; i < n; ++i) {
+        obj->parent[i] = i;
+        obj->rank[i] = 0;
+    }
+    return obj;
+}
+
+int UFFind(UF *obj, int p) {
+    int *parent = obj->parent;
+    while (p != parent[p]) {
+        parent[p] = parent[parent[p]];
+        p = parent[p];
+    }
+    return p;
+}
+
+void UFUnion(UF *obj, int p, int q) {
+    int rootP = UFFind(obj, p);
+    int rootQ = UFFind(obj, q);
+    int *parent = obj->parent;
+    int *rank = obj->rank;
+    if (rootP != rootQ) {
+        if (rank[rootP] < rank[rootQ]) {
+            parent[rootP] = rootQ;
+        } else if (rank[rootQ] < rank[rootP]) {
+            parent[rootQ] = rootP;
+        } else {
+            parent[rootP] = rootQ;
+            ++rank[rootQ];
+        }
+        obj->size--;
+    }
+}
+
+bool UFConnected(UF *obj, int p, int q) {
+    return UFFind(obj, p) == UFFind(obj, q);
+}
+
+int UFSize(UF *obj) {
+    return obj->size;
+}
+
+void UFFree(UF *obj) {
+    free(obj->parent);
+    free(obj->rank);
+    free(obj);
+}
+
+bool equationsPossible(char **equations, int equationsSize) {
+    UF *uf = UFCreate(26);
+    for (int i = 0; i < equationsSize; ++i) {
+        char *s = equations[i];
+        if (s[1] == '=') {
+            int p = s[0] - 'a';
+            int q = s[3] - 'a';
+            UFUnion(uf, p, q);
+        }
+    }
+    bool ans = true;
+    for (int i = 0; i < equationsSize; ++i) {
+        char *s = equations[i];
+        if (s[1] == '!') {
+            int p = s[0] - 'a';
+            int q = s[3] - 'a';
+            if (UFConnected(uf, p, q)) {
+                ans = false;
+                break;
+            }
+        }
+    }
+    UFFree(uf);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391074243/
 ```
 
 ## 1011. 在 D 天内送达包裹的能力
@@ -6317,7 +9166,39 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/>
 
 ```c
+// 当船的运载能力为 capacity 时，是否能在 days 天内送完
+bool canFinish(const int *weights, int weightsSize, int days, int capacity) {
+    int i = 0, minDays = 0;
+    while (i < weightsSize) {
+        int sum = 0;
+        while (i < weightsSize && sum + weights[i] <= capacity) {
+            sum += weights[i++];
+        }
+        ++minDays;
+    }
+    return minDays <= days;
+}
 
+int shipWithinDays(const int *weights, int weightsSize, int days) {
+    int lo = 0, hi = 0;
+    for (int i = 0; i < weightsSize; ++i) {
+        int w = weights[i];
+        lo = fmax(lo, w);
+        hi += w;
+    }
+    int ans = lo;
+    while (lo <= hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (canFinish(weights, weightsSize, days, mid)) {
+            ans = mid;
+            hi = mid - 1;
+        } else {
+            lo = mid + 1;
+        }
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/388266451/
 ```
 
 ## 1020. 飞地的数量
@@ -6325,7 +9206,43 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/number-of-enclaves/>
 
 ```c
+static const int LAND = 1;
+static const int WATER = 0;
 
+void floodFill(int **grid, int gridSize, int *gridColSize, int row, int col) {
+    if (row < 0 || row >= gridSize || col < 0 || col >= *gridColSize || grid[row][col] == WATER) {
+        return;
+    }
+    grid[row][col] = WATER;
+    floodFill(grid, gridSize, gridColSize, row, col + 1);
+    floodFill(grid, gridSize, gridColSize, row, col - 1);
+    floodFill(grid, gridSize, gridColSize, row + 1, col);
+    floodFill(grid, gridSize, gridColSize, row - 1, col);
+}
+
+int numEnclaves(int **grid, int gridSize, int *gridColSize) {
+    int m = gridSize, n = *gridColSize;
+    // 淹没与左右边界的陆地相连的岛屿
+    for (int row = 0; row < m; ++row) {
+        floodFill(grid, gridSize, gridColSize, row, 0);
+        floodFill(grid, gridSize, gridColSize, row, n - 1);
+    }
+    // 淹没与上下边界的陆地相连的岛屿
+    for (int col = 0; col < n; ++col) {
+        floodFill(grid, gridSize, gridColSize, 0, col);
+        floodFill(grid, gridSize, gridColSize, m - 1, col);
+    }
+    int count = 0;
+    for (int row = 0; row < m; ++row) {
+        for (int col = 0; col < n; ++col) {
+            if (grid[row][col] == LAND) {
+                ++count;
+            }
+        }
+    }
+    return count;
+}
+// https://leetcode.cn/submissions/detail/391255848/
 ```
 
 ## 1024. 视频拼接
@@ -6333,7 +9250,36 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/video-stitching/>
 
 ```c
+int cmp(const void *a, const void *b) {
+    const int *arg1 = *(const int **) a;
+    const int *arg2 = *(const int **) b;
+    if (arg1[0] == arg2[0]) {
+        return arg2[1] - arg1[1];
+    }
+    return arg1[0] - arg2[0];
+}
 
+int videoStitching(int **clips, int clipsSize, int *clipsColSize, int time) {
+    qsort(clips, clipsSize, sizeof(int *), cmp);
+    int maxEnd = 0;
+    int count = 0;
+    int i = 0, n = clipsSize;
+    // 当 clips[i] 与 [0, maxEnd] 重叠（相交或被覆盖）时
+    while (i < n && clips[i][0] <= maxEnd) {
+        // 记录与 [0, maxEnd] 重叠的所有区间中最大的 end
+        int nextEnd = clips[i][1];
+        while (++i < n && clips[i][0] <= maxEnd) {
+            nextEnd = fmax(nextEnd, clips[i][1]);
+        }
+        maxEnd = nextEnd;
+        ++count;
+        if (maxEnd >= time) {
+            return count;
+        }
+    }
+    return -1;
+}
+// https://leetcode.cn/submissions/detail/390604436/
 ```
 
 ## 1143. 最长公共子序列
@@ -6341,7 +9287,27 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/longest-common-subsequence/>
 
 ```c
-
+int longestCommonSubsequence(char *text1, char *text2) {
+    size_t n1 = strlen(text1);
+    size_t n2 = strlen(text2);
+    // text1[0..i-1] = text1 的长度为 i 的前缀
+    // text2[0..j-1] = text2 的长度为 j 的前缀
+    // dp[i][j] = LCS(text1[0..i-1], text2[0..j-1]) 的长度
+    int dp[n1 + 1][n2 + 1];
+    memset(dp, 0, sizeof(dp));
+    for (int i = 1; i <= n1; ++i) {
+        for (int j = 1; j <= n2; ++j) {
+            // text1[i-1] = text2[j-1]
+            if (text1[i - 1] == text2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            } else {
+                dp[i][j] = fmax(dp[i][j - 1], dp[i - 1][j]);
+            }
+        }
+    }
+    return dp[n1][n2];
+}
+// https://leetcode.cn/submissions/detail/391412143/
 ```
 
 ## 1254. 统计封闭岛屿的数目
@@ -6349,7 +9315,44 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/number-of-closed-islands/>
 
 ```c
+static const int LAND = 0;
+static const int WATER = 1;
 
+void floodFill(int **grid, int gridSize, int *gridColSize, int row, int col) {
+    if (row < 0 || row >= gridSize || col < 0 || col >= *gridColSize || grid[row][col] == WATER) {
+        return;
+    }
+    grid[row][col] = WATER;
+    floodFill(grid, gridSize, gridColSize, row, col + 1);
+    floodFill(grid, gridSize, gridColSize, row, col - 1);
+    floodFill(grid, gridSize, gridColSize, row + 1, col);
+    floodFill(grid, gridSize, gridColSize, row - 1, col);
+}
+
+int closedIsland(int **grid, int gridSize, int *gridColSize) {
+    int m = gridSize, n = *gridColSize;
+    // 淹没与左右边界的陆地相连的岛屿
+    for (int row = 0; row < m; ++row) {
+        floodFill(grid, gridSize, gridColSize, row, 0);
+        floodFill(grid, gridSize, gridColSize, row, n - 1);
+    }
+    // 淹没与上下边界的陆地相连的岛屿
+    for (int col = 0; col < n; ++col) {
+        floodFill(grid, gridSize, gridColSize, 0, col);
+        floodFill(grid, gridSize, gridColSize, m - 1, col);
+    }
+    int count = 0;
+    for (int row = 0; row < m; ++row) {
+        for (int col = 0; col < n; ++col) {
+            if (grid[row][col] == LAND) {
+                floodFill(grid, gridSize, gridColSize, row, col);
+                ++count;
+            }
+        }
+    }
+    return count;
+}
+// https://leetcode.cn/submissions/detail/391255426/
 ```
 
 ## 1288. 删除被覆盖区间
@@ -6357,7 +9360,30 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/remove-covered-intervals/>
 
 ```c
+int cmp(const void *a, const void *b) {
+    const int *arg1 = *(const int **) a;
+    const int *arg2 = *(const int **) b;
+    if (arg1[0] == arg2[0]) {
+        return arg2[1] - arg1[1];
+    }
+    return arg1[0] - arg2[0];
+}
 
+int removeCoveredIntervals(int **intervals, int intervalsSize, int *intervalsColSize) {
+    qsort(intervals, intervalsSize, sizeof(int *), cmp);
+    int count = intervalsSize;
+    int maxEnd = 0;
+    for (int i = 0; i < intervalsSize; ++i) {
+        int end = intervals[i][1];
+        if (end <= maxEnd) {
+            --count;
+        } else {
+            maxEnd = end;
+        }
+    }
+    return count;
+}
+// https://leetcode.cn/submissions/detail/390603537/
 ```
 
 ## 1382. 将二叉搜索树变平衡
@@ -6365,7 +9391,51 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/balance-a-binary-search-tree/>
 
 ```c
+int *inorder;
+int inorderSize;
+int inorderCapacity;
 
+// 深度优先搜索，获取中序遍历结果
+void dfs(struct TreeNode *root) {
+    if (root == NULL) {
+        return;
+    }
+    dfs(root->left);
+    if (inorderSize == inorderCapacity) {
+        inorderCapacity *= 2;
+        inorder = realloc(inorder, sizeof(int[inorderCapacity]));
+    }
+    inorder[inorderSize++] = root->val;
+    dfs(root->right);
+}
+
+// 将有序数组 nums[lo..hi] 转换为二叉搜索树
+struct TreeNode *sortedArrayToBSTRange(const int *nums, int lo, int hi) {
+    if (lo > hi) {
+        return NULL;
+    }
+    int mid = lo + (hi - lo) / 2;
+    struct TreeNode *root = malloc(sizeof(struct TreeNode));
+    root->val = nums[mid];
+    root->left = sortedArrayToBSTRange(nums, lo, mid - 1);
+    root->right = sortedArrayToBSTRange(nums, mid + 1, hi);
+    return root;
+}
+
+struct TreeNode *sortedArrayToBST(const int *nums, int numsSize) {
+    return sortedArrayToBSTRange(nums, 0, numsSize - 1);
+}
+
+struct TreeNode *balanceBST(struct TreeNode *root) {
+    inorderSize = 0;
+    inorderCapacity = 8;
+    inorder = malloc(sizeof(int[inorderCapacity]));
+    dfs(root);
+    root = sortedArrayToBST(inorder, inorderSize);
+    free(inorder);
+    return root;
+}
+// https://leetcode.cn/submissions/detail/391160726/
 ```
 
 ## 1514. 概率最大的路径
@@ -6381,7 +9451,37 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/minimum-insertions-to-balance-a-parentheses-string/>
 
 ```c
-
+int minInsertions(char *s) {
+    int insertLeft = 0;  // 已插入左括号的数量
+    int insertRight = 0; // 已插入右括号的数量
+    int needRight = 0;   // 待插入右括号的数量
+    size_t n = strlen(s);
+    for (int i = 0; i < n; ++i) {
+        char ch = s[i];
+        if (ch == '(') {
+            // A((B)(.. -> A((B))(..
+            if (needRight % 2 == 1) {
+                //『必须立即』在位置 i 前插入 1 个右括号
+                // 否则，后续任何插入都不能使区间 [0..i-1] 的匹配有效
+                ++insertRight;
+                --needRight;
+            }
+            needRight += 2;
+        }
+        if (ch == ')') {
+            --needRight;
+            // A).. -> A()..
+            if (needRight == -1) {
+                //『必须立即』在位置 i 前插入 1 个左括号
+                // 否则，后续任何插入都不能使区间 [0..i] 的匹配有效
+                ++insertLeft;
+                needRight = 1;
+            }
+        }
+    }
+    return insertLeft + insertRight + needRight;
+}
+// https://leetcode.cn/submissions/detail/391412447/
 ```
 
 ## 1584. 连接所有点的最小费用
@@ -6405,7 +9505,42 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode.cn/problems/count-sub-islands/>
 
 ```c
+static const int LAND = 1;
+static const int WATER = 0;
 
+void floodFill(int **grid, int gridSize, int *gridColSize, int row, int col) {
+    if (row < 0 || row >= gridSize || col < 0 || col >= *gridColSize || grid[row][col] == WATER) {
+        return;
+    }
+    grid[row][col] = WATER;
+    floodFill(grid, gridSize, gridColSize, row, col + 1);
+    floodFill(grid, gridSize, gridColSize, row, col - 1);
+    floodFill(grid, gridSize, gridColSize, row + 1, col);
+    floodFill(grid, gridSize, gridColSize, row - 1, col);
+}
+
+int countSubIslands(int **grid1, int grid1Size, int *grid1ColSize, int **grid2, int grid2Size, int *grid2ColSize) {
+    int m = grid2Size, n = *grid2ColSize;
+    for (int row = 0; row < m; ++row) {
+        for (int col = 0; col < n; ++col) {
+            // 淹没『非子岛屿』
+            if (grid2[row][col] == LAND && grid1[row][col] == WATER) {
+                floodFill(grid2, grid2Size, grid2ColSize, row, col);
+            }
+        }
+    }
+    int count = 0;
+    for (int row = 0; row < m; ++row) {
+        for (int col = 0; col < n; ++col) {
+            if (grid2[row][col] == LAND) {
+                floodFill(grid2, grid2Size, grid2ColSize, row, col);
+                ++count;
+            }
+        }
+    }
+    return count;
+}
+// https://leetcode.cn/submissions/detail/391256238/
 ```
 
 ## CtCI 02.02. 返回倒数第 K 个节点
@@ -6413,5 +9548,17 @@ int lengthOfLIS(const int *nums, int numsSize) {
 <https://leetcode-cn.com/problems/kth-node-from-end-of-list-lcci/>
 
 ```c
-
+int kthToLast(struct ListNode *head, int k) {
+    struct ListNode *slow = head;
+    struct ListNode *fast = head;
+    for (int i = 1; i <= k; ++i) {
+        fast = fast->next;
+    }
+    while (fast != NULL) {
+        slow = slow->next;
+        fast = fast->next;
+    }
+    return slow->val;
+}
+// https://leetcode.cn/submissions/detail/388495817/
 ```
