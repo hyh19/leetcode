@@ -181,7 +181,22 @@
 <https://leetcode-cn.com/problems/two-sum/>
 
 ```cpp
-
+class Solution {
+public:
+    vector<int> twoSum(vector<int> &nums, int target) {
+        unordered_map<int, int> valToIndex;
+        for (int i = 0; i < nums.size(); ++i) {
+            int x = nums[i];
+            int need = target - x;
+            if (valToIndex.count(need) == 1) {
+                return {valToIndex[need], i};
+            }
+            valToIndex[x] = i;
+        }
+        return {-1, -1};
+    }
+};
+// https://leetcode.cn/submissions/detail/366686076/
 ```
 
 ## 2. 两数相加
@@ -189,7 +204,32 @@
 <https://leetcode-cn.com/problems/add-two-numbers/>
 
 ```cpp
-
+class Solution {
+public:
+    ListNode *addTwoNumbers(ListNode *l1, ListNode *l2) {
+        auto *dummyHead = new ListNode();
+        ListNode *ptr = dummyHead;
+        int carry = 0;
+        while (l1 != nullptr || l2 != nullptr || carry > 0) {
+            int sum = carry;
+            if (l1 != nullptr) {
+                sum += l1->val;
+                l1 = l1->next;
+            }
+            if (l2 != nullptr) {
+                sum += l2->val;
+                l2 = l2->next;
+            }
+            ptr->next = new ListNode(sum % 10);
+            ptr = ptr->next;
+            carry = sum / 10;
+        }
+        ListNode *head = dummyHead->next;
+        delete dummyHead;
+        return head;
+    }
+};
+// https://leetcode.cn/submissions/detail/391581946/
 ```
 
 ## 3. 无重复字符的最长子串
@@ -197,7 +237,34 @@
 <https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/>
 
 ```cpp
-
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+        int ans = 0;
+        unordered_set<char> window;
+        // s[left..right) = Window Substring
+        // s[right..n-1]  = Scanning
+        int left = 0, right = 0;
+        while (right < s.size()) {
+            char add = s[right];
+            if (window.count(add) == 0) {
+                window.insert(add);
+                ++right;
+            } else {
+                while (left <= right) {
+                    char del = s[left++];
+                    window.erase(del);
+                    if (add == del) {
+                        break;
+                    }
+                }
+            }
+            ans = max(ans, right - left);
+        }
+        return ans;
+    }
+};
+// https://leetcode.cn/submissions/detail/391684221/
 ```
 
 ## 4. 寻找两个正序数组的中位数
@@ -205,7 +272,93 @@
 <https://leetcode.cn/problems/median-of-two-sorted-arrays/>
 
 ```cpp
+class Solution {
+public:
+    double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2) {
+        int total = nums1.size() + nums2.size();
+        int half = total / 2;
+        if (total % 2 == 0) {
+            int k1 = getKthElement(nums1, nums2, half);
+            int k2 = getKthElement(nums1, nums2, half + 1);
+            return (k1 + k2) / 2.0;
+        }
+        return getKthElement(nums1, nums2, half + 1);
+    }
 
+private:
+    // 寻找两个正序数组 nums1 和 nums2 从小到大排列的第 k 个数
+    int getKthElement(const vector<int> &nums1, const vector<int> &nums2, int k) {
+        int n1 = nums1.size(), n2 = nums2.size();
+        int start1 = 0, start2 = 0;
+        while (true) {
+            if (start1 == n1) {
+                return nums2[start2 + k - 1];
+            }
+            if (start2 == n2) {
+                return nums1[start1 + k - 1];
+            }
+            if (k == 1) {
+                return min(nums1[start1], nums2[start2]);
+            }
+            int half = k / 2;
+            int i = min(n1 - 1, start1 + half - 1);
+            int j = min(n2 - 1, start2 + half - 1);
+            if (nums1[i] < nums2[j]) {
+                // 排除 nums1[start1..i] 共 i-start1+1 个元素
+                k -= (i - start1 + 1);
+                start1 = i + 1;
+            } else {
+                // 排除 nums2[start2..j] 共 j-start2+1 个元素
+                k -= (j - start2 + 1);
+                start2 = j + 1;
+            }
+        }
+    }
+};
+// https://leetcode.cn/submissions/detail/365180070/
+```
+
+```cpp
+class Solution {
+public:
+    double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2) {
+        int total = nums1.size() + nums2.size();
+        int half = total / 2;
+        if (total % 2 == 0) {
+            int k1 = getKthElement(nums1, 0, nums2, 0, half);
+            int k2 = getKthElement(nums1, 0, nums2, 0, half + 1);
+            return (k1 + k2) / 2.0;
+        }
+        return getKthElement(nums1, 0, nums2, 0, half + 1);
+    }
+
+private:
+    // 寻找两个正序数组 nums1 和 nums2 从小到大排列的第 k 个数
+    int getKthElement(const vector<int> &nums1, int start1, const vector<int> &nums2, int start2, int k) {
+        int n1 = nums1.size();
+        if (start1 == n1) {
+            return nums2[start2 + k - 1];
+        }
+        int n2 = nums2.size();
+        if (start2 == n2) {
+            return nums1[start1 + k - 1];
+        }
+        if (k == 1) {
+            return min(nums1[start1], nums2[start2]);
+        }
+        int half = k / 2;
+        int i = min(n1 - 1, start1 + half - 1);
+        int j = min(n2 - 1, start2 + half - 1);
+        if (nums1[i] < nums2[j]) {
+            // 排除 nums1[start1..i] 共 i-start1+1 个元素
+            return getKthElement(nums1, i + 1, nums2, start2, k - (i - start1 + 1));
+        } else {
+            // 排除 nums2[start2..j] 共 j-start2+1 个元素
+            return getKthElement(nums1, start1, nums2, j + 1, k - (j - start2 + 1));
+        }
+    }
+};
+// https://leetcode.cn/submissions/detail/365179063/
 ```
 
 ## 5. 最长回文子串
@@ -213,7 +366,37 @@
 <https://leetcode.cn/problems/longest-palindromic-substring/>
 
 ```cpp
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        string s1, s2, ans;
+        for (int i = 0; i < s.size(); ++i) {
+            s1 = longestPalindrome(s, i, i);
+            if (s1.size() > ans.size()) {
+                ans = s1;
+            }
+            s2 = longestPalindrome(s, i, i + 1);
+            if (s2.size() > ans.size()) {
+                ans = s2;
+            }
+        }
+        return ans;
+    }
 
+private:
+    // 返回字符串 s 中以 s[i] 和 s[j] 为中心的最长回文子串
+    string longestPalindrome(const string &s, int i, int j) {
+        if (i > j || j - i > 1) {
+            return "";
+        }
+        while (i >= 0 && j < s.size() && s[i] == s[j]) {
+            --i;
+            ++j;
+        }
+        return s.substr(i + 1, j - i - 1);
+    }
+};
+// https://leetcode.cn/submissions/detail/364086132/
 ```
 
 ## 7. 整数反转
@@ -221,7 +404,40 @@
 <https://leetcode.cn/problems/reverse-integer/>
 
 ```cpp
+class Solution {
+public:
+    int reverse(int x) {
+        int y = 0;
+        while (x != 0) {
+            if (abs(y) > INT_MAX / 10) {
+                return 0;
+            }
+            y = y * 10 + x % 10;
+            x = x / 10;
+        }
+        return y;
+    }
+};
+// https://leetcode.cn/submissions/detail/368379961/
+```
 
+```cpp
+class Solution {
+public:
+    int reverse(int x) {
+        if (x == 0) {
+            return 0;
+        }
+        string original = to_string(abs(x));
+        string reverse = string(original.rbegin(), original.rend());
+        string maxint = to_string(INT_MAX);
+        if (reverse.size() < maxint.size() || reverse < maxint) {
+            return stoi(reverse) * (x / abs(x));
+        }
+        return 0;
+    }
+};
+// https://leetcode.cn/submissions/detail/368382146/
 ```
 
 ## 11. 盛最多水的容器
@@ -229,7 +445,24 @@
 <https://leetcode.cn/problems/container-with-most-water/>
 
 ```cpp
-
+class Solution {
+public:
+    int maxArea(vector<int> &height) {
+        int ans = 0;
+        int i = 0, j = height.size() - 1;
+        while (i < j) {
+            int area = min(height[i], height[j]) * (j - i);
+            ans = max(ans, area);
+            if (height[i] < height[j]) {
+                ++i;
+            } else {
+                --j;
+            }
+        }
+        return ans;
+    }
+};
+// https://leetcode.cn/submissions/detail/391453039/
 ```
 
 ## 14. 最长公共前缀
@@ -237,7 +470,57 @@
 <https://leetcode.cn/problems/longest-common-prefix/>
 
 ```cpp
+class Solution {
+public:
+    string longestCommonPrefix(vector<string> &strs) {
+        return longestCommonPrefix(strs, 0, strs.size() - 1);
+    }
 
+private:
+    string longestCommonPrefix(const vector<string> &strs, int lo, int hi) {
+        if (lo == hi) {
+            return strs[lo];
+        }
+        int mid = lo + (hi - lo) / 2;
+        string left = longestCommonPrefix(strs, lo, mid);
+        string right = longestCommonPrefix(strs, mid + 1, hi);
+        return longestCommonPrefix(left, right);
+    }
+
+    string longestCommonPrefix(const string &s1, const string &s2) {
+        int n = min(s1.size(), s2.size());
+        int i = 0;
+        while (i < n && s1[i] == s2[i]) {
+            ++i;
+        }
+        return s1.substr(0, i);
+    }
+};
+// https://leetcode.cn/submissions/detail/391682154/
+```
+
+```cpp
+class Solution {
+public:
+    string longestCommonPrefix(vector<string> &strs) {
+        string ans = strs[0];
+        for (int i = 1; i < strs.size(); ++i) {
+            ans = longestCommonPrefix(ans, strs[i]);
+        }
+        return ans;
+    }
+
+private:
+    string longestCommonPrefix(const string &s1, const string &s2) {
+        int n = min(s1.size(), s2.size());
+        int i = 0;
+        while (i < n && s1[i] == s2[i]) {
+            ++i;
+        }
+        return s1.substr(0, i);
+    }
+};
+// https://leetcode.cn/submissions/detail/391682316/
 ```
 
 ## 15. 三数之和
@@ -245,7 +528,56 @@
 <https://leetcode-cn.com/problems/3sum/>
 
 ```cpp
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int> &nums) {
+        sort(nums.begin(), nums.end());
+        return kSum(3, nums, 0, nums.size() - 1, 0);
+    }
 
+private:
+    // 返回升序数组 nums[lo..hi] 中所有和为 target 且不重复的 k 元组
+    vector<vector<int>> kSum(int k, const vector<int> &nums, int lo, int hi, long target) {
+        if (k < 2 || hi - lo + 1 < k) {
+            return {};
+        }
+        if (k == 2) {
+            return twoSum(nums, lo, hi, target);
+        }
+        vector<vector<int>> res;
+        int i = lo;
+        while (i <= hi) {
+            int curNum = nums[i];
+            vector<vector<int>> sub = kSum(k - 1, nums, i + 1, hi, target - curNum);
+            for (auto &v: sub) {
+                v.push_back(curNum);
+                res.push_back(v);
+            }
+            while (++i <= hi && nums[i] == curNum) {}
+        }
+        return res;
+    }
+
+    // 返回升序数组 nums[lo..hi] 中所有和为 target 且不重复的二元组
+    vector<vector<int>> twoSum(const vector<int> &nums, int lo, int hi, long target) {
+        vector<vector<int>> res;
+        while (lo < hi) {
+            int first = nums[lo], second = nums[hi];
+            int sum = first + second;
+            if (sum < target) {
+                while (++lo < hi && nums[lo] == first) {}
+            } else if (sum > target) {
+                while (lo < --hi && nums[hi] == second) {}
+            } else {
+                res.push_back({first, second});
+                while (++lo < hi && nums[lo] == first) {}
+                while (lo < --hi && nums[hi] == second) {}
+            }
+        }
+        return res;
+    }
+};
+// https://leetcode.cn/submissions/detail/391681600/
 ```
 
 ## 18. 四数之和
@@ -253,7 +585,56 @@
 <https://leetcode.cn/problems/4sum/>
 
 ```cpp
+class Solution {
+public:
+    vector<vector<int>> fourSum(vector<int> &nums, int target) {
+        sort(nums.begin(), nums.end());
+        return kSum(4, nums, 0, nums.size() - 1, target);
+    }
 
+private:
+    // 返回升序数组 nums[lo..hi] 中所有和为 target 且不重复的 k 元组
+    vector<vector<int>> kSum(int k, const vector<int> &nums, int lo, int hi, long target) {
+        if (k < 2 || hi - lo + 1 < k) {
+            return {};
+        }
+        if (k == 2) {
+            return twoSum(nums, lo, hi, target);
+        }
+        vector<vector<int>> res;
+        int i = lo;
+        while (i <= hi) {
+            int curNum = nums[i];
+            vector<vector<int>> sub = kSum(k - 1, nums, i + 1, hi, target - curNum);
+            for (auto &v: sub) {
+                v.push_back(curNum);
+                res.push_back(v);
+            }
+            while (++i <= hi && nums[i] == curNum) {}
+        }
+        return res;
+    }
+
+    // 返回升序数组 nums[lo..hi] 中所有和为 target 且不重复的二元组
+    vector<vector<int>> twoSum(const vector<int> &nums, int lo, int hi, long target) {
+        vector<vector<int>> res;
+        while (lo < hi) {
+            int first = nums[lo], second = nums[hi];
+            int sum = first + second;
+            if (sum < target) {
+                while (++lo < hi && nums[lo] == first) {}
+            } else if (sum > target) {
+                while (lo < --hi && nums[hi] == second) {}
+            } else {
+                res.push_back({first, second});
+                while (++lo < hi && nums[lo] == first) {}
+                while (lo < --hi && nums[hi] == second) {}
+            }
+        }
+        return res;
+    }
+};
+// https://leetcode.cn/submissions/detail/391681857/
 ```
 
 ## 19. 删除链表的倒数第 N 个结点
@@ -261,7 +642,31 @@
 <https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/>
 
 ```cpp
-
+class Solution {
+public:
+    ListNode *removeNthFromEnd(ListNode *head, int n) {
+        auto *dummyHead = new ListNode(-1, head);
+        ListNode *slow = dummyHead;
+        ListNode *fast = dummyHead;
+        for (int i = 1; i <= n; ++i) {
+            fast = fast->next;
+        }
+        while (fast != nullptr && fast->next != nullptr) {
+            slow = slow->next;
+            fast = fast->next;
+        }
+        ListNode *x = slow->next;
+        if (x == head) { // 删除的是头结点
+            head = head->next;
+        } else {
+            slow->next = slow->next->next;
+        }
+        delete x;
+        delete dummyHead;
+        return head;
+    }
+};
+// https://leetcode.cn/submissions/detail/391560727/
 ```
 
 ## 20. 有效的括号
@@ -269,7 +674,39 @@
 <https://leetcode-cn.com/problems/valid-parentheses/>
 
 ```cpp
-
+class Solution {
+public:
+    bool isValid(const string &s) {
+        if (s.size() % 2 == 1) {
+            return false;
+        }
+        stack<char> stk;
+        for (const auto &ch: s) {
+            switch (ch) {
+                case '(': {
+                    stk.push(')');
+                    break;
+                }
+                case '[': {
+                    stk.push(']');
+                    break;
+                }
+                case '{': {
+                    stk.push('}');
+                    break;
+                }
+                default: {
+                    if (stk.empty() || stk.top() != ch) {
+                        return false;
+                    }
+                    stk.pop();
+                }
+            }
+        }
+        return stk.empty();
+    }
+};
+// https://leetcode.cn/submissions/detail/391694589/
 ```
 
 ## 21. 合并两个有序链表
@@ -277,7 +714,28 @@
 <https://leetcode-cn.com/problems/merge-two-sorted-lists/>
 
 ```cpp
-
+class Solution {
+public:
+    ListNode *mergeTwoLists(ListNode *list1, ListNode *list2) {
+        auto *dummyHead = new ListNode();
+        ListNode *ptr = dummyHead;
+        while (list1 != nullptr && list2 != nullptr) {
+            if (list1->val < list2->val) {
+                ptr->next = list1;
+                list1 = list1->next;
+            } else {
+                ptr->next = list2;
+                list2 = list2->next;
+            }
+            ptr = ptr->next;
+        }
+        ptr->next = (list1 == nullptr ? list2 : list1);
+        ListNode *head = dummyHead->next;
+        delete dummyHead;
+        return head;
+    }
+};
+// https://leetcode.cn/submissions/detail/391583117/
 ```
 
 ## 22. 括号生成
@@ -285,7 +743,93 @@
 <https://leetcode.cn/problems/generate-parentheses/>
 
 ```cpp
+class Solution {
+public:
+    vector<string> generateParenthesis(int n) {
+        backtrack(n);
+        return ans;
+    }
 
+private:
+    void backtrack(int n) {
+        // 对于一个「合法」的括号字符串组合 p，必然对于任何 0 <= i < len(p) 都有：
+        // 子串 p[0..i] 中左括号的数量都大于或等于右括号的数量
+        if (left < right || left > n) {
+            return;
+        }
+        // 一个「合法」括号组合的左括号数量一定等于右括号数量
+        if (left == n && right == n) {
+            ans.push_back(path);
+            return;
+        }
+        // edge = 取 '(', ')' 为值
+        // 使用『左括号』
+        path.push_back('(');
+        ++left;
+        backtrack(n);
+        path.pop_back();
+        --left;
+        // 使用『右括号』
+        path.push_back(')');
+        ++right;
+        backtrack(n);
+        path.pop_back();
+        --right;
+    }
+
+    string path;   // 取 '(', ')' 为元素
+    int left = 0;  // 已使用的『左括号』数量
+    int right = 0; // 已使用的『右括号』数量
+    vector<string> ans;
+};
+// https://leetcode.cn/submissions/detail/391670726/
+```
+
+```cpp
+class Solution {
+public:
+    vector<string> generateParenthesis(int n) {
+        dfs(n, '-');
+        return ans;
+    }
+
+private:
+    // vertex = 取 '(', ')' 为值
+    void dfs(int n, char vertex) {
+        if (vertex != '-') {
+            path.push_back(vertex);
+            if (vertex == '(') {        // 使用『左括号』
+                ++left;
+            } else if (vertex == ')') { // 使用『右括号』
+                ++right;
+            }
+        }
+        if (left < right || left > n) {
+            // 对于一个「合法」的括号字符串组合 p，必然对于任何 0 <= i < len(p) 都有：
+            // 子串 p[0..i] 中左括号的数量都大于或等于右括号的数量
+        } else if (left == n && right == n) {
+            // 一个「合法」括号组合的左括号数量一定等于右括号数量
+            ans.push_back(path);
+        } else {
+            dfs(n, '(');
+            dfs(n, ')');
+        }
+        if (vertex != '-') {
+            path.pop_back();
+            if (vertex == '(') {
+                --left;
+            } else if (vertex == ')') {
+                --right;
+            }
+        }
+    }
+
+    string path;   // 取 '(', ')' 为元素
+    int left = 0;  // 已使用的『左括号』数量
+    int right = 0; // 已使用的『右括号』数量
+    vector<string> ans;
+};
+// https://leetcode.cn/submissions/detail/391671261/
 ```
 
 ## 23. 合并 K 个升序链表
@@ -293,7 +837,71 @@
 <https://leetcode-cn.com/problems/merge-k-sorted-lists/>
 
 ```cpp
+class Solution {
+public:
+    ListNode *mergeKLists(vector<ListNode *> &lists) {
+        ListNode *head = nullptr;
+        for (auto &l: lists) {
+            head = mergeTwoLists(head, l);
+        }
+        return head;
+    }
 
+private:
+    ListNode *mergeTwoLists(ListNode *list1, ListNode *list2) {
+        auto *dummyHead = new ListNode();
+        ListNode *ptr = dummyHead;
+        while (list1 != nullptr && list2 != nullptr) {
+            if (list1->val < list2->val) {
+                ptr->next = list1;
+                list1 = list1->next;
+            } else {
+                ptr->next = list2;
+                list2 = list2->next;
+            }
+            ptr = ptr->next;
+        }
+        ptr->next = (list1 == nullptr ? list2 : list1);
+        ListNode *head = dummyHead->next;
+        delete dummyHead;
+        return head;
+    }
+};
+// https://leetcode.cn/submissions/detail/391583801/
+```
+
+```cpp
+class Solution {
+public:
+    ListNode *mergeKLists(vector<ListNode *> &lists) {
+        ListNode *ans = nullptr;
+        for (auto &l : lists) {
+            ans = mergeTwoLists(ans, l);
+        }
+        return ans;
+    }
+
+private:
+    ListNode *mergeTwoLists(ListNode *list1, ListNode *list2) {
+        ListNode *dummyHead = new ListNode();
+        ListNode *ptr = dummyHead;
+        while (list1 != nullptr && list2 != nullptr) {
+            if (list1->val < list2->val) {
+                ptr->next = list1;
+                list1 = list1->next;
+            } else {
+                ptr->next = list2;
+                list2 = list2->next;
+            }
+            ptr = ptr->next;
+        }
+        ptr->next = (list1 == nullptr ? list2 : list1);
+        ListNode *head = dummyHead->next;
+        delete dummyHead;
+        return head;
+    }
+};
+// https://leetcode.cn/submissions/detail/361147035/
 ```
 
 ## 24. 两两交换链表中的节点
@@ -301,7 +909,50 @@
 <https://leetcode-cn.com/problems/swap-nodes-in-pairs/>
 
 ```cpp
+class Solution {
+public:
+    ListNode *swapPairs(ListNode *head) {
+        if (head == nullptr || head->next == nullptr) {
+            return head;
+        }
+        ListNode *x = head;
+        ListNode *y = head->next;
+        ListNode *z = head->next->next;
+        y->next = x;
+        x->next = swapPairs(z);
+        return y;
+    }
+};
+// https://leetcode.cn/submissions/detail/368677178/
+```
 
+```cpp
+class Solution {
+public:
+    ListNode *swapPairs(ListNode *head) {
+        ListNode *reverseHead = nullptr;
+        ListNode *reverseTail = nullptr;
+        while (true) {
+            if (head == nullptr || head->next == nullptr) {
+                break;
+            }
+            ListNode *x = head;
+            ListNode *y = head->next;
+            ListNode *z = head->next->next;
+            y->next = x;
+            x->next = z;
+            if (reverseHead == nullptr) {
+                reverseHead = y;
+            } else {
+                reverseTail->next = y;
+            }
+            reverseTail = x;
+            head = z;
+        }
+        return reverseHead == nullptr ? head : reverseHead;
+    }
+};
+// https://leetcode.cn/submissions/detail/368676743/
 ```
 
 ## 25. K 个一组翻转链表
@@ -309,7 +960,82 @@
 <https://leetcode.cn/problems/reverse-nodes-in-k-group/>
 
 ```cpp
+class Solution {
+public:
+    ListNode *reverseKGroup(ListNode *head, int k) {
+        if (head == nullptr || head->next == nullptr) {
+            return head;
+        }
+        ListNode *ptr = head;
+        for (int i = 1; i <= k - 1; ++i) {
+            ptr = ptr->next;
+            if (ptr == nullptr) {
+                return head;
+            }
+        }
+        ListNode *nextGroup = ptr->next;
+        ptr->next = nullptr;
+        ListNode *reverseHead = reverseList(head);
+        head->next = reverseKGroup(nextGroup, k);
+        return reverseHead;
+    }
 
+private:
+    ListNode *reverseList(ListNode *head) {
+        ListNode *reverseHead = nullptr;
+        while (head != nullptr) {
+            ListNode *next = head->next;
+            head->next = reverseHead;
+            reverseHead = head;
+            head = next;
+        }
+        return reverseHead;
+    }
+};
+// https://leetcode.cn/submissions/detail/391538293/
+```
+
+```cpp
+class Solution {
+public:
+    ListNode *reverseKGroup(ListNode *head, int k) {
+        ListNode *reverseHead = nullptr;
+        ListNode *reverseTail = nullptr;
+        while (true) {
+            ListNode *ptr = head;
+            for (int i = 1; i <= k - 1 && ptr != nullptr; ++i) {
+                ptr = ptr->next;
+            }
+            if (ptr == nullptr) {
+                break;
+            }
+            ListNode *nextGroup = ptr->next;
+            ptr->next = nullptr;
+            if (reverseHead == nullptr) {
+                reverseHead = reverseList(head);
+            } else {
+                reverseTail->next = reverseList(head);
+            }
+            reverseTail = head;
+            reverseTail->next = nextGroup;
+            head = nextGroup;
+        }
+        return reverseHead == nullptr ? head : reverseHead;
+    }
+
+private:
+    ListNode *reverseList(ListNode *head) {
+        ListNode *reverseHead = nullptr;
+        while (head != nullptr) {
+            ListNode *next = head->next;
+            head->next = reverseHead;
+            reverseHead = head;
+            head = next;
+        }
+        return reverseHead;
+    }
+};
+// https://leetcode.cn/submissions/detail/368439742/
 ```
 
 ## 26. 删除有序数组中的重复项
@@ -317,7 +1043,24 @@
 <https://leetcode.cn/problems/remove-duplicates-from-sorted-array/>
 
 ```cpp
-
+class Solution {
+public:
+    int removeDuplicates(vector<int> &nums) {
+        // [0..i-1] 不重复元素区间
+        // [i..j-1] 重复元素区间
+        // [j..n-1] 遍历区间
+        size_t n = nums.size();
+        int i = 0, j = 0;
+        while (j < n) {
+            while (j + 1 < n && nums[j] == nums[j + 1]) {
+                ++j;
+            }
+            swap(nums[i++], nums[j++]);
+        }
+        return i;
+    }
+};
+// https://leetcode.cn/submissions/detail/391449758/
 ```
 
 ## 27. 移除元素
@@ -325,7 +1068,49 @@
 <https://leetcode.cn/problems/remove-element/>
 
 ```cpp
+class Solution {
+public:
+    int removeElement(vector<int> &nums, int val) {
+        // nums[0..i-1]   != val
+        // nums[i..j]     Scanning
+        // nums[j+1..n-1] == val
+        int i = 0, j = nums.size() - 1;
+        while (i <= j) {
+            while (i <= j && nums[i] != val) {
+                ++i;
+            }
+            while (i <= j && nums[j] == val) {
+                --j;
+            }
+            if (i <= j) {
+                swap(nums[i++], nums[j--]);
+            }
+        }
+        return i;
+    }
+};
+// https://leetcode.cn/submissions/detail/391448733/
+```
 
+```cpp
+class Solution {
+public:
+    int removeElement(vector<int> &nums, int val) {
+        // nums[0..i-1] != val
+        // nums[i..j-1] == val
+        // nums[j..n-1] Scanning
+        int i = 0, j = 0;
+        while (j < nums.size()) {
+            if (nums[j] == val) {
+                ++j;
+            } else {
+                swap(nums[i++], nums[j++]);
+            }
+        }
+        return i;
+    }
+};
+// https://leetcode.cn/submissions/detail/391449244/
 ```
 
 ## 28. 实现 strStr()
@@ -333,7 +1118,46 @@
 <https://leetcode.cn/problems/implement-strstr/>
 
 ```cpp
+class KMP {
+public:
+    explicit KMP(const string &pat) {
+        m = pat.size();
+        dfa = vector<vector<int >>(R, vector<int>(m));
+        dfa[pat[0]][0] = 1;
+        for (int x = 0, j = 1; j < m; ++j) {
+            for (int c = 0; c < R; ++c) {
+                dfa[c][j] = dfa[c][x];
+            }
+            dfa[pat[j]][j] = j + 1;
+            x = dfa[pat[j]][x];
+        }
+    }
 
+    int search(string txt) {
+        int i, j;
+        for (i = 0, j = 0; i < txt.size() && j < m; ++i) {
+            j = dfa[txt[i]][j];
+        }
+        if (j == m) {
+            return i - m;
+        }
+        return -1;
+    }
+
+private:
+    int m;
+    static const int R = 256;
+    vector<vector<int>> dfa;
+};
+
+class Solution {
+public:
+    int strStr(const string &haystack, const string &needle) {
+        KMP kmp{needle};
+        return kmp.search(haystack);
+    }
+};
+// https://leetcode.cn/submissions/detail/391712382/
 ```
 
 ## 33. 搜索旋转排序数组
@@ -341,7 +1165,156 @@
 <https://leetcode.cn/problems/search-in-rotated-sorted-array/>
 
 ```cpp
+class Solution {
+public:
+    int search(vector<int> &nums, int target) {
+        int lo = 0, hi = nums.size() - 1;
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (nums[mid] == target) {
+                return mid;
+            }
+            // 当 lo = hi 或 hi-lo = 1 时，nums[lo] = nums[mid]，
+            // 此时 nums[lo] <= target < nums[mid] 不成立
+            if (nums[lo] <= nums[mid]) {
+                if (nums[lo] <= target && target < nums[mid]) {
+                    hi = mid - 1;
+                } else {
+                    lo = mid + 1;
+                }
+            } else {
+                if (nums[mid] < target && target <= nums[hi]) {
+                    lo = mid + 1;
+                } else {
+                    hi = mid - 1;
+                }
+            }
+        }
+        return -1;
+    }
+};
+// https://leetcode.cn/submissions/detail/367100336/
+```
 
+```cpp
+class Solution {
+public:
+    int search(vector<int> &nums, int target) {
+        int lo = 0, hi = nums.size() - 1;
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (nums[mid] == target) {
+                return mid;
+            }
+            // 当 lo = hi 时，nums[lo] = nums[mid] = nums[hi]，
+            // 此时 nums[mid] < target <= nums[hi] 不成立
+            if (nums[mid] <= nums[hi]) {
+                if (nums[mid] < target && target <= nums[hi]) {
+                    lo = mid + 1;
+                } else {
+                    hi = mid - 1;
+                }
+            } else {
+                if (nums[lo] <= target && target < nums[mid]) {
+                    hi = mid - 1;
+                } else {
+                    lo = mid + 1;
+                }
+            }
+        }
+        return -1;
+    }
+};
+// https://leetcode.cn/submissions/detail/367100665/
+```
+
+```cpp
+class Solution {
+public:
+    int search(vector<int> &nums, int target) {
+        int lo = 0, hi = nums.size() - 1;
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (nums[mid] == target) {
+                return mid;
+            }
+            if (nums[lo] <= nums[mid]) {
+                if (nums[lo] <= target && target < nums[mid]) {
+                    return binarySearch(nums, lo, mid, target);
+                } else {
+                    lo = mid + 1;
+                }
+            } else {
+                if (nums[mid] < target && target <= nums[hi]) {
+                    return binarySearch(nums, mid, hi, target);
+                } else {
+                    hi = mid - 1;
+                }
+            }
+        }
+        return -1;
+    }
+
+private:
+    int binarySearch(const vector<int> &nums, int lo, int hi, int target) {
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (target < nums[mid]) {
+                hi = mid - 1;
+            } else if (nums[mid] < target) {
+                lo = mid + 1;
+            } else {
+                return mid;
+            }
+        }
+        return -1;
+    }
+};
+// https://leetcode.cn/submissions/detail/376145980/
+```
+
+```cpp
+class Solution {
+public:
+    int search(vector<int> &nums, int target) {
+        int min = findMin(nums);
+        int ans = binarySearch(nums, 0, min - 1, target);
+        if (ans == -1) {
+            ans = binarySearch(nums, min, nums.size() - 1, target);
+        }
+        return ans;
+    }
+
+private:
+    // 寻找旋转排序数组中的最小值的索引
+    int findMin(const vector<int> &nums) {
+        int lo = 0, hi = nums.size() - 1;
+        while (lo < hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (nums[mid] < nums[hi]) {
+                hi = mid;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        return lo;
+    }
+
+    int binarySearch(const vector<int> &nums, int lo, int hi, int target) {
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (target < nums[mid]) {
+                hi = mid - 1;
+            } else if (nums[mid] < target) {
+                lo = mid + 1;
+            } else {
+                return mid;
+            }
+        }
+        return -1;
+    }
+};
+// https://leetcode.cn/submissions/detail/376147711/
 ```
 
 ## 34. 在排序数组中查找元素的第一个和最后一个位置
