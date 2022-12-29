@@ -64,6 +64,27 @@
 - [114. 二叉树展开为链表](#114-二叉树展开为链表)
 - [116. 填充每个节点的下一个右侧节点指针](#116-填充每个节点的下一个右侧节点指针)
 - [121. 买卖股票的最佳时机](#121-买卖股票的最佳时机)
+- [122. 买卖股票的最佳时机 II](#122-买卖股票的最佳时机-ii)
+- [123. 买卖股票的最佳时机 III](#123-买卖股票的最佳时机-iii)
+- [125. 验证回文串](#125-验证回文串)
+- [128. 最长连续序列](#128-最长连续序列)
+- [130. 被围绕的区域](#130-被围绕的区域)
+- [136. 只出现一次的数字](#136-只出现一次的数字)
+- [141. 环形链表](#141-环形链表)
+- [142. 环形链表 II](#142-环形链表-ii)
+- [143. 重排链表](#143-重排链表)
+- [144. 二叉树的前序遍历](#144-二叉树的前序遍历)
+- [145. 二叉树的后序遍历](#145-二叉树的后序遍历)
+- [146. LRU 缓存](#146-lru-缓存)
+- [153. 寻找旋转排序数组中的最小值](#153-寻找旋转排序数组中的最小值)
+- [155. 最小栈](#155-最小栈)
+- [160. 相交链表](#160-相交链表)
+- [165. 比较版本号](#165-比较版本号)
+- [167. 两数之和 II - 输入有序数组](#167-两数之和-ii---输入有序数组)
+- [169. 多数元素](#169-多数元素)
+- [179. 最大数](#179-最大数)
+- [188. 买卖股票的最佳时机 IV](#188-买卖股票的最佳时机-iv)
+- [189. 轮转数组](#189-轮转数组)
 
 ## 1. 两数之和
 
@@ -344,3 +365,75 @@ double findMedianSortedArrays(const int *nums1, int nums1Size, const int *nums2,
 ## 116. 填充每个节点的下一个右侧节点指针
 
 ## 121. 买卖股票的最佳时机
+
+## 122. 买卖股票的最佳时机 II
+
+## 123. 买卖股票的最佳时机 III
+
+## 125. 验证回文串
+
+## 128. 最长连续序列
+
+## 130. 被围绕的区域
+
+## 136. 只出现一次的数字
+
+## 141. 环形链表
+
+## 142. 环形链表 II
+
+## 143. 重排链表
+
+## 144. 二叉树的前序遍历
+
+## 145. 二叉树的后序遍历
+
+## 146. LRU 缓存
+
+## 153. 寻找旋转排序数组中的最小值
+
+<https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/>
+
+## 155. 最小栈
+
+## 160. 相交链表
+
+<https://leetcode-cn.com/problems/intersection-of-two-linked-lists/>
+
+## 165. 比较版本号
+
+> String
+
+<https://leetcode.cn/problems/compare-version-numbers/>
+
+## 167. 两数之和 II - 输入有序数组
+
+> Array, TwoPointers
+
+<https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/>
+
+## 169. 多数元素
+
+> Array, HashTable, Sorting
+
+<https://leetcode.cn/problems/majority-element/>
+
+
+## 179. 最大数
+
+> String, Sorting
+
+<https://leetcode.cn/problems/largest-number/>
+
+## 188. 买卖股票的最佳时机 IV
+
+> 2DArray, DP, Stock
+
+<https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/>
+
+## 189. 轮转数组
+
+> Array
+
+<https://leetcode.cn/problems/rotate-array/>
+
