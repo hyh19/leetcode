@@ -4418,7 +4418,107 @@ public:
 <https://leetcode.cn/problems/binary-tree-preorder-traversal/>
 
 ```cpp
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode *root) {
+        dfs(root);
+        return ans;
+    }
 
+private:
+    void dfs(const TreeNode *root) {
+        if (root == nullptr) {
+            return;
+        }
+        ans.push_back(root->val);
+        dfs(root->left);
+        dfs(root->right);
+    }
+
+    vector<int> ans;
+};
+// https://leetcode.cn/submissions/detail/366426509/
+```
+
+```cpp
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode *root) {
+        if (root == nullptr) {
+            return {};
+        }
+        vector<int> res;
+        vector<int> left = inorderTraversal(root->left);
+        res.insert(res.end(), left.begin(), left.end());
+        res.push_back(root->val);
+        vector<int> right = inorderTraversal(root->right);
+        res.insert(res.end(), right.begin(), right.end());
+        return res;
+    }
+};
+// https://leetcode.cn/submissions/detail/391586100/
+```
+
+```cpp
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode *root) {
+        vector<int> preorder;
+        stack<TreeNode *> s;
+        if (root != nullptr) {
+            s.push(root);
+        }
+        while (!s.empty()) {
+            TreeNode *x = s.top();
+            s.pop();
+            preorder.push_back(x->val);
+            TreeNode *right = x->right;
+            if (right != nullptr) {
+                s.push(right);
+            }
+            TreeNode *left = x->left;
+            if (left != nullptr) {
+                s.push(left);
+            }
+        }
+        return preorder;
+    }
+};
+// https://leetcode.cn/submissions/detail/391585407/
+```
+
+```cpp
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode *root) {
+        vector<int> preorder;
+        unordered_set<TreeNode *> marked;
+        stack<TreeNode *> stack;
+        if (root != nullptr) {
+            stack.push(root);
+        }
+        while (!stack.empty()) {
+            TreeNode *x = stack.top();
+            if (marked.count(x) == 0) {
+                preorder.push_back(x->val);
+                marked.insert(x);
+            }
+            TreeNode *left = x->left;
+            if (left != nullptr && marked.count(left) == 0) {
+                stack.push(left);
+                continue;
+            }
+            TreeNode *right = x->right;
+            if (right != nullptr && marked.count(right) == 0) {
+                stack.push(right);
+                continue;
+            }
+            stack.pop();
+        }
+        return preorder;
+    }
+};
+// https://leetcode.cn/submissions/detail/391585628/
 ```
 
 ## 145. 二叉树的后序遍历
@@ -4426,7 +4526,79 @@ public:
 <https://leetcode.cn/problems/binary-tree-postorder-traversal/>
 
 ```cpp
+class Solution {
+public:
+    vector<int> postorderTraversal(TreeNode *root) {
+        dfs(root);
+        return ans;
+    }
 
+private:
+    void dfs(const TreeNode *root) {
+        if (root == nullptr) {
+            return;
+        }
+        dfs(root->left);
+        dfs(root->right);
+        ans.push_back(root->val);
+    }
+
+    vector<int> ans;
+};
+// https://leetcode.cn/submissions/detail/366427798/
+```
+
+```cpp
+class Solution {
+public:
+    vector<int> postorderTraversal(TreeNode *root) {
+        if (root == nullptr) {
+            return {};
+        }
+        vector<int> res;
+        vector<int> left = postorderTraversal(root->left);
+        res.insert(res.end(), left.begin(), left.end());
+        vector<int> right = postorderTraversal(root->right);
+        res.insert(res.end(), right.begin(), right.end());
+        res.push_back(root->val);
+        return res;
+    }
+};
+// https://leetcode.cn/submissions/detail/391587103/
+```
+
+```cpp
+class Solution {
+public:
+    vector<int> postorderTraversal(TreeNode *root) {
+        vector<int> postorder;
+        unordered_set<TreeNode *> marked;
+        stack<TreeNode *> stack;
+        if (root != nullptr) {
+            stack.push(root);
+        }
+        while (!stack.empty()) {
+            TreeNode *x = stack.top();
+            TreeNode *left = x->left;
+            if (left != nullptr && marked.count(left) == 0) {
+                stack.push(left);
+                continue;
+            }
+            TreeNode *right = x->right;
+            if (right != nullptr && marked.count(right) == 0) {
+                stack.push(right);
+                continue;
+            }
+            if (marked.count(x) == 0) {
+                postorder.push_back(x->val);
+                marked.insert(x);
+            }
+            stack.pop();
+        }
+        return postorder;
+    }
+};
+// https://leetcode.cn/submissions/detail/391587438/
 ```
 
 ## 146. LRU 缓存
@@ -4434,7 +4606,222 @@ public:
 <https://leetcode.cn/problems/lru-cache/>
 
 ```cpp
+struct Node {
+    int key, val;
+    Node *prev;
+    Node *next;
 
+    Node(int k, int v) : key{k}, val{v}, prev{nullptr}, next{nullptr} {}
+};
+
+class DoublyLinkedList {
+public:
+    DoublyLinkedList() : first{nullptr}, last{nullptr}, n{0} {}
+
+    ~DoublyLinkedList() {
+        while (!empty()) {
+            removeFirst();
+        }
+    }
+
+    void addLast(Node *x) {
+        if (n == 0) {
+            first = x;
+            last = x;
+        } else {
+            last->next = x;
+            x->prev = last;
+            last = x;
+        }
+        ++n;
+    }
+
+    void removeFirst() {
+        Node *x = first;
+        if (n == 1) {
+            first = nullptr;
+            last = nullptr;
+        } else {
+            first = first->next;
+            first->prev = nullptr;
+        }
+        delete x;
+        --n;
+    }
+
+    void removeLast() {
+        Node *x = last;
+        if (n == 1) {
+            first = nullptr;
+            last = nullptr;
+        } else {
+            last = last->prev;
+            last->next = nullptr;
+        }
+        delete x;
+        --n;
+    }
+
+    void remove(Node *x) {
+        if (x == first) {
+            removeFirst();
+        } else if (x == last) {
+            removeLast();
+        } else {
+            x->prev->next = x->next;
+            x->next->prev = x->prev;
+            delete x;
+            --n;
+        }
+    }
+
+    const Node *getFirst() const {
+        return first;
+    }
+
+    bool empty() const {
+        return first == nullptr;
+    }
+
+private:
+    Node *first;
+    Node *last;
+    int n;
+};
+
+class LRUCache {
+public:
+    explicit LRUCache(int capacity) {
+        this->capacity = capacity;
+    }
+
+    int get(int key) {
+        if (contains(key)) {
+            return touchCache(key, INT_MIN);
+        }
+        return -1;
+    }
+
+    void put(int key, int value) {
+        if (capacity > 0) {
+            if (contains(key)) {
+                touchCache(key, value);
+            } else {
+                if (full()) {
+                    removeCache();
+                }
+                addCache(key, value);
+            }
+        }
+    }
+
+private:
+    bool contains(int key) {
+        return keyToNode.count(key) == 1;
+    }
+
+    bool full() {
+        return keyToNode.size() == capacity;
+    }
+
+    void addCache(int key, int val) {
+        Node *x = new Node(key, val);
+        list.addLast(x);
+        keyToNode[key] = x;
+    }
+
+    void removeCache() {
+        int key = list.getFirst()->key;
+        list.removeFirst();
+        keyToNode.erase(key);
+    }
+
+    int touchCache(int key, int val) {
+        Node *x = keyToNode[key];
+        int newVal = x->val;
+        if (val != INT_MIN) {
+            newVal = val;
+        }
+        list.remove(x);
+        x = new Node(key, newVal);
+        list.addLast(x);
+        keyToNode[key] = x;
+        return newVal;
+    }
+
+private:
+    int capacity;
+    DoublyLinkedList list;
+    unordered_map<int, Node *> keyToNode;
+};
+// https://leetcode.cn/submissions/detail/391594600/
+```
+
+```cpp
+class LRUCache {
+public:
+    explicit LRUCache(int capacity) {
+        this->capacity = capacity;
+    }
+
+    int get(int key) {
+        if (contains(key)) {
+            return touchCache(key, INT_MIN);
+        }
+        return -1;
+    }
+
+    void put(int key, int value) {
+        if (capacity > 0) {
+            if (contains(key)) {
+                touchCache(key, value);
+            } else {
+                if (full()) {
+                    removeCache();
+                }
+                addCache(key, value);
+            }
+        }
+    }
+
+private:
+    bool contains(int key) {
+        return keyToIter.count(key) == 1;
+    }
+
+    bool full() {
+        return keyToIter.size() == capacity;
+    }
+
+    void addCache(int key, int val) {
+        list.emplace_back(key, val);
+        keyToIter[key] = prev(list.end());
+    }
+
+    void removeCache() {
+        int key = list.front().first;
+        list.pop_front();
+        keyToIter.erase(key);
+    }
+
+    int touchCache(int key, int val) {
+        auto iter = keyToIter[key];
+        int newVal = iter->second;
+        if (val != INT_MIN) {
+            newVal = val;
+        }
+        list.erase(iter);
+        list.emplace_back(key, newVal);
+        iter = prev(list.end());
+        keyToIter[key] = iter;
+        return iter->second;
+    }
+
+    unordered_map<int, list<pair<int, int>>::iterator> keyToIter;
+    list<pair<int, int>> list;
+    int capacity;
+};
+// https://leetcode.cn/submissions/detail/391596335/
 ```
 
 ## 153. 寻找旋转排序数组中的最小值
@@ -4442,7 +4829,22 @@ public:
 <https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/>
 
 ```cpp
-
+class Solution {
+public:
+    int findMin(vector<int> &nums) {
+        int lo = 0, hi = nums.size() - 1;
+        while (lo < hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (nums[mid] < nums[hi]) {
+                hi = mid;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        return nums[lo];
+    }
+};
+// https://leetcode.cn/submissions/detail/348420700/
 ```
 
 ## 155. 最小栈
@@ -4450,7 +4852,102 @@ public:
 <https://leetcode.cn/problems/min-stack/>
 
 ```cpp
+class MinStack {
+public:
+    MinStack() = default;
 
+    void push(int val) {
+        int minVal = (s.empty() ? val : min(getMin(), val));
+        s.emplace(val, minVal);
+    }
+
+    void pop() {
+        s.pop();
+    }
+
+    int top() {
+        return s.top().first;
+    }
+
+    int getMin() {
+        return s.top().second;
+    }
+
+private:
+    stack<pair<int, int>> s;
+};
+// https://leetcode.cn/submissions/detail/391689608/
+```
+
+```cpp
+class MinStack {
+public:
+    MinStack() = default;
+
+    void push(int val) {
+        stack1.push(val);
+        if (stack2.empty() || val <= getMin()) {
+            stack2.push(val);
+        }
+    }
+
+    void pop() {
+        if (stack1.top() == getMin()) {
+            stack2.pop();
+        }
+        stack1.pop();
+    }
+
+    int top() {
+        return stack1.top();
+    }
+
+    int getMin() {
+        return stack2.top();
+    }
+
+private:
+    stack<int> stack1;
+    stack<int> stack2;
+};
+// https://leetcode.cn/submissions/detail/391690189/
+```
+
+```cpp
+class MinStack {
+public:
+    MinStack() = default;
+
+    void push(int val) {
+        if (val <= getMin()) {
+            stack.push(minVal);
+            minVal = val;
+        }
+        stack.push(val);
+    }
+
+    void pop() {
+        int val = stack.top();
+        stack.pop();
+        if (val == getMin()) {
+            minVal = stack.top();
+            stack.pop();
+        }
+    }
+
+    int top() {
+        return stack.top();
+    }
+
+    int getMin() {
+        return minVal;
+    }
+
+private:
+    int minVal = INT_MAX;
+    stack<int> stack;
+};
+// https://leetcode.cn/submissions/detail/391690531/
 ```
 
 ## 160. 相交链表
@@ -4458,7 +4955,42 @@ public:
 <https://leetcode-cn.com/problems/intersection-of-two-linked-lists/>
 
 ```cpp
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        ListNode *ptrA = headA;
+        ListNode *ptrB = headB;
+        while (ptrA != ptrB) {
+            ptrA = (ptrA == nullptr ? headB : ptrA->next);
+            ptrB = (ptrB == nullptr ? headA : ptrB->next);
+        }
+        return ptrA;
+    }
+};
+// https://leetcode.cn/submissions/detail/366013752/
+```
 
+```cpp
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        unordered_set<ListNode *> set;
+        ListNode *ptr = headA;
+        while (ptr != nullptr) {
+            set.insert(ptr);
+            ptr = ptr->next;
+        }
+        ptr = headB;
+        while (ptr != nullptr) {
+            if (set.count(ptr) > 0) {
+                return ptr;
+            }
+            ptr = ptr->next;
+        }
+        return nullptr;
+    }
+};
+// https://leetcode.cn/submissions/detail/391469467/
 ```
 
 ## 165. 比较版本号
@@ -4466,7 +4998,80 @@ public:
 <https://leetcode.cn/problems/compare-version-numbers/>
 
 ```cpp
+class Solution {
+public:
+    int compareVersion(string version1, string version2) {
+        size_t n1 = version1.size();
+        size_t n2 = version2.size();
+        int i = 0, j = 0;
+        while (i < n1 || j < n2) {
+            int r1 = 0;
+            while (i < n1) {
+                char ch = version1[i++];
+                if (ch == '.') {
+                    break;
+                }
+                r1 = r1 * 10 + (ch - '0');
+            }
+            int r2 = 0;
+            while (j < n2) {
+                char ch = version2[j++];
+                if (ch == '.') {
+                    break;
+                }
+                r2 = r2 * 10 + (ch - '0');
+            }
+            if (r1 > r2) {
+                return 1;
+            }
+            if (r1 < r2) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+};
+// https://leetcode.cn/submissions/detail/391708367/
+```
 
+```cpp
+class Solution {
+public:
+    int compareVersion(string version1, string version2) {
+        size_t n1 = version1.size();
+        size_t n2 = version2.size();
+        int i = 0, j = 0;
+        string revision1, revision2;
+        while (i < n1 || j < n2) {
+            revision1 = "0";
+            while (i < n1) {
+                char ch = version1[i++];
+                if (ch == '.') {
+                    break;
+                }
+                revision1 += ch;
+            }
+            revision2 = "0";
+            while (j < n2) {
+                char ch = version2[j++];
+                if (ch == '.') {
+                    break;
+                }
+                revision2 += ch;
+            }
+            int r1 = stoi(revision1);
+            int r2 = stoi(revision2);
+            if (r1 > r2) {
+                return 1;
+            }
+            if (r1 < r2) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+};
+// https://leetcode.cn/submissions/detail/391707807/
 ```
 
 ## 167. 两数之和 II - 输入有序数组
@@ -4474,7 +5079,24 @@ public:
 <https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/>
 
 ```cpp
-
+class Solution {
+public:
+    vector<int> twoSum(vector<int> &numbers, int target) {
+        int i = 0, j = numbers.size() - 1;
+        while (i < j) {
+            int sum = numbers[i] + numbers[j];
+            if (sum < target) {
+                ++i;
+            } else if (sum > target) {
+                --j;
+            } else {
+                return {i + 1, j + 1};
+            }
+        }
+        return {-1, -1};
+    }
+};
+// https://leetcode.cn/submissions/detail/368958958/
 ```
 
 ## 169. 多数元素
@@ -4482,7 +5104,27 @@ public:
 <https://leetcode.cn/problems/majority-element/>
 
 ```cpp
-
+class Solution {
+public:
+    int majorityElement(vector<int> &nums) {
+        int candidate = INT_MIN;
+        int count = 0;
+        for (const auto &x: nums) {
+            if (count == 0) {
+                candidate = x;
+                count = 1;
+            } else {
+                if (x == candidate) {
+                    ++count;
+                } else {
+                    --count;
+                }
+            }
+        }
+        return candidate;
+    }
+};
+// https://leetcode.cn/submissions/detail/391523913/
 ```
 
 ## 179. 最大数
@@ -4490,7 +5132,48 @@ public:
 <https://leetcode.cn/problems/largest-number/>
 
 ```cpp
+class Solution {
+public:
+    string largestNumber(vector<int> &nums) {
+        size_t n = nums.size();
+        vector<string> strs(n);
+        for (int i = 0; i < n; ++i) {
+            strs[i] = to_string(nums[i]);
+        }
+        sort(strs.begin(), strs.end(),
+             [](const string &s1, const string &s2) {
+                 return (s1 + s2) > (s2 + s1);
+             });
+        string ans;
+        for (const auto &s: strs) {
+            ans += s;
+        }
+        return ans[0] == '0' ? "0" : ans;
+    }
+};
+// https://leetcode.cn/submissions/detail/391679835/
+```
 
+```cpp
+class Solution {
+public:
+    string largestNumber(vector<int> &nums) {
+        vector<string> strs(nums.size());
+        transform(nums.cbegin(), nums.cend(),
+                  strs.begin(),
+                  [](const int &a) { return to_string(a); });
+        sort(strs.begin(), strs.end(),
+             [](const string &s1, const string &s2) {
+                 return (s1 + s2) > (s2 + s1);
+             });
+        string ans;
+        for (const auto &s: strs) {
+            ans += s;
+        }
+        return ans[0] == '0' ? "0" : ans;
+    }
+};
+// https://leetcode.cn/submissions/detail/391681091/
 ```
 
 ## 188. 买卖股票的最佳时机 IV
@@ -4498,7 +5181,39 @@ public:
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/>
 
 ```cpp
-
+class Solution {
+public:
+    int maxProfit(int k, vector<int> &prices) {
+        size_t n = prices.size();
+        if (k <= 0 || n <= 1) {
+            return 0;
+        }
+        // dp[t][i][0] = 交易次数限制为 t 时，第 i 天，空仓状态下的最大利润
+        // dp[t][i][1] = 交易次数限制为 t 时，第 i 天，持仓状态下的最大利润
+        vector<vector<vector<int>>> dp(k + 1, vector<vector<int>>(n, vector<int>(2)));
+        // 交易次数限制为 0 时
+        // 填写第 0 个 n x 2 矩阵
+        for (int i = 0; i < n; ++i) {
+            dp[0][i][0] = 0;
+            dp[0][i][1] = INT_MIN;
+        }
+        // 交易次数限制为 [1..k] 时
+        for (int t = 1; t <= k; ++t) {
+            // 填写第 t 个 n x 2 矩阵
+            dp[t][0][0] = 0;
+            dp[t][0][1] = -prices[0];
+            for (int i = 1; i < n; ++i) {
+                // dp[t][i - 1][0]             >= dp[t - 1][i - 1][0] - prices[i]
+                // dp[t][i - 1][1] + prices[i] >= dp[t][i - 1][1]
+                // => dp[t][i][0] >= dp[t][i][1]
+                dp[t][i][0] = max(dp[t][i - 1][0], dp[t][i - 1][1] + prices[i]);
+                dp[t][i][1] = max(dp[t - 1][i - 1][0] - prices[i], dp[t][i - 1][1]);
+            }
+        }
+        return dp[k][n - 1][0];
+    }
+};
+// https://leetcode.cn/submissions/detail/391543969/
 ```
 
 ## 189. 轮转数组
@@ -4506,7 +5221,59 @@ public:
 <https://leetcode.cn/problems/rotate-array/>
 
 ```cpp
+class Solution {
+public:
+    void rotate(vector<int> &nums, int k) {
+        int n = nums.size();
+        k %= n;
+        if (k > 0) {
+            reverse(nums, 0, n - 1);
+            reverse(nums, 0, k - 1);
+            reverse(nums, k, n - 1);
+        }
+    }
 
+private:
+    void reverse(vector<int> &nums, int lo, int hi) {
+        while (lo < hi) {
+            swap(nums[lo++], nums[hi--]);
+        }
+    }
+};
+// https://leetcode.cn/submissions/detail/366660409/
+```
+
+```cpp
+class Solution {
+public:
+    void rotate(vector<int> &nums, int k) {
+        k %= nums.size();
+        if (k > 0) {
+            reverse(nums.begin(), nums.end());
+            reverse(nums.begin(), nums.begin() + k);
+            reverse(nums.begin() + k, nums.end());
+        }
+    }
+};
+// https://leetcode.cn/submissions/detail/364366695/
+```
+
+```cpp
+class Solution {
+public:
+    void rotate(vector<int> &nums, int k) {
+        int n = nums.size();
+        k %= n;
+        if (k > 0) {
+            vector<int> aux(n);
+            for (int i = 0; i < n; ++i) {
+                aux[(i + k) % n] = nums[i];
+            }
+            nums.assign(aux.begin(), aux.end());
+        }
+    }
+};
+// https://leetcode.cn/submissions/detail/391450615/
 ```
 
 ## 198. 打家劫舍
@@ -4514,7 +5281,79 @@ public:
 <https://leetcode.cn/problems/house-robber/>
 
 ```cpp
+class Solution {
+public:
+    int rob(vector<int> &nums) {
+        return subseqSum(nums);
+    }
 
+private:
+    // max({sum(subseq) | subseq 是数组 nums 的不连续子序列})
+    int subseqSum(const vector<int> &nums) {
+        size_t n = nums.size();
+        if (n == 0) {
+            return 0;
+        }
+        if (n == 1) {
+            return nums[0];
+        }
+        if (n == 2) {
+            return max(nums[0], nums[1]);
+        }
+        // dp[i] = max({sum(subseq) | subseq 是子数组 nums[0..i] 的不连续子序列})
+        vector<int> dp(n);
+        dp[0] = nums[0];
+        dp[1] = max(nums[0], nums[1]);
+        for (int i = 2; i < n; ++i) {
+            // 包含 nums[i]
+            int sp1 = dp[i - 2] + nums[i];
+            // 不包含 nums[i]
+            int sp2 = dp[i - 1];
+            dp[i] = max(sp1, sp2);
+        }
+        return dp[n - 1];
+    }
+};
+// https://leetcode.cn/submissions/detail/391484761/
+```
+
+```cpp
+class Solution {
+public:
+    int rob(vector<int> &nums) {
+        return subsequenceSum(nums);
+    }
+
+private:
+    // 返回 max({sum(subsequence) | subsequence 是 nums 的不连续子序列})
+    int subsequenceSum(const vector<int> &nums) {
+        size_t n = nums.size();
+        if (n == 0) {
+            return 0;
+        }
+        if (n == 1) {
+            return nums[0];
+        }
+        if (n == 2) {
+            return max(nums[0], nums[1]);
+        }
+        // dp[i] = max({sum(subsequence) | subsequence 是以 nums[i] 结尾的不连续子序列})
+        vector<int> dp(n);
+        dp[0] = nums[0];
+        dp[1] = max(nums[0], nums[1]);
+        int ans = max(dp[0], dp[1]);
+        for (int i = 2; i < n; ++i) {
+            int res = nums[i];
+            for (int j = i - 2; j >= 0; --j) {
+                res = max(res, dp[j] + nums[i]);
+            }
+            dp[i] = res;
+            ans = max(ans, dp[i]);
+        }
+        return ans;
+    }
+};
+// https://leetcode.cn/submissions/detail/391485031/
 ```
 
 ## 199. 二叉树的右视图
@@ -4522,7 +5361,116 @@ public:
 <https://leetcode.cn/problems/binary-tree-right-side-view/>
 
 ```cpp
+class Solution {
+public:
+    vector<int> rightSideView(TreeNode *root) {
+        vector<int> ans;
+        deque<TreeNode *> q;
+        if (root != nullptr) {
+            q.push_back(root);
+        }
+        while (!q.empty()) {
+            ans.push_back(q.back()->val);
+            size_t n = q.size();
+            for (int i = 0; i < n; ++i) {
+                TreeNode *x = q.front();
+                q.pop_front();
+                TreeNode *left = x->left;
+                if (left != nullptr) {
+                    q.push_back(left);
+                }
+                TreeNode *right = x->right;
+                if (right != nullptr) {
+                    q.push_back(right);
+                }
+            }
+        }
+        return ans;
+    }
+};
+// https://leetcode.cn/submissions/detail/391695336/
+```
 
+```cpp
+class Solution {
+public:
+    vector<int> rightSideView(TreeNode *root) {
+        vector<int> ans;
+        queue<TreeNode *> q;
+        if (root != nullptr) {
+            q.push(root);
+        }
+        while (!q.empty()) {
+            ans.push_back(q.front()->val);
+            size_t n = q.size();
+            for (int i = 0; i < n; ++i) {
+                TreeNode *x = q.front();
+                q.pop();
+                if (x->right != nullptr) {
+                    q.push(x->right);
+                }
+                if (x->left != nullptr) {
+                    q.push(x->left);
+                }
+            }
+        }
+        return ans;
+    }
+};
+// https://leetcode.cn/submissions/detail/391695558/
+```
+
+```cpp
+class Solution {
+public:
+    vector<int> rightSideView(TreeNode *root) {
+        dfs(root, 0);
+        return ans;
+    }
+
+private:
+    void dfs(TreeNode *root, int depth) {
+        if (root == nullptr) {
+            return;
+        }
+        if (ans.size() == depth) {
+            ans.push_back(root->val);
+        }
+        dfs(root->right, depth + 1);
+        dfs(root->left, depth + 1);
+    }
+
+    vector<int> ans;
+};
+// https://leetcode.cn/submissions/detail/391696281/
+```
+
+```cpp
+class Solution {
+public:
+    vector<int> rightSideView(TreeNode *root) {
+        dfs(root, 0);
+        size_t n = map.size();
+        vector<int> ans(n);
+        for (int i = 0; i < n; ++i) {
+            ans[i] = map[i];
+        }
+        return ans;
+    }
+
+private:
+    void dfs(const TreeNode *root, int depth) {
+        if (root == nullptr) {
+            return;
+        }
+        map[depth] = root->val;
+        dfs(root->left, depth + 1);
+        dfs(root->right, depth + 1);
+    }
+
+    unordered_map<int, int> map;
+};
+// https://leetcode.cn/submissions/detail/391695908/
 ```
 
 ## 200. 岛屿数量
@@ -4530,7 +5478,37 @@ public:
 <https://leetcode.cn/problems/number-of-islands/>
 
 ```cpp
+class Solution {
+public:
+    int numIslands(vector<vector<char>> &grid) {
+        int count = 0;
+        for (int row = 0; row < grid.size(); ++row) {
+            for (int col = 0; col < grid[0].size(); ++col) {
+                if (grid[row][col] == LAND) {
+                    floodFill(grid, row, col);
+                    ++count;
+                }
+            }
+        }
+        return count;
+    }
 
+private:
+    void floodFill(vector<vector<char>> &grid, int row, int col) {
+        if (row < 0 || row >= grid.size() || col < 0 || col >= grid[0].size() || grid[row][col] == WATER) {
+            return;
+        }
+        grid[row][col] = WATER;
+        floodFill(grid, row, col + 1);
+        floodFill(grid, row, col - 1);
+        floodFill(grid, row + 1, col);
+        floodFill(grid, row - 1, col);
+    }
+
+    static const char LAND = '1';
+    static const char WATER = '0';
+};
+// https://leetcode.cn/submissions/detail/391539839/
 ```
 
 ## 203. 移除链表元素
@@ -4538,7 +5516,26 @@ public:
 <https://leetcode-cn.com/problems/remove-linked-list-elements/>
 
 ```cpp
-
+class Solution {
+public:
+    ListNode *removeElements(ListNode *head, int val) {
+        auto *dummyHead = new ListNode(-1, head);
+        ListNode *ptr = dummyHead;
+        while (ptr != nullptr && ptr->next != nullptr) {
+            if (ptr->next->val == val) {
+                ListNode *x = ptr->next;
+                ptr->next = ptr->next->next;
+                delete x;
+            } else {
+                ptr = ptr->next;
+            }
+        }
+        head = dummyHead->next;
+        delete dummyHead;
+        return head;
+    }
+};
+// https://leetcode.cn/submissions/detail/391584118/
 ```
 
 ## 206. 反转链表
@@ -4546,7 +5543,65 @@ public:
 <https://leetcode-cn.com/problems/reverse-linked-list/>
 
 ```cpp
+class Solution {
+public:
+    ListNode *reverseList(ListNode *head) {
+        ListNode *reverseHead = nullptr;
+        while (head != nullptr) {
+            ListNode *x = head->next;
+            head->next = reverseHead;
+            reverseHead = head;
+            head = x;
+        }
+        return reverseHead;
+    }
+};
+// https://leetcode.cn/submissions/detail/368458029/
+```
 
+```cpp
+class Solution {
+public:
+    ListNode *reverseList(ListNode *head) {
+        if (head == nullptr || head->next == nullptr) {
+            return head;
+        }
+        ListNode *x = head->next;
+        head->next = nullptr;
+        ListNode *reverseHead = reverseList(x);
+        x->next = head;
+        return reverseHead;
+    }
+};
+// https://leetcode.cn/submissions/detail/368457253/
+```
+
+```cpp
+class Solution {
+public:
+    ListNode *reverseList(ListNode *head) {
+        if (head == nullptr || head->next == nullptr) {
+            return head;
+        }
+        stack<ListNode *> s;
+        while (head != nullptr) {
+            ListNode *next = head->next;
+            head->next = nullptr;
+            s.push(head);
+            head = next;
+        }
+        ListNode *reverseHead = s.top();
+        s.pop();
+        ListNode *ptr = reverseHead;
+        while (!s.empty()) {
+            ptr->next = s.top();
+            s.pop();
+            ptr = ptr->next;
+        }
+        return reverseHead;
+    }
+};
+// https://leetcode.cn/submissions/detail/391471805/
 ```
 
 ## 207. 课程表
@@ -4554,7 +5609,48 @@ public:
 <https://leetcode.cn/problems/course-schedule/>
 
 ```cpp
+class Solution {
+public:
+    bool canFinish(int numCourses, vector<vector<int>> &prerequisites) {
+        vector<vector<int>> graph(numCourses);
+        for (const auto &p: prerequisites) {
+            int v = p[1], w = p[0];
+            graph[v].push_back(w);
+        }
+        size_t n = graph.size();
+        marked = vector<bool>(n);
+        onStack = vector<bool>(n);
+        for (int v = 0; v < n; ++v) {
+            if (!marked[v]) {
+                dfs(graph, v);
+                if (hasCycle) {
+                    break;
+                }
+            }
+        }
+        return !hasCycle;
+    }
 
+private:
+    void dfs(const vector<vector<int>> &graph, int v) {
+        onStack[v] = true;
+        marked[v] = true;
+        for (const auto &w: graph[v]) {
+            if (!marked[w]) {
+                dfs(graph, w);
+            } else if (onStack[w]) {
+                hasCycle = true;
+                return;
+            }
+        }
+        onStack[v] = false;
+    }
+
+    vector<bool> marked;
+    vector<bool> onStack;
+    bool hasCycle = false;
+};
+// https://leetcode.cn/submissions/detail/391447038/
 ```
 
 ## 210. 课程表 II
@@ -4562,7 +5658,57 @@ public:
 <https://leetcode.cn/problems/course-schedule-ii/>
 
 ```cpp
+class Solution {
+public:
+    vector<int> findOrder(int numCourses, vector<vector<int>> &prerequisites) {
+        if (canFinish(numCourses, prerequisites)) {
+            return {postorder.rbegin(), postorder.rend()};
+        }
+        return {};
+    }
 
+private:
+    bool canFinish(int numCourses, vector<vector<int>> &prerequisites) {
+        vector<vector<int>> graph(numCourses);
+        for (const auto &p: prerequisites) {
+            int v = p[1], w = p[0];
+            graph[v].push_back(w);
+        }
+        size_t n = graph.size();
+        marked = vector<bool>(n);
+        onStack = vector<bool>(n);
+        for (int v = 0; v < n; ++v) {
+            if (!marked[v]) {
+                dfs(graph, v);
+                if (hasCycle) {
+                    break;
+                }
+            }
+        }
+        return !hasCycle;
+    }
+
+    void dfs(const vector<vector<int>> &graph, int v) {
+        onStack[v] = true;
+        marked[v] = true;
+        for (const auto &w: graph[v]) {
+            if (!marked[w]) {
+                dfs(graph, w);
+            } else if (onStack[w]) {
+                hasCycle = true;
+                return;
+            }
+        }
+        postorder.push_back(v);
+        onStack[v] = false;
+    }
+
+    vector<bool> marked;
+    vector<bool> onStack;
+    vector<int> postorder;
+    bool hasCycle = false;
+};
+// https://leetcode.cn/submissions/detail/391445752/
 ```
 
 ## 213. 打家劫舍 II
@@ -4570,7 +5716,44 @@ public:
 <https://leetcode.cn/problems/house-robber-ii/>
 
 ```cpp
+class Solution {
+public:
+    int rob(vector<int> &nums) {
+        int n = nums.size();
+        if (n == 1) {
+            return nums[0];
+        }
+        return max(subseqSum(nums, 0, n - 2), subseqSum(nums, 1, n - 1));
+    }
 
+private:
+    // max({sum(subseq) | subseq 是子数组 nums[lo..hi] 的不连续子序列})
+    int subseqSum(const vector<int> &nums, int lo, int hi) {
+        int n = hi - lo + 1;
+        if (n == 0) {
+            return 0;
+        }
+        if (n == 1) {
+            return nums[lo];
+        }
+        if (n == 2) {
+            return max(nums[lo], nums[lo + 1]);
+        }
+        // dp[i] = max({sum(subseq) | subseq 是子数组 nums[lo..lo+i] 的不连续子序列})
+        vector<int> dp(n);
+        dp[0] = nums[lo];
+        dp[1] = max(nums[lo], nums[lo + 1]);
+        for (int i = 2; i < n; ++i) {
+            // 包含 nums[lo+i]
+            int sp1 = dp[i - 2] + nums[lo + i];
+            // 不包含 nums[lo+i]
+            int sp2 = dp[i - 1];
+            dp[i] = max(sp1, sp2);
+        }
+        return dp[n - 1];
+    }
+};
+// https://leetcode.cn/submissions/detail/374747866/
 ```
 
 ## 215. 数组中的第 K 个最大元素
@@ -4578,7 +5761,68 @@ public:
 <https://leetcode.cn/problems/kth-largest-element-in-an-array/>
 
 ```cpp
+class Solution {
+public:
+    int findKthLargest(vector<int> &nums, int k) {
+        return select(nums, nums.size() - k);
+    }
 
+private:
+    // 数组 nums 从小到大排在第 rank 位的元素，排位从 0 开始计算，
+    // 相当于有 rank 个元素小于该元素。
+    int select(vector<int> &nums, int rank) {
+        int lo = 0, hi = nums.size() - 1;
+        while (lo < hi) {
+            int j = partition(nums, lo, hi);
+            if (rank < j) {
+                hi = j - 1;
+            } else if (j < rank) {
+                lo = j + 1;
+            } else {
+                return nums[j];
+            }
+        }
+        return nums[lo];
+    }
+
+    int partition(vector<int> &nums, int lo, int hi) {
+        int v = nums[lo];
+        int i = lo, j = hi + 1;
+        while (true) {
+            while (nums[++i] < v) {
+                if (i == hi) {
+                    break;
+                }
+            }
+            while (nums[--j] > v) {
+                if (j == lo) {
+                    break;
+                }
+            }
+            if (i >= j) {
+                break;
+            }
+            swap(nums[i], nums[j]);
+        }
+        swap(nums[lo], nums[j]);
+        return j;
+    }
+};
+// https://leetcode.cn/submissions/detail/391552631/
+```
+
+```cpp
+class Solution {
+public:
+    int findKthLargest(vector<int> &nums, int k) {
+        priority_queue<int> max_pq(nums.begin(), nums.end());
+        for (int i = 1; i <= k - 1; ++i) {
+            max_pq.pop();
+        }
+        return max_pq.top();
+    }
+};
+// https://leetcode.cn/submissions/detail/391551967/
 ```
 
 ## 216. 组合总和 III
