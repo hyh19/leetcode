@@ -2911,7 +2911,127 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode-cn.com/problems/binary-tree-zigzag-level-order-traversal/>
 
 ```c
+typedef struct TreeNode *Value;
 
+struct MyListNode {
+    Value val;
+    struct MyListNode *next;
+};
+
+typedef struct {
+    struct MyListNode *first;
+    struct MyListNode *last;
+    int size;
+} MyLinkedListQueue;
+
+MyLinkedListQueue *myQueueCreate() {
+    MyLinkedListQueue *obj = malloc(sizeof(MyLinkedListQueue));
+    obj->first = NULL;
+    obj->last = NULL;
+    obj->size = 0;
+    return obj;
+}
+
+void myQueuePush(MyLinkedListQueue *obj, Value val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->val = val;
+    x->next = NULL;
+    if (obj->size == 0) {
+        obj->first = x;
+        obj->last = x;
+    } else {
+        obj->last->next = x;
+        obj->last = x;
+    }
+    obj->size++;
+}
+
+Value myQueuePop(MyLinkedListQueue *obj) {
+    Value val = obj->first->val;
+    struct MyListNode *x = obj->first;
+    if (obj->size == 1) {
+        obj->first = NULL;
+        obj->last = NULL;
+    } else {
+        obj->first = obj->first->next;
+    }
+    free(x);
+    obj->size--;
+    return val;
+}
+
+Value myQueuePeek(MyLinkedListQueue *obj) {
+    return obj->first->val;
+}
+
+int myQueueSize(MyLinkedListQueue *obj) {
+    return obj->size;
+}
+
+bool myQueueEmpty(MyLinkedListQueue *obj) {
+    return obj->size == 0;
+}
+
+void myQueueFree(MyLinkedListQueue *obj) {
+    struct MyListNode *p = obj->first;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    free(obj);
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **zigzagLevelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes) {
+    *returnSize = 0;
+    int capacity = 8;
+    int **ans = malloc(sizeof(int *) * capacity);
+    *returnColumnSizes = malloc(sizeof(int[capacity]));
+    MyLinkedListQueue *queue = myQueueCreate();
+    if (root != NULL) {
+        myQueuePush(queue, root);
+    }
+    bool reverse = false;
+    while (!myQueueEmpty(queue)) {
+        int size = myQueueSize(queue);
+        int *level = malloc(sizeof(int[size]));
+        for (int i = 0; i < size; ++i) {
+            struct TreeNode *x = myQueuePop(queue);
+            level[i] = x->val;
+            struct TreeNode *left = x->left;
+            if (left != NULL) {
+                myQueuePush(queue, left);
+            }
+            struct TreeNode *right = x->right;
+            if (right != NULL) {
+                myQueuePush(queue, right);
+            }
+        }
+        if (reverse) {
+            for (int i = 0, j = size - 1; i < j; ++i, --j) {
+                int temp = level[i];
+                level[i] = level[j];
+                level[j] = temp;
+            }
+        }
+        reverse = !reverse;
+        if (*returnSize == capacity) {
+            capacity *= 2;
+            ans = realloc(ans, sizeof(int *) * capacity);
+            *returnColumnSizes = realloc(*returnColumnSizes, sizeof(int[capacity]));
+        }
+        ans[*returnSize] = level;
+        (*returnColumnSizes)[(*returnSize)++] = size;
+    }
+    myQueueFree(queue);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391407128/
 ```
 
 ## 104. 二叉树的最大深度
@@ -2919,7 +3039,13 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode.cn/problems/maximum-depth-of-binary-tree/>
 
 ```c
-
+int maxDepth(struct TreeNode *root) {
+    if (root == NULL) {
+        return 0;
+    }
+    return 1 + fmax(maxDepth(root->left), maxDepth(root->right));
+}
+// https://leetcode.cn/submissions/detail/388684196/
 ```
 
 ## 105. 从前序与中序遍历序列构造二叉树
@@ -2927,7 +3053,51 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/>
 
 ```c
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashMapItem;
 
+HashMapItem *valueToIndex = NULL;
+
+struct TreeNode *buildTreeRange(const int *preorder, int preStart, int preEnd,
+                                const int *inorder, int inStart, int inEnd) {
+    if (preStart > preEnd) {
+        return NULL;
+    }
+    int rootVal = preorder[preStart];
+    struct TreeNode *root = malloc(sizeof(struct TreeNode));
+    root->val = rootVal;
+    HashMapItem *item;
+    HASH_FIND_INT(valueToIndex, &rootVal, item);
+    int inRoot = item->val;
+    int leftSize = inRoot - inStart;
+    root->left = buildTreeRange(preorder, preStart + 1, preStart + leftSize,
+                                inorder, inStart, inRoot - 1);
+    root->right = buildTreeRange(preorder, preStart + leftSize + 1, preEnd,
+                                 inorder, inRoot + 1, inEnd);
+    return root;
+}
+
+struct TreeNode *buildTree(const int *preorder, int preorderSize, const int *inorder, int inorderSize) {
+    for (int i = 0; i < inorderSize; ++i) {
+        HashMapItem *item = malloc(sizeof(HashMapItem));
+        item->key = inorder[i];
+        item->val = i;
+        HASH_ADD_INT(valueToIndex, key, item);
+    }
+    struct TreeNode *root = buildTreeRange(preorder, 0, preorderSize - 1,
+                                           inorder, 0, inorderSize - 1);
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, valueToIndex, cur, tmp) {
+        HASH_DEL(valueToIndex, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, valueToIndex);
+    return root;
+}
+// https://leetcode.cn/submissions/detail/391158225/
 ```
 
 ## 106. 从中序与后序遍历序列构造二叉树
@@ -2935,7 +3105,51 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/>
 
 ```c
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashMapItem;
 
+HashMapItem *valueToIndex = NULL;
+
+struct TreeNode *buildTreeRange(const int *inorder, int inStart, int inEnd,
+                                const int *postorder, int postStart, int postEnd) {
+    if (inStart > inEnd) {
+        return NULL;
+    }
+    int rootVal = postorder[postEnd];
+    struct TreeNode *root = malloc(sizeof(struct TreeNode));
+    root->val = rootVal;
+    HashMapItem *item;
+    HASH_FIND_INT(valueToIndex, &rootVal, item);
+    int inRoot = item->val;
+    int leftSize = inRoot - inStart;
+    root->left = buildTreeRange(inorder, inStart, inRoot - 1,
+                                postorder, postStart, postStart + leftSize - 1);
+    root->right = buildTreeRange(inorder, inRoot + 1, inEnd,
+                                 postorder, postStart + leftSize, postEnd - 1);
+    return root;
+}
+
+struct TreeNode *buildTree(const int *inorder, int inorderSize, const int *postorder, int postorderSize) {
+    for (int i = 0; i < inorderSize; ++i) {
+        HashMapItem *item = malloc(sizeof(HashMapItem));
+        item->key = inorder[i];
+        item->val = i;
+        HASH_ADD_INT(valueToIndex, key, item);
+    }
+    struct TreeNode *root = buildTreeRange(inorder, 0, inorderSize - 1,
+                                           postorder, 0, postorderSize - 1);
+    HashMapItem *cur, *tmp;
+    HASH_ITER(hh, valueToIndex, cur, tmp) {
+        HASH_DEL(valueToIndex, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, valueToIndex);
+    return root;
+}
+// https://leetcode.cn/submissions/detail/391158622/
 ```
 
 ## 107. 二叉树的层序遍历 II
@@ -2943,7 +3157,126 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode-cn.com/problems/binary-tree-level-order-traversal-ii/>
 
 ```c
+typedef struct TreeNode *Value;
 
+struct MyListNode {
+    Value val;
+    struct MyListNode *next;
+};
+
+typedef struct {
+    struct MyListNode *first;
+    struct MyListNode *last;
+    int size;
+} MyLinkedListQueue;
+
+MyLinkedListQueue *myQueueCreate() {
+    MyLinkedListQueue *obj = malloc(sizeof(MyLinkedListQueue));
+    obj->first = NULL;
+    obj->last = NULL;
+    obj->size = 0;
+    return obj;
+}
+
+void myQueuePush(MyLinkedListQueue *obj, Value val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->val = val;
+    x->next = NULL;
+    if (obj->size == 0) {
+        obj->first = x;
+        obj->last = x;
+    } else {
+        obj->last->next = x;
+        obj->last = x;
+    }
+    obj->size++;
+}
+
+Value myQueuePop(MyLinkedListQueue *obj) {
+    Value val = obj->first->val;
+    struct MyListNode *x = obj->first;
+    if (obj->size == 1) {
+        obj->first = NULL;
+        obj->last = NULL;
+    } else {
+        obj->first = obj->first->next;
+    }
+    free(x);
+    obj->size--;
+    return val;
+}
+
+Value myQueuePeek(MyLinkedListQueue *obj) {
+    return obj->first->val;
+}
+
+int myQueueSize(MyLinkedListQueue *obj) {
+    return obj->size;
+}
+
+bool myQueueEmpty(MyLinkedListQueue *obj) {
+    return obj->size == 0;
+}
+
+void myQueueFree(MyLinkedListQueue *obj) {
+    struct MyListNode *p = obj->first;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    free(obj);
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **levelOrderBottom(struct TreeNode *root, int *returnSize, int **returnColumnSizes) {
+    *returnSize = 0;
+    int capacity = 8;
+    int **ans = malloc(sizeof(int *) * capacity);
+    *returnColumnSizes = malloc(sizeof(int[capacity]));
+    MyLinkedListQueue *queue = myQueueCreate();
+    if (root != NULL) {
+        myQueuePush(queue, root);
+    }
+    while (!myQueueEmpty(queue)) {
+        int size = myQueueSize(queue);
+        int *level = malloc(sizeof(int[size]));
+        for (int i = 0; i < size; ++i) {
+            struct TreeNode *x = myQueuePop(queue);
+            level[i] = x->val;
+            struct TreeNode *left = x->left;
+            if (left != NULL) {
+                myQueuePush(queue, left);
+            }
+            struct TreeNode *right = x->right;
+            if (right != NULL) {
+                myQueuePush(queue, right);
+            }
+        }
+        if (*returnSize == capacity) {
+            capacity *= 2;
+            ans = realloc(ans, sizeof(int *) * capacity);
+            *returnColumnSizes = realloc(*returnColumnSizes, sizeof(int[capacity]));
+        }
+        ans[*returnSize] = level;
+        (*returnColumnSizes)[(*returnSize)++] = size;
+    }
+    myQueueFree(queue);
+    for (int i = 0, j = *returnSize - 1; i < j; ++i, --j) {
+        int *temp1 = ans[i];
+        ans[i] = ans[j];
+        ans[j] = temp1;
+        int temp2 = (*returnColumnSizes)[i];
+        (*returnColumnSizes)[i] = (*returnColumnSizes)[j];
+        (*returnColumnSizes)[j] = temp2;
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391407366/
 ```
 
 ## 108. 将有序数组转换为二叉搜索树
@@ -2951,7 +3284,23 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/>
 
 ```c
+// 将有序数组 nums[lo..hi] 转换为二叉搜索树
+struct TreeNode *sortedArrayToBSTRange(const int *nums, int lo, int hi) {
+    if (lo > hi) {
+        return NULL;
+    }
+    int mid = lo + (hi - lo) / 2;
+    struct TreeNode *root = malloc(sizeof(struct TreeNode));
+    root->val = nums[mid];
+    root->left = sortedArrayToBSTRange(nums, lo, mid - 1);
+    root->right = sortedArrayToBSTRange(nums, mid + 1, hi);
+    return root;
+}
 
+struct TreeNode *sortedArrayToBST(const int *nums, int numsSize) {
+    return sortedArrayToBSTRange(nums, 0, numsSize - 1);
+}
+// https://leetcode.cn/submissions/detail/389152259/
 ```
 
 ## 110. 平衡二叉树
@@ -2959,7 +3308,26 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode.cn/problems/balanced-binary-tree/>
 
 ```c
+bool balanced;
 
+int height(struct TreeNode *root) {
+    if (root == NULL) {
+        return -1;
+    }
+    int left = height(root->left);
+    int right = height(root->right);
+    if (abs(left - right) > 1) {
+        balanced = false;
+    }
+    return 1 + fmax(left, right);
+}
+
+bool isBalanced(struct TreeNode *root) {
+    balanced = true;
+    height(root);
+    return balanced;
+}
+// https://leetcode.cn/submissions/detail/391163480/
 ```
 
 ## 111. 二叉树的最小深度
@@ -2967,7 +3335,139 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode.cn/problems/minimum-depth-of-binary-tree/>
 
 ```c
+static const int MAXSIZE = 100000;
 
+int minDepth(struct TreeNode *root) {
+    struct TreeNode **queue = malloc(sizeof(struct TreeNode *) * MAXSIZE);
+    int first = 0, last = 0;
+    if (root != NULL) {
+        queue[last++] = root;
+    }
+    int depth = 0;
+    while (first < last) {
+        ++depth;
+        int n = last - first;
+        for (int i = 0; i < n; ++i) {
+            struct TreeNode *x = queue[first++];
+            struct TreeNode *left = x->left;
+            struct TreeNode *right = x->right;
+            if (left == NULL && right == NULL) {
+                return depth;
+            }
+            if (left != NULL) {
+                queue[last++] = left;
+            }
+            if (right != NULL) {
+                queue[last++] = right;
+            }
+        }
+    }
+    free(queue);
+    return depth;
+}
+// https://leetcode.cn/submissions/detail/391289096/
+```
+
+```c
+typedef struct TreeNode *Value;
+
+struct MyListNode {
+    Value val;
+    struct MyListNode *next;
+};
+
+typedef struct {
+    struct MyListNode *first;
+    struct MyListNode *last;
+    int size;
+} MyLinkedListQueue;
+
+MyLinkedListQueue *myQueueCreate() {
+    MyLinkedListQueue *obj = malloc(sizeof(MyLinkedListQueue));
+    obj->first = NULL;
+    obj->last = NULL;
+    obj->size = 0;
+    return obj;
+}
+
+void myQueuePush(MyLinkedListQueue *obj, Value val) {
+    struct MyListNode *x = malloc(sizeof(struct MyListNode));
+    x->val = val;
+    x->next = NULL;
+    if (obj->size == 0) {
+        obj->first = x;
+        obj->last = x;
+    } else {
+        obj->last->next = x;
+        obj->last = x;
+    }
+    obj->size++;
+}
+
+Value myQueuePop(MyLinkedListQueue *obj) {
+    Value val = obj->first->val;
+    struct MyListNode *x = obj->first;
+    if (obj->size == 1) {
+        obj->first = NULL;
+        obj->last = NULL;
+    } else {
+        obj->first = obj->first->next;
+    }
+    free(x);
+    obj->size--;
+    return val;
+}
+
+Value myQueuePeek(MyLinkedListQueue *obj) {
+    return obj->first->val;
+}
+
+int myQueueSize(MyLinkedListQueue *obj) {
+    return obj->size;
+}
+
+bool myQueueEmpty(MyLinkedListQueue *obj) {
+    return obj->size == 0;
+}
+
+void myQueueFree(MyLinkedListQueue *obj) {
+    struct MyListNode *p = obj->first;
+    while (p != NULL) {
+        struct MyListNode *x = p;
+        p = p->next;
+        free(x);
+    }
+    free(obj);
+}
+
+int minDepth(struct TreeNode *root) {
+    MyLinkedListQueue *queue = myQueueCreate();
+    if (root != NULL) {
+        myQueuePush(queue, root);
+    }
+    int depth = 0;
+    while (!myQueueEmpty(queue)) {
+        ++depth;
+        int n = myQueueSize(queue);
+        for (int i = 0; i < n; ++i) {
+            struct TreeNode *x = myQueuePop(queue);
+            struct TreeNode *left = x->left;
+            struct TreeNode *right = x->right;
+            if (left == NULL && right == NULL) {
+                return depth;
+            }
+            if (left != NULL) {
+                myQueuePush(queue, left);
+            }
+            if (right != NULL) {
+                myQueuePush(queue, right);
+            }
+        }
+    }
+    myQueueFree(queue);
+    return depth;
+}
+// https://leetcode.cn/submissions/detail/391407645/
 ```
 
 ## 112. 路径总和
@@ -2975,7 +3475,17 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode.cn/problems/path-sum/>
 
 ```c
-
+bool hasPathSum(struct TreeNode *root, int targetSum) {
+    if (root == NULL) {
+        return false;
+    }
+    if (root->left == NULL && root->right == NULL) {
+        return root->val == targetSum;
+    }
+    return hasPathSum(root->left, targetSum - root->val) ||
+           hasPathSum(root->right, targetSum - root->val);
+}
+// https://leetcode.cn/submissions/detail/390331714/
 ```
 
 ## 114. 二叉树展开为链表
@@ -2983,7 +3493,23 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode.cn/problems/flatten-binary-tree-to-linked-list/>
 
 ```c
-
+void flatten(struct TreeNode *root) {
+    if (root == NULL) {
+        return;
+    }
+    flatten(root->left);
+    flatten(root->right);
+    struct TreeNode *left = root->left;
+    struct TreeNode *right = root->right;
+    root->left = NULL;
+    root->right = left;
+    struct TreeNode *ptr = root;
+    while (ptr->right != NULL) {
+        ptr = ptr->right;
+    }
+    ptr->right = right;
+}
+// https://leetcode.cn/submissions/detail/390002505/
 ```
 
 ## 116. 填充每个节点的下一个右侧节点指针
@@ -2999,7 +3525,22 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/>
 
 ```c
-
+int maxProfit(int *prices, int pricesSize) {
+    // dp[i][0] = 第 i 天，空仓状态下的最大利润
+    // dp[i][1] = 第 i 天，持仓状态下的最大利润
+    int dp[pricesSize][2];
+    dp[0][0] = 0;
+    dp[0][1] = -prices[0];
+    for (int i = 1; i < pricesSize; ++i) {
+        // dp[i - 1][0]             >= -prices[i]
+        // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+        // => dp[i][0] >= dp[i][1]
+        dp[i][0] = fmax(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+        dp[i][1] = fmax(-prices[i], dp[i - 1][1]);
+    }
+    return dp[pricesSize - 1][0];
+}
+// https://leetcode.cn/submissions/detail/390320586/
 ```
 
 ## 122. 买卖股票的最佳时机 II
@@ -3007,7 +3548,22 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/>
 
 ```c
-
+int maxProfit(int *prices, int pricesSize) {
+    // dp[i][0] = 第 i 天，空仓状态下的最大利润
+    // dp[i][1] = 第 i 天，持仓状态下的最大利润
+    int dp[pricesSize][2];
+    dp[0][0] = 0;
+    dp[0][1] = -prices[0];
+    for (int i = 1; i < pricesSize; ++i) {
+        // dp[i - 1][0]             >= dp[i - 1][0] - prices[i]
+        // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+        // => dp[i][0] >= dp[i][1]
+        dp[i][0] = fmax(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+        dp[i][1] = fmax(dp[i - 1][0] - prices[i], dp[i - 1][1]);
+    }
+    return dp[pricesSize - 1][0];
+}
+// https://leetcode.cn/submissions/detail/390321320/
 ```
 
 ## 123. 买卖股票的最佳时机 III
@@ -3015,7 +3571,39 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iii/>
 
 ```c
+int maxProfitK(int k, int *prices, int pricesSize) {
+    if (k <= 0 || pricesSize <= 1) {
+        return 0;
+    }
+    // dp[t][i][0] = 交易次数限制为 t 时，第 i 天，空仓状态下的最大利润
+    // dp[t][i][1] = 交易次数限制为 t 时，第 i 天，持仓状态下的最大利润
+    int dp[k + 1][pricesSize][2];
+    // 交易次数限制为 0 时
+    // 填写第 0 个 pricesSize x 2 矩阵
+    for (int i = 0; i < pricesSize; ++i) {
+        dp[0][i][0] = 0;
+        dp[0][i][1] = INT_MIN;
+    }
+    // 交易次数限制为 [1..k] 时
+    for (int t = 1; t <= k; ++t) {
+        // 填写第 t 个 pricesSize x 2 矩阵
+        dp[t][0][0] = 0;
+        dp[t][0][1] = -prices[0];
+        for (int i = 1; i < pricesSize; ++i) {
+            // dp[t][i - 1][0]             >= dp[t - 1][i - 1][0] - prices[i]
+            // dp[t][i - 1][1] + prices[i] >= dp[t][i - 1][1]
+            // => dp[t][i][0] >= dp[t][i][1]
+            dp[t][i][0] = fmax(dp[t][i - 1][0], dp[t][i - 1][1] + prices[i]);
+            dp[t][i][1] = fmax(dp[t - 1][i - 1][0] - prices[i], dp[t][i - 1][1]);
+        }
+    }
+    return dp[k][pricesSize - 1][0];
+}
 
+int maxProfit(int *prices, int pricesSize) {
+    return maxProfitK(2, prices, pricesSize);
+}
+// https://leetcode.cn/submissions/detail/390324243/
 ```
 
 ## 125. 验证回文串
@@ -3023,7 +3611,30 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode.cn/problems/valid-palindrome/>
 
 ```c
-
+bool isPalindrome(char *s) {
+    int n = strlen(s);
+    int i = -1, j = n;
+    while (true) {
+        while (!isalnum(s[++i])) {
+            if (i == n - 1) {
+                break;
+            }
+        }
+        while (!isalnum(s[--j])) {
+            if (j == 0) {
+                break;
+            }
+        }
+        if (i >= j) {
+            break;
+        }
+        if (tolower(s[i]) != tolower(s[j])) {
+            return false;
+        }
+    }
+    return true;
+}
+// https://leetcode.cn/submissions/detail/390150971/
 ```
 
 ## 128. 最长连续序列
@@ -3031,7 +3642,57 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode.cn/problems/longest-consecutive-sequence/>
 
 ```c
+typedef struct {
+    int key;
+    UT_hash_handle hh;
+} HashSetItem;
 
+int longestConsecutive(int *nums, int numsSize) {
+    int ans = 0;
+    HashSetItem *set = NULL;
+    for (int i = 0; i < numsSize; ++i) {
+        HashSetItem *item;
+        HASH_FIND_INT(set, &nums[i], item);
+        if (item == NULL) {
+            item = malloc(sizeof(HashSetItem));
+            item->key = nums[i];
+            HASH_ADD_INT(set, key, item);
+        }
+    }
+    for (int i = 0; i < numsSize; ++i) {
+        HashSetItem *item;
+        HASH_FIND_INT(set, &nums[i], item);
+        if (item != NULL) {
+            HASH_DEL(set, item);
+            free(item);
+            int lo = nums[i] - 1;
+            HASH_FIND_INT(set, &lo, item);
+            while (item != NULL) {
+                HASH_DEL(set, item);
+                free(item);
+                --lo;
+                HASH_FIND_INT(set, &lo, item);
+            }
+            int hi = nums[i] + 1;
+            HASH_FIND_INT(set, &hi, item);
+            while (item != NULL) {
+                HASH_DEL(set, item);
+                free(item);
+                ++hi;
+                HASH_FIND_INT(set, &hi, item);
+            }
+            ans = fmax(ans, hi - lo - 1);
+        }
+    }
+    HashSetItem *cur, *tmp;
+    HASH_ITER(hh, set, cur, tmp) {
+        HASH_DEL(set, cur);
+        free(cur);
+    }
+    HASH_CLEAR(hh, set);
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/391280643/
 ```
 
 ## 130. 被围绕的区域
@@ -3039,7 +3700,64 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode.cn/problems/surrounded-regions/>
 
 ```c
+static const char LAND = 'O';
+static const char WATER = 'X';
 
+bool mark;
+int *recovery;
+int recoverySize;
+int recoveryCapacity;
+
+void floodFill(char **grid, int gridSize, int *gridColSize, int row, int col) {
+    if (row < 0 || row >= gridSize || col < 0 || col >= *gridColSize || grid[row][col] == WATER) {
+        return;
+    }
+    if (mark) {
+        if (recoverySize == recoveryCapacity) {
+            recoveryCapacity *= 2;
+            recovery = realloc(recovery, sizeof(int[recoveryCapacity]));
+        }
+        recovery[recoverySize++] = row * (*gridColSize) + col;
+    }
+    grid[row][col] = WATER;
+    floodFill(grid, gridSize, gridColSize, row, col + 1);
+    floodFill(grid, gridSize, gridColSize, row, col - 1);
+    floodFill(grid, gridSize, gridColSize, row + 1, col);
+    floodFill(grid, gridSize, gridColSize, row - 1, col);
+}
+
+void solve(char **grid, int gridSize, int *gridColSize) {
+    int m = gridSize, n = *gridColSize;
+    recoverySize = 0;
+    recoveryCapacity = 8;
+    recovery = malloc(sizeof(int[recoveryCapacity]));
+    mark = true;
+    // 淹没与左右边界的陆地相连的岛屿
+    for (int row = 0; row < m; ++row) {
+        floodFill(grid, gridSize, gridColSize, row, 0);
+        floodFill(grid, gridSize, gridColSize, row, n - 1);
+    }
+    // 淹没与上下边界的陆地相连的岛屿
+    for (int col = 0; col < n; ++col) {
+        floodFill(grid, gridSize, gridColSize, 0, col);
+        floodFill(grid, gridSize, gridColSize, m - 1, col);
+    }
+    mark = false;
+    for (int row = 0; row < m; ++row) {
+        for (int col = 0; col < n; ++col) {
+            if (grid[row][col] == LAND) {
+                floodFill(grid, gridSize, gridColSize, row, col);
+            }
+        }
+    }
+    for (int i = 0; i < recoverySize; ++i) {
+        int row = recovery[i] / n;
+        int col = recovery[i] % n;
+        grid[row][col] = LAND;
+    }
+    free(recovery);
+}
+// https://leetcode.cn/submissions/detail/391344274/
 ```
 
 ## 136. 只出现一次的数字
@@ -3047,7 +3765,14 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode.cn/problems/single-number/>
 
 ```c
-
+int singleNumber(const int *nums, int numsSize) {
+    int ans = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        ans ^= nums[i];
+    }
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/388266983/
 ```
 
 ## 141. 环形链表
@@ -3055,7 +3780,19 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 <https://leetcode-cn.com/problems/linked-list-cycle/>
 
 ```c
-
+bool hasCycle(struct ListNode *head) {
+    struct ListNode *slow = head;
+    struct ListNode *fast = head;
+    while (fast != NULL && fast->next != NULL) {
+        slow = slow->next;
+        fast = fast->next->next;
+        if (slow == fast) {
+            return true;
+        }
+    }
+    return false;
+}
+// https://leetcode.cn/submissions/detail/388496398/
 ```
 
 ## 142. 环形链表 II
