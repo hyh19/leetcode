@@ -3197,7 +3197,27 @@ class Solution {
 <https://leetcode.cn/problems/unique-binary-search-trees/>
 
 ```java
+class Solution {
+    Map<Integer, Integer> memo = new HashMap<>();
 
+    public int numTrees(int n) {
+        if (n == 0) {
+            memo.put(0, 1);
+            return 1;
+        }
+
+        if (memo.get(n) != null) return memo.get(n);
+
+        int sum = 0;
+        for (int i = 1; i <= n; i++) {
+            sum += numTrees(i - 1) * numTrees(n - i);
+        }
+        memo.put(n, sum);
+
+        return sum;
+    }
+}
+// https://leetcode.cn/submissions/detail/323108919/
 ```
 
 ## 98. 验证二叉搜索树
@@ -3205,7 +3225,83 @@ class Solution {
 <https://leetcode.cn/problems/validate-binary-search-tree/>
 
 ```java
+class Solution {
+    private boolean ans = true;
 
+    public boolean isValidBST(TreeNode root) {
+        checkLowerAndUpperBound(root, Long.MIN_VALUE, Long.MAX_VALUE);
+        return ans;
+    }
+
+    // 检查二叉树是否在区间 (lower, upper) 内，递归过程中确定是否满足二叉搜索树的性质
+    private boolean checkLowerAndUpperBound(TreeNode root, long lower, long upper) {
+        if (root == null) {
+            return true;
+        }
+        if (root.val <= lower || root.val >= upper) {
+            ans = false;
+            return false;
+        }
+        return checkLowerAndUpperBound(root.left, lower, root.val) && checkLowerAndUpperBound(root.right, root.val, upper);
+    }
+}
+// https://leetcode.cn/submissions/detail/365895525/
+```
+
+```java
+class Solution {
+    private boolean ans = true;
+
+    public boolean isValidBST(TreeNode root) {
+        getMinAndMaxValue(root);
+        return ans;
+    }
+
+    // 返回二叉树的最小值和最大值
+    private long[] getMinAndMaxValue(TreeNode root) {
+        if (root == null) {
+            return new long[]{Long.MAX_VALUE, Long.MIN_VALUE};
+        }
+        long[] left = getMinAndMaxValue(root.left);
+        long[] right = getMinAndMaxValue(root.right);
+        long leftMin = left[0], leftMax = left[1];
+        long rightMin = right[0], rightMax = right[1];
+        // max(root.left) < root.val < min(root.right)
+        if (!(leftMax < root.val && root.val < rightMin)) {
+            ans = false;
+        }
+        long min = Math.min(root.val, Math.min(leftMin, rightMin));
+        long max = Math.max(root.val, Math.max(leftMax, rightMax));
+        return new long[]{min, max};
+    }
+}
+// https://leetcode.cn/submissions/detail/365893835/
+```
+
+```java
+class Solution {
+    private boolean ans = true;
+    private TreeNode ptr = null;
+
+    public boolean isValidBST(TreeNode root) {
+        dfs(root);
+        return ans;
+    }
+
+    private void dfs(TreeNode root) {
+        if (root == null) {
+            return;
+        }
+        dfs(root.left);
+        if (ptr != null && root.val <= ptr.val) {
+            ans = false;
+            return;
+        }
+        ptr = root;
+        dfs(root.right);
+    }
+}
+// https://leetcode.cn/submissions/detail/365896812/
 ```
 
 ## 100. 相同的树
@@ -3213,7 +3309,42 @@ class Solution {
 <https://leetcode.cn/problems/same-tree/>
 
 ```java
+class Solution {
+    public boolean isSameTree(TreeNode p, TreeNode q) {
+        if (p == null && q == null) {
+            return true;
+        }
+        if (p == null || q == null || p.val != q.val) {
+            return false;
+        }
+        return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
+    }
+}
+// https://leetcode.cn/submissions/detail/364421959/
+```
 
+```java
+class Solution {
+    private boolean ans = true;
+
+    public boolean isSameTree(TreeNode p, TreeNode q) {
+        dfs(p, q);
+        return ans;
+    }
+
+    private void dfs(TreeNode p, TreeNode q) {
+        if (p == null && q == null) {
+            return;
+        }
+        if (p == null || q == null || p.val != q.val) {
+            ans = false;
+            return;
+        }
+        dfs(p.left, q.left);
+        dfs(p.right, q.right);
+    }
+}
+// https://leetcode.cn/submissions/detail/364420203/
 ```
 
 ## 102. 二叉树的层序遍历
@@ -3221,7 +3352,58 @@ class Solution {
 <https://leetcode.cn/problems/binary-tree-level-order-traversal/>
 
 ```java
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        List<List<Integer>> ans = new LinkedList();
+        Deque<TreeNode> queue = new LinkedList();
+        if (root != null) {
+            queue.addLast(root);
+        }
+        while (!queue.isEmpty()) {
+            List<Integer> level = new LinkedList();
+            int sz = queue.size();
+            for (int i = 0; i < sz; ++i) {
+                TreeNode x = queue.removeFirst();
+                level.add(x.val);
+                TreeNode left = x.left;
+                if (left != null) {
+                    queue.addLast(left);
+                }
+                TreeNode right = x.right;
+                if (right != null) {
+                    queue.addLast(right);
+                }
+            }
+            ans.add(level);
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/368730913/
+```
 
+```java
+class Solution {
+    private List<List<Integer>> ans = new LinkedList();
+
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        dfs(root, 0);
+        return ans;
+    }
+
+    private void dfs(TreeNode root, int depth) {
+        if (root == null) {
+            return;
+        }
+        if (ans.size() == depth) {
+            ans.add(new LinkedList<Integer>());
+        }
+        ans.get(depth).add(root.val);
+        dfs(root.left, depth + 1);
+        dfs(root.right, depth + 1);
+    }
+}
+// https://leetcode.cn/submissions/detail/365906248/
 ```
 
 ## 103. 二叉树的锯齿形层序遍历
@@ -3229,7 +3411,71 @@ class Solution {
 <https://leetcode-cn.com/problems/binary-tree-zigzag-level-order-traversal/>
 
 ```java
+class Solution {
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+        List<List<Integer>> ans = new LinkedList();
+        Deque<TreeNode> queue = new LinkedList();
+        if (root != null) {
+            queue.addLast(root);
+        }
+        boolean reverse = false;
+        while (!queue.isEmpty()) {
+            int sz = queue.size();
+            List<Integer> level = new LinkedList();
+            for (int i = 0; i < sz; ++i) {
+                TreeNode x = queue.removeFirst();
+                if (reverse) {
+                    level.add(0, x.val);
+                } else {
+                    level.add(x.val);
+                }
+                TreeNode left = x.left;
+                if (left != null) {
+                    queue.addLast(left);
+                }
+                TreeNode right = x.right;
+                if (right != null) {
+                    queue.addLast(right);
+                }
+            }
+            reverse = !reverse;
+            ans.add(level);
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/361391543/
+```
 
+```java
+class Solution {
+    private List<List<Integer>> ans = new LinkedList();
+
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+        dfs(root, 0);
+        boolean reverse = false;
+        for (List<Integer> list : ans) {
+            if (reverse) {
+                Collections.reverse(list);
+            }
+            reverse = !reverse;
+        }
+        return ans;
+    }
+
+    private void dfs(TreeNode root, int depth) {
+        if (root == null) {
+            return;
+        }
+        if (ans.size() == depth) {
+            ans.add(new LinkedList<Integer>());
+        }
+        ans.get(depth).add(root.val);
+        dfs(root.left, depth + 1);
+        dfs(root.right, depth + 1);
+    }
+}
+// https://leetcode.cn/submissions/detail/365907568/
 ```
 
 ## 104. 二叉树的最大深度
@@ -3237,7 +3483,100 @@ class Solution {
 <https://leetcode.cn/problems/maximum-depth-of-binary-tree/>
 
 ```java
+class Solution {
+    public int maxDepth(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
+    }
+}
+// https://leetcode.cn/submissions/detail/361397472/
+```
 
+```java
+class Solution {
+    public int maxDepth(TreeNode root) {
+        int ans = 0;
+        Deque<TreeNode> queue = new LinkedList();
+        if (root != null) {
+            queue.offer(root);
+        }
+        while (!queue.isEmpty()) {
+            ++ans;
+            int sz = queue.size();
+            for (int i = 0; i < sz; ++i) {
+                TreeNode x = queue.poll();
+                TreeNode left = x.left;
+                if (left != null) {
+                    queue.offer(left);
+                }
+                TreeNode right = x.right;
+                if (right != null) {
+                    queue.offer(right);
+                }
+            }
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/361402271/
+```
+
+```java
+class Solution {
+    private int path = 0;
+    private int ans = 0;
+
+    public int maxDepth(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        path = 1;
+        backtrack(root);
+        return ans;
+    }
+
+    private void backtrack(TreeNode root) {
+        TreeNode left = root.left, right = root.right;
+        if (left == null && right == null) {
+            ans = Math.max(ans, path);
+            return;
+        }
+        if (left != null) {
+            ++path;
+            backtrack(left);
+            --path;
+        }
+        if (right != null) {
+            ++path;
+            backtrack(right);
+            --path;
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/361398423/
+```
+
+```java
+class Solution {
+    private int ans = 0;
+
+    public int maxDepth(TreeNode root) {
+        dfs(root, 1);
+        return ans;
+    }
+
+    private void dfs(TreeNode root, int depth) {
+        if (root == null) {
+            return;
+        }
+        ans = Math.max(ans, depth);
+        dfs(root.left, depth + 1);
+        dfs(root.right, depth + 1);
+    }
+}
+// https://leetcode.cn/submissions/detail/361397756/
 ```
 
 ## 105. 从前序与中序遍历序列构造二叉树
@@ -3245,7 +3584,30 @@ class Solution {
 <https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/>
 
 ```java
+class Solution {
+    private Map<Integer, Integer> valToIndex = new HashMap();
 
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        for (int i = 0; i < inorder.length; ++i) {
+            valToIndex.put(inorder[i], i);
+        }
+        return buildTree(preorder, 0, preorder.length - 1, inorder, 0, inorder.length - 1);
+    }
+
+    private TreeNode buildTree(int[] preorder, int preStart, int preEnd, int[] inorder, int inStart, int inEnd) {
+        if (preStart > preEnd) {
+            return null;
+        }
+        int rootVal = preorder[preStart];
+        TreeNode root = new TreeNode(rootVal);
+        int index = valToIndex.get(rootVal);
+        int leftSize = index - inStart;
+        root.left = buildTree(preorder, preStart + 1, preStart + leftSize, inorder, inStart, index - 1);
+        root.right = buildTree(preorder, preStart + leftSize + 1, preEnd, inorder, index + 1, inEnd);
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/361434402/
 ```
 
 ## 106. 从中序与后序遍历序列构造二叉树
@@ -3253,7 +3615,37 @@ class Solution {
 <https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/>
 
 ```java
+class Solution {
+    private Map<Integer, Integer> valToIndex = new HashMap();
 
+    public TreeNode buildTree(int[] inorder, int[] postorder) {
+        for (int i = 0; i < inorder.length; ++i) {
+            valToIndex.put(inorder[i], i);
+        }
+        return buildTree(inorder, 0, inorder.length - 1,
+                postorder, 0, postorder.length - 1);
+    }
+
+    private TreeNode buildTree(int[] inorder, int inStart, int inEnd,
+                               int[] postorder, int postStart, int postEnd) {
+        if (postStart > postEnd) {
+            return null;
+        }
+        int rootVal = postorder[postEnd];
+        TreeNode root = new TreeNode(rootVal);
+        if (postStart == postEnd) {
+            return root;
+        }
+        int index = valToIndex.get(rootVal);
+        int leftSize = index - inStart;
+        root.left = buildTree(inorder, inStart, index - 1,
+                postorder, postStart, postStart + leftSize - 1);
+        root.right = buildTree(inorder, index + 1, inEnd,
+                postorder, postStart + leftSize, postEnd - 1);
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/364292845/
 ```
 
 ## 107. 二叉树的层序遍历 II
@@ -3261,7 +3653,32 @@ class Solution {
 <https://leetcode-cn.com/problems/binary-tree-level-order-traversal-ii/>
 
 ```java
-
+class Solution {
+    public List<List<Integer>> levelOrderBottom(TreeNode root) {
+        List<List<Integer>> ans = new LinkedList<>();
+        Deque<TreeNode> queue = new LinkedList<>();
+        if (root != null) {
+            queue.addLast(root);
+        }
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            List<Integer> level = new LinkedList<>();
+            for (int i = 1; i <= size; ++i) {
+                TreeNode x = queue.removeFirst();
+                level.add(x.val);
+                if (x.left != null) {
+                    queue.addLast(x.left);
+                }
+                if (x.right != null) {
+                    queue.addLast(x.right);
+                }
+            }
+            ans.add(0, level);
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/347797934/
 ```
 
 ## 108. 将有序数组转换为二叉搜索树
@@ -3269,7 +3686,24 @@ class Solution {
 <https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/>
 
 ```java
+class Solution {
+    public TreeNode sortedArrayToBST(int[] nums) {
+        return sortedArrayToBST(nums, 0, nums.length - 1);
+    }
 
+    // 将有序数组 nums[lo..hi] 转换为二叉搜索树
+    private TreeNode sortedArrayToBST(int[] nums, int lo, int hi) {
+        if (lo > hi) {
+            return null;
+        }
+        int mid = lo + (hi - lo) / 2;
+        TreeNode root = new TreeNode(nums[mid]);
+        root.left = sortedArrayToBST(nums, lo, mid - 1);
+        root.right = sortedArrayToBST(nums, mid + 1, hi);
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/362435531/
 ```
 
 ## 110. 平衡二叉树
@@ -3277,7 +3711,27 @@ class Solution {
 <https://leetcode.cn/problems/balanced-binary-tree/>
 
 ```java
+class Solution {
+    private boolean ans = true;
 
+    public boolean isBalanced(TreeNode root) {
+        height(root);
+        return ans;
+    }
+
+    private int height(TreeNode root) {
+        if (root == null) {
+            return -1;
+        }
+        int left = height(root.left);
+        int right = height(root.right);
+        if (Math.abs(left - right) > 1) {
+            ans = false;
+        }
+        return 1 + Math.max(left, right);
+    }
+}
+// https://leetcode.cn/submissions/detail/365986983/
 ```
 
 ## 111. 二叉树的最小深度
@@ -3285,7 +3739,29 @@ class Solution {
 <https://leetcode.cn/problems/minimum-depth-of-binary-tree/>
 
 ```java
+class Solution {
+    public int minDepth(TreeNode root) {
+        return bfs(root);
+    }
 
+    private int bfs(TreeNode root) {
+        int minDepth = 0;
+        Deque<TreeNode> queue = new LinkedList<TreeNode>();
+        if (root != null) queue.addLast(root);
+        while (!queue.isEmpty()) {
+            minDepth++;
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.removeFirst();
+                if (node.left == null && node.right == null) return minDepth;
+                if (node.left != null) queue.addLast(node.left);
+                if (node.right != null) queue.addLast(node.right);
+            }
+        }
+        return minDepth;
+    }
+}
+// https://leetcode.cn/submissions/detail/343765289/
 ```
 
 ## 112. 路径总和
@@ -3293,7 +3769,123 @@ class Solution {
 <https://leetcode.cn/problems/path-sum/>
 
 ```java
+class Solution {
+    public boolean hasPathSum(TreeNode root, int targetSum) {
+        if (root == null) {
+            return false;
+        }
+        if (root.left == null && root.right == null) {
+            return root.val == targetSum;
+        }
+        return hasPathSum(root.left, targetSum - root.val) || hasPathSum(root.right, targetSum - root.val);
+    }
+}
+// https://leetcode.cn/submissions/detail/366300863/
+```
 
+```java
+class Solution {
+    private int targetSum;
+    private int pathSum = 0;
+    private boolean ans = false;
+
+    public boolean hasPathSum(TreeNode root, int targetSum) {
+        this.targetSum = targetSum;
+        if (root != null) {
+            pathSum += root.val;
+            backtrack(root);
+            pathSum -= root.val;
+        }
+        return ans;
+    }
+
+    private void backtrack(TreeNode root) {
+        TreeNode left = root.left, right = root.right;
+        if (left == null && right == null && pathSum == targetSum) {
+            ans = true;
+        }
+        if (left != null) {
+            pathSum += left.val;
+            backtrack(left);
+            pathSum -= left.val;
+        }
+        if (right != null) {
+            pathSum += right.val;
+            backtrack(right);
+            pathSum -= right.val;
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/366297511/
+```
+
+```java
+class Solution {
+    private int targetSum;
+    private int pathSum = 0;
+    private boolean ans = false;
+
+    public boolean hasPathSum(TreeNode root, int targetSum) {
+        this.targetSum = targetSum;
+        dfs(root);
+        return ans;
+    }
+
+    private void dfs(TreeNode root) {
+        if (root == null) {
+            return;
+        }
+        pathSum += root.val;
+        if (root.left == null && root.right == null && pathSum == targetSum) {
+            ans = true;
+        }
+        dfs(root.left);
+        dfs(root.right);
+        pathSum -= root.val;
+    }
+}
+// https://leetcode.cn/submissions/detail/366300496/
+```
+
+```java
+class Solution {
+    private int targetSum;
+    private boolean ans;
+    
+    public boolean hasPathSum(TreeNode root, int targetSum) {
+        this.targetSum = targetSum;
+        bfs(root);
+        return ans;
+    }
+
+    private void bfs(TreeNode root) {
+        Deque<TreeNode> queue = new LinkedList();
+        Map<TreeNode, Integer> map = new HashMap();
+        if (root != null) {
+            queue.addLast(root);
+            map.put(root, root.val);
+        }
+        while (!queue.isEmpty()) {
+            TreeNode x = queue.removeFirst();
+            int pathSum = map.get(x);
+            if (x.left == null && x.right == null && pathSum == targetSum) {
+                ans = true;
+                break;
+            }
+            TreeNode left = x.left;
+            if (left != null) {
+                queue.addLast(left);
+                map.put(left, pathSum + left.val);
+            }
+            TreeNode right = x.right;
+            if (right != null) {
+                queue.addLast(right);
+                map.put(right, pathSum + right.val);
+            }
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/366302345/
 ```
 
 ## 114. 二叉树展开为链表
@@ -3301,7 +3893,54 @@ class Solution {
 <https://leetcode.cn/problems/flatten-binary-tree-to-linked-list/>
 
 ```java
+class Solution {
+    public void flatten(TreeNode root) {
+        if (root == null) {
+            return;
+        }
+        TreeNode left = root.left;
+        TreeNode right = root.right;
+        root.left = null;
+        root.right = null;
+        flatten(left);
+        flatten(right);
+        root.right = left;
+        TreeNode ptr = root;
+        while (ptr.right != null) {
+            ptr = ptr.right;
+        }
+        ptr.right = right;
+    }
+}
+// https://leetcode.cn/submissions/detail/364471466/
+```
 
+```java
+class Solution {
+    private TreeNode ptr;
+
+    public void flatten(TreeNode root) {
+        TreeNode dummyHead = new TreeNode();
+        ptr = dummyHead;
+        dfs(root);
+        root = dummyHead.right;
+    }
+
+    private void dfs(TreeNode root) {
+        if (root == null) {
+            return;
+        }
+        ptr.right = root;
+        ptr = ptr.right;
+        TreeNode left = root.left;
+        TreeNode right = root.right;
+        root.left = null;
+        root.right = null;
+        dfs(left);
+        dfs(right);
+    }
+}
+// https://leetcode.cn/submissions/detail/365648355/
 ```
 
 ## 116. 填充每个节点的下一个右侧节点指针
@@ -3309,7 +3948,22 @@ class Solution {
 <https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/>
 
 ```java
+class Solution {
+    public Node connect(Node root) {
+        if (root == null) return null;
+        connect(root.left, root.right);
+        return root;
+    }
 
+    private void connect(Node left, Node right) {
+        if (left == null || right == null) return;
+        left.next = right;
+        connect(left.left, left.right);
+        connect(left.right, right.left);
+        connect(right.left, right.right);
+    }
+}
+// https://leetcode.cn/submissions/detail/337336281/
 ```
 
 ## 121. 买卖股票的最佳时机
@@ -3317,7 +3971,25 @@ class Solution {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/>
 
 ```java
-
+class Solution {
+    public int maxProfit(int[] prices) {
+        int n = prices.length;
+        // dp[i][0] = 第 i 天，空仓状态下的最大利润
+        // dp[i][1] = 第 i 天，持仓状态下的最大利润
+        int[][] dp = new int[n][2];
+        dp[0][0] = 0;
+        dp[0][1] = -prices[0];
+        for (int i = 1; i < n; ++i) {
+            // dp[i - 1][0]             >= -prices[i]
+            // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+            // => dp[i][0] >= dp[i][1]
+            dp[i][0] = Math.max(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+            dp[i][1] = Math.max(-prices[i], dp[i - 1][1]);
+        }
+        return dp[n - 1][0];
+    }
+}
+// https://leetcode.cn/submissions/detail/365501682/
 ```
 
 ## 122. 买卖股票的最佳时机 II
@@ -3325,7 +3997,25 @@ class Solution {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/>
 
 ```java
-
+class Solution {
+    public int maxProfit(int[] prices) {
+        int n = prices.length;
+        // dp[i][0] = 第 i 天，空仓状态下的最大利润
+        // dp[i][1] = 第 i 天，持仓状态下的最大利润
+        int[][] dp = new int[n][2];
+        dp[0][0] = 0;
+        dp[0][1] = -prices[0];
+        for (int i = 1; i < n; ++i) {
+            // dp[i - 1][0]             >= dp[i - 1][0] - prices[i]
+            // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+            // => dp[i][0] >= dp[i][1]
+            dp[i][0] = Math.max(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+            dp[i][1] = Math.max(dp[i - 1][0] - prices[i], dp[i - 1][1]);
+        }
+        return dp[n - 1][0];
+    }
+}
+// https://leetcode.cn/submissions/detail/365502480/
 ```
 
 ## 123. 买卖股票的最佳时机 III
@@ -3333,7 +4023,43 @@ class Solution {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iii/>
 
 ```java
+class Solution {
+    public int maxProfit(int[] prices) {
+        return maxProfit(2, prices);
+    }
 
+    // 返回买卖股票的最大利润，交易次数限制为 k
+    private int maxProfit(int k, int[] prices) {
+        int n = prices.length;
+        if (k <= 0 || n <= 1) {
+            return 0;
+        }
+        // dp[t][i][0] = 交易次数限制为 t 时，第 i 天，空仓状态下的最大利润
+        // dp[t][i][1] = 交易次数限制为 t 时，第 i 天，持仓状态下的最大利润
+        int[][][] dp = new int[k + 1][n][2];
+        // 交易次数限制为 0 时
+        // 填写第 0 个 n x 2 矩阵
+        for (int i = 0; i < n; ++i) {
+            dp[0][i][0] = 0;
+            dp[0][i][1] = Integer.MIN_VALUE;
+        }
+        // 交易次数限制为 [1..k] 时
+        for (int t = 1; t <= k; ++t) {
+            // 填写第 t 个 n x 2 矩阵
+            dp[t][0][0] = 0;
+            dp[t][0][1] = -prices[0];
+            for (int i = 1; i < n; ++i) {
+                // dp[t][i - 1][0]             >= dp[t - 1][i - 1][0] - prices[i]
+                // dp[t][i - 1][1] + prices[i] >= dp[t][i - 1][1]
+                // => dp[t][i][0] >= dp[t][i][1]
+                dp[t][i][0] = Math.max(dp[t][i - 1][0], dp[t][i - 1][1] + prices[i]);
+                dp[t][i][1] = Math.max(dp[t - 1][i - 1][0] - prices[i], dp[t][i - 1][1]);
+            }
+        }
+        return dp[k][n - 1][0];
+    }
+}
+// https://leetcode.cn/submissions/detail/365508809/
 ```
 
 ## 125. 验证回文串
@@ -3341,7 +4067,32 @@ class Solution {
 <https://leetcode.cn/problems/valid-palindrome/>
 
 ```java
-
+class Solution {
+    public boolean isPalindrome(String s) {
+        int n = s.length();
+        int i = -1, j = n;
+        while (true) {
+            while (!Character.isLetterOrDigit(s.charAt(++i))) {
+                if (i == n - 1) {
+                    break;
+                }
+            }
+            while (!Character.isLetterOrDigit(s.charAt(--j))) {
+                if (j == 0) {
+                    break;
+                }
+            }
+            if (i >= j) {
+                break;
+            }
+            if (Character.toLowerCase(s.charAt(i)) != Character.toLowerCase(s.charAt(j))) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+// https://leetcode.cn/submissions/detail/363594350/
 ```
 
 ## 128. 最长连续序列
@@ -3349,7 +4100,31 @@ class Solution {
 <https://leetcode.cn/problems/longest-consecutive-sequence/>
 
 ```java
-
+class Solution {
+    public int longestConsecutive(int[] nums) {
+        int ans = 0;
+        Set<Integer> set = new HashSet(nums.length);
+        for (int x : nums) {
+            set.add(x);
+        }
+        for (int x : nums) {
+            if (set.contains(x)) {
+                set.remove(x);
+                int lo = x - 1;
+                while (set.contains(lo)) {
+                    set.remove(lo--);
+                }
+                int hi = x + 1;
+                while (set.contains(hi)) {
+                    set.remove(hi++);
+                }
+                ans = Math.max(ans, hi - lo - 1);
+            }
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/364668899/
 ```
 
 ## 130. 被围绕的区域
@@ -3357,7 +4132,61 @@ class Solution {
 <https://leetcode.cn/problems/surrounded-regions/>
 
 ```java
+// 1254. 统计封闭岛屿的数目
+// https://leetcode.cn/problems/number-of-closed-islands/
+class Solution {
+    private static final char LAND = 'O';
+    private static final char WATER = 'X';
+    private Set<Integer> memo = new HashSet();
+    private boolean record = false;
 
+    public void solve(char[][] board) {
+        char[][] grid = board;
+        int m = grid.length;
+        int n = grid[0].length;
+        record = true;
+        // 淹没与左右边界的陆地相连的岛屿
+        for (int i = 0; i < m; ++i) {
+            floodFill(grid, i, 0);
+            floodFill(grid, i, n - 1);
+        }
+        // 淹没与上下边界的陆地相连的岛屿
+        for (int j = 0; j < n; ++j) {
+            floodFill(grid, 0, j);
+            floodFill(grid, m - 1, j);
+        }
+        record = false;
+        // 淹没封闭岛屿
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (grid[i][j] == LAND) {
+                    floodFill(grid, i, j);
+                }
+            }
+        }
+        // 重建原来与边界陆地相连的岛屿
+        for (int x : memo) {
+            int i = x / n;
+            int j = x % n;
+            grid[i][j] = LAND;
+        }
+    }
+
+    private void floodFill(char[][] grid, int i, int j) {
+        if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length || grid[i][j] == WATER) {
+            return;
+        }
+        grid[i][j] = WATER;
+        if (record) {
+            memo.add(i * grid[0].length + j);
+        }
+        floodFill(grid, i, j + 1);
+        floodFill(grid, i, j - 1);
+        floodFill(grid, i + 1, j);
+        floodFill(grid, i - 1, j);
+    }
+}
+// https://leetcode.cn/submissions/detail/371999467/
 ```
 
 ## 136. 只出现一次的数字
@@ -3365,7 +4194,70 @@ class Solution {
 <https://leetcode.cn/problems/single-number/>
 
 ```java
+class Solution {
+    public int singleNumber(int[] nums) {
+        int ans = 0;
+        for (int x : nums) {
+            ans ^= x;
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/362944770/
+```
 
+```java
+class Solution {
+    public int singleNumber(int[] nums) {
+        Map<Integer, Integer> map = new HashMap();
+        for (int x : nums) {
+            map.put(x, map.getOrDefault(x, 0) + 1);
+        }
+        for (Map.Entry<Integer, Integer> e : map.entrySet()) {
+            if (e.getValue() == 1) {
+                return e.getKey();
+            }
+        }
+        return -1;
+    }
+}
+// https://leetcode.cn/submissions/detail/362946778/
+```
+
+```java
+class Solution {
+    public int singleNumber(int[] nums) {
+        Set<Integer> set = new HashSet();
+        for (int x : nums) {
+            if (set.contains(x)) {
+                set.remove(x);
+            } else {
+                set.add(x);
+            }
+        }
+        return set.iterator().next();
+    }
+}
+// https://leetcode.cn/submissions/detail/362933521/
+```
+
+```java
+class Solution {
+    public int singleNumber(int[] nums) {
+        int sumOfArray = 0;
+        int sumOfSet = 0;
+        Set<Integer> set = new HashSet();
+        for (int x : nums) {
+            sumOfArray += x;
+            if (!set.contains(x)) {
+                sumOfSet += x;
+                set.add(x);
+            }
+        }
+        return 2 * sumOfSet - sumOfArray;
+    }
+}
+// https://leetcode.cn/submissions/detail/362950898/
 ```
 
 ## 141. 环形链表
@@ -3373,7 +4265,35 @@ class Solution {
 <https://leetcode-cn.com/problems/linked-list-cycle/>
 
 ```java
+public class Solution {
+    public boolean hasCycle(ListNode head) {
+        ListNode slow = head, fast = head;
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+            if (slow == fast) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+// https://leetcode.cn/submissions/detail/361358454/
+```
 
+```java
+public class Solution {
+    public boolean hasCycle(ListNode head) {
+        Set<ListNode> set = new HashSet<>();
+        while (head != null) {
+            if (set.contains(head)) return true;
+            set.add(head);
+            head = head.next;
+        }
+        return false;
+    }
+}
+// https://leetcode.cn/submissions/detail/340594121/
 ```
 
 ## 142. 环形链表 II
@@ -3381,7 +4301,40 @@ class Solution {
 <https://leetcode-cn.com/problems/linked-list-cycle-ii/>
 
 ```java
+public class Solution {
+    public ListNode detectCycle(ListNode head) {
+        ListNode slow = head, fast = head;
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+            if (slow == fast) {
+                fast = head;
+                while (slow != fast) {
+                    slow = slow.next;
+                    fast = fast.next;
+                }
+                return slow;
+            }
+        }
+        return null;
+    }
+}
+// https://leetcode.cn/submissions/detail/364486781/
+```
 
+```java
+public class Solution {
+    public ListNode detectCycle(ListNode head) {
+        Set<ListNode> set = new HashSet<>();
+        while (head != null) {
+            if (set.contains(head)) return head;
+            set.add(head);
+            head = head.next;
+        }
+        return null;
+    }
+}
+// https://leetcode.cn/submissions/detail/340600928/
 ```
 
 ## 143. 重排链表
@@ -3389,7 +4342,128 @@ class Solution {
 <https://leetcode.cn/problems/reorder-list/>
 
 ```java
+class Solution {
+    public void reorderList(ListNode head) {
+        ListNode slow = head, fast = head;
+        while (fast.next != null && fast.next.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        ListNode x = slow.next;
+        slow.next = null;
+        ListNode reverseHead = reverseList(x);
+        ListNode dummyHead = new ListNode();
+        ListNode ptr = dummyHead;
+        while (head != null) {
+            if (head != null) {
+                ptr.next = head;
+                ptr = ptr.next;
+                head = head.next;
+            }
+            if (reverseHead != null) {
+                ptr.next = reverseHead;
+                ptr = ptr.next;
+                reverseHead = reverseHead.next;
+            }
+        }
+    }
 
+    private ListNode reverseList(ListNode head) {
+        ListNode reverseHead = null;
+        while (head != null) {
+            ListNode next = head.next;
+            head.next = reverseHead;
+            reverseHead = head;
+            head = next;
+        }
+        return reverseHead;
+    }
+}
+// https://leetcode.cn/submissions/detail/366437946/
+```
+
+```java
+class Solution {
+    public void reorderList(ListNode head) {
+        List<ListNode> array = new ArrayList();
+        while (head != null) {
+            ListNode next = head.next;
+            head.next = null;
+            array.add(head);
+            head = next;
+        }
+        head = new ListNode();
+        int left = 0, right = array.size() - 1;
+        while (left <= right) {
+            head.next = array.get(left);
+            head = head.next;
+            if (left == right) {
+                break;
+            }
+            head.next = array.get(right);
+            head = head.next;
+            ++left;
+            --right;
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/355978332/
+```
+
+```java
+class Solution {
+    public void reorderList(ListNode head) {
+        Deque<ListNode> queue = new LinkedList();
+        while (head != null) {
+            ListNode next = head.next;
+            head.next = null;
+            queue.addLast(head);
+            head = next;
+        }
+        head = new ListNode();
+        while (!queue.isEmpty()) {
+            head.next = queue.removeFirst();
+            head = head.next;
+            if (!queue.isEmpty()) {
+                head.next = queue.removeLast();
+                head = head.next;
+            }
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/355979163/
+```
+
+```java
+class Solution {
+    public void reorderList(ListNode head) {
+        ListNode mid = head, ptr = head;
+        while (ptr.next != null && ptr.next.next != null) {
+            mid = mid.next;
+            ptr = ptr.next.next;
+        }
+        Deque<ListNode> stack = new LinkedList();
+        ptr = mid.next;
+        mid.next = null;
+        while (ptr != null) {
+            ListNode next = ptr.next;
+            ptr.next = null;
+            stack.push(ptr);
+            ptr = next;
+        }
+        ptr = new ListNode();
+        while (head != null) {
+            ptr.next = head;
+            head = head.next;
+            ptr = ptr.next;
+            if (!stack.isEmpty()) {
+                ptr.next = stack.pop();
+                ptr = ptr.next;
+            }
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/355979942/
 ```
 
 ## 144. 二叉树的前序遍历
@@ -3397,7 +4471,99 @@ class Solution {
 <https://leetcode.cn/problems/binary-tree-preorder-traversal/>
 
 ```java
+class Solution {
+    private List<Integer> ans = new LinkedList();
 
+    public List<Integer> preorderTraversal(TreeNode root) {
+        dfs(root);
+        return ans;
+    }
+
+    private void dfs(TreeNode root) {
+        if (root == null) {
+            return;
+        }
+        ans.add(root.val);
+        dfs(root.left);
+        dfs(root.right);
+    }
+}
+// https://leetcode.cn/submissions/detail/366426193/
+```
+
+```java
+class Solution {
+    public List<Integer> preorderTraversal(TreeNode root) {
+        List<Integer> res = new LinkedList();
+        if (root == null) {
+            return res;
+        }
+        res.add(root.val);
+        res.addAll(preorderTraversal(root.left));
+        res.addAll(preorderTraversal(root.right));
+        return res;
+    }
+}
+// https://leetcode.cn/submissions/detail/355148730/
+```
+
+```java
+class Solution {
+    public List<Integer> preorderTraversal(TreeNode root) {
+        List<Integer> preorder = new LinkedList();
+        Deque<TreeNode> stack = new LinkedList();
+        if (root != null) {
+            stack.push(root);
+        }
+        while (!stack.isEmpty()) {
+            TreeNode x = stack.pop();
+            preorder.add(x.val);
+            TreeNode right = x.right;
+            if (right != null) {
+                stack.push(x.right);
+            }
+            TreeNode left = x.left;
+            if (left != null) {
+                stack.push(x.left);
+            }
+        }
+        return preorder;
+    }
+}
+// https://leetcode.cn/submissions/detail/355692356/
+```
+
+```java
+class Solution {
+    public List<Integer> preorderTraversal(TreeNode root) {
+        List<Integer> preorder = new LinkedList();
+        HashSet<TreeNode> marked = new HashSet();
+        Deque<TreeNode> stack = new LinkedList();
+        if (root != null) {
+            stack.push(root);
+        }
+        while (!stack.isEmpty()) {
+            TreeNode x = stack.peek();
+            if (!marked.contains(x)) {
+                preorder.add(x.val);
+                marked.add(x);
+            }
+            TreeNode left = x.left;
+            if (left != null && !marked.contains(left)) {
+                stack.push(left);
+                continue;
+            }
+            TreeNode right = x.right;
+            if (right != null && !marked.contains(right)) {
+                stack.push(right);
+                continue;
+            }
+            stack.pop();
+        }
+        return preorder;
+    }
+}
+// https://leetcode.cn/submissions/detail/355137201/
 ```
 
 ## 145. 二叉树的后序遍历
@@ -3405,7 +4571,73 @@ class Solution {
 <https://leetcode.cn/problems/binary-tree-postorder-traversal/>
 
 ```java
+class Solution {
+    private List<Integer> ans = new LinkedList();
 
+    public List<Integer> postorderTraversal(TreeNode root) {
+        dfs(root);
+        return ans;
+    }
+
+    private void dfs(TreeNode root) {
+        if (root == null) {
+            return;
+        }
+        dfs(root.left);
+        dfs(root.right);
+        ans.add(root.val);
+    }
+}
+// https://leetcode.cn/submissions/detail/366428168/
+```
+
+```java
+class Solution {
+    public List<Integer> postorderTraversal(TreeNode root) {
+        List<Integer> res = new LinkedList();
+        if (root == null) {
+            return res;
+        }
+        res.addAll(postorderTraversal(root.left));
+        res.addAll(postorderTraversal(root.right));
+        res.add(root.val);
+        return res;
+    }
+}
+// https://leetcode.cn/submissions/detail/355146951/
+```
+
+```java
+class Solution {
+    public List<Integer> postorderTraversal(TreeNode root) {
+        List<Integer> postorder = new LinkedList();
+        HashSet<TreeNode> marked = new HashSet();
+        Deque<TreeNode> stack = new LinkedList();
+        if (root != null) {
+            stack.push(root);
+        }
+        while (!stack.isEmpty()) {
+            TreeNode x = stack.peek();
+            TreeNode left = x.left;
+            if (left != null && !marked.contains(left)) {
+                stack.push(left);
+                continue;
+            }
+            TreeNode right = x.right;
+            if (right != null && !marked.contains(right)) {
+                stack.push(right);
+                continue;
+            }
+            if (!marked.contains(x)) {
+                postorder.add(x.val);
+                marked.add(x);
+            }
+            stack.pop();
+        }
+        return postorder;
+    }
+}
+// https://leetcode.cn/submissions/detail/355147563/
 ```
 
 ## 146. LRU 缓存
@@ -3413,7 +4645,198 @@ class Solution {
 <https://leetcode.cn/problems/lru-cache/>
 
 ```java
+class Node {
+    public int key, val;
+    public Node prev, next;
 
+    public Node(int key, int val) {
+        this.key = key;
+        this.val = val;
+    }
+}
+
+class DoublyLinkedList {
+    private Node first, last;
+    private int n;
+
+    public DoublyLinkedList() {
+        first = null;
+        last = null;
+        n = 0;
+    }
+
+    public void addLast(Node x) {
+        if (n == 0) {
+            first = x;
+            last = x;
+        } else {
+            last.next = x;
+            x.prev = last;
+            last = x;
+        }
+        ++n;
+    }
+
+    public Node removeFirst() {
+        Node oldFirst = first;
+        if (n == 1) {
+            first = null;
+            last = null;
+        } else {
+            first = first.next;
+            first.prev = null;
+            oldFirst.next = null;
+        }
+        --n;
+        return oldFirst;
+    }
+
+    public Node removeLast() {
+        Node oldLast = last;
+        if (n == 1) {
+            first = null;
+            last = null;
+        } else {
+            last = last.prev;
+            last.next = null;
+            oldLast.prev = null;
+        }
+        --n;
+        return oldLast;
+    }
+
+    public void remove(Node x) {
+        if (x == first) {
+            removeFirst();
+        } else if (x == last) {
+            removeLast();
+        } else {
+            x.prev.next = x.next;
+            x.next.prev = x.prev;
+            x.prev = null;
+            x.next = null;
+            --n;
+        }
+    }
+}
+
+class LRUCache {
+    private DoublyLinkedList list = new DoublyLinkedList();
+    private Map<Integer, Node> keyToNode = new HashMap();
+    private int capacity;
+
+    public LRUCache(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public int get(int key) {
+        if (contains(key)) {
+            return touchCache(key, Integer.MIN_VALUE);
+        }
+        return -1;
+    }
+
+    public void put(int key, int value) {
+        if (capacity > 0) {
+            if (contains(key)) {
+                touchCache(key, value);
+            } else {
+                if (full()) {
+                    removeCache();
+                }
+                addCache(key, value);
+            }
+        }
+    }
+
+    private boolean contains(int key) {
+        return keyToNode.containsKey(key);
+    }
+
+    private boolean full() {
+        return keyToNode.size() == capacity;
+    }
+
+    private void addCache(int key, int val) {
+        Node x = new Node(key, val);
+        list.addLast(x);
+        keyToNode.put(key, x);
+    }
+
+    private void removeCache() {
+        keyToNode.remove(list.removeFirst().key);
+    }
+
+    private int touchCache(int key, int val) {
+        Node x = keyToNode.get(key);
+        if (val != Integer.MIN_VALUE) {
+            x.val = val;
+        }
+        list.remove(x);
+        list.addLast(x);
+        return x.val;
+    }
+}
+// https://leetcode.cn/submissions/detail/365103708/
+```
+
+```java
+class LRUCache {
+    private Map<Integer, Integer> keyToVal = new LinkedHashMap();
+    private int capacity;
+
+    public LRUCache(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public int get(int key) {
+        if (contains(key)) {
+            return touchCache(key, Integer.MIN_VALUE);
+        }
+        return -1;
+    }
+
+    public void put(int key, int value) {
+        if (capacity > 0) {
+            if (contains(key)) {
+                touchCache(key, value);
+            } else {
+                if (full()) {
+                    removeCache();
+                }
+                addCache(key, value);
+            }
+        }
+    }
+
+    private boolean contains(int key) {
+        return keyToVal.containsKey(key);
+    }
+
+    private boolean full() {
+        return keyToVal.size() == capacity;
+    }
+
+    private void addCache(int key, int val) {
+        keyToVal.put(key, val);
+    }
+
+    private void removeCache() {
+        int key = keyToVal.keySet().iterator().next();
+        keyToVal.remove(key);
+    }
+
+    private int touchCache(int key, int val) {
+        int newval = keyToVal.get(key);
+        if (val != Integer.MIN_VALUE) {
+            newval = val;
+        }
+        keyToVal.remove(key);
+        keyToVal.put(key, newval);
+        return newval;
+    }
+}
+// https://leetcode.cn/submissions/detail/365104207/
 ```
 
 ## 153. 寻找旋转排序数组中的最小值
