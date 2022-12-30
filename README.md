@@ -10,7 +10,7 @@
 
 [JavaScript 实现](./javascript.md)
 
-[PHP 实现](./swift.md)
+[PHP 实现](./php.md)
 
 [Swift 实现](./swift.md)
 
