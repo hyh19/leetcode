@@ -6051,7 +6051,70 @@ class Solution {
 <https://leetcode.cn/problems/partition-to-k-equal-sum-subsets/>
 
 ```swift
+class Solution {
+    private var used = 0;
+    private var target = 0;
+    private var pathSums: [Int] = [];
+    private var memo: [Int: Bool] = [:];
 
+    func canPartitionKSubsets(_ nums: [Int], _ k: Int) -> Bool {
+        let sum = nums.reduce(0, +);
+        if (sum % k != 0) {
+            return false;
+        }
+        target = sum / k;
+        pathSums = Array(repeating: 0, count: k);
+        return backtrack(nums, k, 0, -1);
+    }
+
+    // 遍历『决策森林』的 k 棵『决策树』
+    // 一棵『决策树』的『路径』代表一个『等和子集』
+    // tree = 第几棵『决策树』，取 [0..k-1] 为值
+    // edge =『决策树』的『边』，取数组 nums 的索引为值
+    // pathSums[tree] = 第几棵『决策树』的『路径和』
+    private func backtrack(_ nums: [Int], _ k: Int, _ tree: Int, _ edge: Int) -> Bool {
+        var res = false;
+        if (tree == k) {
+            res = true;
+        } else if (pathSums[tree] == target) {
+            // 通过缓存，对同一个『森林』，优化『树』的遍历，避免『路径+路径』重复
+            // 例如 [1->2->3] 和 [4->5->6] 分别是两条『路径』
+            // 如果 A.[1->2->3] -> B.[4->5->6] -> C.[] 是不行的
+            // 那么 A.[4->5->6] -> B.[1->2->3] -> C.[] 也是不行的
+            // 因为 C 的可选『边』是一样的
+            if (memo[used] == nil) {
+                // 遍历下一棵『决策树』
+                memo[used] = backtrack(nums, k, tree + 1, -1);
+            }
+            res = memo[used]!;
+        } else {
+            // 通过去重，对同一棵树，优化『边』的遍历，避免『边+边』重复
+            // 例如 1 和 2 分别是两条『边』，[1->2] 和 [2->1] 是重复的
+            var e = edge + 1;
+            while (e < nums.count) {
+                let x = nums[e];
+                // 检查第 edge 位是否为 1
+                // 即 nums[edge] 是否已经被其他『树』使用
+                if (((used >> e) & 1 != 1)
+                        && pathSums[tree] + x <= target) {
+                    pathSums[tree] += x;
+                    //『或』运算，将第 edge 位修改为 1
+                    used |= (1 << e);
+                    res = backtrack(nums, k, tree, e);
+                    if (res) {
+                        break;
+                    }
+                    pathSums[tree] -= x;
+                    //『异或』运算，将第 edge 位恢复为 0
+                    used ^= (1 << e);
+                }
+                e += 1;
+            }
+        }
+        return res;
+    }
+}
+// https://leetcode.cn/submissions/detail/387962177/
 ```
 
 ## 700. 二叉搜索树中的搜索
@@ -6059,7 +6122,21 @@ class Solution {
 <https://leetcode.cn/problems/search-in-a-binary-search-tree/>
 
 ```swift
-
+class Solution {
+    func searchBST(_ root: TreeNode?, _ val: Int) -> TreeNode? {
+        if (root == nil) {
+            return nil;
+        }
+        if (val < root!.val) {
+            return searchBST(root!.left, val);
+        }
+        if (root!.val < val) {
+            return searchBST(root!.right, val);
+        }
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/384992957/
 ```
 
 ## 701. 二叉搜索树中的插入操作
@@ -6067,7 +6144,21 @@ class Solution {
 <https://leetcode.cn/problems/insert-into-a-binary-search-tree/>
 
 ```swift
-
+class Solution {
+    func insertIntoBST(_ root: TreeNode?, _ val: Int) -> TreeNode? {
+        if (root == nil) {
+            return TreeNode(val);
+        }
+        if (val < root!.val) {
+            root!.left = insertIntoBST(root!.left, val);
+        }
+        if (val > root!.val) {
+            root!.right = insertIntoBST(root!.right, val);
+        }
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/384994054/
 ```
 
 ## 704. 二分查找
@@ -6075,7 +6166,23 @@ class Solution {
 <https://leetcode.cn/problems/binary-search/>
 
 ```swift
-
+class Solution {
+    func search(_ nums: [Int], _ target: Int) -> Int {
+        var lo = 0, hi = nums.count - 1;
+        while (lo <= hi) {
+            let mid = lo + (hi - lo) / 2;
+            if (target < nums[mid]) {
+                hi = mid - 1;
+            } else if (nums[mid] < target) {
+                lo = mid + 1;
+            } else {
+                return mid;
+            }
+        }
+        return -1;
+    }
+}
+// https://leetcode.cn/submissions/detail/384830033/
 ```
 
 ## 712. 两个字符串的最小 ASCII 删除和
@@ -6083,7 +6190,74 @@ class Solution {
 <https://leetcode.cn/problems/minimum-ascii-delete-sum-for-two-strings/>
 
 ```swift
+class Solution {
+    private var memo: [[Int?]] = [];
+    private var sum1: [Int] = [];
+    private var sum2: [Int] = [];
 
+    func minimumDeleteSum(_ s1: String, _ s2: String) -> Int {
+        let chs1 = [Character](s1), chs2 = [Character](s2);
+        let n1 = chs1.count, n2 = chs2.count;
+        memo = Array(repeating: Array(repeating: nil, count: n2), count: n1);
+        sum1 = prefixSum(chs1);
+        sum2 = prefixSum(chs2);
+        return minimumDeleteSum(chs1, n1 - 1, chs2, n2 - 1);
+    }
+
+    // 子串 s1[0..i] s2[0..j] 的最小 ASCII 删除和
+    private func minimumDeleteSum(_ s1: [Character], _ i: Int, _ s2: [Character], _ j: Int) -> Int {
+        if (i < 0 && j < 0) {
+            return 0;
+        }
+        if (i < 0) {
+            // 删除 s2[0..j]
+            // s1""
+            // s2[0..j]
+            return sum2[j];
+        }
+        if (j < 0) {
+            // 删除 s1[0..i]
+            // s1[0..i]
+            // s2""
+            return sum1[i];
+        }
+        if (memo[i][j] == nil) {
+            if (s1[i] == s2[j]) {
+                // s1[0..i-1][i]
+                // s2[0..j-1][j]
+                memo[i][j] = minimumDeleteSum(s1, i - 1, s2, j - 1);
+            } else {
+                // 删除 s1[i] s2[j]
+                // s1[0..i-1][i]
+                // s2[0..j-1][j]
+                let sp1 = minimumDeleteSum(s1, i - 1, s2, j - 1) + Int(s1[i].asciiValue!) + Int(s2[j].asciiValue!);
+                // 删除 s2[j]
+                // s1[0..i]
+                // s2[0..j-1][j]
+                let sp2 = minimumDeleteSum(s1, i, s2, j - 1) + Int(s2[j].asciiValue!);
+                // 删除 s1[i]
+                // s1[0..i-1][i]
+                // s2[0..j]
+                let sp3 = minimumDeleteSum(s1, i - 1, s2, j) + Int(s1[i].asciiValue!);
+                memo[i][j] = min(sp1, sp2, sp3);
+            }
+        }
+        return memo[i][j]!;
+    }
+
+    private func prefixSum(_ s: [Character]) -> [Int] {
+        let n = s.count;
+        var sum = Array(repeating: 0, count: n);
+        sum[0] = Int(s[0].asciiValue!);
+        if (n > 1) {
+            for i in 1...n - 1 {
+                sum[i] = sum[i - 1] + Int(s[i].asciiValue!);
+            }
+        }
+        return sum;
+    }
+}
+// https://leetcode.cn/submissions/detail/387512752/
 ```
 
 ## 714. 买卖股票的最佳时机含手续费
@@ -6091,7 +6265,28 @@ class Solution {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/>
 
 ```swift
-
+class Solution {
+    func maxProfit(_ prices: [Int], _ fee: Int) -> Int {
+        let n = prices.count;
+        if (n == 1) {
+            return 0;
+        }
+        // dp[i][0] = 第 i 天，空仓状态下的最大利润
+        // dp[i][1] = 第 i 天，持仓状态下的最大利润
+        var dp = Array(repeating: Array(repeating: 0, count: 2), count: n);
+        dp[0][0] = 0;
+        dp[0][1] = -prices[0] - fee;
+        for i in 1...n - 1 {
+            // dp[i - 1][0]             >= dp[i - 1][0] - prices[i] - fee
+            // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+            // => dp[i][0] >= dp[i][1]
+            dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+            dp[i][1] = max(dp[i - 1][0] - prices[i] - fee, dp[i - 1][1]);
+        }
+        return dp[n - 1][0];
+    }
+}
+// https://leetcode.cn/submissions/detail/385800783/
 ```
 
 ## 739. 每日温度
@@ -6099,7 +6294,22 @@ class Solution {
 <https://leetcode.cn/problems/daily-temperatures/>
 
 ```swift
-
+class Solution {
+    func dailyTemperatures(_ temperatures: [Int]) -> [Int] {
+        let n = temperatures.count;
+        var ans = Array(repeating: 0, count: n);
+        var minMonoStack: [Int] = [];
+        for i in stride(from: n - 1, through: 0, by: -1) {
+            while (!minMonoStack.isEmpty && temperatures[minMonoStack.last!] <= temperatures[i]) {
+                minMonoStack.removeLast();
+            }
+            ans[i] = minMonoStack.isEmpty ? 0 : minMonoStack.last! - i;
+            minMonoStack.append(i);
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/386756480/
 ```
 
 ## 743. 网络延迟时间
@@ -6107,7 +6317,173 @@ class Solution {
 <https://leetcode.cn/problems/network-delay-time/>
 
 ```swift
+struct IndexMinPQ {
+    private let maxN: Int;
+    private var pq: [Int];
+    private var qp: [Int];
+    private var keys: [Int?];
+    private var n = 0;
 
+    init(_ maxN: Int) {
+        self.maxN = maxN;
+        keys = Array(repeating: nil, count: maxN + 1);
+        pq = Array(repeating: -1, count: maxN + 1);
+        qp = Array(repeating: -1, count: maxN + 1);
+    }
+
+    public var isEmpty: Bool {
+        n == 0;
+    }
+
+    public var count: Int {
+        n
+    }
+
+    public func contains(_ i: Int) -> Bool {
+        qp[i] != -1;
+    }
+
+    public mutating func insert(_ i: Int, _ key: Int) {
+        n += 1;
+        qp[i] = n;
+        pq[n] = i;
+        keys[i] = key;
+        swim(n);
+    }
+
+    public mutating func delMin() -> Int {
+        let max = pq[1];
+        exch(1, n);
+        n -= 1;
+        sink(1);
+        qp[max] = -1;
+        keys[max] = nil;
+        pq[n + 1] = -1;
+        return max;
+    }
+
+    public mutating func changeKey(_ i: Int, _ key: Int) {
+        keys[i] = key;
+        swim(qp[i]);
+        sink(qp[i]);
+    }
+
+    private func less(_ i: Int, _ j: Int) -> Bool {
+        keys[pq[i]]! < keys[pq[j]]!;
+    }
+
+    private mutating func exch(_ i: Int, _ j: Int) {
+        pq.swapAt(i, j);
+        qp[pq[i]] = i;
+        qp[pq[j]] = j;
+    }
+
+    private mutating func swim(_ k: Int) {
+        var k = k;
+        while (k > 1 && less(k / 2, k)) {
+            exch(k, k / 2);
+            k = k / 2;
+        }
+    }
+
+    private mutating func sink(_ k: Int) {
+        var k = k;
+        while (2 * k <= n) {
+            var j = 2 * k;
+            if (j < n && less(j, j + 1)) {
+                j += 1;
+            }
+            if (!less(k, j)) {
+                break;
+            }
+            exch(k, j);
+            k = j;
+        }
+    }
+}
+
+struct DirectedEdge {
+    public let from: Int;
+    public let to: Int;
+    public let weight: Int;
+
+    init(_ from: Int, _ to: Int, _ weight: Int) {
+        self.from = from;
+        self.to = to;
+        self.weight = weight;
+    }
+}
+
+struct EdgeWeightedDigraph {
+    public let V: Int;
+    private var E = 0;
+    private var adj: [[DirectedEdge]];
+
+    init(_ V: Int) {
+        self.V = V;
+        adj = Array(repeating: [], count: V);
+    }
+
+    public mutating func addEdge(_ e: DirectedEdge) {
+        adj[e.from].append(e);
+        E += 1;
+    }
+
+    public func adj(_ v: Int) -> [DirectedEdge] {
+        adj[v];
+    }
+}
+
+struct DijkstraSP {
+    private var distTo: [Int];
+    private var pq: IndexMinPQ;
+
+    init(_ G: EdgeWeightedDigraph, _ s: Int) {
+        let V = G.V;
+        distTo = Array(repeating: Int.max, count: V);
+        distTo[s] = 0;
+        pq = IndexMinPQ(V);
+        pq.insert(s, distTo[s]);
+        while (!pq.isEmpty) {
+            let v = pq.delMin();
+            relax(G, v);
+        }
+    }
+
+    private mutating func relax(_ G: EdgeWeightedDigraph, _ v: Int) {
+        for e in G.adj(v) {
+            let w = e.to;
+            if (distTo[w] > distTo[v] + e.weight) {
+                distTo[w] = distTo[v] + e.weight;
+                if (pq.contains(w)) {
+                    pq.changeKey(w, distTo[w]);
+                } else {
+                    pq.insert(w, distTo[w]);
+                }
+            }
+        }
+    }
+
+    public func distTo(_ v: Int) -> Int {
+        distTo[v];
+    }
+}
+
+class Solution {
+    func networkDelayTime(_ times: [[Int]], _ n: Int, _ k: Int) -> Int {
+        var graph = EdgeWeightedDigraph(n);
+        for t in times {
+            graph.addEdge(DirectedEdge(t[0] - 1, t[1] - 1, t[2]));
+        }
+        let spt = DijkstraSP(graph, k - 1);
+        var maxTime = 0;
+        for v in 0...n - 1 {
+            maxTime = max(maxTime, spt.distTo(v));
+        }
+        return maxTime < Int.max ? maxTime : -1;
+    }
+}
+// https://leetcode.cn/submissions/detail/387985305/
 ```
 
 ## 752. 打开转盘锁
@@ -6115,7 +6491,151 @@ class Solution {
 <https://leetcode.cn/problems/open-the-lock/>
 
 ```swift
+class Solution {
+    private static let ZERO = 48;
+    private static let NINE = 57;
 
+    func openLock(_ deadends: [String], _ target: String) -> Int {
+        var marked = Set(deadends);
+        var queue = Deque<String>();
+        let source = "0000";
+        if (!marked.contains(source)) {
+            marked.insert(source);
+            queue.enqueue(source);
+        }
+        var count = 0;
+        while (!queue.isEmpty) {
+            let n = queue.count;
+            for _ in 1...n {
+                let s = queue.dequeue()!;
+                if (s == target) {
+                    return count;
+                }
+                for j in 0...3 {
+                    let plus = plusOne(s, j);
+                    if (!marked.contains(plus)) {
+                        marked.insert(plus);
+                        queue.enqueue(plus);
+                    }
+                    let minus = minusOne(s, j);
+                    if (!marked.contains(minus)) {
+                        marked.insert(minus);
+                        queue.enqueue(minus);
+                    }
+                }
+            }
+            count += 1;
+        }
+        return -1;
+    }
+
+    private func plusOne(_ s: String, _ j: Int) -> String {
+        var t = [Character](s);
+        let code = t[j].asciiValue!;
+        if (code == Solution.NINE) {
+            t[j] = Character(UnicodeScalar(Solution.ZERO)!);
+        } else {
+            t[j] = Character(UnicodeScalar(code + 1));
+        }
+        return String(t);
+    }
+
+    private func minusOne(_ s: String, _ j: Int) -> String {
+        var t = [Character](s);
+        let code = t[j].asciiValue!;
+        if (code == Solution.ZERO) {
+            t[j] = Character(UnicodeScalar(Solution.NINE)!);
+        } else {
+            t[j] = Character(UnicodeScalar(code - 1));
+        }
+        return String(t);
+    }
+}
+
+/*
+  Deque (pronounced "deck"), a double-ended queue
+
+  All enqueuing and dequeuing operations are O(1).
+*/
+public struct Deque<T> {
+    private var array: [T?]
+    private var head: Int
+    private var capacity: Int
+    private let originalCapacity: Int
+
+    public init(_ capacity: Int = 10) {
+        self.capacity = max(capacity, 1)
+        originalCapacity = self.capacity
+        array = [T?](repeating: nil, count: capacity)
+        head = capacity
+    }
+
+    public var isEmpty: Bool {
+        return count == 0
+    }
+
+    public var count: Int {
+        return array.count - head
+    }
+
+    public mutating func enqueue(_ element: T) {
+        array.append(element)
+    }
+
+    public mutating func enqueueFront(_ element: T) {
+        if head == 0 {
+            capacity *= 2
+            let emptySpace = [T?](repeating: nil, count: capacity)
+            array.insert(contentsOf: emptySpace, at: 0)
+            head = capacity
+        }
+
+        head -= 1
+        array[head] = element
+    }
+
+    public mutating func dequeue() -> T? {
+        guard head < array.count, let element = array[head] else {
+            return nil
+        }
+
+        array[head] = nil
+        head += 1
+
+        if capacity >= originalCapacity && head >= capacity * 2 {
+            let amountToRemove = capacity + capacity / 2
+            array.removeFirst(amountToRemove)
+            head -= amountToRemove
+            capacity /= 2
+        }
+        return element
+    }
+
+    public mutating func dequeueBack() -> T? {
+        if isEmpty {
+            return nil
+        } else {
+            return array.removeLast()
+        }
+    }
+
+    public func peekFront() -> T? {
+        if isEmpty {
+            return nil
+        } else {
+            return array[head]
+        }
+    }
+
+    public func peekBack() -> T? {
+        if isEmpty {
+            return nil
+        } else {
+            return array.last!
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/387963947/
 ```
 
 ## 785. 判断二分图
@@ -6123,7 +6643,42 @@ class Solution {
 <https://leetcode.cn/problems/is-graph-bipartite/>
 
 ```swift
+class Solution {
+    private var bipartite = true;
+    private var marked: [Bool] = [];
+    private var color: [Bool] = [];
 
+    func isBipartite(_ graph: [[Int]]) -> Bool {
+        let n = graph.count;
+        marked = Array(repeating: false, count: n);
+        color = Array(repeating: false, count: n);
+        for v in 0...n - 1 {
+            if (!marked[v]) {
+                dfs(graph, v);
+                if (!bipartite) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private func dfs(_ graph: [[Int]], _ v: Int) {
+        marked[v] = true;
+        for w in graph[v] {
+            if (!bipartite) {
+                return;
+            }
+            if (!marked[w]) {
+                color[w] = !color[v];
+                dfs(graph, w);
+            } else if (color[w] == color[v]) {
+                bipartite = false;
+            }
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/387959123/
 ```
 
 ## 797. 所有可能的路径
@@ -6131,7 +6686,30 @@ class Solution {
 <https://leetcode.cn/problems/all-paths-from-source-to-target/>
 
 ```swift
+class Solution {
+    private var ans: [[Int]] = [];
+    private var path: [Int] = [];
+    private var target = 0;
 
+    func allPathsSourceTarget(_ graph: [[Int]]) -> [[Int]] {
+        target = graph.count - 1;
+        dfs(graph, 0);
+        return ans;
+    }
+
+    private func dfs(_ graph: [[Int]], _ v: Int) {
+        path.append(v);
+        if (v == target) {
+            ans.append(path);
+        } else {
+            for w in graph[v] {
+                dfs(graph, w);
+            }
+        }
+        path.removeLast();
+    }
+}
+// https://leetcode.cn/submissions/detail/386028493/
 ```
 
 ## 846. 一手顺子
@@ -6139,7 +6717,32 @@ class Solution {
 <https://leetcode.cn/problems/hand-of-straights/>
 
 ```swift
-
+class Solution {
+    func isNStraightHand(_ hand: [Int], _ groupSize: Int) -> Bool {
+        if (hand.count % groupSize != 0) {
+            return false;
+        }
+        let sortedHand = hand.sorted();
+        var counter: [Int: Int] = [:];
+        for card in sortedHand {
+            counter[card] = (counter[card] ?? 0) + 1;
+        }
+        for card in sortedHand {
+            if (counter[card]! > 0) {
+                for i in 0...groupSize - 1 {
+                    let need = card + i;
+                    let count = counter[need] ?? 0;
+                    if (count == 0) {
+                        return false;
+                    }
+                    counter[need] = count - 1;
+                }
+            }
+        }
+        return true;
+    }
+}
+// https://leetcode.cn/submissions/detail/384841447/
 ```
 
 ## 875. 爱吃香蕉的珂珂
@@ -6147,7 +6750,33 @@ class Solution {
 <https://leetcode.cn/problems/koko-eating-bananas/>
 
 ```swift
+class Solution {
+    func minEatingSpeed(_ piles: [Int], _ h: Int) -> Int {
+        var lo = 1;
+        var hi = piles.max()!;
+        var ans = lo;
+        while (lo <= hi) {
+            let mid = lo + (hi - lo) / 2;
+            if (canFinish(piles, h, mid)) {
+                ans = mid;
+                hi = mid - 1;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        return ans;
+    }
 
+    // 当吃香蕉的速度为 k 时，是否能在 h 小时内吃完
+    private func canFinish(_ piles: [Int], _ h: Int, _ k: Int) -> Bool {
+        var hours = 0;
+        for p in piles {
+            hours += (p - 1) / k + 1;
+        }
+        return hours <= h;
+    }
+}
+// https://leetcode.cn/submissions/detail/384833603/
 ```
 
 ## 876. 链表的中间结点
@@ -6155,7 +6784,17 @@ class Solution {
 <https://leetcode-cn.com/problems/middle-of-the-linked-list/>
 
 ```swift
-
+class Solution {
+    func middleNode(_ head: ListNode?) -> ListNode? {
+        var slow = head, fast = head;
+        while (fast != nil && fast!.next != nil) {
+            slow = slow!.next;
+            fast = fast!.next!.next;
+        }
+        return slow;
+    }
+}
+// https://leetcode.cn/submissions/detail/384867087/
 ```
 
 ## 886. 可能的二分法
@@ -6163,7 +6802,53 @@ class Solution {
 <https://leetcode.cn/problems/possible-bipartition/>
 
 ```swift
+class Solution {
+    private var bipartite = true;
+    private var marked: [Bool] = [];
+    private var color: [Bool] = [];
 
+    func possibleBipartition(_ n: Int, _ dislikes: [[Int]]) -> Bool {
+        var graph: [[Int]] = Array(repeating: [], count: n);
+        for d in dislikes {
+            let v = d[0] - 1;
+            let w = d[1] - 1;
+            graph[v].append(w);
+            graph[w].append(v);
+        }
+        return isBipartite(graph);
+    }
+
+    private func isBipartite(_ graph: [[Int]]) -> Bool {
+        let n = graph.count;
+        marked = Array(repeating: false, count: n);
+        color = Array(repeating: false, count: n);
+        for v in 0...n - 1 {
+            if (!marked[v]) {
+                dfs(graph, v);
+                if (!bipartite) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private func dfs(_ graph: [[Int]], _ v: Int) {
+        marked[v] = true;
+        for w in graph[v] {
+            if (!bipartite) {
+                return;
+            }
+            if (!marked[w]) {
+                color[w] = !color[v];
+                dfs(graph, w);
+            } else if (color[w] == color[v]) {
+                bipartite = false;
+            }
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/387959975/
 ```
 
 ## 889. 根据前序和后序遍历构造二叉树
@@ -6171,7 +6856,37 @@ class Solution {
 <https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/>
 
 ```swift
+class Solution {
+    private var valueToIndex: [Int: Int] = [:];
 
+    func constructFromPrePost(_ preorder: [Int], _ postorder: [Int]) -> TreeNode? {
+        for (index, value) in postorder.enumerated() {
+            valueToIndex[value] = index;
+        }
+        return constructFromPrePost(preorder, 0, preorder.count - 1,
+                postorder, 0, postorder.count - 1);
+    }
+
+    private func constructFromPrePost(_ preorder: [Int], _ preStart: Int, _ preEnd: Int,
+                                      _ postorder: [Int], _ postStart: Int, _ postEnd: Int) -> TreeNode? {
+        if (preStart > preEnd) {
+            return nil;
+        }
+        let rootVal = preorder[preStart];
+        let root = TreeNode(rootVal);
+        if (preStart < preEnd) {
+            let leftRootVal = preorder[preStart + 1];
+            let postLeftRoot = valueToIndex[leftRootVal]!;
+            let leftSize = postLeftRoot - postStart + 1;
+            root.left = constructFromPrePost(preorder, preStart + 1, preStart + leftSize,
+                    postorder, postStart, postLeftRoot);
+            root.right = constructFromPrePost(preorder, preStart + leftSize + 1, preEnd,
+                    postorder, postLeftRoot + 1, postEnd - 1);
+        }
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/384981069/
 ```
 
 ## 905. 按奇偶排序数组
@@ -6179,7 +6894,27 @@ class Solution {
 <https://leetcode.cn/problems/sort-array-by-parity/>
 
 ```swift
-
+class Solution {
+    func sortArrayByParity(_ nums: [Int]) -> [Int] {
+        // nums[0..i]   Even
+        // nums[i..j]   Scanning
+        // nums[j..n-1] Odd
+        var copy = nums;
+        let n = copy.count;
+        var i = 0, j = n - 1;
+        while (i < j) {
+            while (i < j && copy[i] % 2 == 0) {
+                i += 1;
+            }
+            while (i < j && copy[j] % 2 == 1) {
+                j -= 1;
+            }
+            copy.swapAt(i, j);
+        }
+        return copy;
+    }
+}
+// https://leetcode.cn/submissions/detail/386583014/
 ```
 
 ## 912. 排序数组
@@ -6187,7 +6922,50 @@ class Solution {
 <https://leetcode.cn/problems/sort-an-array/>
 
 ```swift
+class Solution {
+    func sortArray(_ nums: [Int]) -> [Int] {
+        var copy = nums.shuffled();
+        sort(&copy, 0, copy.count - 1);
+        return copy;
+    }
 
+    private func sort(_ nums: inout [Int], _ lo: Int, _ hi: Int) {
+        if (lo >= hi) {
+            return;
+        }
+        let j = partition(&nums, lo, hi);
+        sort(&nums, lo, j - 1);
+        sort(&nums, j + 1, hi);
+    }
+
+    private func partition(_ nums: inout [Int], _ lo: Int, _ hi: Int) -> Int {
+        let v = nums[lo];
+        var i = lo, j = hi + 1;
+        while (true) {
+            i += 1;
+            while (nums[i] < v) {
+                if (i == hi) {
+                    break;
+                }
+                i += 1;
+            }
+            j -= 1;
+            while (v < nums[j]) {
+                if (j == lo) {
+                    break;
+                }
+                j -= 1;
+            }
+            if (i >= j) {
+                break;
+            }
+            nums.swapAt(i, j);
+        }
+        nums.swapAt(lo, j);
+        return j;
+    }
+}
+// https://leetcode.cn/submissions/detail/384849886/
 ```
 
 ## 921. 使括号有效的最少添加
@@ -6195,7 +6973,34 @@ class Solution {
 <https://leetcode.cn/problems/minimum-add-to-make-parentheses-valid/>
 
 ```swift
-
+// 性质一 一个「合法」括号组合的左括号数量一定等于右括号数量
+// 性质二 对于一个「合法」的括号字符串组合 p，必然对于
+// 任何 0 <= i < len(p) 都有：子串 p[0..i] 中
+// 左括号的数量都大于或等于右括号的数量
+class Solution {
+    func minAddToMakeValid(_ s: String) -> Int {
+        var insertLeft = 0; // 已插入左括号的数量
+        var needRight = 0; // 待插入右括号的数量
+        for ch in s {
+            if (ch == "(") {
+                needRight += 1;
+            }
+            if (ch == ")") {
+                needRight -= 1;
+                // 性质二
+                if (needRight == -1) {
+                    // A).. -> A()..
+                    //『必须立即』在位置 i 前插入 1 个左括号
+                    // 否则，后续任何插入都不能使区间 [0..i] 的匹配有效
+                    insertLeft += 1;
+                    needRight = 0;
+                }
+            }
+        }
+        return insertLeft + needRight;
+    }
+}
+// https://leetcode.cn/submissions/detail/385442576/
 ```
 
 ## 922. 按奇偶排序数组 II
@@ -6203,7 +7008,27 @@ class Solution {
 <https://leetcode.cn/problems/sort-array-by-parity-ii/>
 
 ```swift
-
+class Solution {
+    func sortArrayByParityII(_ nums: [Int]) -> [Int] {
+        var copy = nums;
+        let n = copy.count;
+        var i = 0, j = 1;
+        while (true) {
+            while (i <= n - 2 && copy[i] % 2 == 0) {
+                i += 2;
+            }
+            while (j <= n - 1 && copy[j] % 2 == 1) {
+                j += 2;
+            }
+            if (i > n - 2 || j > n - 1) {
+                break;
+            }
+            copy.swapAt(i, j);
+        }
+        return copy;
+    }
+}
+// https://leetcode.cn/submissions/detail/386583322/
 ```
 
 ## 931. 下降路径最小和
@@ -6211,7 +7036,38 @@ class Solution {
 <https://leetcode.cn/problems/minimum-falling-path-sum/>
 
 ```swift
+class Solution {
+    private var memo: [[Int?]] = [];
 
+    func minFallingPathSum(_ matrix: [[Int]]) -> Int {
+        let m = matrix.count;
+        let n = matrix[0].count;
+        memo = Array(repeating: Array(repeating: nil, count: n), count: m);
+        var ans = Int.max;
+        for col in 0...n - 1 {
+            ans = min(ans, minFallingPathSum(matrix, m - 1, col));
+        }
+        return ans;
+    }
+
+    // 从 matrix[0][0..n-1] 到 matrix[row][col] 的最小下降路径和
+    private func minFallingPathSum(_ matrix: [[Int]], _ row: Int, _ col: Int) -> Int {
+        if (col < 0 || col >= matrix[0].count) {
+            return Int.max;
+        }
+        if (row == 0) {
+            return matrix[row][col];
+        }
+        if (memo[row][col] == nil) {
+            let sp1 = minFallingPathSum(matrix, row - 1, col - 1);
+            let sp2 = minFallingPathSum(matrix, row - 1, col);
+            let sp3 = minFallingPathSum(matrix, row - 1, col + 1);
+            memo[row][col] = min(sp1, sp2, sp3) + matrix[row][col];
+        }
+        return memo[row][col]!;
+    }
+}
+// https://leetcode.cn/submissions/detail/387522059/
 ```
 
 ## 986. 区间列表的交集
@@ -6219,7 +7075,35 @@ class Solution {
 <https://leetcode.cn/problems/interval-list-intersections/>
 
 ```swift
-
+class Solution {
+    func intervalIntersection(_ firstList: [[Int]], _ secondList: [[Int]]) -> [[Int]] {
+        var ans: [[Int]] = [];
+        var i = 0, j = 0;
+        while (i < firstList.count && j < secondList.count) {
+            let start1 = firstList[i][0];
+            let end1 = firstList[i][1];
+            let start2 = secondList[j][0];
+            let end2 = secondList[j][1];
+            if (end1 < start2) {
+                // 不相交
+                i += 1;
+            } else if (end2 < start1) {
+                // 不相交
+                j += 1;
+            } else {
+                // 相交
+                ans.append([max(start1, start2), min(end1, end2)]);
+                if (end1 < end2) {
+                    i += 1;
+                } else {
+                    j += 1;
+                }
+            }
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/385539111/
 ```
 
 ## 990. 等式方程的可满足性
@@ -6227,7 +7111,74 @@ class Solution {
 <https://leetcode.cn/problems/satisfiability-of-equality-equations/>
 
 ```swift
+class Solution {
+    private static let A: UInt8 = 97;
 
+    func equationsPossible(_ equations: [String]) -> Bool {
+        var uf = UF(26);
+        for str in equations {
+            let chs = [Character](str);
+            if (chs[1] == "=") {
+                let p = chs[0].asciiValue! - Solution.A;
+                let q = chs[3].asciiValue! - Solution.A;
+                uf.union(Int(p), Int(q));
+            }
+        }
+        for str in equations {
+            let chs = [Character](str);
+            if (chs[1] == "!") {
+                let p = chs[0].asciiValue! - Solution.A;
+                let q = chs[3].asciiValue! - Solution.A;
+                if (uf.connected(Int(p), Int(q))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
+
+struct UF {
+    private var parent: [Int];
+    private var rank: [Int];
+    private var count: Int;
+
+    init(_ n: Int) {
+        parent = Array(0...n - 1);
+        rank = Array(repeating: 0, count: n);
+        count = n;
+    }
+
+    public mutating func find(_ p: Int) -> Int {
+        var t = p;
+        while (t != parent[t]) {
+            parent[t] = parent[parent[t]];
+            t = parent[t];
+        }
+        return t;
+    }
+
+    public mutating func union(_ p: Int, _ q: Int) {
+        let rootP = find(p);
+        let rootQ = find(q);
+        if (rootP != rootQ) {
+            if (rank[rootP] < rank[rootQ]) {
+                parent[rootP] = rootQ;
+            } else if (rank[rootQ] < rank[rootP]) {
+                parent[rootQ] = rootP;
+            } else {
+                parent[rootP] = rootQ;
+                rank[rootQ] += 1;
+            }
+            count -= 1;
+        }
+    }
+
+    public mutating func connected(_ p: Int, _ q: Int) -> Bool {
+        find(p) == find(q);
+    }
+}
+// https://leetcode.cn/submissions/detail/387966486/
 ```
 
 ## 1011. 在 D 天内送达包裹的能力
@@ -6235,7 +7186,40 @@ class Solution {
 <https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/>
 
 ```swift
+class Solution {
+    func shipWithinDays(_ weights: [Int], _ days: Int) -> Int {
+        var lo = weights.max()!;
+        var hi = weights.reduce(0, +);
+        var ans = lo;
+        while (lo <= hi) {
+            let mid = lo + (hi - lo) / 2;
+            if (canFinish(weights, days, mid)) {
+                ans = mid;
+                hi = mid - 1;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        return ans;
+    }
 
+    // 当船的运载能力为 capacity 时，是否能在 days 天内送完
+    private func canFinish(_ weights: [Int], _ days: Int, _ capacity: Int) -> Bool {
+        var minDays = 0;
+        var i = 0;
+        let n = weights.count;
+        while (i < n) {
+            var sum = 0;
+            while (i < n && sum + weights[i] <= capacity) {
+                sum += weights[i];
+                i += 1;
+            }
+            minDays += 1;
+        }
+        return minDays <= days;
+    }
+}
+// https://leetcode.cn/submissions/detail/386587115/
 ```
 
 ## 1020. 飞地的数量
@@ -6243,7 +7227,48 @@ class Solution {
 <https://leetcode.cn/problems/number-of-enclaves/>
 
 ```swift
+class Solution {
+    private static let LAND = 1;
+    private static let WATER = 0;
 
+    func numEnclaves(_ grid: [[Int]]) -> Int {
+        var copy = grid;
+        let m = copy.count;
+        let n = copy[0].count;
+        // 淹没与左右边界的陆地相连的岛屿
+        for row in 0...m - 1 {
+            floodFill(&copy, row, 0);
+            floodFill(&copy, row, n - 1);
+        }
+        // 淹没与上下边界的陆地相连的岛屿
+        for col in 0...n - 1 {
+            floodFill(&copy, 0, col);
+            floodFill(&copy, m - 1, col);
+        }
+        var count = 0;
+        for row in 0...m - 1 {
+            for col in 0...n - 1 {
+                if (copy[row][col] == Solution.LAND) {
+                    count += 1;
+                }
+            }
+        }
+        return count;
+    }
+
+    private func floodFill(_ grid: inout [[Int]], _ row: Int, _ col: Int) {
+        if (row < 0 || row >= grid.count || col < 0 || col >= grid[0].count
+                || grid[row][col] == Solution.WATER) {
+            return;
+        }
+        grid[row][col] = Solution.WATER;
+        floodFill(&grid, row - 1, col);
+        floodFill(&grid, row + 1, col);
+        floodFill(&grid, row, col - 1);
+        floodFill(&grid, row, col + 1);
+    }
+}
+// https://leetcode.cn/submissions/detail/387742936/
 ```
 
 ## 1024. 视频拼接
@@ -6251,7 +7276,33 @@ class Solution {
 <https://leetcode.cn/problems/video-stitching/>
 
 ```swift
-
+class Solution {
+    func videoStitching(_ clips: [[Int]], _ time: Int) -> Int {
+        let sortedClips = clips.sorted { a, b in
+            a[0] == b[0] ? a[1] > b[1] : a[0] < b[0]
+        };
+        var count = 0;
+        var maxEnd = 0;
+        var i = 0;
+        let n = sortedClips.count;
+        // 当 clips[i] 与 [0, maxEnd] 重叠（相交或被覆盖）时
+        while (i < n && sortedClips[i][0] <= maxEnd) {
+            // 记录与 [0, maxEnd] 重叠的所有区间中最大的 end
+            var nextEnd = sortedClips[i][1];
+            while (i < n && sortedClips[i][0] <= maxEnd) {
+                nextEnd = max(nextEnd, sortedClips[i][1]);
+                i += 1;
+            }
+            count += 1;
+            maxEnd = nextEnd;
+            if (maxEnd >= time) {
+                return count;
+            }
+        }
+        return -1;
+    }
+}
+// https://leetcode.cn/submissions/detail/385541993/
 ```
 
 ## 1143. 最长公共子序列
@@ -6259,7 +7310,27 @@ class Solution {
 <https://leetcode.cn/problems/longest-common-subsequence/>
 
 ```swift
-
+class Solution {
+    func longestCommonSubsequence(_ text1: String, _ text2: String) -> Int {
+        let chs1 = [Character](text1), chs2 = [Character](text2);
+        let n1 = chs1.count, n2 = chs2.count;
+        // text1[0..i-1] = text1 的长度为 i 的前缀
+        // text2[0..j-1] = text2 的长度为 j 的前缀
+        // dp[i][j] = LCS(text1[0..i-1], text2[0..j-1]) 的长度
+        var dp = Array(repeating: Array(repeating: 0, count: n2 + 1), count: n1 + 1);
+        for i in 1...n1 {
+            for j in 1...n2 {
+                if (chs1[i - 1] == chs2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                    dp[i][j] = max(dp[i][j - 1], dp[i - 1][j]);
+                }
+            }
+        }
+        return dp[n1][n2];
+    }
+}
+// https://leetcode.cn/submissions/detail/385772210/
 ```
 
 ## 1254. 统计封闭岛屿的数目
@@ -6267,7 +7338,49 @@ class Solution {
 <https://leetcode.cn/problems/number-of-closed-islands/>
 
 ```swift
+class Solution {
+    private static let LAND = 0;
+    private static let WATER = 1;
 
+    func closedIsland(_ grid: [[Int]]) -> Int {
+        var copy = grid;
+        let m = copy.count;
+        let n = copy[0].count;
+        // 淹没与左右边界的陆地相连的岛屿
+        for row in 0...m - 1 {
+            floodFill(&copy, row, 0);
+            floodFill(&copy, row, n - 1);
+        }
+        // 淹没与上下边界的陆地相连的岛屿
+        for col in 0...n - 1 {
+            floodFill(&copy, 0, col);
+            floodFill(&copy, m - 1, col);
+        }
+        var count = 0;
+        for row in 0...m - 1 {
+            for col in 0...n - 1 {
+                if (copy[row][col] == Solution.LAND) {
+                    floodFill(&copy, row, col);
+                    count += 1;
+                }
+            }
+        }
+        return count;
+    }
+
+    private func floodFill(_ grid: inout [[Int]], _ row: Int, _ col: Int) {
+        if (row < 0 || row >= grid.count || col < 0 || col >= grid[0].count
+                || grid[row][col] == Solution.WATER) {
+            return;
+        }
+        grid[row][col] = Solution.WATER;
+        floodFill(&grid, row - 1, col);
+        floodFill(&grid, row + 1, col);
+        floodFill(&grid, row, col - 1);
+        floodFill(&grid, row, col + 1);
+    }
+}
+// https://leetcode.cn/submissions/detail/387742504/
 ```
 
 ## 1288. 删除被覆盖区间
@@ -6275,7 +7388,25 @@ class Solution {
 <https://leetcode.cn/problems/remove-covered-intervals/>
 
 ```swift
-
+class Solution {
+    func removeCoveredIntervals(_ intervals: [[Int]]) -> Int {
+        let sortedIntervals = intervals.sorted { a, b in
+            a[0] == b[0] ? a[1] > b[1] : a[0] < b[0]
+        };
+        var count = sortedIntervals.count;
+        var maxEnd = 0;
+        for interval in sortedIntervals {
+            let end = interval[1];
+            if (end <= maxEnd) {
+                count -= 1;
+            } else {
+                maxEnd = end;
+            }
+        }
+        return count;
+    }
+}
+// https://leetcode.cn/submissions/detail/385541044/
 ```
 
 ## 1382. 将二叉搜索树变平衡
@@ -6283,7 +7414,37 @@ class Solution {
 <https://leetcode.cn/problems/balance-a-binary-search-tree/>
 
 ```swift
+class Solution {
+    private var nums: [Int] = [];
 
+    func balanceBST(_ root: TreeNode?) -> TreeNode? {
+        dfs(root);
+        return sortedArrayToBST(nums, 0, nums.count - 1);
+    }
+
+    // 深度优先搜索，获取中序遍历结果
+    private func dfs(_ root: TreeNode?) {
+        if (root == nil) {
+            return;
+        }
+        dfs(root!.left);
+        nums.append(root!.val);
+        dfs(root!.right);
+    }
+
+    // 将有序子数组 nums[lo..hi] 转换为二叉搜索树
+    private func sortedArrayToBST(_ nums: [Int], _ lo: Int, _ hi: Int) -> TreeNode? {
+        if (lo > hi) {
+            return nil;
+        }
+        let mid = lo + (hi - lo) / 2;
+        let root = TreeNode(nums[mid]);
+        root.left = sortedArrayToBST(nums, lo, mid - 1);
+        root.right = sortedArrayToBST(nums, mid + 1, hi);
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/384968609/
 ```
 
 ## 1514. 概率最大的路径
@@ -6291,7 +7452,186 @@ class Solution {
 <https://leetcode.cn/problems/path-with-maximum-probability/>
 
 ```swift
+class IndexMaxPQ {
+    private let maxN: Int;
+    private var n: Int;
+    private var pq: [Int];
+    private var qp: [Int];
+    private var keys: [Double?];
 
+    init(_ maxN: Int) {
+        self.maxN = maxN;
+        n = 0;
+        keys = Array(repeating: nil, count: maxN + 1);
+        pq = Array(repeating: -1, count: maxN + 1);
+        qp = Array(repeating: -1, count: maxN + 1);
+    }
+
+    public func isEmpty() -> Bool {
+        n == 0;
+    }
+
+    public func contains(_ i: Int) -> Bool {
+        qp[i] != -1;
+    }
+
+    public func insert(_ i: Int, _ key: Double) {
+        n += 1;
+        qp[i] = n;
+        pq[n] = i;
+        keys[i] = key;
+        swim(n);
+    }
+
+    public func delMax() -> Int {
+        let max = pq[1];
+        exch(1, n);
+        n -= 1;
+        sink(1);
+        qp[max] = -1;
+        keys[max] = nil;
+        pq[n + 1] = -1;
+        return max;
+    }
+
+    public func changeKey(_ i: Int, _ key: Double) {
+        keys[i] = key;
+        swim(qp[i]);
+        sink(qp[i]);
+    }
+
+    private func less(_ i: Int, _ j: Int) -> Bool {
+        keys[pq[i]]! < keys[pq[j]]!;
+    }
+
+    private func exch(_ i: Int, _ j: Int) {
+        pq.swapAt(i, j);
+        qp[pq[i]] = i;
+        qp[pq[j]] = j;
+    }
+
+    private func swim(_ k: Int) {
+        var k = k;
+        while (k > 1 && less(k / 2, k)) {
+            exch(k, k / 2);
+            k = k / 2;
+        }
+    }
+
+    private func sink(_ k: Int) {
+        var k = k;
+        while (2 * k <= n) {
+            var j = 2 * k;
+            if (j < n && less(j, j + 1)) {
+                j += 1;
+            }
+            if (!less(k, j)) {
+                break;
+            }
+            exch(k, j);
+            k = j;
+        }
+    }
+}
+
+struct DirectedEdge {
+    private let v: Int;
+    private let w: Int;
+    public let weight: Double;
+
+    init(_ v: Int, _ w: Int, _ weight: Double) {
+        self.v = v
+        self.w = w
+        self.weight = weight
+    }
+
+    public func from() -> Int {
+        v;
+    }
+
+    public func to() -> Int {
+        w;
+    }
+}
+
+struct EdgeWeightedDigraph {
+    public let V: Int;
+    private var E = 0;
+    private var adj: [[DirectedEdge]];
+
+    init(_ V: Int) {
+        self.V = V;
+        adj = Array(repeating: [], count: V);
+    }
+
+    public mutating func addEdge(_ e: DirectedEdge) {
+        let v = e.from();
+        adj[v].append(e);
+        E += 1;
+    }
+
+    public func adj(_ v: Int) -> [DirectedEdge] {
+        adj[v];
+    }
+}
+
+struct DijkstraLP {
+    private var distTo: [Double];
+    private var pq: IndexMaxPQ;
+
+    init(_ G: EdgeWeightedDigraph, _ s: Int) {
+        let V = G.V;
+        distTo = Array(repeating: -Double.infinity, count: V);
+        distTo[s] = 1.0;
+        pq = IndexMaxPQ(V);
+        pq.insert(s, distTo[s]);
+        while (!pq.isEmpty()) {
+            let v = pq.delMax();
+            relax(G, v);
+        }
+    }
+
+    private mutating func relax(_ G: EdgeWeightedDigraph, _ v: Int) {
+        for e in G.adj(v) {
+            let w = e.to();
+            if (distTo[w] < distTo[v] * e.weight) {
+                distTo[w] = distTo[v] * e.weight;
+                if (pq.contains(w)) {
+                    pq.changeKey(w, distTo[w]);
+                } else {
+                    pq.insert(w, distTo[w]);
+                }
+            }
+        }
+    }
+
+    public func hasPathTo(_ v: Int) -> Bool {
+        distTo[v] > -Double.infinity;
+    }
+
+    public func distTo(_ v: Int) -> Double {
+        distTo[v];
+    }
+}
+
+class Solution {
+    func maxProbability(_ n: Int, _ edges: [[Int]], _ succProb: [Double], _ start: Int, _ end: Int) -> Double {
+        var graph = EdgeWeightedDigraph(n);
+        for (i, e) in edges.enumerated() {
+            let v = e[0];
+            let w = e[1];
+            let weight = succProb[i];
+            graph.addEdge(DirectedEdge(v, w, weight));
+            graph.addEdge(DirectedEdge(w, v, weight));
+        }
+        let lpt = DijkstraLP(graph, start);
+        if (lpt.hasPathTo(end)) {
+            return lpt.distTo(end);
+        }
+        return 0.0;
+    }
+}
+// https://leetcode.cn/submissions/detail/386383043/
 ```
 
 ## 1541. 平衡括号字符串的最少插入次数
@@ -6299,7 +7639,37 @@ class Solution {
 <https://leetcode.cn/problems/minimum-insertions-to-balance-a-parentheses-string/>
 
 ```swift
-
+class Solution {
+    func minInsertions(_ s: String) -> Int {
+        var insertLeft = 0; // 已插入左括号的数量
+        var insertRight = 0; // 已插入右括号的数量
+        var needRight = 0; // 待插入右括号的数量
+        for ch in s {
+            if (ch == "(") {
+                // A((B)(.. -> A((B))(..
+                if (needRight % 2 == 1) {
+                    //『必须立即』在位置 i 前插入 1 个右括号
+                    // 否则，后续任何插入都不能使区间 [0..i-1] 的匹配有效
+                    insertRight += 1;
+                    needRight -= 1;
+                }
+                needRight += 2;
+            }
+            if (ch == ")") {
+                needRight -= 1;
+                // A).. -> A()..
+                if (needRight == -1) {
+                    //『必须立即』在位置 i 前插入 1 个左括号
+                    // 否则，后续任何插入都不能使区间 [0..i] 的匹配有效
+                    insertLeft += 1;
+                    needRight = 1;
+                }
+            }
+        }
+        return insertLeft + insertRight + needRight;
+    }
+}
+// https://leetcode.cn/submissions/detail/385443436/
 ```
 
 ## 1584. 连接所有点的最小费用
@@ -6307,7 +7677,407 @@ class Solution {
 <https://leetcode.cn/problems/min-cost-to-connect-all-points/>
 
 ```swift
+class Solution {
+    func minCostConnectPoints(_ points: [[Int]]) -> Int {
+        let n = points.count;
+        var graph = Graph<Int>();
+        var v = 0;
+        while (v < n) {
+            var w = v + 1;
+            while (w < n) {
+                let weight = abs(points[v][0] - points[w][0]) + abs(points[v][1] - points[w][1]);
+                graph.addEdge(vertex1: v, vertex2: w, weight: weight);
+                w += 1
+            }
+            v += 1;
+        }
+        let mst = minimumSpanningTreePrim(graph: graph);
+        return mst.cost;
+    }
+}
 
+//
+//  Heap.swift
+//  Written for the Swift Algorithm Club by Kevin Randrup and Matthijs Hollemans
+//
+
+public struct Heap<T> {
+    /** The array that stores the heap's nodes. */
+    var elements = [T]()
+
+    /** Determines whether this is a max-heap (>) or min-heap (<). */
+    fileprivate var isOrderedBefore: (T, T) -> Bool
+
+    /**
+   * Creates an empty heap.
+   * The sort function determines whether this is a min-heap or max-heap.
+   * For integers, > makes a max-heap, < makes a min-heap.
+   */
+    public init(sort: @escaping (T, T) -> Bool) {
+        self.isOrderedBefore = sort
+    }
+
+    /**
+   * Creates a heap from an array. The order of the array does not matter;
+   * the elements are inserted into the heap in the order determined by the
+   * sort function.
+   */
+    public init(array: [T], sort: @escaping (T, T) -> Bool) {
+        self.isOrderedBefore = sort
+        buildHeap(fromArray: array)
+    }
+
+    /*
+  // This version has O(n log n) performance.
+  private mutating func buildHeap(array: [T]) {
+    elements.reserveCapacity(array.count)
+    for value in array {
+      insert(value)
+    }
+  }
+  */
+
+    /**
+   * Converts an array to a max-heap or min-heap in a bottom-up manner.
+   * Performance: This runs pretty much in O(n).
+   */
+    fileprivate mutating func buildHeap(fromArray array: [T]) {
+        elements = array
+        for i in stride(from: (elements.count/2 - 1), through: 0, by: -1) {
+            shiftDown(i, heapSize: elements.count)
+        }
+    }
+
+    public var isEmpty: Bool {
+        return elements.isEmpty
+    }
+
+    public var count: Int {
+        return elements.count
+    }
+
+    /**
+   * Returns the index of the parent of the element at index i.
+   * The element at index 0 is the root of the tree and has no parent.
+   */
+    @inline(__always) func parentIndex(ofIndex i: Int) -> Int {
+        return (i - 1) / 2
+    }
+
+    /**
+   * Returns the index of the left child of the element at index i.
+   * Note that this index can be greater than the heap size, in which case
+   * there is no left child.
+   */
+    @inline(__always) func leftChildIndex(ofIndex i: Int) -> Int {
+        return 2*i + 1
+    }
+
+    /**
+   * Returns the index of the right child of the element at index i.
+   * Note that this index can be greater than the heap size, in which case
+   * there is no right child.
+   */
+    @inline(__always) func rightChildIndex(ofIndex i: Int) -> Int {
+        return 2*i + 2
+    }
+
+    /**
+   * Returns the maximum value in the heap (for a max-heap) or the minimum
+   * value (for a min-heap).
+   */
+    public func peek() -> T? {
+        return elements.first
+    }
+
+    /**
+   * Adds a new value to the heap. This reorders the heap so that the max-heap
+   * or min-heap property still holds. Performance: O(log n).
+   */
+    public mutating func insert(_ value: T) {
+        elements.append(value)
+        shiftUp(elements.count - 1)
+    }
+
+    public mutating func insert<S: Sequence>(_ sequence: S) where S.Iterator.Element == T {
+        for value in sequence {
+            insert(value)
+        }
+    }
+
+    /**
+   * Allows you to change an element. In a max-heap, the new element should be
+   * larger than the old one; in a min-heap it should be smaller.
+   */
+    public mutating func replace(index i: Int, value: T) {
+        guard i < elements.count else { return }
+
+        assert(isOrderedBefore(value, elements[i]))
+        elements[i] = value
+        shiftUp(i)
+    }
+
+    /**
+   * Removes the root node from the heap. For a max-heap, this is the maximum
+   * value; for a min-heap it is the minimum value. Performance: O(log n).
+   */
+    @discardableResult public mutating func remove() -> T? {
+        if elements.isEmpty {
+            return nil
+        } else if elements.count == 1 {
+            return elements.removeLast()
+        } else {
+            // Use the last node to replace the first one, then fix the heap by
+            // shifting this new first node into its proper position.
+            let value = elements[0]
+            elements[0] = elements.removeLast()
+            shiftDown()
+            return value
+        }
+    }
+
+    /**
+   * Removes an arbitrary node from the heap. Performance: O(log n). You need
+   * to know the node's index, which may actually take O(n) steps to find.
+   */
+    public mutating func removeAt(_ index: Int) -> T? {
+        guard index < elements.count else { return nil }
+
+        let size = elements.count - 1
+        if index != size {
+            elements.swapAt(index,size)
+            shiftDown(index, heapSize: size)
+            shiftUp(index)
+        }
+        return elements.removeLast()
+    }
+
+    /**
+   * Takes a child node and looks at its parents; if a parent is not larger
+   * (max-heap) or not smaller (min-heap) than the child, we exchange them.
+   */
+    mutating func shiftUp(_ index: Int) {
+        var childIndex = index
+        let child = elements[childIndex]
+        var parentIndex = self.parentIndex(ofIndex: childIndex)
+
+        while childIndex > 0 && isOrderedBefore(child, elements[parentIndex]) {
+            elements[childIndex] = elements[parentIndex]
+            childIndex = parentIndex
+            parentIndex = self.parentIndex(ofIndex: childIndex)
+        }
+
+        elements[childIndex] = child
+    }
+
+    mutating func shiftDown() {
+        shiftDown(0, heapSize: elements.count)
+    }
+
+    /**
+   * Looks at a parent node and makes sure it is still larger (max-heap) or
+   * smaller (min-heap) than its childeren.
+   */
+    mutating func shiftDown(_ index: Int, heapSize: Int) {
+        var parentIndex = index
+
+        while true {
+            let leftChildIndex = self.leftChildIndex(ofIndex: parentIndex)
+            let rightChildIndex = leftChildIndex + 1
+
+            // Figure out which comes first if we order them by the sort function:
+            // the parent, the left child, or the right child. If the parent comes
+            // first, we're done. If not, that element is out-of-place and we make
+            // it "float down" the tree until the heap property is restored.
+            var first = parentIndex
+            if leftChildIndex < heapSize && isOrderedBefore(elements[leftChildIndex], elements[first]) {
+                first = leftChildIndex
+            }
+            if rightChildIndex < heapSize && isOrderedBefore(elements[rightChildIndex], elements[first]) {
+                first = rightChildIndex
+            }
+            if first == parentIndex { return }
+
+            elements.swapAt(parentIndex,first)
+            parentIndex = first
+        }
+    }
+}
+
+// MARK: - Searching
+
+extension Heap where T: Equatable {
+    /**
+   * Searches the heap for the given element. Performance: O(n).
+   */
+    public func index(of element: T) -> Int? {
+        return index(of: element, 0)
+    }
+
+    fileprivate func index(of element: T, _ i: Int) -> Int? {
+        if i >= count { return nil }
+        if isOrderedBefore(element, elements[i]) { return nil }
+        if element == elements[i] { return i }
+        if let j = index(of: element, self.leftChildIndex(ofIndex: i)) { return j }
+        if let j = index(of: element, self.rightChildIndex(ofIndex: i)) { return j }
+        return nil
+    }
+}
+
+/*
+  Priority Queue, a queue where the most "important" items are at the front of
+  the queue.
+
+  The heap is a natural data structure for a priority queue, so this object
+  simply wraps the Heap struct.
+
+  All operations are O(lg n).
+
+  Just like a heap can be a max-heap or min-heap, the queue can be a max-priority
+  queue (largest element first) or a min-priority queue (smallest element first).
+*/
+public struct PriorityQueue<T> {
+    fileprivate var heap: Heap<T>
+
+    /*
+    To create a max-priority queue, supply a > sort function. For a min-priority
+    queue, use <.
+  */
+    public init(sort: @escaping (T, T) -> Bool) {
+        heap = Heap(sort: sort)
+    }
+
+    public var isEmpty: Bool {
+        return heap.isEmpty
+    }
+
+    public var count: Int {
+        return heap.count
+    }
+
+    public func peek() -> T? {
+        return heap.peek()
+    }
+
+    public mutating func enqueue(_ element: T) {
+        heap.insert(element)
+    }
+
+    public mutating func dequeue() -> T? {
+        return heap.remove()
+    }
+
+    /*
+    Allows you to change the priority of an element. In a max-priority queue,
+    the new priority should be larger than the old one; in a min-priority queue
+    it should be smaller.
+  */
+    public mutating func changePriority(index i: Int, value: T) {
+        return heap.replace(index: i, value: value)
+    }
+}
+
+extension PriorityQueue where T: Equatable {
+    public func index(of element: T) -> Int? {
+        return heap.index(of: element)
+    }
+}
+
+// Undirected edge
+public struct Edge<T>: CustomStringConvertible {
+    public let vertex1: T
+    public let vertex2: T
+    public let weight: Int
+
+    public var description: String {
+        return "[\(vertex1)-\(vertex2), \(weight)]"
+    }
+}
+
+// Undirected weighted graph
+public struct Graph<T: Hashable>: CustomStringConvertible {
+
+    public private(set) var edgeList: [Edge<T>]
+    public private(set) var vertices: Set<T>
+    public private(set) var adjList: [T: [(vertex: T, weight: Int)]]
+
+    public init() {
+        edgeList = [Edge<T>]()
+        vertices = Set<T>()
+        adjList = [T: [(vertex: T, weight: Int)]]()
+    }
+
+    public var description: String {
+        var description = ""
+        for edge in edgeList {
+            description += edge.description + "\n"
+        }
+        return description
+    }
+
+    public mutating func addEdge(vertex1 v1: T, vertex2 v2: T, weight w: Int) {
+        edgeList.append(Edge(vertex1: v1, vertex2: v2, weight: w))
+        vertices.insert(v1)
+        vertices.insert(v2)
+
+        adjList[v1] = adjList[v1] ?? []
+        adjList[v1]?.append((vertex: v2, weight: w))
+
+        adjList[v2] = adjList[v2] ?? []
+        adjList[v2]?.append((vertex: v1, weight: w))
+    }
+
+    public mutating func addEdge(_ edge: Edge<T>) {
+        addEdge(vertex1: edge.vertex1, vertex2: edge.vertex2, weight: edge.weight)
+    }
+}
+
+//
+//  Prim.swift
+//
+//
+//  Created by xiang xin on 16/3/17.
+//
+//
+
+func minimumSpanningTreePrim<T>(graph: Graph<T>) -> (cost: Int, tree: Graph<T>) {
+    var cost: Int = 0
+    var tree = Graph<T>()
+
+    guard let start = graph.vertices.first else {
+        return (cost: cost, tree: tree)
+    }
+
+    var visited = Set<T>()
+    var priorityQueue = PriorityQueue<(vertex: T, weight: Int, parent: T?)>(
+            sort: { $0.weight < $1.weight })
+
+    priorityQueue.enqueue((vertex: start, weight: 0, parent: nil))
+    while let head = priorityQueue.dequeue() {
+        let vertex = head.vertex
+        if visited.contains(vertex) {
+            continue
+        }
+        visited.insert(vertex)
+
+        cost += head.weight
+        if let prev = head.parent {
+            tree.addEdge(vertex1: prev, vertex2: vertex, weight: head.weight)
+        }
+
+        if let neighbours = graph.adjList[vertex] {
+            for neighbour in neighbours {
+                let nextVertex = neighbour.vertex
+                if !visited.contains(nextVertex) {
+                    priorityQueue.enqueue((vertex: nextVertex, weight: neighbour.weight, parent: vertex))
+                }
+            }
+        }
+    }
+
+    return (cost: cost, tree: tree)
+}
+// https://leetcode.cn/submissions/detail/386300293/
 ```
 
 ## 1631. 最小体力消耗路径
@@ -6315,7 +8085,191 @@ class Solution {
 <https://leetcode.cn/problems/path-with-minimum-effort/>
 
 ```swift
+import Foundation
 
+class IndexMinPQ {
+    private let maxN: Int;
+    private var n: Int;
+    private var pq: [Int];
+    private var qp: [Int];
+    private var keys: [Int?];
+
+    init(_ maxN: Int) {
+        self.maxN = maxN;
+        n = 0;
+        keys = Array(repeating: nil, count: maxN + 1);
+        pq = Array(repeating: -1, count: maxN + 1);
+        qp = Array(repeating: -1, count: maxN + 1);
+    }
+
+    public func isEmpty() -> Bool {
+        n == 0;
+    }
+
+    public func contains(_ i: Int) -> Bool {
+        qp[i] != -1;
+    }
+
+    public func insert(_ i: Int, _ key: Int) {
+        n += 1;
+        qp[i] = n;
+        pq[n] = i;
+        keys[i] = key;
+        swim(n);
+    }
+
+    public func delMin() -> Int {
+        let max = pq[1];
+        exch(1, n);
+        n -= 1;
+        sink(1);
+        qp[max] = -1;
+        keys[max] = nil;
+        pq[n + 1] = -1;
+        return max;
+    }
+
+    public func changeKey(_ i: Int, _ key: Int) {
+        keys[i] = key;
+        swim(qp[i]);
+        sink(qp[i]);
+    }
+
+    private func less(_ i: Int, _ j: Int) -> Bool {
+        keys[pq[i]]! < keys[pq[j]]!;
+    }
+
+    private func exch(_ i: Int, _ j: Int) {
+        pq.swapAt(i, j);
+        qp[pq[i]] = i;
+        qp[pq[j]] = j;
+    }
+
+    private func swim(_ k: Int) {
+        var k = k;
+        while (k > 1 && less(k / 2, k)) {
+            exch(k, k / 2);
+            k = k / 2;
+        }
+    }
+
+    private func sink(_ k: Int) {
+        var k = k;
+        while (2 * k <= n) {
+            var j = 2 * k;
+            if (j < n && less(j, j + 1)) {
+                j += 1;
+            }
+            if (!less(k, j)) {
+                break;
+            }
+            exch(k, j);
+            k = j;
+        }
+    }
+}
+
+struct DirectedEdge {
+    private let v: Int;
+    private let w: Int;
+    public let weight: Int;
+
+    init(_ v: Int, _ w: Int, _ weight: Int) {
+        self.v = v
+        self.w = w
+        self.weight = weight
+    }
+
+    public func from() -> Int {
+        v;
+    }
+
+    public func to() -> Int {
+        w;
+    }
+}
+
+struct EdgeWeightedDigraph {
+    public let V: Int;
+    private var E = 0;
+    private var adj: [[DirectedEdge]];
+
+    init(_ V: Int) {
+        self.V = V;
+        adj = Array(repeating: [], count: V);
+    }
+
+    public mutating func addEdge(_ e: DirectedEdge) {
+        let v = e.from();
+        adj[v].append(e);
+        E += 1;
+    }
+
+    public func adj(_ v: Int) -> [DirectedEdge] {
+        adj[v];
+    }
+}
+
+struct DijkstraSP {
+    private var distTo: [Int];
+    private var pq: IndexMinPQ;
+
+    init(_ G: EdgeWeightedDigraph, _ s: Int) {
+        let V = G.V;
+        distTo = Array(repeating: Int.max, count: V);
+        distTo[s] = 0;
+        pq = IndexMinPQ(V);
+        pq.insert(s, distTo[s]);
+        while (!pq.isEmpty()) {
+            let v = pq.delMin();
+            relax(G, v);
+        }
+    }
+
+    private mutating func relax(_ G: EdgeWeightedDigraph, _ v: Int) {
+        for e in G.adj(v) {
+            let w = e.to();
+            if (distTo[w] > max(distTo[v], e.weight)) {
+                distTo[w] = max(distTo[v], e.weight);
+                if (pq.contains(w)) {
+                    pq.changeKey(w, distTo[w]);
+                } else {
+                    pq.insert(w, distTo[w]);
+                }
+            }
+        }
+    }
+
+    public func distTo(_ v: Int) -> Int {
+        distTo[v];
+    }
+}
+
+class Solution {
+    func minimumEffortPath(_ heights: [[Int]]) -> Int {
+        let m = heights.count;
+        let n = heights[0].count;
+        var graph = EdgeWeightedDigraph(m * n);
+        let directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+        for i in 0...m - 1 {
+            for j in 0...n - 1 {
+                for d in directions {
+                    let x = i + d[0];
+                    let y = j + d[1];
+                    if (x >= 0 && x <= m - 1 && y >= 0 && y <= n - 1) {
+                        let v = i * n + j;
+                        let w = x * n + y;
+                        let weight = abs(heights[i][j] - heights[x][y]);
+                        graph.addEdge(DirectedEdge(v, w, weight));
+                    }
+                }
+            }
+        }
+        let spt = DijkstraSP(graph, 0);
+        return spt.distTo((m - 1) * n + n - 1);
+    }
+}
+// 超出时间限制
 ```
 
 ## 1905. 统计子岛屿
@@ -6323,7 +8277,46 @@ class Solution {
 <https://leetcode.cn/problems/count-sub-islands/>
 
 ```swift
+class Solution {
+    private static let LAND = 1;
+    private static let WATER = 0;
 
+    func countSubIslands(_ grid1: [[Int]], _ grid2: [[Int]]) -> Int {
+        var copy2 = grid2;
+        let m = copy2.count, n = copy2[0].count;
+        for i in 0...m - 1 {
+            for j in 0...n - 1 {
+                // 淹没『非子岛屿』
+                if (copy2[i][j] == Solution.LAND && grid1[i][j] == Solution.WATER) {
+                    floodFill(&copy2, i, j);
+                }
+            }
+        }
+        var count = 0;
+        for i in 0...m - 1 {
+            for j in 0...n - 1 {
+                if (copy2[i][j] == Solution.LAND) {
+                    floodFill(&copy2, i, j);
+                    count += 1;
+                }
+            }
+        }
+        return count;
+    }
+
+    private func floodFill(_ grid: inout [[Int]], _ row: Int, _ col: Int) {
+        if (row < 0 || row >= grid.count || col < 0 || col >= grid[0].count
+                || grid[row][col] == Solution.WATER) {
+            return;
+        }
+        grid[row][col] = Solution.WATER;
+        floodFill(&grid, row - 1, col);
+        floodFill(&grid, row + 1, col);
+        floodFill(&grid, row, col - 1);
+        floodFill(&grid, row, col + 1);
+    }
+}
+// https://leetcode.cn/submissions/detail/387743712/
 ```
 
 ## CtCI 02.02. 返回倒数第 K 个节点
@@ -6331,5 +8324,18 @@ class Solution {
 <https://leetcode-cn.com/problems/kth-node-from-end-of-list-lcci/>
 
 ```swift
-
+class Solution {
+    func kthToLast(_ head: ListNode?, _ k: Int) -> Int {
+        var slow = head, fast = head;
+        for _ in 1...k {
+            fast = fast!.next;
+        }
+        while (fast != nil) {
+            slow = slow!.next;
+            fast = fast!.next;
+        }
+        return slow!.val;
+    }
+}
+// https://leetcode.cn/submissions/detail/384867877/
 ```
