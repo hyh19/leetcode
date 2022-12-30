@@ -2978,7 +2978,39 @@ class Solution {
 <https://leetcode.cn/problems/number-of-islands/>
 
 ```dart
+class Solution {
+  static const LAND = '1';
+  static const WATER = '0';
 
+  int numIslands(List<List<String>> grid) {
+    var count = 0;
+    for (var row = 0; row < grid.length; ++row) {
+      for (var col = 0; col < grid[0].length; ++col) {
+        if (grid[row][col] == LAND) {
+          _floodFill(grid, row, col);
+          ++count;
+        }
+      }
+    }
+    return count;
+  }
+
+  void _floodFill(List<List<String>> grid, int row, int col) {
+    if (row < 0 ||
+        row >= grid.length ||
+        col < 0 ||
+        col >= grid[0].length ||
+        grid[row][col] == WATER) {
+      return;
+    }
+    grid[row][col] = WATER;
+    _floodFill(grid, row - 1, col);
+    _floodFill(grid, row + 1, col);
+    _floodFill(grid, row, col - 1);
+    _floodFill(grid, row, col + 1);
+  }
+}
+// https://leetcode.cn/submissions/detail/377597807/
 ```
 
 ## 203. 移除链表元素
@@ -2986,7 +3018,21 @@ class Solution {
 <https://leetcode-cn.com/problems/remove-linked-list-elements/>
 
 ```dart
-
+class Solution {
+  ListNode? removeElements(ListNode? head, int val) {
+    final dummyHead = ListNode(-1, head);
+    var ptr = dummyHead;
+    while (ptr.next != null) {
+      if (ptr.next!.val == val) {
+        ptr.next = ptr.next!.next;
+      } else {
+        ptr = ptr.next!;
+      }
+    }
+    return dummyHead.next;
+  }
+}
+// https://leetcode.cn/submissions/detail/378413829/
 ```
 
 ## 206. 反转链表
@@ -2994,7 +3040,19 @@ class Solution {
 <https://leetcode-cn.com/problems/reverse-linked-list/>
 
 ```dart
-
+class Solution {
+  ListNode? reverseList(ListNode? head) {
+    ListNode? reverseHead;
+    while (head != null) {
+      final x = head.next;
+      head.next = reverseHead;
+      reverseHead = head;
+      head = x;
+    }
+    return reverseHead;
+  }
+}
+// https://leetcode.cn/submissions/detail/378268265/
 ```
 
 ## 207. 课程表
@@ -3018,7 +3076,42 @@ class Solution {
 <https://leetcode.cn/problems/house-robber-ii/>
 
 ```dart
+class Solution {
+  int rob(List<int> nums) {
+    final n = nums.length;
+    if (n == 0) {
+      return 0;
+    }
+    if (n == 1) {
+      return nums[0];
+    }
+    return max(_subseqSum(nums, 0, n - 2), _subseqSum(nums, 1, n - 1));
+  }
 
+  // max({sum(subseq) | subseq 是子数组 nums[lo..hi] 的不连续子序列})
+  int _subseqSum(List<int> nums, int lo, int hi) {
+    final n = hi - lo + 1;
+    if (n == 0) {
+      return 0;
+    }
+    if (n == 1) {
+      return nums[lo];
+    }
+    // dp[i] = max({sum(subseq) | subseq 是子数组 nums[lo..lo+i] 的不连续子序列})
+    final dp = List.filled(n, 0);
+    dp[0] = nums[lo];
+    dp[1] = max(nums[lo], nums[lo + 1]);
+    for (var i = 2; i < n; ++i) {
+      // 包含 nums[lo+i]
+      final sp1 = dp[i - 2] + nums[lo + i];
+      // 不包含 nums[lo+i]
+      final sp2 = dp[i - 1];
+      dp[i] = max(sp1, sp2);
+    }
+    return dp[n - 1];
+  }
+}
+// https://leetcode.cn/submissions/detail/376668797/
 ```
 
 ## 215. 数组中的第 K 个最大元素
@@ -3034,7 +3127,40 @@ class Solution {
 <https://leetcode.cn/problems/combination-sum-iii/>
 
 ```dart
+class Solution {
+  int _pathSum = 0;
+  late final int _k;
+  late final int _n;
+  late final List<int> _path = []; // 取 [1..9] 为元素
+  late final List<List<int>> _ans = [];
 
+  List<List<int>> combinationSum3(int k, int n) {
+    _k = k;
+    _n = n;
+    _backtrack(0);
+    return _ans;
+  }
+
+  // edge = 取 [1..9] 为值
+  void _backtrack(int edge) {
+    if (_path.length == _k && _pathSum == _n) {
+      _ans.add(List<int>.of(_path));
+    } else if (_path.length < _k && _pathSum < _n) {
+      // 避免重复，从 edge + 1 开始选择
+      // 例如 [1->2] 和 [2->1] 是重复的
+      while (++edge <= 9) {
+        if (_pathSum + edge <= _n) {
+          _pathSum += edge;
+          _path.add(edge);
+          _backtrack(edge);
+          _pathSum -= edge;
+          _path.removeLast();
+        }
+      }
+    }
+  }
+}
+// https://leetcode.cn/submissions/detail/376972200/
 ```
 
 ## 222. 完全二叉树的节点个数
@@ -3042,7 +3168,30 @@ class Solution {
 <https://leetcode.cn/problems/count-complete-tree-nodes/>
 
 ```dart
-
+class Solution {
+  int countNodes(TreeNode? root) {
+    if (root == null) {
+      return 0;
+    }
+    var leftHeight = 0;
+    TreeNode? ptr = root;
+    while (ptr != null) {
+      ++leftHeight;
+      ptr = ptr.left;
+    }
+    var rightHeight = 0;
+    ptr = root;
+    while (ptr != null) {
+      ++rightHeight;
+      ptr = ptr.right;
+    }
+    if (leftHeight == rightHeight) {
+      return pow(2, leftHeight).toInt() - 1;
+    }
+    return 1 + countNodes(root.left) + countNodes(root.right);
+  }
+}
+// https://leetcode.cn/submissions/detail/377780765/
 ```
 
 ## 225. 用队列实现栈
@@ -3050,7 +3199,33 @@ class Solution {
 <https://leetcode.cn/problems/implement-stack-using-queues/>
 
 ```dart
+import 'dart:collection';
 
+class MyStack {
+  late final _queue = Queue<int>();
+
+  MyStack();
+
+  void push(int x) {
+    _queue.addLast(x);
+    for (var i = 1; i < _queue.length; ++i) {
+      _queue.addLast(_queue.removeFirst());
+    }
+  }
+
+  int pop() {
+    return _queue.removeFirst();
+  }
+
+  int top() {
+    return _queue.first;
+  }
+
+  bool empty() {
+    return _queue.isEmpty;
+  }
+}
+// https://leetcode.cn/submissions/detail/378433964/
 ```
 
 ## 226. 翻转二叉树
@@ -3058,7 +3233,19 @@ class Solution {
 <https://leetcode.cn/problems/invert-binary-tree/>
 
 ```dart
-
+class Solution {
+  TreeNode? invertTree(TreeNode? root) {
+    if (root == null) {
+      return null;
+    }
+    final left = invertTree(root.left);
+    final right = invertTree(root.right);
+    root.left = right;
+    root.right = left;
+    return root;
+  }
+}
+// https://leetcode.cn/submissions/detail/377207421/
 ```
 
 ## 230. 二叉搜索树中第 K 小的元素
@@ -3066,7 +3253,40 @@ class Solution {
 <https://leetcode.cn/problems/kth-smallest-element-in-a-bst/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  late final _nodeToSize = HashMap<TreeNode, int>();
+
+  int kthSmallest(TreeNode? root, int k) {
+    return _select(root, k - 1);
+  }
+
+  int _select(TreeNode? root, int rank) {
+    if (root == null) {
+      return -1;
+    }
+    final leftSize = _size(root.left);
+    if (rank < leftSize) {
+      return _select(root.left, rank);
+    }
+    if (leftSize < rank) {
+      return _select(root.right, rank - leftSize - 1);
+    }
+    return root.val;
+  }
+
+  int _size(TreeNode? root) {
+    if (root == null) {
+      return 0;
+    }
+    if (!_nodeToSize.containsKey(root)) {
+      _nodeToSize[root] = 1 + _size(root.left) + _size(root.right);
+    }
+    return _nodeToSize[root]!;
+  }
+}
+// https://leetcode.cn/submissions/detail/378428086/
 ```
 
 ## 232. 用栈实现队列
@@ -3074,7 +3294,46 @@ class Solution {
 <https://leetcode.cn/problems/implement-queue-using-stacks/>
 
 ```dart
+// ------------------| |--------------------
+// pop <- Left Stack | | Right Stack <- push
+// ------------------| |--------------------
+import 'dart:collection';
 
+class MyQueue {
+  late final _leftStack = Queue<int>();
+  late final _rightStack = Queue<int>();
+
+  MyQueue();
+
+  void push(int x) {
+    _rightStack.addLast(x);
+  }
+
+  int pop() {
+    if (_leftStack.isEmpty) {
+      _move();
+    }
+    return _leftStack.removeLast();
+  }
+
+  int peek() {
+    if (_leftStack.isEmpty) {
+      _move();
+    }
+    return _leftStack.last;
+  }
+
+  bool empty() {
+    return _leftStack.isEmpty && _rightStack.isEmpty;
+  }
+
+  void _move() {
+    while (_rightStack.isNotEmpty) {
+      _leftStack.addLast(_rightStack.removeLast());
+    }
+  }
+}
+// https://leetcode.cn/submissions/detail/378430800/
 ```
 
 ## 234. 回文链表
@@ -3082,7 +3341,45 @@ class Solution {
 <https://leetcode.cn/problems/palindrome-linked-list/>
 
 ```dart
+class Solution {
+  bool isPalindrome(ListNode? head) {
+    // 寻找链表的中点（偶数个节点时选择左侧），即前半部分链表的尾节点
+    var slow = head;
+    var fast = head;
+    while (fast!.next != null && fast.next!.next != null) {
+      slow = slow!.next;
+      fast = fast.next!.next;
+    }
+    // 翻转后半部分链表
+    var reverseHead = _reverseList(slow!.next);
+    slow.next = null;
+    // 判断是否回文链表
+    var left = head;
+    var right = reverseHead;
+    while (right != null) {
+      if (left!.val != right.val) {
+        return false;
+      }
+      left = left.next;
+      right = right.next;
+    }
+    // 还原链表
+    slow.next = _reverseList(reverseHead);
+    return true;
+  }
 
+  ListNode? _reverseList(ListNode? head) {
+    ListNode? reverseHead;
+    while (head != null) {
+      final x = head.next;
+      head.next = reverseHead;
+      reverseHead = head;
+      head = x;
+    }
+    return reverseHead;
+  }
+}
+// https://leetcode.cn/submissions/detail/378294741/
 ```
 
 ## 235. 二叉搜索树的最近公共祖先
@@ -3114,7 +3411,32 @@ class Solution {
 <https://leetcode.cn/problems/sliding-window-maximum/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  List<int> maxSlidingWindow(List<int> nums, int k) {
+    final ans = <int>[];
+    final Queue<int> queue = DoubleLinkedQueue();
+    for (var i = 0; i < nums.length; ++i) {
+      // nums[i] = 进入窗口的数字
+      final x = nums[i];
+      while (queue.isNotEmpty && queue.last < x) {
+        queue.removeLast();
+      }
+      queue.addLast(x);
+      if (i < k - 1) {
+        continue;
+      }
+      // nums[i-k] = 退出窗口的数字
+      if (i >= k && nums[i - k] == queue.first) {
+        queue.removeFirst();
+      }
+      ans.add(queue.first);
+    }
+    return ans;
+  }
+}
+// https://leetcode.cn/submissions/detail/376039099/
 ```
 
 ## 253. 会议室 II
@@ -3130,7 +3452,29 @@ class Solution {
 <https://leetcode-cn.com/problems/move-zeroes/>
 
 ```dart
+class Solution {
+  void moveZeroes(List<int> nums) {
+    final n = nums.length;
+    var i = 0;
+    var j = 0;
+    while (true) {
+      while (j < n && nums[j] == 0) {
+        ++j;
+      }
+      if (j == n) {
+        break;
+      }
+      _swap(nums, i++, j++);
+    }
+  }
 
+  void _swap(List<int> nums, int i, int j) {
+    final temp = nums[i];
+    nums[i] = nums[j];
+    nums[j] = temp;
+  }
+}
+// https://leetcode.cn/submissions/detail/377989357/
 ```
 
 ## 297. 二叉树的序列化与反序列化
@@ -3146,7 +3490,27 @@ class Solution {
 <https://leetcode.cn/problems/longest-increasing-subsequence/>
 
 ```dart
-
+class Solution {
+  int lengthOfLIS(List<int> nums) {
+    final n = nums.length;
+    // dp[i] = max({length(subseq) | subseq 是以 nums[i] 结尾的严格递增子序列})
+    final dp = List<int>.filled(n, 1);
+    dp[0] = 1;
+    var ans = dp[0];
+    for (var i = 1; i < n; ++i) {
+      var res = 1;
+      for (var j = i - 1; j >= 0; --j) {
+        if (nums[j] < nums[i]) {
+          res = max(res, dp[j] + 1);
+        }
+      }
+      dp[i] = res;
+      ans = max(ans, dp[i]);
+    }
+    return ans;
+  }
+}
+// https://leetcode.cn/submissions/detail/376528570/
 ```
 
 ## 303. 区域和检索 - 数组不可变
@@ -3154,7 +3518,26 @@ class Solution {
 <https://leetcode.cn/problems/range-sum-query-immutable/>
 
 ```dart
+class NumArray {
+  late final List<int> _sums;
 
+  NumArray(List<int> nums) {
+    final n = nums.length;
+    _sums = List.filled(n, 0);
+    _sums[0] = nums[0];
+    for (var i = 1; i < n; ++i) {
+      _sums[i] = _sums[i - 1] + nums[i];
+    }
+  }
+
+  int sumRange(int left, int right) {
+    if (left == 0) {
+      return _sums[right];
+    }
+    return _sums[right] - _sums[left - 1];
+  }
+}
+// https://leetcode.cn/submissions/detail/378417576/
 ```
 
 ## 309. 最佳买卖股票时机含冷冻期
@@ -3162,7 +3545,30 @@ class Solution {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/>
 
 ```dart
-
+class Solution {
+  int maxProfit(List<int> prices) {
+    final n = prices.length;
+    if (n <= 1) {
+      return 0;
+    }
+    // dp[i][0] = 第 i 天，空仓状态下的最大利润
+    // dp[i][1] = 第 i 天，持仓状态下的最大利润
+    final dp = List.generate(n, (_) => List.filled(2, 0));
+    dp[0][0] = 0;
+    dp[0][1] = -prices[0];
+    dp[1][0] = max(dp[0][0], dp[0][1] + prices[1]);
+    dp[1][1] = max(dp[0][0] - prices[1], dp[0][1]);
+    for (var i = 2; i < n; ++i) {
+      // dp[i - 1][0]             >= dp[i - 2][0] >= p[i - 2][0] - prices[i]
+      // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+      // => dp[i][0] >= dp[i][1]
+      dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+      dp[i][1] = max(dp[i - 2][0] - prices[i], dp[i - 1][1]);
+    }
+    return dp[n - 1][0];
+  }
+}
+// https://leetcode.cn/submissions/detail/376693564/
 ```
 
 ## 315. 计算右侧小于当前元素的个数
@@ -3178,7 +3584,32 @@ class Solution {
 <https://leetcode.cn/problems/coin-change/>
 
 ```dart
-
+class Solution {
+  int coinChange(List<int> coins, int amount) {
+    // dp[i] = 凑成总金额 i 所需的最少的硬币个数
+    final dp = List.filled(amount + 1, -1);
+    dp[0] = 0;
+    for (var i = 1; i <= amount; ++i) {
+      var res = -1;
+      // c       = 选择放入的硬币
+      // i-c     = 剩余总金额
+      // dp[i-c] = 凑成剩余总金额所需的最少的硬币个数
+      for (final c in coins) {
+        final x = i - c;
+        if (x >= 0 && dp[x] != -1) {
+          if (res == -1) {
+            res = dp[x] + 1;
+          } else {
+            res = min(res, dp[x] + 1);
+          }
+        }
+      }
+      dp[i] = res;
+    }
+    return dp[amount];
+  }
+}
+// https://leetcode.cn/submissions/detail/376841008/
 ```
 
 ## 337. 打家劫舍 III
@@ -3186,7 +3617,32 @@ class Solution {
 <https://leetcode.cn/problems/house-robber-iii/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  late final Map<TreeNode, int> _memo = HashMap();
+
+  int rob(TreeNode? root) {
+    if (root == null) {
+      return 0;
+    }
+    if (!_memo.containsKey(root)) {
+      // 偷 root
+      var sp1 = root.val;
+      if (root.left != null) {
+        sp1 += rob(root.left!.left) + rob(root.left!.right);
+      }
+      if (root.right != null) {
+        sp1 += rob(root.right!.left) + rob(root.right!.right);
+      }
+      // 不偷 root
+      final sp2 = rob(root.left) + rob(root.right);
+      _memo[root] = max(sp1, sp2);
+    }
+    return _memo[root]!;
+  }
+}
+// https://leetcode.cn/submissions/detail/376683562/
 ```
 
 ## 344. 反转字符串
@@ -3194,7 +3650,22 @@ class Solution {
 <https://leetcode.cn/problems/reverse-string/>
 
 ```dart
+class Solution {
+  void reverseString(List<String> s) {
+    var i = 0;
+    var j = s.length - 1;
+    while (i < j) {
+      _swap(s, i++, j--);
+    }
+  }
 
+  void _swap(List<String> s, int i, int j) {
+    final temp = s[i];
+    s[i] = s[j];
+    s[j] = temp;
+  }
+}
+// https://leetcode.cn/submissions/detail/377985141/
 ```
 
 ## 354. 俄罗斯套娃信封问题
@@ -3210,7 +3681,67 @@ class Solution {
 <https://leetcode.cn/problems/decode-string/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  String decodeString(String s) {
+    final queue = Queue<String>();
+    final sb = StringBuffer();
+    final n = s.length;
+    var i = 0;
+    while (i < n) {
+      // Digits
+      while (i < n && _isDigit(s[i])) {
+        sb.write(s[i++]);
+      }
+      if (sb.isNotEmpty) {
+        queue.addLast(sb.toString());
+        sb.clear();
+      }
+      // [
+      while (i < n && s[i] == '[') {
+        queue.addLast('[');
+        ++i;
+      }
+      // Letters
+      while (i < n && _isLetter(s[i])) {
+        sb.write(s[i++]);
+      }
+      if (sb.isNotEmpty) {
+        queue.addLast(sb.toString());
+        sb.clear();
+      }
+      // ]
+      while (i < n && s[i] == ']') {
+        var letters = '';
+        while (queue.isNotEmpty) {
+          final x = queue.removeLast();
+          if (x == '[') {
+            break;
+          }
+          letters = x + letters;
+        }
+        final digits = queue.removeLast();
+        final repeated = letters * int.parse(digits);
+        queue.addLast(repeated);
+        ++i;
+      }
+    }
+    sb.writeAll(queue);
+    return sb.toString();
+  }
+
+  bool _isDigit(String ch) {
+    final code = ch.codeUnitAt(0);
+    return 48 <= code && code <= 57;
+  }
+
+  bool _isLetter(String ch) {
+    final code = ch.codeUnitAt(0);
+    return (97 <= code && code <= 122);
+  }
+}
+// https://leetcode.cn/submissions/detail/378111523/
 ```
 
 ## 416. 分割等和子集
@@ -3218,7 +3749,58 @@ class Solution {
 <https://leetcode.cn/problems/partition-equal-subset-sum/>
 
 ```dart
+class Solution {
+  bool canPartition(List<int> nums) {
+    var sum = 0;
+    for (final x in nums) {
+      sum += x;
+    }
+    if (sum % 2 == 1) {
+      return false;
+    }
+    return _hasSubsetSum(nums, sum ~/ 2);
+  }
 
+  // 数组 nums 是否存在和为 sum 的子集
+  bool _hasSubsetSum(List<int> nums, int sum) {
+    final n = nums.length;
+    // dp[i][j] = 子数组 nums[0..i-1] 是否存在和为 j 的子集
+    final dp = List.generate(n + 1, (_) => List.filled(sum + 1, false));
+    // 和为 0
+    for (var i = 1; i <= n; ++i) {
+      dp[i][0] = true;
+    }
+    // 空数组
+    for (var j = 1; j <= sum; ++j) {
+      dp[0][j] = false;
+    }
+    // 空集的和为 0，空集是任何数组的子集，包括空数组
+    dp[0][0] = true;
+    for (var i = 1; i <= n; ++i) {
+      for (var j = 1; j <= sum; ++j) {
+        final x = nums[i - 1];
+        if (j >= x) {
+          // 包含 x
+          // 当 i >= 1, j = x 时，dp[i - 1][j - x] = dp[i - 1][0]
+          // 因为存在子集 {x} 的和为 j，
+          // 所以定义 dp[i][0] = true (i >= 0)
+          final sp1 = dp[i - 1][j - x];
+          // 不包含 x
+          // 当 i = 1 时，dp[i - 1][j] = dp[0][j]
+          // 因为空数组没有子集的和为 j >= 1
+          // 所以定义 dp[0][j] = false (j >= 1)
+          final sp2 = dp[i - 1][j];
+          dp[i][j] = sp1 || sp2;
+        } else {
+          // 不包含 x
+          dp[i][j] = dp[i - 1][j];
+        }
+      }
+    }
+    return dp[n][sum];
+  }
+}
+// https://leetcode.cn/submissions/detail/376875656/
 ```
 
 ## 435. 无重叠区间
@@ -3226,7 +3808,29 @@ class Solution {
 <https://leetcode.cn/problems/non-overlapping-intervals/>
 
 ```dart
+class Solution {
+  int eraseOverlapIntervals(List<List<int>> intervals) {
+    return intervals.length - _maxNonOverlappingIntervals(intervals);
+  }
 
+  // 区间数组 intervals 无重叠区间的最大数量
+  int _maxNonOverlappingIntervals(List<List<int>> intervals) {
+    intervals.sort((a, b) => a[1] - b[1]);
+    var count = 0;
+    var minEnd = -50001;
+    for (final interval in intervals) {
+      final start = interval[0];
+      final end = interval[1];
+      if (start < minEnd) {
+        continue;
+      }
+      ++count;
+      minEnd = end;
+    }
+    return count;
+  }
+}
+// https://leetcode.cn/submissions/detail/376152977/
 ```
 
 ## 438. 找到字符串中所有字母异位词
@@ -3234,7 +3838,48 @@ class Solution {
 <https://leetcode.cn/problems/find-all-anagrams-in-a-string/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  List<int> findAnagrams(String s, String p) {
+    final need = HashMap<String, int>();
+    for (var i = 0; i < p.length; ++i) {
+      need.update(p[i], (val) => val + 1, ifAbsent: () => 1);
+    }
+    final window = HashMap<String, int>();
+    final ans = <int>[];
+    var valid = 0;
+    // s[left..right) = Window Substring
+    // s[right..n-1]  = Scanning
+    var left = 0;
+    var right = 0;
+    while (right < s.length) {
+      final c = s[right++];
+      if (need.containsKey(c)) {
+        window.update(c, (val) => val + 1, ifAbsent: () => 1);
+        if (window[c] == need[c]) {
+          ++valid;
+        }
+      }
+      if (valid == need.length) {
+        while (left < right - p.length) {
+          final d = s[left++];
+          if (need.containsKey(d)) {
+            if (window[d] == need[d]) {
+              --valid;
+            }
+            window.update(d, (val) => val - 1);
+          }
+        }
+        if (valid == need.length) {
+          ans.add(left);
+        }
+      }
+    }
+    return ans;
+  }
+}
+// https://leetcode.cn/submissions/detail/378518517/
 ```
 
 ## 445. 两数相加 II
@@ -3242,7 +3887,45 @@ class Solution {
 <https://leetcode.cn/problems/add-two-numbers-ii/>
 
 ```dart
+class Solution {
+  ListNode? addTwoNumbers(ListNode? l1, ListNode? l2) {
+    l1 = _reverseList(l1);
+    l2 = _reverseList(l2);
+    final dummyHead = ListNode();
+    var ptr = dummyHead;
+    var carry = 0;
+    while (l1 != null || l2 != null || carry > 0) {
+      var sum = carry;
+      if (l1 != null) {
+        sum += l1.val;
+        l1 = l1.next;
+      }
+      if (l2 != null) {
+        sum += l2.val;
+        l2 = l2.next;
+      }
+      ptr.next = ListNode(sum % 10);
+      ptr = ptr.next!;
+      carry = sum ~/ 10;
+    }
+    // 还原链表
+    _reverseList(l1);
+    _reverseList(l2);
+    return _reverseList(dummyHead.next);
+  }
 
+  ListNode? _reverseList(ListNode? head) {
+    ListNode? reverseHead;
+    while (head != null) {
+      final x = head.next;
+      head.next = reverseHead;
+      reverseHead = head;
+      head = x;
+    }
+    return reverseHead;
+  }
+}
+// https://leetcode.cn/submissions/detail/378308818/
 ```
 
 ## 450. 删除二叉搜索树中的节点
@@ -3250,7 +3933,46 @@ class Solution {
 <https://leetcode.cn/problems/delete-node-in-a-bst/>
 
 ```dart
+class Solution {
+  TreeNode? deleteNode(TreeNode? root, int key) {
+    if (root == null) {
+      return null;
+    }
+    if (key < root.val) {
+      root.left = deleteNode(root.left, key);
+    } else if (key > root.val) {
+      root.right = deleteNode(root.right, key);
+    } else {
+      if (root.left == null) {
+        return root.right;
+      }
+      if (root.right == null) {
+        return root.left;
+      }
+      final x = root;
+      root = findMin(x.right!);
+      root.right = deleteMin(x.right!);
+      root.left = x.left;
+    }
+    return root;
+  }
 
+  TreeNode findMin(TreeNode root) {
+    if (root.left == null) {
+      return root;
+    }
+    return findMin(root.left!);
+  }
+
+  TreeNode? deleteMin(TreeNode root) {
+    if (root.left == null) {
+      return root.right;
+    }
+    root.left = deleteMin(root.left!);
+    return root;
+  }
+}
+// https://leetcode.cn/submissions/detail/378523243/
 ```
 
 ## 452. 用最少数量的箭引爆气球
@@ -3258,7 +3980,29 @@ class Solution {
 <https://leetcode.cn/problems/minimum-number-of-arrows-to-burst-balloons/>
 
 ```dart
+class Solution {
+  int findMinArrowShots(List<List<int>> points) {
+    return _maxNonOverlappingIntervals(points);
+  }
 
+  // 区间数组 intervals 无重叠区间的最大数量
+  int _maxNonOverlappingIntervals(List<List<int>> intervals) {
+    intervals.sort((a, b) => a[1] - b[1]);
+    var count = 0;
+    var minEnd = -pow(2, 31) - 1;
+    for (final interval in intervals) {
+      final start = interval[0];
+      final end = interval[1];
+      if (start <= minEnd) {
+        continue;
+      }
+      ++count;
+      minEnd = end;
+    }
+    return count;
+  }
+}
+// https://leetcode.cn/submissions/detail/376159072/
 ```
 
 ## 460. LFU 缓存
@@ -3282,7 +4026,42 @@ class Solution {
 <https://leetcode.cn/problems/target-sum/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  late final Map<String, int> _memo = HashMap();
+
+  int findTargetSumWays(List<int> nums, int target) {
+    var sum = 0;
+    for (final x in nums) {
+      sum += x;
+    }
+    if (target.abs() > sum) {
+      return 0;
+    }
+    return _findTargetSumWays(nums, nums.length - 1, target);
+  }
+
+  // 子数组 nums[0..i] 目标和为 target 的不同表达式的数目
+  int _findTargetSumWays(List<int> nums, int i, int target) {
+    if (i < 0) {
+      return target == 0 ? 1 : 0;
+    }
+    final key = i.toString() + ',' + target.toString();
+    if (!_memo.containsKey(key)) {
+      final x = nums[i];
+      // x 前添加 + 号
+      // sum(nums[0..i-1]) = target - x
+      final sp1 = _findTargetSumWays(nums, i - 1, target - x);
+      // x 前添加 - 号
+      // sum(nums[0..i-1]) = target + x
+      final sp2 = _findTargetSumWays(nums, i - 1, target + x);
+      _memo[key] = sp1 + sp2;
+    }
+    return _memo[key]!;
+  }
+}
+// https://leetcode.cn/submissions/detail/376868925/
 ```
 
 ## 496. 下一个更大元素 I
@@ -3290,7 +4069,39 @@ class Solution {
 <https://leetcode.cn/problems/next-greater-element-i/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  List<int> nextGreaterElement(List<int> nums1, List<int> nums2) {
+    final greater = _nextGreaterElement(nums2);
+    final Map<int, int> valToGreater = HashMap();
+    for (var i = 0; i < nums2.length; ++i) {
+      valToGreater[nums2[i]] = greater[i];
+    }
+    final n1 = nums1.length;
+    final ans = List<int>.filled(n1, -1);
+    for (var i = 0; i < n1; ++i) {
+      ans[i] = valToGreater[nums1[i]]!;
+    }
+    return ans;
+  }
+
+  List<int> _nextGreaterElement(List<int> nums) {
+    final n = nums.length;
+    final res = List<int>.filled(n, -1);
+    final Queue<int> stack = DoubleLinkedQueue();
+    for (var i = n - 1; i >= 0; --i) {
+      final x = nums[i];
+      while (stack.isNotEmpty && stack.last < x) {
+        stack.removeLast();
+      }
+      res[i] = stack.isEmpty ? -1 : stack.last;
+      stack.addLast(x);
+    }
+    return res;
+  }
+}
+// https://leetcode.cn/submissions/detail/375960785/
 ```
 
 ## 503. 下一个更大元素 II
@@ -3298,7 +4109,26 @@ class Solution {
 <https://leetcode.cn/problems/next-greater-element-ii/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  List<int> nextGreaterElements(List<int> nums) {
+    final n = nums.length;
+    final ans = List<int>.filled(n, -1);
+    final Queue<int> stack = DoubleLinkedQueue();
+    for (var i = 2 * n - 1; i >= 0; --i) {
+      final k = i % n;
+      final x = nums[k];
+      while (stack.isNotEmpty && stack.last <= x) {
+        stack.removeLast();
+      }
+      ans[k] = stack.isEmpty ? -1 : stack.last;
+      stack.addLast(x);
+    }
+    return ans;
+  }
+}
+// https://leetcode.cn/submissions/detail/376029930/
 ```
 
 ## 509. 斐波那契数
@@ -3306,7 +4136,24 @@ class Solution {
 <https://leetcode.cn/problems/fibonacci-number/>
 
 ```dart
-
+class Solution {
+  int fib(int n) {
+    if (n == 0) {
+      return 0;
+    }
+    if (n == 1) {
+      return 1;
+    }
+    final dp = List.filled(n + 1, 0);
+    dp[0] = 0;
+    dp[1] = 1;
+    for (var i = 2; i <= n; ++i) {
+      dp[i] = dp[i - 1] + dp[i - 2];
+    }
+    return dp[n];
+  }
+}
+// https://leetcode.cn/submissions/detail/377156042/
 ```
 
 ## 516. 最长回文子序列
@@ -3314,7 +4161,42 @@ class Solution {
 <https://leetcode.cn/problems/longest-palindromic-subsequence/>
 
 ```dart
-
+class Solution {
+  int longestPalindromeSubseq(String s) {
+    final n = s.length;
+    // dp[i][j] = 子串 s[i..j] 的最长回文子序列的长度
+    final dp = List.generate(n, (_) => List.filled(n, 0));
+    // 遍历对角线
+    for (var i = 0; i < n; ++i) {
+      dp[i][i] = 1;
+    }
+    // 遍历下三角形
+    // for (var i = 0; i < n; ++i) {
+    //   for (var j = 0; j < i; ++j) {
+    //     dp[i][j] = 0;
+    //   }
+    // }
+    for (var i = n - 2; i >= 0; --i) {
+      for (var j = i + 1; j < n; ++j) {
+        if (s.codeUnitAt(i) == s.codeUnitAt(j)) {
+          // s[i][i+1..j-1][j]
+          // s   [i+1..j-1]
+          dp[i][j] = dp[i + 1][j - 1] + 2;
+        } else {
+          // s[i..j-1][j]
+          // s[i..j-1]
+          final sp1 = dp[i][j - 1];
+          // s[i][i+1..j]
+          // s   [i+1..j]
+          final sp2 = dp[i + 1][j];
+          dp[i][j] = max(sp1, sp2);
+        }
+      }
+    }
+    return dp[0][n - 1];
+  }
+}
+// https://leetcode.cn/submissions/detail/376576965/
 ```
 
 ## 518. 零钱兑换 II
@@ -3322,7 +4204,44 @@ class Solution {
 <https://leetcode.cn/problems/coin-change-2/>
 
 ```dart
-
+class Solution {
+  int change(int amount, List<int> coins) {
+    final n = coins.length;
+    // dp[i][j] = 使用硬币 coins[0..i-1] 凑成总金额 j 的组合数
+    final dp = List.generate(n + 1, (_) => List.filled(amount + 1, 0));
+    // 总金额为 0
+    for (var i = 1; i <= n; ++i) {
+      dp[i][0] = 1;
+    }
+    // 硬币数为 0
+    for (var j = 1; j <= amount; ++j) {
+      dp[0][j] = 0;
+    }
+    dp[0][0] = 1;
+    for (var i = 1; i <= n; ++i) {
+      for (var j = 1; j <= amount; ++j) {
+        final x = coins[i - 1];
+        if (j >= x) {
+          final sp1 = dp[i - 1][j]; // 包含    0 个硬币 x
+          final sp2 = dp[i][j - x]; // 包含 >= 1 个硬币 x
+          dp[i][j] = sp1 + sp2;
+          // 注意
+          // dp[i][j - x] = 包含 >= 1 个硬币 x
+          // dp[i-1][j-x] = 包含    1 个硬币 x
+          // 举例 amount = 79, coins = [1, 2, 5]
+          // dp[2][79] = 包含    0 个硬币 5，79 = 0 x 5 + 79，剩余 79 只能从 [1, 2] 凑
+          // dp[2][74] = 包含    1 个硬币 5，79 = 1 x 5 + 74，剩余 74 只能从 [1, 2] 凑
+          // dp[3][74] = 包含 >= 1 个硬币 5，79 = 1 x 5 + 74，剩余 74 可以从 [1, 2, 5] 凑
+        } else {
+          // 不包含硬币 x
+          dp[i][j] = dp[i - 1][j];
+        }
+      }
+    }
+    return dp[n][amount];
+  }
+}
+// https://leetcode.cn/submissions/detail/376856827/
 ```
 
 ## 538. 把二叉搜索树转换为累加树
@@ -3330,7 +4249,25 @@ class Solution {
 <https://leetcode.cn/problems/convert-bst-to-greater-tree/>
 
 ```dart
+class Solution {
+  int _sum = 0;
 
+  TreeNode? convertBST(TreeNode? root) {
+    _dfs(root);
+    return root;
+  }
+
+  void _dfs(TreeNode? root) {
+    if (root == null) {
+      return;
+    }
+    _dfs(root.right);
+    _sum += root.val;
+    root.val = _sum;
+    _dfs(root.left);
+  }
+}
+// https://leetcode.cn/submissions/detail/378408615/
 ```
 
 ## 543. 二叉树的直径
@@ -3338,7 +4275,29 @@ class Solution {
 <https://leetcode.cn/problems/diameter-of-binary-tree/>
 
 ```dart
+// rootLP = 穿过根节点的最长路径（左右子树的最大深度之和）
+// rootLP(root) = maxDepth(root.left) + maxDepth(root.right)
+// diameter = 所有子树的 rootLP 的最大值
+// diameter(root) = max({ rootLP(subtree) | subtree 是 root 的任意子树 })
+class Solution {
+  int _ans = 0;
 
+  int diameterOfBinaryTree(TreeNode? root) {
+    _maxDepth(root);
+    return _ans;
+  }
+
+  int _maxDepth(TreeNode? root) {
+    if (root == null) {
+      return 0;
+    }
+    final left = _maxDepth(root.left);
+    final right = _maxDepth(root.right);
+    _ans = max(_ans, left + right);
+    return 1 + max(left, right);
+  }
+}
+// https://leetcode.cn/submissions/detail/377210237/
 ```
 
 ## 567. 字符串的排列
@@ -3346,7 +4305,47 @@ class Solution {
 <https://leetcode.cn/problems/permutation-in-string/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  bool checkInclusion(String s1, String s2) {
+    final need = HashMap<String, int>();
+    for (var i = 0; i < s1.length; ++i) {
+      need.update(s1[i], (val) => val + 1, ifAbsent: () => 1);
+    }
+    final window = HashMap<String, int>();
+    var valid = 0;
+    // s[left..right) = Window Substring
+    // s[right..n-1]  = Scanning
+    var left = 0;
+    var right = 0;
+    while (right < s2.length) {
+      final c = s2[right++];
+      if (need.containsKey(c)) {
+        window.update(c, (val) => val + 1, ifAbsent: () => 1);
+        if (window[c] == need[c]) {
+          ++valid;
+        }
+      }
+      if (valid == need.length) {
+        while (left < right - s1.length) {
+          final d = s2[left++];
+          if (need.containsKey(d)) {
+            if (window[d] == need[d]) {
+              --valid;
+            }
+            window.update(d, (val) => val - 1);
+          }
+        }
+        if (valid == need.length) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+}
+// https://leetcode.cn/submissions/detail/378520350/
 ```
 
 ## 583. 两个字符串的删除操作
@@ -3354,7 +4353,55 @@ class Solution {
 <https://leetcode.cn/problems/delete-operation-for-two-strings/>
 
 ```dart
+class Solution {
+  late final List<List<int>> _memo;
 
+  int minDistance(String s1, String s2) {
+    final n1 = s1.length;
+    final n2 = s2.length;
+    _memo = List.generate(n1, (_) => List.filled(n2, -1));
+    return _minDistance(s1, n1 - 1, s2, n2 - 1);
+  }
+
+  // 子串 s1[0..i] s2[0..j] 的最小删除步数
+  int _minDistance(String s1, int i, String s2, int j) {
+    if (i < 0) {
+      // 删除 s2[0..j]
+      // s1""
+      // s2[0..j]
+      return j + 1;
+    }
+    if (j < 0) {
+      // 删除 s1[0..i]
+      // s1[0..i]
+      // s2""
+      return i + 1;
+    }
+    if (_memo[i][j] == -1) {
+      if (s1.codeUnitAt(i) == s2.codeUnitAt(j)) {
+        // s1[0..i-1][i]
+        // s2[0..j-1][j]
+        _memo[i][j] = _minDistance(s1, i - 1, s2, j - 1);
+      } else {
+        // 删除 s1[i] s2[j]
+        // s1[0..i-1][i]
+        // s2[0..j-1][j]
+        final sp1 = _minDistance(s1, i - 1, s2, j - 1) + 2;
+        // 删除 s2[j]
+        // s1[0..i]
+        // s2[0..j-1][j]
+        final sp2 = _minDistance(s1, i, s2, j - 1) + 1;
+        // 删除 s1[i]
+        // s1[0..i-1][i]
+        // s2[0..j]
+        final sp3 = _minDistance(s1, i - 1, s2, j) + 1;
+        _memo[i][j] = min(min(sp1, sp2), sp3);
+      }
+    }
+    return _memo[i][j];
+  }
+}
+// https://leetcode.cn/submissions/detail/376601346/
 ```
 
 ## 617. 合并二叉树
@@ -3362,7 +4409,21 @@ class Solution {
 <https://leetcode.cn/problems/merge-two-binary-trees/>
 
 ```dart
-
+class Solution {
+  TreeNode? mergeTrees(TreeNode? root1, TreeNode? root2) {
+    if (root1 == null) {
+      return root2;
+    }
+    if (root2 == null) {
+      return root1;
+    }
+    final mRoot = TreeNode(root1.val + root2.val);
+    mRoot.left = mergeTrees(root1.left, root2.left);
+    mRoot.right = mergeTrees(root1.right, root2.right);
+    return mRoot;
+  }
+}
+// https://leetcode.cn/submissions/detail/377213725/
 ```
 
 ## 652. 寻找重复的子树
@@ -3370,7 +4431,31 @@ class Solution {
 <https://leetcode.cn/problems/find-duplicate-subtrees/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  late final _ans = <TreeNode?>[];
+  late final _counter = HashMap<String, int>();
+
+  List<TreeNode?> findDuplicateSubtrees(TreeNode? root) {
+    _postorder(root);
+    return _ans;
+  }
+
+  String _postorder(TreeNode? root) {
+    if (root == null) {
+      return '#';
+    }
+    final left = _postorder(root.left);
+    final right = _postorder(root.right);
+    final res = left + ',' + right + ',' + root.val.toString();
+    if (_counter.update(res, (val) => val + 1, ifAbsent: () => 1) == 2) {
+      _ans.add(root);
+    }
+    return res;
+  }
+}
+// https://leetcode.cn/submissions/detail/377795015/
 ```
 
 ## 654. 最大二叉树
@@ -3378,7 +4463,28 @@ class Solution {
 <https://leetcode.cn/problems/maximum-binary-tree/>
 
 ```dart
+class Solution {
+  TreeNode? constructMaximumBinaryTree(List<int> nums) {
+    return _constructMaximumBinaryTree(nums, 0, nums.length - 1);
+  }
 
+  TreeNode? _constructMaximumBinaryTree(List<int> nums, int lo, int hi) {
+    if (lo > hi) {
+      return null;
+    }
+    var maxIndex = lo;
+    for (var i = lo + 1; i <= hi; ++i) {
+      if (nums[i] > nums[maxIndex]) {
+        maxIndex = i;
+      }
+    }
+    var root = TreeNode(nums[maxIndex]);
+    root.left = _constructMaximumBinaryTree(nums, lo, maxIndex - 1);
+    root.right = _constructMaximumBinaryTree(nums, maxIndex + 1, hi);
+    return root;
+  }
+}
+// https://leetcode.cn/submissions/detail/377784361/
 ```
 
 ## 695. 岛屿的最大面积
@@ -3386,7 +4492,42 @@ class Solution {
 <https://leetcode.cn/problems/max-area-of-island/>
 
 ```dart
+class Solution {
+  static const LAND = 1;
+  static const WATER = 0;
+  int _area = 0;
 
+  int maxAreaOfIsland(List<List<int>> grid) {
+    var ans = 0;
+    for (var row = 0; row < grid.length; ++row) {
+      for (var col = 0; col < grid[0].length; ++col) {
+        if (grid[row][col] == LAND) {
+          _area = 0;
+          _floodFill(grid, row, col);
+          ans = max(ans, _area);
+        }
+      }
+    }
+    return ans;
+  }
+
+  void _floodFill(List<List<int>> grid, int row, int col) {
+    if (row < 0 ||
+        row >= grid.length ||
+        col < 0 ||
+        col >= grid[0].length ||
+        grid[row][col] == WATER) {
+      return;
+    }
+    _area++;
+    grid[row][col] = WATER;
+    _floodFill(grid, row - 1, col);
+    _floodFill(grid, row + 1, col);
+    _floodFill(grid, row, col - 1);
+    _floodFill(grid, row, col + 1);
+  }
+}
+// https://leetcode.cn/submissions/detail/377624951/
 ```
 
 ## 698. 划分为 K 个相等的子集
@@ -3394,7 +4535,82 @@ class Solution {
 <https://leetcode.cn/problems/partition-to-k-equal-sum-subsets/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  late final int _k;
+  late final int _target;
+  late final List<int> _nums;
+  late final List<String> _used;
+  late final List<int> _pathSums;
+  late final Map<String, bool> _memo = HashMap();
+
+  bool canPartitionKSubsets(List<int> nums, int k) {
+    var sum = 0;
+    for (final x in nums) {
+      sum += x;
+    }
+    if (sum % k != 0) {
+      return false;
+    }
+    _k = k;
+    _nums = nums;
+    _target = sum ~/ k;
+    _used = List.filled(16, '0');
+    _pathSums = List.filled(k, 0);
+    return _backtrack(0, -1);
+  }
+
+  // 遍历『决策森林』的 k 棵『决策树』
+  // 一棵『决策树』的『路径』代表一个『等和子集』
+  // tree = 第几棵『决策树』，取 [0..k-1] 为值
+  // edge =『决策树』的『边』，取数组 nums 的索引为值
+  // pathSums[tree] = 第几棵『决策树』的『路径和』
+  bool _backtrack(int tree, int edge) {
+    var res = false;
+    if (tree == _k) {
+      res = true;
+    } else if (_pathSums[tree] == _target) {
+      // 通过缓存，对同一个『森林』，优化『树』的遍历，避免『路径+路径』重复
+      // 例如 [1->2->3] 和 [4->5->6] 分别是两条『路径』
+      // 如果 A.[1->2->3] -> B.[4->5->6] -> C.[] 是不行的
+      // 那么 A.[4->5->6] -> B.[1->2->3] -> C.[] 也是不行的
+      // 因为 C 的可选『边』是一样的
+      final sb = StringBuffer();
+      sb.writeAll(_used);
+      final key = sb.toString();
+      if (!_memo.containsKey(key)) {
+        // 遍历下一棵『决策树』
+        _memo[key] = _backtrack(tree + 1, -1);
+      }
+      res = _memo[key]!;
+    } else {
+      // 通过去重，对同一棵树，优化『边』的遍历，避免『边+边』重复
+      // 例如 1 和 2 分别是两条『边』，[1->2] 和 [2->1] 是重复的
+      while (++edge < _nums.length) {
+        // 检查第 edge 位是否为 1
+        // 即 nums[edge] 是否已经被其他『树』使用
+        if (_used[edge] == '1') {
+          continue;
+        }
+        final x = _nums[edge];
+        if (_pathSums[tree] + x > _target) {
+          continue;
+        }
+        _pathSums[tree] += x;
+        _used[edge] = '1';
+        res = _backtrack(tree, edge);
+        if (res) {
+          break;
+        }
+        _pathSums[tree] -= x;
+        _used[edge] = '0';
+      }
+    }
+    return res;
+  }
+}
+// https://leetcode.cn/submissions/detail/377152233/
 ```
 
 ## 700. 二叉搜索树中的搜索
@@ -3402,7 +4618,21 @@ class Solution {
 <https://leetcode.cn/problems/search-in-a-binary-search-tree/>
 
 ```dart
-
+class Solution {
+  TreeNode? searchBST(TreeNode? root, int val) {
+    if (root == null) {
+      return null;
+    }
+    if (val < root.val) {
+      return searchBST(root.left, val);
+    }
+    if (val > root.val) {
+      return searchBST(root.right, val);
+    }
+    return root;
+  }
+}
+// https://leetcode.cn/submissions/detail/378405227/
 ```
 
 ## 701. 二叉搜索树中的插入操作
@@ -3410,7 +4640,21 @@ class Solution {
 <https://leetcode.cn/problems/insert-into-a-binary-search-tree/>
 
 ```dart
-
+class Solution {
+  TreeNode? insertIntoBST(TreeNode? root, int val) {
+    if (root == null) {
+      return TreeNode(val);
+    }
+    if (val < root.val) {
+      root.left = insertIntoBST(root.left, val);
+    }
+    if (val > root.val) {
+      root.right = insertIntoBST(root.right, val);
+    }
+    return root;
+  }
+}
+// https://leetcode.cn/submissions/detail/378406823/
 ```
 
 ## 704. 二分查找
@@ -3418,7 +4662,24 @@ class Solution {
 <https://leetcode.cn/problems/binary-search/>
 
 ```dart
-
+class Solution {
+  int search(List<int> nums, int target) {
+    var lo = 0;
+    var hi = nums.length - 1;
+    while (lo <= hi) {
+      final mid = lo + (hi - lo) ~/ 2;
+      if (target < nums[mid]) {
+        hi = mid - 1;
+      } else if (nums[mid] < target) {
+        lo = mid + 1;
+      } else {
+        return mid;
+      }
+    }
+    return -1;
+  }
+}
+// https://leetcode.cn/submissions/detail/377818151/
 ```
 
 ## 712. 两个字符串的最小 ASCII 删除和
@@ -3426,7 +4687,74 @@ class Solution {
 <https://leetcode.cn/problems/minimum-ascii-delete-sum-for-two-strings/>
 
 ```dart
+class Solution {
+  late final List<List<int>> _memo;
+  late final List<int> _sum1;
+  late final List<int> _sum2;
 
+  int minimumDeleteSum(String s1, String s2) {
+    final n1 = s1.length;
+    final n2 = s2.length;
+    _memo = List.generate(n1, (_) => List.filled(n2, -1));
+    _sum1 = _prefixSum(s1);
+    _sum2 = _prefixSum(s2);
+    return _minimumDeleteSum(s1, n1 - 1, s2, n2 - 1);
+  }
+
+  // 子串 s1[0..i] s2[0..j] 的最小 ASCII 删除和
+  int _minimumDeleteSum(String s1, int i, String s2, int j) {
+    if (i < 0 && j < 0) {
+      return 0;
+    }
+    if (i < 0) {
+      // 删除 s2[0..j]
+      // s1""
+      // s2[0..j]
+      return _sum2[j];
+    }
+    if (j < 0) {
+      // 删除 s1[0..i]
+      // s1[0..i]
+      // s2""
+      return _sum1[i];
+    }
+    if (_memo[i][j] == -1) {
+      if (s1.codeUnitAt(i) == s2.codeUnitAt(j)) {
+        // s1[0..i-1][i]
+        // s2[0..j-1][j]
+        _memo[i][j] = _minimumDeleteSum(s1, i - 1, s2, j - 1);
+      } else {
+        // 删除 s1[i] s2[j]
+        // s1[0..i-1][i]
+        // s2[0..j-1][j]
+        final sp1 = _minimumDeleteSum(s1, i - 1, s2, j - 1) +
+            s1.codeUnitAt(i) +
+            s2.codeUnitAt(j);
+        // 删除 s2[j]
+        // s1[0..i]
+        // s2[0..j-1][j]
+        final sp2 = _minimumDeleteSum(s1, i, s2, j - 1) + s2.codeUnitAt(j);
+        // 删除 s1[i]
+        // s1[0..i-1][i]
+        // s2[0..j]
+        final sp3 = _minimumDeleteSum(s1, i - 1, s2, j) + s1.codeUnitAt(i);
+        _memo[i][j] = min(min(sp1, sp2), sp3);
+      }
+    }
+    return _memo[i][j];
+  }
+
+  List<int> _prefixSum(String s) {
+    final n = s.length;
+    final sum = List.filled(n, 0);
+    sum[0] = s.codeUnitAt(0);
+    for (var i = 1; i < n; ++i) {
+      sum[i] = sum[i - 1] + s.codeUnitAt(i);
+    }
+    return sum;
+  }
+}
+// https://leetcode.cn/submissions/detail/376600935/
 ```
 
 ## 714. 买卖股票的最佳时机含手续费
@@ -3434,7 +4762,25 @@ class Solution {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/>
 
 ```dart
-
+class Solution {
+  int maxProfit(List<int> prices, int fee) {
+    final n = prices.length;
+    // dp[i][0] = 第 i 天，空仓状态下的最大利润
+    // dp[i][1] = 第 i 天，持仓状态下的最大利润
+    final dp = List.generate(n, (_) => List.filled(2, 0));
+    dp[0][0] = 0;
+    dp[0][1] = -prices[0] - fee;
+    for (var i = 1; i < n; ++i) {
+      // dp[i - 1][0]             >= dp[i - 1][0] - prices[i] - fee
+      // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+      // => dp[i][0] >= dp[i][1]
+      dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+      dp[i][1] = max(dp[i - 1][0] - prices[i] - fee, dp[i - 1][1]);
+    }
+    return dp[n - 1][0];
+  }
+}
+// https://leetcode.cn/submissions/detail/376694294/
 ```
 
 ## 739. 每日温度
@@ -3442,7 +4788,24 @@ class Solution {
 <https://leetcode.cn/problems/daily-temperatures/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  List<int> dailyTemperatures(List<int> temperatures) {
+    final n = temperatures.length;
+    final ans = List<int>.filled(n, 0);
+    final Queue<int> stack = DoubleLinkedQueue();
+    for (var i = n - 1; i >= 0; --i) {
+      while (stack.isNotEmpty && temperatures[stack.last] <= temperatures[i]) {
+        stack.removeLast();
+      }
+      ans[i] = stack.isEmpty ? 0 : stack.last - i;
+      stack.addLast(i);
+    }
+    return ans;
+  }
+}
+// https://leetcode.cn/submissions/detail/376034521/
 ```
 
 ## 743. 网络延迟时间
@@ -3458,7 +4821,67 @@ class Solution {
 <https://leetcode.cn/problems/open-the-lock/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  late final _ZERO = '0'.codeUnitAt(0);
+  late final _NINE = '9'.codeUnitAt(0);
+
+  int openLock(List<String> deadends, String target) {
+    final marked = HashSet<String>.of(deadends);
+    final queue = Queue<String>();
+    final source = '0000';
+    if (!marked.contains(source)) {
+      marked.add(source);
+      queue.addLast(source);
+    }
+    var count = 0;
+    while (queue.isNotEmpty) {
+      final n = queue.length;
+      for (var i = 0; i < n; ++i) {
+        final s = queue.removeFirst();
+        if (s == target) {
+          return count;
+        }
+        for (var j = 0; j < 4; ++j) {
+          final plus = _plusOne(s, j);
+          if (!marked.contains(plus)) {
+            marked.add(plus);
+            queue.addLast(plus);
+          }
+          final minus = _minusOne(s, j);
+          if (!marked.contains(minus)) {
+            marked.add(minus);
+            queue.addLast(minus);
+          }
+        }
+      }
+      ++count;
+    }
+    return -1;
+  }
+
+  String _plusOne(String s, int j) {
+    final a = List.of(s.codeUnits);
+    if (a[j] == _NINE) {
+      a[j] = _ZERO;
+    } else {
+      a[j] += 1;
+    }
+    return String.fromCharCodes(a);
+  }
+
+  String _minusOne(String s, int j) {
+    final a = List.of(s.codeUnits);
+    if (a[j] == _ZERO) {
+      a[j] = _NINE;
+    } else {
+      a[j] -= 1;
+    }
+    return String.fromCharCodes(a);
+  }
+}
+// https://leetcode.cn/submissions/detail/378426071/
 ```
 
 ## 785. 判断二分图
@@ -3482,7 +4905,33 @@ class Solution {
 <https://leetcode.cn/problems/hand-of-straights/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  bool isNStraightHand(List<int> hand, int groupSize) {
+    if (hand.length % groupSize != 0) {
+      return false;
+    }
+    hand.sort();
+    final counter = HashMap<int, int>();
+    for (final x in hand) {
+      counter.update(x, (val) => val + 1, ifAbsent: () => 1);
+    }
+    for (final x in hand) {
+      if (counter[x]! > 0) {
+        for (var i = 0; i < groupSize; ++i) {
+          final y = x + i;
+          if (!counter.containsKey(y) || counter[y] == 0) {
+            return false;
+          }
+          counter.update(y, (val) => val - 1);
+        }
+      }
+    }
+    return true;
+  }
+}
+// https://leetcode.cn/submissions/detail/378328825/
 ```
 
 ## 875. 爱吃香蕉的珂珂
@@ -3490,7 +4939,36 @@ class Solution {
 <https://leetcode.cn/problems/koko-eating-bananas/>
 
 ```dart
+class Solution {
+  int minEatingSpeed(List<int> piles, int h) {
+    var lo = 1;
+    var hi = 0;
+    for (final p in piles) {
+      hi = max(hi, p);
+    }
+    var ans = lo;
+    while (lo <= hi) {
+      final mid = lo + (hi - lo) ~/ 2;
+      if (_canFinish(piles, h, mid)) {
+        ans = mid;
+        hi = mid - 1;
+      } else {
+        lo = mid + 1;
+      }
+    }
+    return ans;
+  }
 
+  // 当吃香蕉的速度为 k 时，是否能在 h 小时内吃完
+  bool _canFinish(List<int> piles, int h, int k) {
+    var hours = 0;
+    for (final p in piles) {
+      hours += (p / k).ceil();
+    }
+    return hours <= h;
+  }
+}
+// https://leetcode.cn/submissions/detail/377846975/
 ```
 
 ## 876. 链表的中间结点
@@ -3498,7 +4976,18 @@ class Solution {
 <https://leetcode-cn.com/problems/middle-of-the-linked-list/>
 
 ```dart
-
+class Solution {
+  ListNode? middleNode(ListNode? head) {
+    var slow = head;
+    var fast = head;
+    while (fast != null && fast.next != null) {
+      slow = slow!.next;
+      fast = fast.next!.next;
+    }
+    return slow;
+  }
+}
+// https://leetcode.cn/submissions/detail/377945582/
 ```
 
 ## 886. 可能的二分法
@@ -3514,7 +5003,39 @@ class Solution {
 <https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  late final Map<int, int> _valToIndex = HashMap();
+
+  TreeNode? constructFromPrePost(List<int> preorder, List<int> postorder) {
+    for (var i = 0; i < postorder.length; ++i) {
+      _valToIndex[postorder[i]] = i;
+    }
+    return _constructFromPrePost(
+        preorder, 0, preorder.length - 1, postorder, 0, postorder.length - 1);
+  }
+
+  TreeNode? _constructFromPrePost(List<int> preorder, int preStart, int preEnd,
+      List<int> postorder, int postStart, int postEnd) {
+    if (preStart > preEnd) {
+      return null;
+    }
+    final rootVal = preorder[preStart];
+    final root = TreeNode(rootVal);
+    if (preStart < preEnd) {
+      final leftRootVal = preorder[preStart + 1];
+      final index = _valToIndex[leftRootVal]!;
+      final leftSize = index - postStart + 1;
+      root.left = _constructFromPrePost(preorder, preStart + 1,
+          preStart + leftSize, postorder, postStart, index);
+      root.right = _constructFromPrePost(preorder, preStart + leftSize + 1,
+          preEnd, postorder, index + 1, postEnd - 1);
+    }
+    return root;
+  }
+}
+// https://leetcode.cn/submissions/detail/377522620/
 ```
 
 ## 905. 按奇偶排序数组
@@ -3522,7 +5043,40 @@ class Solution {
 <https://leetcode.cn/problems/sort-array-by-parity/>
 
 ```dart
+class Solution {
+  List<int> sortArrayByParity(List<int> nums) {
+    final n = nums.length;
+    // nums[0..i]   偶数区间
+    // nums(i..j)   遍历区间
+    // nums[j..n-1] 奇数区间
+    var i = -1;
+    var j = n;
+    while (true) {
+      while (nums[++i] % 2 == 0) {
+        if (i == n - 1) {
+          break;
+        }
+      }
+      while (nums[--j] % 2 == 1) {
+        if (j == 0) {
+          break;
+        }
+      }
+      if (i >= j) {
+        break;
+      }
+      _swap(nums, i, j);
+    }
+    return nums;
+  }
 
+  void _swap(List<int> nums, int i, int j) {
+    final temp = nums[i];
+    nums[i] = nums[j];
+    nums[j] = temp;
+  }
+}
+// https://leetcode.cn/submissions/detail/377968096/
 ```
 
 ## 912. 排序数组
@@ -3538,7 +5092,35 @@ class Solution {
 <https://leetcode.cn/problems/minimum-add-to-make-parentheses-valid/>
 
 ```dart
-
+// 性质一 一个「合法」括号组合的左括号数量一定等于右括号数量
+// 性质二 对于一个「合法」的括号字符串组合 p，必然对于
+// 任何 0 <= i < len(p) 都有：子串 p[0..i] 中
+// 左括号的数量都大于或等于右括号的数量
+class Solution {
+  int minAddToMakeValid(String s) {
+    var insertLeft = 0; // 已插入左括号的数量
+    var needRight = 0; // 待插入右括号的数量
+    for (var i = 0; i < s.length; ++i) {
+      final ch = s[i];
+      if (ch == '(') {
+        ++needRight;
+      }
+      if (ch == ')') {
+        --needRight;
+        // 性质二
+        if (needRight == -1) {
+          // A).. -> A()..
+          //『必须立即』在位置 i 前插入 1 个左括号
+          // 否则，后续任何插入都不能使区间 [0..i] 的匹配有效
+          ++insertLeft;
+          needRight = 0;
+        }
+      }
+    }
+    return insertLeft + needRight;
+  }
+}
+// https://leetcode.cn/submissions/detail/378313589/
 ```
 
 ## 922. 按奇偶排序数组 II
@@ -3546,7 +5128,33 @@ class Solution {
 <https://leetcode.cn/problems/sort-array-by-parity-ii/>
 
 ```dart
+class Solution {
+  List<int> sortArrayByParityII(List<int> nums) {
+    final n = nums.length;
+    var i = 0;
+    var j = 1;
+    while (true) {
+      while (i <= n - 2 && nums[i] % 2 == 0) {
+        i += 2;
+      }
+      while (j <= n - 1 && nums[j] % 2 == 1) {
+        j += 2;
+      }
+      if (i > n - 2 || j > n - 1) {
+        break;
+      }
+      _swap(nums, i, j);
+    }
+    return nums;
+  }
 
+  void _swap(List<int> nums, int i, int j) {
+    final temp = nums[i];
+    nums[i] = nums[j];
+    nums[j] = temp;
+  }
+}
+// https://leetcode.cn/submissions/detail/377971674/
 ```
 
 ## 931. 下降路径最小和
@@ -3554,7 +5162,38 @@ class Solution {
 <https://leetcode.cn/problems/minimum-falling-path-sum/>
 
 ```dart
+class Solution {
+  late final List<List<int>> _memo;
 
+  int minFallingPathSum(List<List<int>> matrix) {
+    final m = matrix.length;
+    final n = matrix[0].length;
+    _memo = List.generate(m, (_) => List.filled(n, -10000));
+    var ans = 10000;
+    for (var col = 0; col < n; ++col) {
+      ans = min(ans, _minFallingPathSum(matrix, m - 1, col));
+    }
+    return ans;
+  }
+
+  // 从 matrix[0][0..n-1] 到 matrix[row][col] 的最小下降路径和
+  int _minFallingPathSum(List<List<int>> matrix, int row, int col) {
+    if (col < 0 || col >= matrix[0].length) {
+      return 10000;
+    }
+    if (row == 0) {
+      return matrix[row][col];
+    }
+    if (_memo[row][col] == -10000) {
+      final sp1 = _minFallingPathSum(matrix, row - 1, col - 1); // 左上
+      final sp2 = _minFallingPathSum(matrix, row - 1, col); // 正上
+      final sp3 = _minFallingPathSum(matrix, row - 1, col + 1); // 右上
+      _memo[row][col] = min(min(sp1, sp2), sp3) + matrix[row][col];
+    }
+    return _memo[row][col];
+  }
+}
+// https://leetcode.cn/submissions/detail/376910703/
 ```
 
 ## 986. 区间列表的交集
@@ -3562,7 +5201,37 @@ class Solution {
 <https://leetcode.cn/problems/interval-list-intersections/>
 
 ```dart
-
+class Solution {
+  List<List<int>> intervalIntersection(
+      List<List<int>> firstList, List<List<int>> secondList) {
+    final ans = <List<int>>[];
+    var i = 0;
+    var j = 0;
+    while (i < firstList.length && j < secondList.length) {
+      final start1 = firstList[i][0];
+      final end1 = firstList[i][1];
+      final start2 = secondList[j][0];
+      final end2 = secondList[j][1];
+      if (end1 < start2) {
+        // 不相交
+        ++i;
+      } else if (end2 < start1) {
+        // 不相交
+        ++j;
+      } else {
+        // 相交
+        ans.add([max(start1, start2), min(end1, end2)]);
+        if (end1 < end2) {
+          ++i;
+        } else {
+          ++j;
+        }
+      }
+    }
+    return ans;
+  }
+}
+// https://leetcode.cn/submissions/detail/376154657/
 ```
 
 ## 990. 等式方程的可满足性
@@ -3578,7 +5247,43 @@ class Solution {
 <https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/>
 
 ```dart
+class Solution {
+  int shipWithinDays(List<int> weights, int days) {
+    var lo = 0;
+    var hi = 0;
+    for (final w in weights) {
+      lo = max(lo, w);
+      hi += w;
+    }
+    var ans = lo;
+    while (lo <= hi) {
+      final mid = lo + (hi - lo) ~/ 2;
+      if (_canFinish(weights, days, mid)) {
+        ans = mid;
+        hi = mid - 1;
+      } else {
+        lo = mid + 1;
+      }
+    }
+    return ans;
+  }
 
+  // 当船的运载能力为 capacity 时，是否能在 days 天内送完
+  bool _canFinish(List<int> weights, int days, int capacity) {
+    final n = weights.length;
+    var minDays = 0;
+    var i = 0;
+    while (i < n) {
+      var sum = 0;
+      while (i < n && sum + weights[i] <= capacity) {
+        sum += weights[i++];
+      }
+      ++minDays;
+    }
+    return minDays <= days;
+  }
+}
+// https://leetcode.cn/submissions/detail/377825405/
 ```
 
 ## 1020. 飞地的数量
@@ -3586,7 +5291,50 @@ class Solution {
 <https://leetcode.cn/problems/number-of-enclaves/>
 
 ```dart
+class Solution {
+  static const LAND = 1;
+  static const WATER = 0;
 
+  int numEnclaves(List<List<int>> grid) {
+    final m = grid.length;
+    final n = grid[0].length;
+    // 淹没与左右边界的陆地相连的岛屿
+    for (var row = 0; row < m; ++row) {
+      _floodFill(grid, row, 0);
+      _floodFill(grid, row, n - 1);
+    }
+    // 淹没与上下边界的陆地相连的岛屿
+    for (var col = 0; col < n; ++col) {
+      _floodFill(grid, 0, col);
+      _floodFill(grid, m - 1, col);
+    }
+    var count = 0;
+    for (var row = 0; row < m; ++row) {
+      for (var col = 0; col < n; ++col) {
+        if (grid[row][col] == LAND) {
+          ++count;
+        }
+      }
+    }
+    return count;
+  }
+
+  void _floodFill(List<List<int>> grid, int row, int col) {
+    if (row < 0 ||
+        row >= grid.length ||
+        col < 0 ||
+        col >= grid[0].length ||
+        grid[row][col] == WATER) {
+      return;
+    }
+    grid[row][col] = WATER;
+    _floodFill(grid, row - 1, col);
+    _floodFill(grid, row + 1, col);
+    _floodFill(grid, row, col - 1);
+    _floodFill(grid, row, col + 1);
+  }
+}
+// Stack Overflow https://leetcode.cn/submissions/detail/377635282/ 2943
 ```
 
 ## 1024. 视频拼接
@@ -3594,7 +5342,39 @@ class Solution {
 <https://leetcode.cn/problems/video-stitching/>
 
 ```dart
-
+// 测试用例
+// [[0,1],[6,8],[0,2],[5,6],[0,4],[0,3],[6,7],[1,3],[4,7],[1,4],[2,5],[2,6],[3,4],[4,5],[5,7],[6,9]]
+// 9
+// 排序后
+// [[0,4],[0,3],[0,2],[0,1],[1,4],[1,3],[2,6],[2,5],[3,4],[4,7],[4,5],[5,7],[5,6],[6,9],[6,8],[6,7]]
+// 删除被覆盖区间后 [0,4],[2,6],[4,7],[6,9]
+// 虽然 [2,6],[4,7] 都与 [0,4] 相交，但是只取 end 最大的区间 [4,7]
+// 正确答案 [0,4],[4,7],[6,9]
+// 相似题目 1288. 删除被覆盖区间 https://leetcode.cn/problems/remove-covered-intervals/
+class Solution {
+  int videoStitching(List<List<int>> clips, int time) {
+    clips.sort((a, b) => a[0] == b[0] ? b[1] - a[1] : a[0] - b[0]);
+    var count = 0;
+    var maxEnd = 0;
+    var i = 0;
+    final n = clips.length;
+    // 当 clips[i] 与 [0, maxEnd] 重叠（相交或被覆盖）时
+    while (i < n && clips[i][0] <= maxEnd) {
+      // 记录与 [0, maxEnd] 重叠的所有区间中最大的 end
+      var nextEnd = clips[i][1];
+      while (++i < n && clips[i][0] <= maxEnd) {
+        nextEnd = max(nextEnd, clips[i][1]);
+      }
+      ++count;
+      maxEnd = nextEnd;
+      if (maxEnd >= time) {
+        return count;
+      }
+    }
+    return -1;
+  }
+}
+// https://leetcode.cn/submissions/detail/376157491/
 ```
 
 ## 1143. 最长公共子序列
@@ -3602,7 +5382,59 @@ class Solution {
 <https://leetcode.cn/problems/longest-common-subsequence/>
 
 ```dart
+class Solution {
+  int longestCommonSubsequence(String text1, String text2) {
+    final n1 = text1.length;
+    final n2 = text2.length;
+    // text1[0..i-1] = text1 的长度为 i 的前缀
+    // text2[0..j-1] = text2 的长度为 j 的前缀
+    // dp[i][j] = LCS(text1[0..i-1], text2[0..j-1]) 的长度
+    final dp = List.generate(n1 + 1, (_) => List.filled(n2 + 1, 0));
+    for (var i = 1; i <= n1; ++i) {
+      for (var j = 1; j <= n2; ++j) {
+        if (text1.codeUnitAt(i - 1) == text2.codeUnitAt(j - 1)) {
+          // text1[i-1] = text2[j-1]
+          dp[i][j] = dp[i - 1][j - 1] + 1;
+        } else {
+          // text1[i-1] != text2[j-1]
 
+          // text1[i-1] 是公共字符，text2[j-1] 是公共字符
+          // dp[i][j-1] = dp[i-1][j-1] + 1
+          // dp[i-1][j] = dp[i-1][j-1] + 1
+          // dp[i][j] = dp[i][j-1] = dp[i-1][j] = dp[i-1][j-1] + 1
+
+          // text1[i-1] 是公共字符，text2[j-1] 不是公共字符
+          // dp[i][j-1] = dp[i-1][j-1] + 1
+          // dp[i-1][j] = dp[i-1][j-1]
+          // dp[i][j-1] > dp[i-1][j]
+          // dp[i][j] = dp[i][j-1]
+
+          // text1[i-1] 不是公共字符，text2[j-1] 是公共字符
+          // dp[i][j-1] = dp[i-1][j-1]
+          // dp[i-1][j] = dp[i-1][j-1] + 1
+          // dp[i][j-1] < dp[i-1][j]
+          // dp[i][j] = dp[i-1][j]
+
+          // text1[i-1] 不是公共字符，text2[j-1] 不是公共字符
+          // dp[i][j] = dp[i][j-1] = dp[i-1][j] = dp[i-1][j-1]
+
+          // if (dp[i][j - 1] > dp[i - 1][j]) {
+          //     dp[i][j] = dp[i][j - 1];
+          // } else if (dp[i][j - 1] < dp[i - 1][j]) {
+          //     dp[i][j] = dp[i - 1][j];
+          // } else if (dp[i][j - 1] > dp[i - 1][j - 1]) {
+          //     dp[i][j] = dp[i - 1][j - 1] + 1;
+          // } else {
+          //     dp[i][j] = dp[i - 1][j - 1];
+          // }
+          dp[i][j] = max(dp[i][j - 1], dp[i - 1][j]);
+        }
+      }
+    }
+    return dp[n1][n2];
+  }
+}
+// https://leetcode.cn/submissions/detail/376580744/
 ```
 
 ## 1254. 统计封闭岛屿的数目
@@ -3610,7 +5442,51 @@ class Solution {
 <https://leetcode.cn/problems/number-of-closed-islands/>
 
 ```dart
+class Solution {
+  static const LAND = 0;
+  static const WATER = 1;
 
+  int closedIsland(List<List<int>> grid) {
+    final m = grid.length;
+    final n = grid[0].length;
+    // 淹没与左右边界的陆地相连的岛屿
+    for (var row = 0; row < m; ++row) {
+      _floodFill(grid, row, 0);
+      _floodFill(grid, row, n - 1);
+    }
+    // 淹没与上下边界的陆地相连的岛屿
+    for (var col = 0; col < n; ++col) {
+      _floodFill(grid, 0, col);
+      _floodFill(grid, m - 1, col);
+    }
+    var count = 0;
+    for (var row = 0; row < m; ++row) {
+      for (var col = 0; col < n; ++col) {
+        if (grid[row][col] == LAND) {
+          _floodFill(grid, row, col);
+          ++count;
+        }
+      }
+    }
+    return count;
+  }
+
+  void _floodFill(List<List<int>> grid, int row, int col) {
+    if (row < 0 ||
+        row >= grid.length ||
+        col < 0 ||
+        col >= grid[0].length ||
+        grid[row][col] == WATER) {
+      return;
+    }
+    grid[row][col] = WATER;
+    _floodFill(grid, row - 1, col);
+    _floodFill(grid, row + 1, col);
+    _floodFill(grid, row, col - 1);
+    _floodFill(grid, row, col + 1);
+  }
+}
+// https://leetcode.cn/submissions/detail/377627851/
 ```
 
 ## 1288. 删除被覆盖区间
@@ -3618,7 +5494,23 @@ class Solution {
 <https://leetcode.cn/problems/remove-covered-intervals/>
 
 ```dart
-
+class Solution {
+  int removeCoveredIntervals(List<List<int>> intervals) {
+    intervals.sort((a, b) => a[0] == b[0] ? b[1] - a[1] : a[0] - b[0]);
+    var count = intervals.length;
+    var maxEnd = 0;
+    for (final interval in intervals) {
+      final end = interval[1];
+      if (end <= maxEnd) {
+        --count;
+      } else {
+        maxEnd = end;
+      }
+    }
+    return count;
+  }
+}
+// https://leetcode.cn/submissions/detail/376155559/
 ```
 
 ## 1382. 将二叉搜索树变平衡
@@ -3626,7 +5518,37 @@ class Solution {
 <https://leetcode.cn/problems/balance-a-binary-search-tree/>
 
 ```dart
+class Solution {
+  late final List<int> _inorder = [];
 
+  TreeNode? balanceBST(TreeNode? root) {
+    _dfs(root);
+    return _sortedArrayToBST(_inorder, 0, _inorder.length - 1);
+  }
+
+  // 深度优先搜索，获取中序遍历结果 inorder
+  void _dfs(TreeNode? root) {
+    if (root == null) {
+      return;
+    }
+    _dfs(root.left);
+    _inorder.add(root.val);
+    _dfs(root.right);
+  }
+
+  // 将有序子数组 nums[lo..hi] 转换为二叉搜索树
+  TreeNode? _sortedArrayToBST(List<int> nums, int lo, int hi) {
+    if (lo > hi) {
+      return null;
+    }
+    final mid = lo + (hi - lo) ~/ 2;
+    final root = TreeNode(nums[mid]);
+    root.left = _sortedArrayToBST(nums, lo, mid - 1);
+    root.right = _sortedArrayToBST(nums, mid + 1, hi);
+    return root;
+  }
+}
+// https://leetcode.cn/submissions/detail/377313698/
 ```
 
 ## 1514. 概率最大的路径
@@ -3642,7 +5564,38 @@ class Solution {
 <https://leetcode.cn/problems/minimum-insertions-to-balance-a-parentheses-string/>
 
 ```dart
-
+class Solution {
+  int minInsertions(String s) {
+    var insertLeft = 0; // 已插入左括号的数量
+    var insertRight = 0; // 已插入右括号的数量
+    var needRight = 0; // 待插入右括号的数量
+    for (var i = 0; i < s.length; ++i) {
+      final ch = s[i];
+      if (ch == '(') {
+        // A((B)(.. -> A((B))(..
+        if (needRight % 2 == 1) {
+          //『必须立即』在位置 i 前插入 1 个右括号
+          // 否则，后续任何插入都不能使区间 [0..i-1] 的匹配有效
+          ++insertRight;
+          --needRight;
+        }
+        needRight += 2;
+      }
+      if (ch == ')') {
+        --needRight;
+        // A).. -> A()..
+        if (needRight == -1) {
+          //『必须立即』在位置 i 前插入 1 个左括号
+          // 否则，后续任何插入都不能使区间 [0..i] 的匹配有效
+          ++insertLeft;
+          needRight = 1;
+        }
+      }
+    }
+    return insertLeft + insertRight + needRight;
+  }
+}
+// https://leetcode.cn/submissions/detail/378315037/
 ```
 
 ## 1584. 连接所有点的最小费用
@@ -3666,7 +5619,49 @@ class Solution {
 <https://leetcode.cn/problems/count-sub-islands/>
 
 ```dart
+class Solution {
+  static const LAND = 1;
+  static const WATER = 0;
 
+  int countSubIslands(List<List<int>> grid1, List<List<int>> grid2) {
+    final m = grid2.length;
+    final n = grid2[0].length;
+    for (var row = 0; row < m; ++row) {
+      for (var col = 0; col < n; ++col) {
+        // 淹没『非子岛屿』
+        if (grid2[row][col] == LAND && grid1[row][col] == WATER) {
+          _floodFill(grid2, row, col);
+        }
+      }
+    }
+    var count = 0;
+    for (var row = 0; row < m; ++row) {
+      for (var col = 0; col < n; ++col) {
+        if (grid2[row][col] == LAND) {
+          _floodFill(grid2, row, col);
+          ++count;
+        }
+      }
+    }
+    return count;
+  }
+
+  void _floodFill(List<List<int>> grid, int row, int col) {
+    if (row < 0 ||
+        row >= grid.length ||
+        col < 0 ||
+        col >= grid[0].length ||
+        grid[row][col] == WATER) {
+      return;
+    }
+    grid[row][col] = WATER;
+    _floodFill(grid, row - 1, col);
+    _floodFill(grid, row + 1, col);
+    _floodFill(grid, row, col - 1);
+    _floodFill(grid, row, col + 1);
+  }
+}
+// Stack Overflow https://leetcode.cn/submissions/detail/377637115/ 2943
 ```
 
 ## CtCI 02.02. 返回倒数第 K 个节点
@@ -3674,5 +5669,19 @@ class Solution {
 <https://leetcode-cn.com/problems/kth-node-from-end-of-list-lcci/>
 
 ```dart
-
+class Solution {
+  int kthToLast(ListNode? head, int k) {
+    var slow = head;
+    var fast = head;
+    for (var i = 0; i < k; ++i) {
+      fast = fast!.next;
+    }
+    while (fast != null) {
+      slow = slow!.next;
+      fast = fast.next;
+    }
+    return slow!.val;
+  }
+}
+// https://leetcode.cn/submissions/detail/377948602/
 ```
