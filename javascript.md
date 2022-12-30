@@ -180,7 +180,7 @@
 
 <https://leetcode-cn.com/problems/two-sum/>
 
-```javascript
+```js
 
 ```
 
@@ -188,7 +188,7 @@
 
 <https://leetcode-cn.com/problems/add-two-numbers/>
 
-```javascript
+```js
 
 ```
 
@@ -196,7 +196,7 @@
 
 <https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/>
 
-```javascript
+```js
 
 ```
 
@@ -204,7 +204,7 @@
 
 <https://leetcode.cn/problems/median-of-two-sorted-arrays/>
 
-```javascript
+```js
 
 ```
 
@@ -212,7 +212,7 @@
 
 <https://leetcode.cn/problems/longest-palindromic-substring/>
 
-```javascript
+```js
 
 ```
 
@@ -220,7 +220,7 @@
 
 <https://leetcode.cn/problems/reverse-integer/>
 
-```javascript
+```js
 
 ```
 
@@ -228,7 +228,7 @@
 
 <https://leetcode.cn/problems/container-with-most-water/>
 
-```javascript
+```js
 
 ```
 
@@ -236,7 +236,7 @@
 
 <https://leetcode.cn/problems/longest-common-prefix/>
 
-```javascript
+```js
 
 ```
 
@@ -244,7 +244,7 @@
 
 <https://leetcode-cn.com/problems/3sum/>
 
-```javascript
+```js
 
 ```
 
@@ -252,7 +252,7 @@
 
 <https://leetcode.cn/problems/4sum/>
 
-```javascript
+```js
 
 ```
 
@@ -260,7 +260,7 @@
 
 <https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/>
 
-```javascript
+```js
 
 ```
 
@@ -268,7 +268,7 @@
 
 <https://leetcode-cn.com/problems/valid-parentheses/>
 
-```javascript
+```js
 
 ```
 
@@ -276,7 +276,7 @@
 
 <https://leetcode-cn.com/problems/merge-two-sorted-lists/>
 
-```javascript
+```js
 
 ```
 
@@ -284,7 +284,7 @@
 
 <https://leetcode.cn/problems/generate-parentheses/>
 
-```javascript
+```js
 
 ```
 
@@ -292,7 +292,7 @@
 
 <https://leetcode-cn.com/problems/merge-k-sorted-lists/>
 
-```javascript
+```js
 
 ```
 
@@ -300,7 +300,7 @@
 
 <https://leetcode-cn.com/problems/swap-nodes-in-pairs/>
 
-```javascript
+```js
 
 ```
 
@@ -308,7 +308,7 @@
 
 <https://leetcode.cn/problems/reverse-nodes-in-k-group/>
 
-```javascript
+```js
 
 ```
 
@@ -316,7 +316,7 @@
 
 <https://leetcode.cn/problems/remove-duplicates-from-sorted-array/>
 
-```javascript
+```js
 
 ```
 
@@ -324,7 +324,7 @@
 
 <https://leetcode.cn/problems/remove-element/>
 
-```javascript
+```js
 
 ```
 
@@ -332,7 +332,7 @@
 
 <https://leetcode.cn/problems/implement-strstr/>
 
-```javascript
+```js
 
 ```
 
@@ -340,7 +340,7 @@
 
 <https://leetcode.cn/problems/search-in-rotated-sorted-array/>
 
-```javascript
+```js
 
 ```
 
@@ -348,7 +348,7 @@
 
 <https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/>
 
-```javascript
+```js
 
 ```
 
@@ -356,7 +356,7 @@
 
 <https://leetcode.cn/problems/sudoku-solver/>
 
-```javascript
+```js
 
 ```
 
@@ -364,7 +364,7 @@
 
 <https://leetcode.cn/problems/combination-sum/>
 
-```javascript
+```js
 
 ```
 
@@ -372,7 +372,7 @@
 
 <https://leetcode.cn/problems/combination-sum-ii/>
 
-```javascript
+```js
 
 ```
 
@@ -380,7 +380,7 @@
 
 <https://leetcode.cn/problems/trapping-rain-water/>
 
-```javascript
+```js
 
 ```
 
@@ -388,7 +388,7 @@
 
 <https://leetcode.cn/problems/permutations/>
 
-```javascript
+```js
 
 ```
 
@@ -396,7 +396,7 @@
 
 <https://leetcode.cn/problems/permutations-ii/>
 
-```javascript
+```js
 
 ```
 
@@ -404,7 +404,7 @@
 
 <https://leetcode.cn/problems/n-queens/>
 
-```javascript
+```js
 
 ```
 
@@ -412,7 +412,7 @@
 
 <https://leetcode.cn/problems/n-queens-ii/>
 
-```javascript
+```js
 
 ```
 
@@ -420,7 +420,7 @@
 
 <https://leetcode.cn/problems/maximum-subarray/>
 
-```javascript
+```js
 
 ```
 
@@ -428,7 +428,7 @@
 
 <https://leetcode.cn/problems/merge-intervals/>
 
-```javascript
+```js
 
 ```
 
@@ -436,7 +436,7 @@
 
 <https://leetcode.cn/problems/minimum-path-sum/>
 
-```javascript
+```js
 
 ```
 
@@ -444,7 +444,7 @@
 
 <https://leetcode.cn/problems/sqrtx/>
 
-```javascript
+```js
 
 ```
 
@@ -452,7 +452,7 @@
 
 <https://leetcode.cn/problems/climbing-stairs/>
 
-```javascript
+```js
 
 ```
 
@@ -460,7 +460,7 @@
 
 <https://leetcode.cn/problems/edit-distance/>
 
-```javascript
+```js
 
 ```
 
@@ -468,7 +468,7 @@
 
 <https://leetcode.cn/problems/sort-colors/>
 
-```javascript
+```js
 
 ```
 
@@ -476,7 +476,7 @@
 
 <https://leetcode.cn/problems/minimum-window-substring/>
 
-```javascript
+```js
 
 ```
 
@@ -484,7 +484,7 @@
 
 <https://leetcode.cn/problems/combinations/>
 
-```javascript
+```js
 
 ```
 
@@ -492,7 +492,7 @@
 
 <https://leetcode.cn/problems/subsets/>
 
-```javascript
+```js
 
 ```
 
@@ -500,7 +500,7 @@
 
 <https://leetcode.cn/problems/search-in-rotated-sorted-array-ii/>
 
-```javascript
+```js
 
 ```
 
@@ -508,7 +508,7 @@
 
 <https://leetcode.cn/problems/remove-duplicates-from-sorted-list/>
 
-```javascript
+```js
 
 ```
 
@@ -516,7 +516,7 @@
 
 <https://leetcode.cn/problems/partition-list/>
 
-```javascript
+```js
 
 ```
 
@@ -524,7 +524,7 @@
 
 <https://leetcode.cn/problems/subsets-ii/>
 
-```javascript
+```js
 
 ```
 
@@ -532,7 +532,7 @@
 
 <https://leetcode-cn.com/problems/reverse-linked-list-ii/>
 
-```javascript
+```js
 
 ```
 
@@ -540,7 +540,7 @@
 
 <https://leetcode.cn/problems/binary-tree-inorder-traversal/>
 
-```javascript
+```js
 
 ```
 
@@ -548,7 +548,7 @@
 
 <https://leetcode.cn/problems/unique-binary-search-trees-ii/>
 
-```javascript
+```js
 
 ```
 
@@ -556,7 +556,7 @@
 
 <https://leetcode.cn/problems/unique-binary-search-trees/>
 
-```javascript
+```js
 
 ```
 
@@ -564,7 +564,7 @@
 
 <https://leetcode.cn/problems/validate-binary-search-tree/>
 
-```javascript
+```js
 
 ```
 
@@ -572,7 +572,7 @@
 
 <https://leetcode.cn/problems/same-tree/>
 
-```javascript
+```js
 
 ```
 
@@ -580,7 +580,7 @@
 
 <https://leetcode.cn/problems/binary-tree-level-order-traversal/>
 
-```javascript
+```js
 
 ```
 
@@ -588,7 +588,7 @@
 
 <https://leetcode-cn.com/problems/binary-tree-zigzag-level-order-traversal/>
 
-```javascript
+```js
 
 ```
 
@@ -596,7 +596,7 @@
 
 <https://leetcode.cn/problems/maximum-depth-of-binary-tree/>
 
-```javascript
+```js
 
 ```
 
@@ -604,7 +604,7 @@
 
 <https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/>
 
-```javascript
+```js
 
 ```
 
@@ -612,7 +612,7 @@
 
 <https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/>
 
-```javascript
+```js
 
 ```
 
@@ -620,7 +620,7 @@
 
 <https://leetcode-cn.com/problems/binary-tree-level-order-traversal-ii/>
 
-```javascript
+```js
 
 ```
 
@@ -628,7 +628,7 @@
 
 <https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/>
 
-```javascript
+```js
 
 ```
 
@@ -636,7 +636,7 @@
 
 <https://leetcode.cn/problems/balanced-binary-tree/>
 
-```javascript
+```js
 
 ```
 
@@ -644,7 +644,7 @@
 
 <https://leetcode.cn/problems/minimum-depth-of-binary-tree/>
 
-```javascript
+```js
 
 ```
 
@@ -652,7 +652,7 @@
 
 <https://leetcode.cn/problems/path-sum/>
 
-```javascript
+```js
 
 ```
 
@@ -660,7 +660,7 @@
 
 <https://leetcode.cn/problems/flatten-binary-tree-to-linked-list/>
 
-```javascript
+```js
 
 ```
 
@@ -668,7 +668,7 @@
 
 <https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/>
 
-```javascript
+```js
 
 ```
 
@@ -676,7 +676,7 @@
 
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/>
 
-```javascript
+```js
 
 ```
 
@@ -684,7 +684,7 @@
 
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/>
 
-```javascript
+```js
 
 ```
 
@@ -692,7 +692,7 @@
 
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iii/>
 
-```javascript
+```js
 
 ```
 
@@ -700,7 +700,7 @@
 
 <https://leetcode.cn/problems/valid-palindrome/>
 
-```javascript
+```js
 
 ```
 
@@ -708,7 +708,7 @@
 
 <https://leetcode.cn/problems/longest-consecutive-sequence/>
 
-```javascript
+```js
 
 ```
 
@@ -716,7 +716,7 @@
 
 <https://leetcode.cn/problems/surrounded-regions/>
 
-```javascript
+```js
 
 ```
 
@@ -724,7 +724,7 @@
 
 <https://leetcode.cn/problems/single-number/>
 
-```javascript
+```js
 
 ```
 
@@ -732,7 +732,7 @@
 
 <https://leetcode-cn.com/problems/linked-list-cycle/>
 
-```javascript
+```js
 
 ```
 
@@ -740,7 +740,7 @@
 
 <https://leetcode-cn.com/problems/linked-list-cycle-ii/>
 
-```javascript
+```js
 
 ```
 
@@ -748,7 +748,7 @@
 
 <https://leetcode.cn/problems/reorder-list/>
 
-```javascript
+```js
 
 ```
 
@@ -756,7 +756,7 @@
 
 <https://leetcode.cn/problems/binary-tree-preorder-traversal/>
 
-```javascript
+```js
 
 ```
 
@@ -764,7 +764,7 @@
 
 <https://leetcode.cn/problems/binary-tree-postorder-traversal/>
 
-```javascript
+```js
 
 ```
 
@@ -772,7 +772,7 @@
 
 <https://leetcode.cn/problems/lru-cache/>
 
-```javascript
+```js
 
 ```
 
@@ -780,7 +780,7 @@
 
 <https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/>
 
-```javascript
+```js
 
 ```
 
@@ -788,7 +788,7 @@
 
 <https://leetcode.cn/problems/min-stack/>
 
-```javascript
+```js
 
 ```
 
@@ -796,7 +796,7 @@
 
 <https://leetcode-cn.com/problems/intersection-of-two-linked-lists/>
 
-```javascript
+```js
 
 ```
 
@@ -804,7 +804,7 @@
 
 <https://leetcode.cn/problems/compare-version-numbers/>
 
-```javascript
+```js
 
 ```
 
@@ -812,7 +812,7 @@
 
 <https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/>
 
-```javascript
+```js
 
 ```
 
@@ -820,7 +820,7 @@
 
 <https://leetcode.cn/problems/majority-element/>
 
-```javascript
+```js
 
 ```
 
@@ -828,7 +828,7 @@
 
 <https://leetcode.cn/problems/largest-number/>
 
-```javascript
+```js
 
 ```
 
@@ -836,7 +836,7 @@
 
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/>
 
-```javascript
+```js
 
 ```
 
@@ -844,7 +844,7 @@
 
 <https://leetcode.cn/problems/rotate-array/>
 
-```javascript
+```js
 
 ```
 
@@ -852,7 +852,7 @@
 
 <https://leetcode.cn/problems/house-robber/>
 
-```javascript
+```js
 
 ```
 
@@ -860,7 +860,7 @@
 
 <https://leetcode.cn/problems/binary-tree-right-side-view/>
 
-```javascript
+```js
 
 ```
 
@@ -868,7 +868,7 @@
 
 <https://leetcode.cn/problems/number-of-islands/>
 
-```javascript
+```js
 
 ```
 
@@ -876,7 +876,7 @@
 
 <https://leetcode-cn.com/problems/remove-linked-list-elements/>
 
-```javascript
+```js
 
 ```
 
@@ -884,7 +884,7 @@
 
 <https://leetcode-cn.com/problems/reverse-linked-list/>
 
-```javascript
+```js
 
 ```
 
@@ -892,7 +892,7 @@
 
 <https://leetcode.cn/problems/course-schedule/>
 
-```javascript
+```js
 
 ```
 
@@ -900,7 +900,7 @@
 
 <https://leetcode.cn/problems/course-schedule-ii/>
 
-```javascript
+```js
 
 ```
 
@@ -908,7 +908,7 @@
 
 <https://leetcode.cn/problems/house-robber-ii/>
 
-```javascript
+```js
 
 ```
 
@@ -916,7 +916,7 @@
 
 <https://leetcode.cn/problems/kth-largest-element-in-an-array/>
 
-```javascript
+```js
 
 ```
 
@@ -924,7 +924,7 @@
 
 <https://leetcode.cn/problems/combination-sum-iii/>
 
-```javascript
+```js
 
 ```
 
@@ -932,7 +932,7 @@
 
 <https://leetcode.cn/problems/count-complete-tree-nodes/>
 
-```javascript
+```js
 
 ```
 
@@ -940,7 +940,7 @@
 
 <https://leetcode.cn/problems/implement-stack-using-queues/>
 
-```javascript
+```js
 
 ```
 
@@ -948,7 +948,7 @@
 
 <https://leetcode.cn/problems/invert-binary-tree/>
 
-```javascript
+```js
 
 ```
 
@@ -956,7 +956,7 @@
 
 <https://leetcode.cn/problems/kth-smallest-element-in-a-bst/>
 
-```javascript
+```js
 
 ```
 
@@ -964,7 +964,7 @@
 
 <https://leetcode.cn/problems/implement-queue-using-stacks/>
 
-```javascript
+```js
 
 ```
 
@@ -972,7 +972,7 @@
 
 <https://leetcode.cn/problems/palindrome-linked-list/>
 
-```javascript
+```js
 
 ```
 
@@ -980,7 +980,7 @@
 
 <https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/>
 
-```javascript
+```js
 
 ```
 
@@ -988,7 +988,7 @@
 
 <https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/>
 
-```javascript
+```js
 
 ```
 
@@ -996,7 +996,7 @@
 
 <https://leetcode-cn.com/problems/delete-node-in-a-linked-list/>
 
-```javascript
+```js
 
 ```
 
@@ -1004,7 +1004,7 @@
 
 <https://leetcode.cn/problems/sliding-window-maximum/>
 
-```javascript
+```js
 
 ```
 
@@ -1012,7 +1012,7 @@
 
 <https://leetcode.cn/problems/meeting-rooms-ii/>
 
-```javascript
+```js
 
 ```
 
@@ -1020,7 +1020,7 @@
 
 <https://leetcode-cn.com/problems/move-zeroes/>
 
-```javascript
+```js
 
 ```
 
@@ -1028,7 +1028,7 @@
 
 <https://leetcode.cn/problems/serialize-and-deserialize-binary-tree/>
 
-```javascript
+```js
 
 ```
 
@@ -1036,7 +1036,7 @@
 
 <https://leetcode.cn/problems/longest-increasing-subsequence/>
 
-```javascript
+```js
 
 ```
 
@@ -1044,7 +1044,7 @@
 
 <https://leetcode.cn/problems/range-sum-query-immutable/>
 
-```javascript
+```js
 
 ```
 
@@ -1052,7 +1052,7 @@
 
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/>
 
-```javascript
+```js
 
 ```
 
@@ -1060,7 +1060,7 @@
 
 <https://leetcode.cn/problems/count-of-smaller-numbers-after-self/>
 
-```javascript
+```js
 
 ```
 
@@ -1068,7 +1068,7 @@
 
 <https://leetcode.cn/problems/coin-change/>
 
-```javascript
+```js
 
 ```
 
@@ -1076,7 +1076,7 @@
 
 <https://leetcode.cn/problems/house-robber-iii/>
 
-```javascript
+```js
 
 ```
 
@@ -1084,7 +1084,7 @@
 
 <https://leetcode.cn/problems/reverse-string/>
 
-```javascript
+```js
 
 ```
 
@@ -1092,7 +1092,7 @@
 
 <https://leetcode.cn/problems/russian-doll-envelopes/>
 
-```javascript
+```js
 
 ```
 
@@ -1100,7 +1100,7 @@
 
 <https://leetcode.cn/problems/decode-string/>
 
-```javascript
+```js
 
 ```
 
@@ -1108,7 +1108,7 @@
 
 <https://leetcode.cn/problems/partition-equal-subset-sum/>
 
-```javascript
+```js
 
 ```
 
@@ -1116,7 +1116,7 @@
 
 <https://leetcode.cn/problems/non-overlapping-intervals/>
 
-```javascript
+```js
 
 ```
 
@@ -1124,7 +1124,7 @@
 
 <https://leetcode.cn/problems/find-all-anagrams-in-a-string/>
 
-```javascript
+```js
 
 ```
 
@@ -1132,7 +1132,7 @@
 
 <https://leetcode.cn/problems/add-two-numbers-ii/>
 
-```javascript
+```js
 
 ```
 
@@ -1140,7 +1140,7 @@
 
 <https://leetcode.cn/problems/delete-node-in-a-bst/>
 
-```javascript
+```js
 
 ```
 
@@ -1148,7 +1148,7 @@
 
 <https://leetcode.cn/problems/minimum-number-of-arrows-to-burst-balloons/>
 
-```javascript
+```js
 
 ```
 
@@ -1156,7 +1156,7 @@
 
 <https://leetcode.cn/problems/lfu-cache/>
 
-```javascript
+```js
 
 ```
 
@@ -1164,7 +1164,7 @@
 
 <https://leetcode.cn/problems/reverse-pairs/>
 
-```javascript
+```js
 
 ```
 
@@ -1172,7 +1172,7 @@
 
 <https://leetcode.cn/problems/target-sum/>
 
-```javascript
+```js
 
 ```
 
@@ -1180,7 +1180,7 @@
 
 <https://leetcode.cn/problems/next-greater-element-i/>
 
-```javascript
+```js
 
 ```
 
@@ -1188,7 +1188,7 @@
 
 <https://leetcode.cn/problems/next-greater-element-ii/>
 
-```javascript
+```js
 
 ```
 
@@ -1196,7 +1196,7 @@
 
 <https://leetcode.cn/problems/fibonacci-number/>
 
-```javascript
+```js
 
 ```
 
@@ -1204,7 +1204,7 @@
 
 <https://leetcode.cn/problems/longest-palindromic-subsequence/>
 
-```javascript
+```js
 
 ```
 
@@ -1212,7 +1212,7 @@
 
 <https://leetcode.cn/problems/coin-change-2/>
 
-```javascript
+```js
 
 ```
 
@@ -1220,7 +1220,7 @@
 
 <https://leetcode.cn/problems/convert-bst-to-greater-tree/>
 
-```javascript
+```js
 
 ```
 
@@ -1228,7 +1228,7 @@
 
 <https://leetcode.cn/problems/diameter-of-binary-tree/>
 
-```javascript
+```js
 
 ```
 
@@ -1236,7 +1236,7 @@
 
 <https://leetcode.cn/problems/permutation-in-string/>
 
-```javascript
+```js
 
 ```
 
@@ -1244,7 +1244,7 @@
 
 <https://leetcode.cn/problems/delete-operation-for-two-strings/>
 
-```javascript
+```js
 
 ```
 
@@ -1252,7 +1252,7 @@
 
 <https://leetcode.cn/problems/merge-two-binary-trees/>
 
-```javascript
+```js
 
 ```
 
@@ -1260,7 +1260,7 @@
 
 <https://leetcode.cn/problems/find-duplicate-subtrees/>
 
-```javascript
+```js
 
 ```
 
@@ -1268,7 +1268,7 @@
 
 <https://leetcode.cn/problems/maximum-binary-tree/>
 
-```javascript
+```js
 
 ```
 
@@ -1276,7 +1276,7 @@
 
 <https://leetcode.cn/problems/max-area-of-island/>
 
-```javascript
+```js
 
 ```
 
@@ -1284,7 +1284,7 @@
 
 <https://leetcode.cn/problems/partition-to-k-equal-sum-subsets/>
 
-```javascript
+```js
 
 ```
 
@@ -1292,7 +1292,7 @@
 
 <https://leetcode.cn/problems/search-in-a-binary-search-tree/>
 
-```javascript
+```js
 
 ```
 
@@ -1300,7 +1300,7 @@
 
 <https://leetcode.cn/problems/insert-into-a-binary-search-tree/>
 
-```javascript
+```js
 
 ```
 
@@ -1308,7 +1308,7 @@
 
 <https://leetcode.cn/problems/binary-search/>
 
-```javascript
+```js
 
 ```
 
@@ -1316,7 +1316,7 @@
 
 <https://leetcode.cn/problems/minimum-ascii-delete-sum-for-two-strings/>
 
-```javascript
+```js
 
 ```
 
@@ -1324,7 +1324,7 @@
 
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/>
 
-```javascript
+```js
 
 ```
 
@@ -1332,7 +1332,7 @@
 
 <https://leetcode.cn/problems/daily-temperatures/>
 
-```javascript
+```js
 
 ```
 
@@ -1340,7 +1340,7 @@
 
 <https://leetcode.cn/problems/network-delay-time/>
 
-```javascript
+```js
 
 ```
 
@@ -1348,7 +1348,7 @@
 
 <https://leetcode.cn/problems/open-the-lock/>
 
-```javascript
+```js
 
 ```
 
@@ -1356,7 +1356,7 @@
 
 <https://leetcode.cn/problems/is-graph-bipartite/>
 
-```javascript
+```js
 
 ```
 
@@ -1364,7 +1364,7 @@
 
 <https://leetcode.cn/problems/all-paths-from-source-to-target/>
 
-```javascript
+```js
 
 ```
 
@@ -1372,7 +1372,7 @@
 
 <https://leetcode.cn/problems/hand-of-straights/>
 
-```javascript
+```js
 
 ```
 
@@ -1380,7 +1380,7 @@
 
 <https://leetcode.cn/problems/koko-eating-bananas/>
 
-```javascript
+```js
 
 ```
 
@@ -1388,7 +1388,7 @@
 
 <https://leetcode-cn.com/problems/middle-of-the-linked-list/>
 
-```javascript
+```js
 
 ```
 
@@ -1396,7 +1396,7 @@
 
 <https://leetcode.cn/problems/possible-bipartition/>
 
-```javascript
+```js
 
 ```
 
@@ -1404,7 +1404,7 @@
 
 <https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/>
 
-```javascript
+```js
 
 ```
 
@@ -1412,7 +1412,7 @@
 
 <https://leetcode.cn/problems/sort-array-by-parity/>
 
-```javascript
+```js
 
 ```
 
@@ -1420,7 +1420,7 @@
 
 <https://leetcode.cn/problems/sort-an-array/>
 
-```javascript
+```js
 
 ```
 
@@ -1428,7 +1428,7 @@
 
 <https://leetcode.cn/problems/minimum-add-to-make-parentheses-valid/>
 
-```javascript
+```js
 
 ```
 
@@ -1436,7 +1436,7 @@
 
 <https://leetcode.cn/problems/sort-array-by-parity-ii/>
 
-```javascript
+```js
 
 ```
 
@@ -1444,7 +1444,7 @@
 
 <https://leetcode.cn/problems/minimum-falling-path-sum/>
 
-```javascript
+```js
 
 ```
 
@@ -1452,7 +1452,7 @@
 
 <https://leetcode.cn/problems/interval-list-intersections/>
 
-```javascript
+```js
 
 ```
 
@@ -1460,7 +1460,7 @@
 
 <https://leetcode.cn/problems/satisfiability-of-equality-equations/>
 
-```javascript
+```js
 
 ```
 
@@ -1468,7 +1468,7 @@
 
 <https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/>
 
-```javascript
+```js
 
 ```
 
@@ -1476,7 +1476,7 @@
 
 <https://leetcode.cn/problems/number-of-enclaves/>
 
-```javascript
+```js
 
 ```
 
@@ -1484,7 +1484,7 @@
 
 <https://leetcode.cn/problems/video-stitching/>
 
-```javascript
+```js
 
 ```
 
@@ -1492,7 +1492,7 @@
 
 <https://leetcode.cn/problems/longest-common-subsequence/>
 
-```javascript
+```js
 
 ```
 
@@ -1500,7 +1500,7 @@
 
 <https://leetcode.cn/problems/number-of-closed-islands/>
 
-```javascript
+```js
 
 ```
 
@@ -1508,7 +1508,7 @@
 
 <https://leetcode.cn/problems/remove-covered-intervals/>
 
-```javascript
+```js
 
 ```
 
@@ -1516,7 +1516,7 @@
 
 <https://leetcode.cn/problems/balance-a-binary-search-tree/>
 
-```javascript
+```js
 
 ```
 
@@ -1524,7 +1524,7 @@
 
 <https://leetcode.cn/problems/path-with-maximum-probability/>
 
-```javascript
+```js
 
 ```
 
@@ -1532,7 +1532,7 @@
 
 <https://leetcode.cn/problems/minimum-insertions-to-balance-a-parentheses-string/>
 
-```javascript
+```js
 
 ```
 
@@ -1540,7 +1540,7 @@
 
 <https://leetcode.cn/problems/min-cost-to-connect-all-points/>
 
-```javascript
+```js
 
 ```
 
@@ -1548,7 +1548,7 @@
 
 <https://leetcode.cn/problems/path-with-minimum-effort/>
 
-```javascript
+```js
 
 ```
 
@@ -1556,7 +1556,7 @@
 
 <https://leetcode.cn/problems/count-sub-islands/>
 
-```javascript
+```js
 
 ```
 
@@ -1564,6 +1564,6 @@
 
 <https://leetcode-cn.com/problems/kth-node-from-end-of-list-lcci/>
 
-```javascript
+```js
 
 ```
