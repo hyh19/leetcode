@@ -2801,7 +2801,16 @@ class Solution:
 <https://leetcode-cn.com/problems/remove-linked-list-elements/>
 
 ```python
-
+class Solution:
+    def removeElements(self, head: Optional[ListNode], val: int) -> Optional[ListNode]:
+        ptr = dummyHead = ListNode(-1, head)
+        while ptr.next is not None:
+            if ptr.next.val == val:
+                ptr.next = ptr.next.next
+            else:
+                ptr = ptr.next
+        return dummyHead.next
+# https://leetcode.cn/submissions/detail/378922761/
 ```
 
 ## 206. 反转链表
@@ -2809,7 +2818,16 @@ class Solution:
 <https://leetcode-cn.com/problems/reverse-linked-list/>
 
 ```python
-
+class Solution:
+    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        reverseHead = None
+        while head is not None:
+            x = head.next
+            head.next = reverseHead
+            reverseHead = head
+            head = x
+        return reverseHead
+# https://leetcode.cn/submissions/detail/378888438/
 ```
 
 ## 207. 课程表
@@ -2817,7 +2835,37 @@ class Solution:
 <https://leetcode.cn/problems/course-schedule/>
 
 ```python
+class Solution:
+    def __init__(self):
+        self.marked = None
+        self.onStack = None
+        self.hasCycle = False
 
+    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+        graph = [[] for _ in range(numCourses)]
+        for p in prerequisites:
+            v, w = p[1], p[0]
+            graph[v].append(w)
+        self.marked = [False] * numCourses
+        self.onStack = [False] * numCourses
+        for v in range(numCourses):
+            if not self.marked[v]:
+                self.dfs(graph, v)
+                if self.hasCycle:
+                    break
+        return not self.hasCycle
+
+    def dfs(self, graph: List[List[int]], v: int) -> None:
+        self.onStack[v] = True
+        self.marked[v] = True
+        for w in graph[v]:
+            if not self.marked[w]:
+                self.dfs(graph, w)
+            elif self.onStack[w]:
+                self.hasCycle = True
+                return
+        self.onStack[v] = False
+# https://leetcode.cn/submissions/detail/380404957/
 ```
 
 ## 210. 课程表 II
@@ -2825,7 +2873,44 @@ class Solution:
 <https://leetcode.cn/problems/course-schedule-ii/>
 
 ```python
+class Solution:
+    def __init__(self):
+        self.marked = None
+        self.onStack = None
+        self.postorder = []
+        self.hasCycle = False
 
+    def findOrder(self, numCourses: int, prerequisites: List[List[int]]) -> List[int]:
+        if self.canFinish(numCourses, prerequisites):
+            return self.postorder
+        return []
+
+    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+        graph = [[] for _ in range(numCourses)]
+        for p in prerequisites:
+            v, w = p[0], p[1]
+            graph[v].append(w)
+        self.marked = [False] * numCourses
+        self.onStack = [False] * numCourses
+        for v in range(numCourses):
+            if not self.marked[v]:
+                self.dfs(graph, v)
+                if self.hasCycle:
+                    break
+        return not self.hasCycle
+
+    def dfs(self, graph: List[List[int]], v: int) -> None:
+        self.onStack[v] = True
+        self.marked[v] = True
+        for w in graph[v]:
+            if not self.marked[w]:
+                self.dfs(graph, w)
+            elif self.onStack[w]:
+                self.hasCycle = True
+                return
+        self.postorder.append(v)
+        self.onStack[v] = False
+# https://leetcode.cn/submissions/detail/380406746/
 ```
 
 ## 213. 打家劫舍 II
@@ -2833,7 +2918,34 @@ class Solution:
 <https://leetcode.cn/problems/house-robber-ii/>
 
 ```python
+class Solution:
+    def rob(self, nums: List[int]) -> int:
+        n = len(nums)
+        if n == 0:
+            return 0
+        if n == 1:
+            return nums[0]
+        return max(self.subseqSum(nums[:-1]), self.subseqSum(nums[1:]))
 
+    # max({sum(subseq) | subseq 是数组 nums 的不连续子序列})
+    def subseqSum(self, nums: List[int]) -> int:
+        n = len(nums)
+        if n == 0:
+            return 0
+        if n == 1:
+            return nums[0]
+        # dp[i] = max({sum(subseq) | subseq 是子数组 nums[0..i] 的不连续子序列})
+        dp = [0] * n
+        dp[0] = nums[0]
+        dp[1] = max(nums[0], nums[1])
+        for i in range(2, n):
+            # 包含 nums[i]
+            sp1 = dp[i - 2] + nums[i]
+            # 不包含 nums[i]
+            sp2 = dp[i - 1]
+            dp[i] = max(sp1, sp2)
+        return dp[n - 1]
+# https://leetcode.cn/submissions/detail/379352325/
 ```
 
 ## 215. 数组中的第 K 个最大元素
@@ -2841,7 +2953,46 @@ class Solution:
 <https://leetcode.cn/problems/kth-largest-element-in-an-array/>
 
 ```python
+class Solution:
+    def findKthLargest(self, nums: List[int], k: int) -> int:
+        return self.quickSelect(nums, len(nums) - k)
 
+    # 数组 nums 从小到大排在第 rank 位的元素，排位从 0 开始计算，
+    # 相当于有 rank 个元素小于该元素。
+    def quickSelect(self, nums: List[int], rank: int) -> int:
+        lo, hi = 0, len(nums) - 1
+        while lo <= hi:
+            j = self.partition(nums, lo, hi)
+            if rank < j:
+                hi = j - 1
+            elif j < rank:
+                lo = j + 1
+            else:
+                return nums[j]
+        return -1
+
+    def partition(self, nums: List[int], lo: int, hi: int) -> int:
+        if lo == hi:
+            return lo
+        v = nums[lo]
+        i, j = lo, hi + 1
+        while True:
+            i += 1
+            while nums[i] < v:
+                if i == hi:
+                    break
+                i += 1
+            j -= 1
+            while nums[j] > v:
+                if j == lo:
+                    break
+                j -= 1
+            if i >= j:
+                break
+            nums[i], nums[j] = nums[j], nums[i]
+        nums[lo], nums[j] = nums[j], nums[lo]
+        return j
+# https://leetcode.cn/submissions/detail/380334535/
 ```
 
 ## 216. 组合总和 III
@@ -2849,7 +3000,35 @@ class Solution:
 <https://leetcode.cn/problems/combination-sum-iii/>
 
 ```python
+class Solution:
+    def __init__(self):
+        self.k = None
+        self.n = None
+        self.pathSum = 0
+        self.path = []  # 取 [1..9] 为元素
+        self.ans = []
 
+    def combinationSum3(self, k: int, n: int) -> List[List[int]]:
+        self.k = k
+        self.n = n
+        self.backtrack(0)
+        return self.ans
+
+    # edge = 取 [1..9] 为值
+    def backtrack(self, edge: int) -> None:
+        if len(self.path) == self.k and self.pathSum == self.n:
+            self.ans.append(self.path.copy())
+        elif len(self.path) < self.k and self.pathSum < self.n:
+            # 避免重复，从 edge + 1 开始选择
+            # 例如 [1->2] 和 [2->1] 是重复的
+            for e in range(edge + 1, 10):
+                if self.pathSum + e <= self.n:
+                    self.pathSum += e
+                    self.path.append(e)
+                    self.backtrack(e)
+                    self.pathSum -= e
+                    self.path.pop()
+# https://leetcode.cn/submissions/detail/379643434/
 ```
 
 ## 222. 完全二叉树的节点个数
@@ -2857,7 +3036,24 @@ class Solution:
 <https://leetcode.cn/problems/count-complete-tree-nodes/>
 
 ```python
-
+class Solution:
+    def countNodes(self, root: Optional[TreeNode]) -> int:
+        if root is None:
+            return 0
+        leftHeight = 0
+        ptr = root
+        while ptr is not None:
+            leftHeight += 1
+            ptr = ptr.left
+        rightHeight = 0
+        ptr = root
+        while ptr is not None:
+            rightHeight += 1
+            ptr = ptr.right
+        if leftHeight == rightHeight:
+            return 2 ** leftHeight - 1
+        return 1 + self.countNodes(root.left) + self.countNodes(root.right)
+# https://leetcode.cn/submissions/detail/380296123/
 ```
 
 ## 225. 用队列实现栈
@@ -2865,7 +3061,24 @@ class Solution:
 <https://leetcode.cn/problems/implement-stack-using-queues/>
 
 ```python
+class MyStack:
+    def __init__(self):
+        self.q = deque()
 
+    def push(self, x: int) -> None:
+        self.q.append(x)
+        for i in range(len(self.q) - 1):
+            self.q.append(self.q.popleft())
+
+    def pop(self) -> int:
+        return self.q.popleft()
+
+    def top(self) -> int:
+        return self.q[0]
+
+    def empty(self) -> bool:
+        return len(self.q) == 0
+# https://leetcode.cn/submissions/detail/380065369/
 ```
 
 ## 226. 翻转二叉树
@@ -2873,7 +3086,15 @@ class Solution:
 <https://leetcode.cn/problems/invert-binary-tree/>
 
 ```python
-
+class Solution:
+    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        if root is None:
+            return None
+        left = self.invertTree(root.left)
+        right = self.invertTree(root.right)
+        root.left, root.right = right, left
+        return root
+# https://leetcode.cn/submissions/detail/380122501/
 ```
 
 ## 230. 二叉搜索树中第 K 小的元素
@@ -2881,7 +3102,26 @@ class Solution:
 <https://leetcode.cn/problems/kth-smallest-element-in-a-bst/>
 
 ```python
+class Solution:
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+        return self.select(root, k - 1)
 
+    def select(self, root: Optional[TreeNode], rank: int) -> int:
+        if root is None:
+            return -1
+        leftSize = self.size(root.left)
+        if rank < leftSize:
+            return self.select(root.left, rank)
+        if leftSize < rank:
+            return self.select(root.right, rank - leftSize - 1)
+        return root.val
+
+    @cache
+    def size(self, root: Optional[TreeNode]) -> int:
+        if root is None:
+            return 0
+        return 1 + self.size(root.left) + self.size(root.right)
+# https://leetcode.cn/submissions/detail/380140796/
 ```
 
 ## 232. 用栈实现队列
@@ -2889,7 +3129,34 @@ class Solution:
 <https://leetcode.cn/problems/implement-queue-using-stacks/>
 
 ```python
+# ------------------| |--------------------
+# pop <- Left Stack | | Right Stack <- push
+# ------------------| |--------------------
+class MyQueue:
+    def __init__(self):
+        self.leftStack = []
+        self.rightStack = []
 
+    def push(self, x: int) -> None:
+        self.rightStack.append(x)
+
+    def pop(self) -> int:
+        if len(self.leftStack) == 0:
+            self.move()
+        return self.leftStack.pop()
+
+    def peek(self) -> int:
+        if len(self.leftStack) == 0:
+            self.move()
+        return self.leftStack[-1]
+
+    def empty(self) -> bool:
+        return len(self.leftStack) == 0 and len(self.rightStack) == 0
+
+    def move(self) -> None:
+        while len(self.rightStack) > 0:
+            self.leftStack.append(self.rightStack.pop())
+# https://leetcode.cn/submissions/detail/380070029/
 ```
 
 ## 234. 回文链表
@@ -2897,7 +3164,37 @@ class Solution:
 <https://leetcode.cn/problems/palindrome-linked-list/>
 
 ```python
+class Solution:
+    def isPalindrome(self, head: Optional[ListNode]) -> bool:
+        # 寻找链表的中点（偶数个节点时选择左侧），即前半部分链表的尾节点
+        slow = fast = head
+        while fast.next is not None and fast.next.next is not None:
+            slow = slow.next
+            fast = fast.next.next
+        # 翻转后半部分链表
+        reverseHead = self.reverseList(slow.next)
+        slow.next = None
+        # 判断是否回文链表
+        left = head
+        right = reverseHead
+        while right is not None:
+            if left.val != right.val:
+                return False
+            left = left.next
+            right = right.next
+        # 还原链表
+        slow.next = self.reverseList(reverseHead)
+        return True
 
+    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        reverseHead = None
+        while head is not None:
+            x = head.next
+            head.next = reverseHead
+            reverseHead = head
+            head = x
+        return reverseHead
+# https://leetcode.cn/submissions/detail/378900910/
 ```
 
 ## 235. 二叉搜索树的最近公共祖先
@@ -2905,7 +3202,19 @@ class Solution:
 <https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/>
 
 ```python
-
+class Solution:
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        # 保证 p < q
+        if p.val > q.val:
+            return self.lowestCommonAncestor(root, q, p)
+        if p.val <= root.val <= q.val:
+            return root
+        if q.val < root.val:
+            return self.lowestCommonAncestor(root.left, p, q)
+        if root.val < p.val:
+            return self.lowestCommonAncestor(root.right, p, q)
+        return None
+# https://leetcode.cn/submissions/detail/380299890/
 ```
 
 ## 236. 二叉树的最近公共祖先
@@ -2913,7 +3222,29 @@ class Solution:
 <https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/>
 
 ```python
+class Solution:
+    def __init__(self):
+        self.lca = None
 
+    def lowestCommonAncestor(self, root: TreeNode, p: TreeNode, q: TreeNode) -> TreeNode:
+        self.find(root, p, q)
+        return self.lca
+
+    # 在子树中查找节点 p 或 q，递归过程中确定『最近公共祖先』
+    def find(self, root: Optional[TreeNode], p: TreeNode, q: TreeNode) -> bool:
+        if root is None:
+            return False
+        if (root is p) or (root is q):
+            # 如果 lca(p,q) = p 或 q，则此处的 lca = root 是最终答案
+            self.lca = root
+            return True
+        left = self.find(root.left, p, q)
+        right = self.find(root.right, p, q)
+        if left and right:
+            # 否则返回到某祖先节点处的 lca = root 才是最终答案
+            self.lca = root
+        return left or right
+# https://leetcode.cn/submissions/detail/380341756/
 ```
 
 ## 237. 删除链表中的节点
@@ -2921,7 +3252,15 @@ class Solution:
 <https://leetcode-cn.com/problems/delete-node-in-a-linked-list/>
 
 ```python
-
+class Solution:
+    def deleteNode(self, node):
+        while True:
+            node.val = node.next.val
+            if node.next.next is None:
+                node.next = None
+                break
+            node = node.next
+# https://leetcode.cn/submissions/detail/380301024/
 ```
 
 ## 239. 滑动窗口最大值
@@ -2929,7 +3268,23 @@ class Solution:
 <https://leetcode.cn/problems/sliding-window-maximum/>
 
 ```python
-
+class Solution:
+    def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:
+        ans = []
+        maxMonoQueue = collections.deque()
+        for i, v in enumerate(nums):
+            # nums[i] = 进入窗口的数字
+            while len(maxMonoQueue) > 0 and maxMonoQueue[-1] < v:
+                maxMonoQueue.pop()
+            maxMonoQueue.append(v)
+            if i < k - 1:
+                continue
+            # nums[i-k] = 退出窗口的数字
+            if i >= k and nums[i - k] == maxMonoQueue[0]:
+                maxMonoQueue.popleft()
+            ans.append(maxMonoQueue[0])
+        return ans
+# https://leetcode.cn/submissions/detail/379209648/
 ```
 
 ## 253. 会议室 II
