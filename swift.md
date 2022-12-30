@@ -3560,7 +3560,38 @@ class Solution {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/>
 
 ```swift
-
+class Solution {
+    func maxProfit(_ k: Int, _ prices: [Int]) -> Int {
+        let n = prices.count;
+        if (k == 0 || n <= 1) {
+            return 0;
+        }
+        // dp[t][i][0] = 交易次数限制为 t 时，第 i 天，空仓状态下的最大利润
+        // dp[t][i][1] = 交易次数限制为 t 时，第 i 天，持仓状态下的最大利润
+        var dp = Array(repeating: Array(repeating: Array(repeating: 0, count: 2), count: n), count: k + 1);
+        // 交易次数限制为 0 时
+        // 填写第 0 个 n x 2 矩阵
+        for i in 0...n - 1 {
+            dp[0][i][0] = 0;
+            dp[0][i][1] = Int.min;
+        }
+        // 交易次数限制为 [1..k] 时
+        // 填写第 t 个 n x 2 矩阵
+        for t in 1...k {
+            dp[t][0][0] = 0;
+            dp[t][0][1] = -prices[0];
+            for i in 1...n - 1 {
+                // dp[t][i - 1][0]             >= dp[t - 1][i - 1][0] - prices[i]
+                // dp[t][i - 1][1] + prices[i] >= dp[t][i - 1][1]
+                // => dp[t][i][0] >= dp[t][i][1]
+                dp[t][i][0] = max(dp[t][i - 1][0], dp[t][i - 1][1] + prices[i]);
+                dp[t][i][1] = max(dp[t - 1][i - 1][0] - prices[i], dp[t][i - 1][1]);
+            }
+        }
+        return dp[k][n - 1][0];
+    }
+}
+// https://leetcode.cn/submissions/detail/385802520/
 ```
 
 ## 189. 轮转数组
@@ -3568,7 +3599,27 @@ class Solution {
 <https://leetcode.cn/problems/rotate-array/>
 
 ```swift
+class Solution {
+    func rotate(_ nums: inout [Int], _ k: Int) {
+        let n = nums.count;
+        let t = k % n;
+        if (t > 0) {
+            reverse(&nums, 0, n - 1);
+            reverse(&nums, 0, t - 1);
+            reverse(&nums, t, n - 1);
+        }
+    }
 
+    private func reverse(_ nums: inout [Int], _ lo: Int, _ hi: Int) {
+        var i = lo, j = hi;
+        while (i < j) {
+            nums.swapAt(i, j);
+            i += 1;
+            j -= 1;
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/384826900/
 ```
 
 ## 198. 打家劫舍
@@ -3576,7 +3627,37 @@ class Solution {
 <https://leetcode.cn/problems/house-robber/>
 
 ```swift
+class Solution {
+    func rob(_ nums: [Int]) -> Int {
+        subseqSum(nums);
+    }
 
+    // max({sum(subseq) | subseq 是数组 nums 的不连续子序列})
+    private func subseqSum(_ nums: [Int]) -> Int {
+        let n = nums.count;
+        if (n == 0) {
+            return 0;
+        }
+        if (n == 1) {
+            return nums[0];
+        }
+        // dp[i] = max({sum(subseq) | subseq 是子数组 nums[0..i] 的不连续子序列})
+        var dp = Array(repeating: 0, count: n);
+        dp[0] = nums[0];
+        dp[1] = max(nums[0], nums[1]);
+        if (n > 2) {
+            for i in 2...n - 1 {
+                // 包含 nums[i]
+                let sp1 = dp[i - 2] + nums[i];
+                // 不包含 nums[i]
+                let sp2 = dp[i - 1];
+                dp[i] = max(sp1, sp2);
+            }
+        }
+        return dp[n - 1];
+    }
+}
+// https://leetcode.cn/submissions/detail/385790112/
 ```
 
 ## 199. 二叉树的右视图
@@ -3584,7 +3665,116 @@ class Solution {
 <https://leetcode.cn/problems/binary-tree-right-side-view/>
 
 ```swift
+class Solution {
+    func rightSideView(_ root: TreeNode?) -> [Int] {
+        var ans: [Int] = [];
+        var queue = Deque<TreeNode>();
+        if (root != nil) {
+            queue.enqueue(root!);
+        }
+        while (!queue.isEmpty) {
+            ans.append(queue.peekBack()!.val);
+            let n = queue.count;
+            for _ in 1...n {
+                let x = queue.dequeue();
+                let left = x!.left;
+                if (left != nil) {
+                    queue.enqueue(left!);
+                }
+                let right = x!.right;
+                if (right != nil) {
+                    queue.enqueue(right!);
+                }
+            }
+        }
+        return ans;
+    }
+}
 
+/*
+  Deque (pronounced "deck"), a double-ended queue
+
+  All enqueuing and dequeuing operations are O(1).
+*/
+public struct Deque<T> {
+    private var array: [T?]
+    private var head: Int
+    private var capacity: Int
+    private let originalCapacity: Int
+
+    public init(_ capacity: Int = 10) {
+        self.capacity = max(capacity, 1)
+        originalCapacity = self.capacity
+        array = [T?](repeating: nil, count: capacity)
+        head = capacity
+    }
+
+    public var isEmpty: Bool {
+        return count == 0
+    }
+
+    public var count: Int {
+        return array.count - head
+    }
+
+    public mutating func enqueue(_ element: T) {
+        array.append(element)
+    }
+
+    public mutating func enqueueFront(_ element: T) {
+        if head == 0 {
+            capacity *= 2
+            let emptySpace = [T?](repeating: nil, count: capacity)
+            array.insert(contentsOf: emptySpace, at: 0)
+            head = capacity
+        }
+
+        head -= 1
+        array[head] = element
+    }
+
+    public mutating func dequeue() -> T? {
+        guard head < array.count, let element = array[head] else {
+            return nil
+        }
+
+        array[head] = nil
+        head += 1
+
+        if capacity >= originalCapacity && head >= capacity * 2 {
+            let amountToRemove = capacity + capacity / 2
+            array.removeFirst(amountToRemove)
+            head -= amountToRemove
+            capacity /= 2
+        }
+        return element
+    }
+
+    public mutating func dequeueBack() -> T? {
+        if isEmpty {
+            return nil
+        } else {
+            return array.removeLast()
+        }
+    }
+
+    public func peekFront() -> T? {
+        if isEmpty {
+            return nil
+        } else {
+            return array[head]
+        }
+    }
+
+    public func peekBack() -> T? {
+        if isEmpty {
+            return nil
+        } else {
+            return array.last!
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/386072437/
 ```
 
 ## 200. 岛屿数量
@@ -3592,7 +3782,37 @@ class Solution {
 <https://leetcode.cn/problems/number-of-islands/>
 
 ```swift
+class Solution {
+    private static let LAND: Character = "1";
+    private static let WATER: Character = "0";
 
+    func numIslands(_ grid: [[Character]]) -> Int {
+        var copy = grid;
+        var count = 0;
+        for row in 0...copy.count - 1 {
+            for col in 0...copy[0].count - 1 {
+                if (copy[row][col] == Solution.LAND) {
+                    floodFill(&copy, row, col);
+                    count += 1;
+                }
+            }
+        }
+        return count;
+    }
+
+    private func floodFill(_ grid: inout [[Character]], _ row: Int, _ col: Int) {
+        if (row < 0 || row >= grid.count || col < 0 || col >= grid[0].count
+                || grid[row][col] == Solution.WATER) {
+            return;
+        }
+        grid[row][col] = Solution.WATER;
+        floodFill(&grid, row - 1, col);
+        floodFill(&grid, row + 1, col);
+        floodFill(&grid, row, col - 1);
+        floodFill(&grid, row, col + 1);
+    }
+}
+// https://leetcode.cn/submissions/detail/387741572/
 ```
 
 ## 203. 移除链表元素
@@ -3600,7 +3820,21 @@ class Solution {
 <https://leetcode-cn.com/problems/remove-linked-list-elements/>
 
 ```swift
-
+class Solution {
+    func removeElements(_ head: ListNode?, _ val: Int) -> ListNode? {
+        let dummyHead = ListNode(-1, head);
+        var ptr = dummyHead;
+        while (ptr.next != nil) {
+            if (ptr.next!.val == val) {
+                ptr.next = ptr.next!.next;
+            } else {
+                ptr = ptr.next!;
+            }
+        }
+        return dummyHead.next;
+    }
+}
+// https://leetcode.cn/submissions/detail/384920642/
 ```
 
 ## 206. 反转链表
@@ -3608,7 +3842,20 @@ class Solution {
 <https://leetcode-cn.com/problems/reverse-linked-list/>
 
 ```swift
-
+class Solution {
+    func reverseList(_ head: ListNode?) -> ListNode? {
+        var reverseHead: ListNode?;
+        var ptr = head;
+        while (ptr != nil) {
+            let x = ptr!.next;
+            ptr!.next = reverseHead;
+            reverseHead = ptr;
+            ptr = x;
+        }
+        return reverseHead;
+    }
+}
+// https://leetcode.cn/submissions/detail/384872992/
 ```
 
 ## 207. 课程表
@@ -3616,7 +3863,49 @@ class Solution {
 <https://leetcode.cn/problems/course-schedule/>
 
 ```swift
+class Solution {
+    private var marked: [Bool] = [];
+    private var onStack: [Bool] = [];
+    private var hasCycle = false;
 
+    func canFinish(_ numCourses: Int, _ prerequisites: [[Int]]) -> Bool {
+        marked = Array(repeating: false, count: numCourses);
+        onStack = Array(repeating: false, count: numCourses);
+        var graph: [[Int]] = Array(repeating: [], count: numCourses);
+        for p in prerequisites {
+            let v = p[1];
+            let w = p[0];
+            graph[v].append(w);
+        }
+        for v in 0...numCourses - 1 {
+            if (!marked[v]) {
+                dfs(graph, v);
+                if (hasCycle) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private func dfs(_ graph: [[Int]], _ v: Int) {
+        onStack[v] = true;
+        marked[v] = true;
+        for w in graph[v] {
+            if (hasCycle) {
+                return;
+            }
+            if (!marked[w]) {
+                dfs(graph, w);
+            } else if (onStack[w]) {
+                hasCycle = true;
+                return;
+            }
+        }
+        onStack[v] = false;
+    }
+}
+// https://leetcode.cn/submissions/detail/387979585/
 ```
 
 ## 210. 课程表 II
@@ -3624,7 +3913,51 @@ class Solution {
 <https://leetcode.cn/problems/course-schedule-ii/>
 
 ```swift
+class Solution {
+    private var marked: [Bool] = [];
+    private var onStack: [Bool] = [];
+    private var postorder: [Int] = [];
+    private var hasCycle = false;
 
+    func findOrder(_ numCourses: Int, _ prerequisites: [[Int]]) -> [Int] {
+        marked = Array(repeating: false, count: numCourses);
+        onStack = Array(repeating: false, count: numCourses);
+        var graph: [[Int]] = Array(repeating: [], count: numCourses);
+        for p in prerequisites {
+            let v = p[1];
+            let w = p[0];
+            graph[v].append(w);
+        }
+        for v in 0...numCourses - 1 {
+            if (!marked[v]) {
+                dfs(graph, v);
+                if (hasCycle) {
+                    return [];
+                }
+            }
+        }
+        return postorder.reversed();
+    }
+
+    private func dfs(_ graph: [[Int]], _ v: Int) {
+        onStack[v] = true;
+        marked[v] = true;
+        for w in graph[v] {
+            if (hasCycle) {
+                return;
+            }
+            if (!marked[w]) {
+                dfs(graph, w);
+            } else if (onStack[w]) {
+                hasCycle = true;
+                return;
+            }
+        }
+        postorder.append(v);
+        onStack[v] = false;
+    }
+}
+// https://leetcode.cn/submissions/detail/387980235/
 ```
 
 ## 213. 打家劫舍 II
@@ -3632,7 +3965,44 @@ class Solution {
 <https://leetcode.cn/problems/house-robber-ii/>
 
 ```swift
+class Solution {
+    func rob(_ nums: [Int]) -> Int {
+        let n = nums.count;
+        if (n == 0) {
+            return 0;
+        }
+        if (n == 1) {
+            return nums[0];
+        }
+        return max(subseqSum(nums, 0, n - 2), subseqSum(nums, 1, n - 1));
+    }
 
+    // max({sum(subseq) | subseq 是子数组 nums[lo..hi] 的不连续子序列})
+    private func subseqSum(_ nums: [Int], _ lo: Int, _ hi: Int) -> Int {
+        let n = hi - lo + 1;
+        if (n == 0) {
+            return 0;
+        }
+        if (n == 1) {
+            return nums[lo];
+        }
+        // dp[i] = max({sum(subseq) | subseq 是子数组 nums[lo..lo+i] 的不连续子序列})
+        var dp = Array(repeating: 0, count: n);
+        dp[0] = nums[lo];
+        dp[1] = max(nums[lo], nums[lo + 1]);
+        if (n > 2) {
+            for i in 2...n - 1 {
+                // 包含 nums[lo+i]
+                let sp1 = dp[i - 2] + nums[lo + i];
+                // 不包含 nums[lo+i]
+                let sp2 = dp[i - 1];
+                dp[i] = max(sp1, sp2);
+            }
+        }
+        return dp[n - 1];
+    }
+}
+// https://leetcode.cn/submissions/detail/385793081/
 ```
 
 ## 215. 数组中的第 K 个最大元素
@@ -3640,7 +4010,57 @@ class Solution {
 <https://leetcode.cn/problems/kth-largest-element-in-an-array/>
 
 ```swift
+class Solution {
+    func findKthLargest(_ nums: [Int], _ k: Int) -> Int {
+        var copy = nums.shuffled();
+        return select(&copy, copy.count - k);
+    }
 
+    // 返回数组 nums 从小到大排在第 rank 位的元素，排位从 0 开始计算，
+    // 相当于有 rank 个元素小于该元素。
+    private func select(_ nums: inout [Int], _ rank: Int) -> Int {
+        var lo = 0, hi = nums.count - 1;
+        while (lo < hi) {
+            let j = partition(&nums, lo, hi);
+            if (rank < j) {
+                hi = j - 1;
+            } else if (j < rank) {
+                lo = j + 1;
+            } else {
+                return nums[j];
+            }
+        }
+        return nums[lo];
+    }
+
+    private func partition(_ nums: inout [Int], _ lo: Int, _ hi: Int) -> Int {
+        let v = nums[lo];
+        var i = lo, j = hi + 1;
+        while (true) {
+            i += 1;
+            while (nums[i] < v) {
+                if (i == hi) {
+                    break;
+                }
+                i += 1;
+            }
+            j -= 1;
+            while (v < nums[j]) {
+                if (j == lo) {
+                    break;
+                }
+                j -= 1;
+            }
+            if (i >= j) {
+                break;
+            }
+            nums.swapAt(i, j);
+        }
+        nums.swapAt(lo, j);
+        return j;
+    }
+}
+// https://leetcode.cn/submissions/detail/384850597/
 ```
 
 ## 216. 组合总和 III
@@ -3648,7 +4068,38 @@ class Solution {
 <https://leetcode.cn/problems/combination-sum-iii/>
 
 ```swift
+class Solution {
+    private var pathSum = 0;
+    private var path: [Int] = []; // 取 [1..9] 为元素
+    private var ans: [[Int]] = [];
 
+    func combinationSum3(_ k: Int, _ n: Int) -> [[Int]] {
+        backtrack(k, n, 0);
+        return ans;
+    }
+
+    // edge = 取 [1..9] 为值
+    private func backtrack(_ k: Int, _ n: Int, _ edge: Int) {
+        if (path.count == k && pathSum == n) {
+            ans.append(path);
+        } else if (path.count < k && pathSum < n) {
+            // 避免重复，从 edge + 1 开始选择
+            // 例如 [1->2] 和 [2->1] 是重复的
+            var e = edge + 1;
+            while (e <= 9) {
+                if (pathSum + e <= n) {
+                    pathSum += e;
+                    path.append(e);
+                    backtrack(k, n, e);
+                    pathSum -= e;
+                    path.removeLast();
+                }
+                e += 1;
+            }
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/387749667/
 ```
 
 ## 222. 完全二叉树的节点个数
@@ -3656,7 +4107,57 @@ class Solution {
 <https://leetcode.cn/problems/count-complete-tree-nodes/>
 
 ```swift
+class Solution {
+    func countNodes(_ root: TreeNode?) -> Int {
+        if (root == nil) {
+            return 0;
+        }
+        var leftHeight = 0;
+        var ptr = root;
+        while (ptr != nil) {
+            leftHeight += 1;
+            ptr = ptr!.left;
+        }
+        var rightHeight = 0;
+        ptr = root;
+        while (ptr != nil) {
+            rightHeight += 1;
+            ptr = ptr!.right;
+        }
+        if (leftHeight == rightHeight) {
+            return (1 << leftHeight) - 1;
+        }
+        return 1 + countNodes(root!.left) + countNodes(root!.right);
+    }
+}
+// https://leetcode.cn/submissions/detail/385065677/
+```
 
+```swift
+class Solution {
+    func countNodes(_ root: TreeNode?) -> Int {
+        if (root == nil) {
+            return 0;
+        }
+        var leftHeight = 0;
+        var ptr = root;
+        while (ptr != nil) {
+            leftHeight += 1;
+            ptr = ptr!.left;
+        }
+        var rightHeight = 0;
+        ptr = root;
+        while (ptr != nil) {
+            rightHeight += 1;
+            ptr = ptr!.right;
+        }
+        if (leftHeight == rightHeight) {
+            return Int(pow(2.0, Double(leftHeight))) - 1;
+        }
+        return 1 + countNodes(root!.left) + countNodes(root!.right);
+    }
+}
+// https://leetcode.cn/submissions/detail/385065414/
 ```
 
 ## 225. 用队列实现栈
@@ -3664,7 +4165,119 @@ class Solution {
 <https://leetcode.cn/problems/implement-stack-using-queues/>
 
 ```swift
+class MyStack {
+    private var queue = Deque<Int>();
 
+    init() {
+    }
+
+    func push(_ x: Int) {
+        queue.enqueue(x);
+        let n = queue.count;
+        if (n > 1) {
+            for _ in 1...n - 1 {
+                queue.enqueue(queue.dequeue()!);
+            }
+        }
+    }
+
+    func pop() -> Int {
+        queue.dequeue()!;
+    }
+
+    func top() -> Int {
+        queue.peekFront()!;
+    }
+
+    func empty() -> Bool {
+        queue.isEmpty;
+    }
+}
+
+/*
+  Deque (pronounced "deck"), a double-ended queue
+
+  All enqueuing and dequeuing operations are O(1).
+*/
+public struct Deque<T> {
+    private var array: [T?]
+    private var head: Int
+    private var capacity: Int
+    private let originalCapacity: Int
+
+    public init(_ capacity: Int = 10) {
+        self.capacity = max(capacity, 1)
+        originalCapacity = self.capacity
+        array = [T?](repeating: nil, count: capacity)
+        head = capacity
+    }
+
+    public var isEmpty: Bool {
+        return count == 0
+    }
+
+    public var count: Int {
+        return array.count - head
+    }
+
+    public mutating func enqueue(_ element: T) {
+        array.append(element)
+    }
+
+    public mutating func enqueueFront(_ element: T) {
+        if head == 0 {
+            capacity *= 2
+            let emptySpace = [T?](repeating: nil, count: capacity)
+            array.insert(contentsOf: emptySpace, at: 0)
+            head = capacity
+        }
+
+        head -= 1
+        array[head] = element
+    }
+
+    public mutating func dequeue() -> T? {
+        guard head < array.count, let element = array[head] else {
+            return nil
+        }
+
+        array[head] = nil
+        head += 1
+
+        if capacity >= originalCapacity && head >= capacity * 2 {
+            let amountToRemove = capacity + capacity / 2
+            array.removeFirst(amountToRemove)
+            head -= amountToRemove
+            capacity /= 2
+        }
+        return element
+    }
+
+    public mutating func dequeueBack() -> T? {
+        if isEmpty {
+            return nil
+        } else {
+            return array.removeLast()
+        }
+    }
+
+    public func peekFront() -> T? {
+        if isEmpty {
+            return nil
+        } else {
+            return array[head]
+        }
+    }
+
+    public func peekBack() -> T? {
+        if isEmpty {
+            return nil
+        } else {
+            return array.last!
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/387965150/
 ```
 
 ## 226. 翻转二叉树
@@ -3672,7 +4285,19 @@ class Solution {
 <https://leetcode.cn/problems/invert-binary-tree/>
 
 ```swift
-
+class Solution {
+    func invertTree(_ root: TreeNode?) -> TreeNode? {
+        if (root == nil) {
+            return nil;
+        }
+        let left = invertTree(root!.left);
+        let right = invertTree(root!.right);
+        root!.left = right;
+        root!.right = left;
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/384991097/
 ```
 
 ## 230. 二叉搜索树中第 K 小的元素
@@ -3680,7 +4305,65 @@ class Solution {
 <https://leetcode.cn/problems/kth-smallest-element-in-a-bst/>
 
 ```swift
+extension TreeNode: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(val)
+        hasher.combine(left)
+        hasher.combine(right)
+    }
 
+    public static func ==(lhs: TreeNode, rhs: TreeNode) -> Bool {
+        if lhs === rhs {
+            return true
+        }
+        if type(of: lhs) != type(of: rhs) {
+            return false
+        }
+        if lhs.val != rhs.val {
+            return false
+        }
+        if lhs.left != rhs.left {
+            return false
+        }
+        if lhs.right != rhs.right {
+            return false
+        }
+        return true
+    }
+}
+
+class Solution {
+    private var nodeToSize: [TreeNode: Int] = [:];
+
+    func kthSmallest(_ root: TreeNode?, _ k: Int) -> Int {
+        select(root, k - 1);
+    }
+
+    private func select(_ root: TreeNode?, _ rank: Int) -> Int {
+        if (root == nil) {
+            return -1;
+        }
+        let leftSize = size(root!.left);
+        if (rank < leftSize) {
+            return select(root!.left, rank);
+        }
+        if (leftSize < rank) {
+            return select(root!.right, rank - leftSize - 1);
+        }
+        return root!.val;
+    }
+
+    private func size(_ root: TreeNode?) -> Int {
+        if (root == nil) {
+            return 0;
+        }
+        if (nodeToSize[root!] == nil) {
+            nodeToSize[root!] = 1 + size(root!.left) + size(root!.right);
+        }
+        return nodeToSize[root!]!;
+    }
+}
+// https://leetcode.cn/submissions/detail/387981743/
 ```
 
 ## 232. 用栈实现队列
@@ -3688,7 +4371,47 @@ class Solution {
 <https://leetcode.cn/problems/implement-queue-using-stacks/>
 
 ```swift
+/**
+ * -----------------------------| |-------------------------------
+ * pop <- top Left Stack bottom | | bottom Right Stack top <- push
+ * -----------------------------| |-------------------------------
+ */
+class MyQueue {
+    private var leftStack: [Int] = [];
+    private var rightStack: [Int] = [];
 
+    init() {
+    }
+
+    func push(_ x: Int) {
+        rightStack.append(x);
+    }
+
+    func pop() -> Int {
+        if (leftStack.isEmpty) {
+            move();
+        }
+        return leftStack.removeLast();
+    }
+
+    func peek() -> Int {
+        if (leftStack.isEmpty) {
+            move();
+        }
+        return leftStack.last!;
+    }
+
+    func empty() -> Bool {
+        leftStack.isEmpty && rightStack.isEmpty;
+    }
+
+    private func move() {
+        while (!rightStack.isEmpty) {
+            leftStack.append(rightStack.removeLast());
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/387234586/
 ```
 
 ## 234. 回文链表
@@ -3696,7 +4419,46 @@ class Solution {
 <https://leetcode.cn/problems/palindrome-linked-list/>
 
 ```swift
+class Solution {
+    func isPalindrome(_ head: ListNode?) -> Bool {
+        // 寻找链表的中点（偶数个节点时选择左侧），即前半部分链表的尾节点
+        var slow = head;
+        var fast = head;
+        while (fast!.next != nil && fast!.next!.next != nil) {
+            slow = slow!.next;
+            fast = fast!.next!.next;
+        }
+        // 翻转后半部分链表
+        let reverseHead = reverseList(slow!.next);
+        slow!.next = nil;
+        // 判断是否回文链表
+        var left = head;
+        var right = reverseHead;
+        while (right != nil) {
+            if (left!.val != right!.val) {
+                return false;
+            }
+            left = left!.next;
+            right = right!.next;
+        }
+        // 还原链表
+        slow!.next = reverseList(reverseHead);
+        return true;
+    }
 
+    private func reverseList(_ head: ListNode?) -> ListNode? {
+        var reverseHead: ListNode?;
+        var ptr = head;
+        while (ptr != nil) {
+            let x = ptr!.next;
+            ptr!.next = reverseHead;
+            reverseHead = ptr;
+            ptr = x;
+        }
+        return reverseHead;
+    }
+}
+// https://leetcode.cn/submissions/detail/384880036/
 ```
 
 ## 235. 二叉搜索树的最近公共祖先
@@ -3704,7 +4466,25 @@ class Solution {
 <https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/>
 
 ```swift
-
+class Solution {
+    func lowestCommonAncestor(_ root: TreeNode?, _ p: TreeNode?, _ q: TreeNode?) -> TreeNode? {
+        // 保证 p < q
+        if (p!.val > q!.val) {
+            return lowestCommonAncestor(root, q, p);
+        }
+        if (p!.val <= root!.val && root!.val <= q!.val) {
+            return root;
+        }
+        if (q!.val < root!.val) {
+            return lowestCommonAncestor(root!.left, p, q);
+        }
+        if (root!.val < p!.val) {
+            return lowestCommonAncestor(root!.right, p, q);
+        }
+        return nil;
+    }
+}
+// https://leetcode.cn/submissions/detail/385072960/
 ```
 
 ## 236. 二叉树的最近公共祖先
@@ -3712,7 +4492,35 @@ class Solution {
 <https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/>
 
 ```swift
+class Solution {
+    private var lca: TreeNode?;
 
+    func lowestCommonAncestor(_ root: TreeNode?, _ p: TreeNode?, _ q: TreeNode?) -> TreeNode? {
+        find(root, p, q);
+        return lca;
+    }
+
+    // 在子树中查找节点 p 或 q，递归过程中确定『最近公共祖先』
+    @discardableResult
+    private func find(_ root: TreeNode?, _ p: TreeNode?, _ q: TreeNode?) -> Bool {
+        if (root == nil) {
+            return false;
+        }
+        if (root === p || root === q) {
+            // 如果 lca(p,q) = p 或 q，则此处的 lca = root 是最终答案
+            lca = root;
+            return true;
+        }
+        let left = find(root!.left, p, q);
+        let right = find(root!.right, p, q);
+        if (left && right) {
+            // 否则返回到某祖先节点处的 lca = root 才是最终答案
+            lca = root;
+        }
+        return left || right;
+    }
+}
+// https://leetcode.cn/submissions/detail/385073736/
 ```
 
 ## 237. 删除链表中的节点
@@ -3720,7 +4528,13 @@ class Solution {
 <https://leetcode-cn.com/problems/delete-node-in-a-linked-list/>
 
 ```swift
-
+class Solution {
+    func deleteNode(_ node: ListNode?) {
+        node!.val = node!.next!.val;
+        node!.next = node!.next!.next;
+    }
+}
+// https://leetcode.cn/submissions/detail/384921786/
 ```
 
 ## 239. 滑动窗口最大值
@@ -3728,7 +4542,112 @@ class Solution {
 <https://leetcode.cn/problems/sliding-window-maximum/>
 
 ```swift
+class Solution {
+    func maxSlidingWindow(_ nums: [Int], _ k: Int) -> [Int] {
+        var ans: [Int] = [];
+        var maxMonoQueue = Deque<Int>();
+        for i in 0...nums.count - 1 {
+            // nums[i] = 进入窗口的数字
+            let x = nums[i];
+            while (!maxMonoQueue.isEmpty && maxMonoQueue.peekBack()! < x) {
+                maxMonoQueue.dequeueBack();
+            }
+            maxMonoQueue.enqueue(x);
+            if (i < k - 1) {
+                continue;
+            }
+            // nums[i-k] = 退出窗口的数字
+            if (i >= k && nums[i - k] == maxMonoQueue.peekFront()) {
+                maxMonoQueue.dequeue();
+            }
+            ans.append(maxMonoQueue.peekFront()!);
+        }
+        return ans;
+    }
+}
 
+/*
+  Deque (pronounced "deck"), a double-ended queue
+
+  All enqueuing and dequeuing operations are O(1).
+*/
+public struct Deque<T> {
+    private var array: [T?]
+    private var head: Int
+    private var capacity: Int
+    private let originalCapacity: Int
+
+    public init(_ capacity: Int = 10) {
+        self.capacity = max(capacity, 1)
+        originalCapacity = self.capacity
+        array = [T?](repeating: nil, count: capacity)
+        head = capacity
+    }
+
+    public var isEmpty: Bool {
+        return count == 0
+    }
+
+    public var count: Int {
+        return array.count - head
+    }
+
+    public mutating func enqueue(_ element: T) {
+        array.append(element)
+    }
+
+    public mutating func enqueueFront(_ element: T) {
+        if head == 0 {
+            capacity *= 2
+            let emptySpace = [T?](repeating: nil, count: capacity)
+            array.insert(contentsOf: emptySpace, at: 0)
+            head = capacity
+        }
+
+        head -= 1
+        array[head] = element
+    }
+
+    public mutating func dequeue() -> T? {
+        guard head < array.count, let element = array[head] else { return nil }
+
+        array[head] = nil
+        head += 1
+
+        if capacity >= originalCapacity && head >= capacity*2 {
+            let amountToRemove = capacity + capacity/2
+            array.removeFirst(amountToRemove)
+            head -= amountToRemove
+            capacity /= 2
+        }
+        return element
+    }
+
+    public mutating func dequeueBack() -> T? {
+        if isEmpty {
+            return nil
+        } else {
+            return array.removeLast()
+        }
+    }
+
+    public func peekFront() -> T? {
+        if isEmpty {
+            return nil
+        } else {
+            return array[head]
+        }
+    }
+
+    public func peekBack() -> T? {
+        if isEmpty {
+            return nil
+        } else {
+            return array.last!
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/386771303/
 ```
 
 ## 253. 会议室 II
@@ -3744,7 +4663,26 @@ class Solution {
 <https://leetcode-cn.com/problems/move-zeroes/>
 
 ```swift
-
+class Solution {
+    func moveZeroes(_ nums: inout [Int]) {
+        // [0..i-1] != 0
+        // [i..j-1] == 0
+        // [j..n-1] Scanning
+        var i = 0, j = 0;
+        let n = nums.count;
+        while (j < n) {
+            while (j < n && nums[j] == 0) {
+                j += 1;
+            }
+            if (j < n) {
+                nums.swapAt(i, j);
+                i += 1;
+                j += 1;
+            }
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/384744768/
 ```
 
 ## 297. 二叉树的序列化与反序列化
@@ -3752,7 +4690,33 @@ class Solution {
 <https://leetcode.cn/problems/serialize-and-deserialize-binary-tree/>
 
 ```swift
+class Codec {
+    func serialize(_ root: TreeNode?) -> String {
+        if (root == nil) {
+            return "#";
+        }
+        let left = serialize(root!.left);
+        let right = serialize(root!.right);
+        return left + "," + right + "," + String(root!.val);
+    }
 
+    func deserialize(_ data: String) -> TreeNode? {
+        var postorder = data.split(separator: ",");
+        return buildTree(&postorder);
+    }
+
+    private func buildTree(_ postorder: inout [String.SubSequence]) -> TreeNode? {
+        let str = postorder.popLast();
+        if (str == "#") {
+            return nil;
+        }
+        let root = TreeNode(Int(str!)!);
+        root.right = buildTree(&postorder);
+        root.left = buildTree(&postorder);
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/384990386/
 ```
 
 ## 300. 最长递增子序列
@@ -3760,7 +4724,29 @@ class Solution {
 <https://leetcode.cn/problems/longest-increasing-subsequence/>
 
 ```swift
-
+class Solution {
+    func lengthOfLIS(_ nums: [Int]) -> Int {
+        let n = nums.count;
+        if (n == 1) {
+            return 1;
+        }
+        // dp[i] = max({length(subseq) | subseq 是以 nums[i] 结尾的严格递增子序列})
+        var dp = Array(repeating: 1, count: n);
+        var ans = 1;
+        for i in 1...n - 1 {
+            var res = 1;
+            for j in stride(from: i - 1, through: 0, by: -1) {
+                if (nums[j] < nums[i]) {
+                    res = max(res, dp[j] + 1);
+                }
+            }
+            dp[i] = res;
+            ans = max(ans, dp[i]);
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/387505826/
 ```
 
 ## 303. 区域和检索 - 数组不可变
@@ -3768,7 +4754,27 @@ class Solution {
 <https://leetcode.cn/problems/range-sum-query-immutable/>
 
 ```swift
+class NumArray {
+    private var sum: [Int];
 
+    init(_ nums: [Int]) {
+        let n = nums.count;
+        sum = nums;
+        if (n > 1) {
+            for i in 1...n - 1 {
+                sum[i] = sum[i - 1] + nums[i];
+            }
+        }
+    }
+
+    func sumRange(_ left: Int, _ right: Int) -> Int {
+        if (left == 0) {
+            return sum[right];
+        }
+        return sum[right] - sum[left - 1];
+    }
+}
+// https://leetcode.cn/submissions/detail/386753750/
 ```
 
 ## 309. 最佳买卖股票时机含冷冻期
@@ -3776,7 +4782,32 @@ class Solution {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/>
 
 ```swift
-
+class Solution {
+    func maxProfit(_ prices: [Int]) -> Int {
+        let n = prices.count;
+        if (n == 1) {
+            return 0;
+        }
+        // dp[i][0] = 第 i 天，空仓状态下的最大利润
+        // dp[i][1] = 第 i 天，持仓状态下的最大利润
+        var dp = Array(repeating: Array(repeating: 0, count: 2), count: n);
+        dp[0][0] = 0;
+        dp[0][1] = -prices[0];
+        dp[1][0] = max(dp[0][0], dp[0][1] + prices[1]);
+        dp[1][1] = max(dp[0][0] - prices[1], dp[0][1]);
+        if (n > 2) {
+            for i in 2...n - 1 {
+                // dp[i - 1][0]             >= dp[i - 2][0] >= p[i - 2][0] - prices[i]
+                // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+                // => dp[i][0] >= dp[i][1]
+                dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+                dp[i][1] = max(dp[i - 2][0] - prices[i], dp[i - 1][1]);
+            }
+        }
+        return dp[n - 1][0];
+    }
+}
+// https://leetcode.cn/submissions/detail/385801581/
 ```
 
 ## 315. 计算右侧小于当前元素的个数
@@ -3784,7 +4815,61 @@ class Solution {
 <https://leetcode.cn/problems/count-of-smaller-numbers-after-self/>
 
 ```swift
+struct Pair {
+    let val: Int;
+    let idx: Int;
 
+    init(_ val: Int, _ idx: Int) {
+        self.val = val
+        self.idx = idx
+    }
+}
+
+class Solution {
+    private var counts: [Int]? = nil;
+
+    func countSmaller(_ nums: [Int]) -> [Int] {
+        let n = nums.count;
+        counts = Array(repeating: 0, count: n);
+        var pairs: [Pair] = [];
+        for (idx, val) in nums.enumerated() {
+            pairs.append(Pair(val, idx));
+        }
+        var aux = pairs;
+        sort(&pairs, &aux, 0, n - 1);
+        return counts!;
+    }
+
+    private func sort(_ pairs: inout [Pair], _ aux: inout [Pair], _ lo: Int, _ hi: Int) {
+        if (lo >= hi) {
+            return;
+        }
+        let mid = lo + (hi - lo) / 2;
+        sort(&pairs, &aux, lo, mid);
+        sort(&pairs, &aux, mid + 1, hi);
+        merge(&pairs, &aux, lo, mid, hi);
+    }
+
+    private func merge(_ pairs: inout [Pair], _ aux: inout [Pair], _ lo: Int, _ mid: Int, _ hi: Int) {
+        for k in lo...hi {
+            aux[k] = pairs[k];
+        }
+        var i = lo, j = mid + 1;
+        for k in lo...hi {
+            if (i > mid || (j <= hi && aux[j].val < aux[i].val)) {
+                pairs[k] = aux[j];
+                j += 1;
+            } else {
+                let p = aux[i];
+                // aux[mid+1..j) < aux[i]
+                counts![p.idx] += (j - mid - 1);
+                pairs[k] = aux[i];
+                i += 1;
+            }
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/387969052/
 ```
 
 ## 322. 零钱兑换
@@ -3792,7 +4877,30 @@ class Solution {
 <https://leetcode.cn/problems/coin-change/>
 
 ```swift
-
+class Solution {
+    func coinChange(_ coins: [Int], _ amount: Int) -> Int {
+        // dp[i] = 凑成总金额 i 所需的最少的硬币个数
+        var dp = Array(repeating: -1, count: amount + 1);
+        dp[0] = 0;
+        if (amount > 0) {
+            for i in 1...amount {
+                var res = Int.max;
+                // c       = 选择放入的硬币
+                // i-c     = 剩余总金额
+                // dp[i-c] = 凑成剩余总金额所需的最少的硬币个数
+                for c in coins {
+                    let x = i - c;
+                    if (x >= 0 && dp[x] != -1) {
+                        res = min(res, dp[x] + 1);
+                    }
+                }
+                dp[i] = (res == Int.max ? -1 : res);
+            }
+        }
+        return dp[amount];
+    }
+}
+// https://leetcode.cn/submissions/detail/385794660/
 ```
 
 ## 337. 打家劫舍 III
@@ -3800,7 +4908,57 @@ class Solution {
 <https://leetcode.cn/problems/house-robber-iii/>
 
 ```swift
+extension TreeNode: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(val)
+        hasher.combine(left)
+        hasher.combine(right)
+    }
 
+    public static func ==(lhs: TreeNode, rhs: TreeNode) -> Bool {
+        if lhs === rhs {
+            return true
+        }
+        if type(of: lhs) != type(of: rhs) {
+            return false
+        }
+        if lhs.val != rhs.val {
+            return false
+        }
+        if lhs.left != rhs.left {
+            return false
+        }
+        if lhs.right != rhs.right {
+            return false
+        }
+        return true
+    }
+}
+
+class Solution {
+    private var memo: [TreeNode: Int] = [:];
+
+    func rob(_ root: TreeNode?) -> Int {
+        if (root == nil) {
+            return 0;
+        }
+        if (memo[root!] == nil) {
+            // 偷 root
+            var sp1 = root!.val;
+            if (root!.left != nil) {
+                sp1 += rob(root!.left!.left) + rob(root!.left!.right);
+            }
+            if (root!.right != nil) {
+                sp1 += rob(root!.right!.left) + rob(root!.right!.right);
+            }
+            // 不偷 root
+            let sp2 = rob(root!.left) + rob(root!.right);
+            memo[root!] = max(sp1, sp2);
+        }
+        return memo[root!]!;
+    }
+}
+// https://leetcode.cn/submissions/detail/387980974/
 ```
 
 ## 344. 反转字符串
@@ -3808,7 +4966,18 @@ class Solution {
 <https://leetcode.cn/problems/reverse-string/>
 
 ```swift
-
+class Solution {
+    func reverseString(_ s: inout [Character]) {
+        var i = 0;
+        var j = s.count - 1;
+        while (i < j) {
+            s.swapAt(i, j);
+            i += 1;
+            j -= 1;
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/385432325/
 ```
 
 ## 354. 俄罗斯套娃信封问题
@@ -3824,7 +4993,59 @@ class Solution {
 <https://leetcode.cn/problems/decode-string/>
 
 ```swift
-
+class Solution {
+    func decodeString(_ s: String) -> String {
+        let chs = [Character](s);
+        var stack: [String] = [];
+        let n = chs.count;
+        var i = 0;
+        while (i < n) {
+            // Digits
+            var digitArray: [Character] = [];
+            while (i < n && chs[i].isNumber) {
+                digitArray.append(chs[i]);
+                i += 1;
+            }
+            if (digitArray.count > 0) {
+                stack.append(String(digitArray));
+            }
+            // [
+            while (i < n && chs[i] == "[") {
+                stack.append("[");
+                i += 1;
+            }
+            // Letters
+            var letterArray: [Character] = [];
+            while (i < n && chs[i].isLetter) {
+                letterArray.append(chs[i]);
+                i += 1;
+            }
+            if (letterArray.count > 0) {
+                stack.append(String(letterArray));
+            }
+            // ]
+            while (i < n && chs[i] == "]") {
+                var letterString = "";
+                while (stack.count > 0) {
+                    let x = stack.removeLast();
+                    if (x == "[") {
+                        break;
+                    }
+                    letterString = x + letterString;
+                }
+                let digitString = stack.removeLast();
+                var repeated = "";
+                for _ in 1...Int(digitString)! {
+                    repeated += letterString;
+                }
+                stack.append(repeated);
+                i += 1;
+            }
+        }
+        return stack.joined();
+    }
+}
+// https://leetcode.cn/submissions/detail/387239912/
 ```
 
 ## 416. 分割等和子集
@@ -3832,7 +5053,55 @@ class Solution {
 <https://leetcode.cn/problems/partition-equal-subset-sum/>
 
 ```swift
+class Solution {
+    func canPartition(_ nums: [Int]) -> Bool {
+        let sum = nums.reduce(0, +);
+        if (sum % 2 == 1) {
+            return false;
+        }
+        return hasSubsetSum(nums, sum / 2);
+    }
 
+    // 数组 nums 是否存在和为 sum 的子集
+    private func hasSubsetSum(_ nums: [Int], _ sum: Int) -> Bool {
+        let n = nums.count;
+        // dp[i][j] = 子数组 nums[0..i-1] 是否存在和为 j 的子集
+        var dp = Array(repeating: Array(repeating: false, count: sum + 1), count: n + 1);
+        // 和为 0
+        for i in 1...n {
+            dp[i][0] = true;
+        }
+        // 空数组
+        for j in 1...sum {
+            dp[0][j] = false;
+        }
+        // 空集的和为 0，空集是任何数组的子集，包括空数组
+        dp[0][0] = true;
+        for i in 1...n {
+            for j in 1...sum {
+                let x = nums[i - 1];
+                if (j >= x) {
+                    // 包含 x
+                    // 当 i >= 1, j = x 时，dp[i - 1][j - x] = dp[i - 1][0]
+                    // 因为存在子集 {x} 的和为 j，
+                    // 所以定义 dp[i][0] = true (i >= 0)
+                    let sp1 = dp[i - 1][j - x];
+                    // 不包含 x
+                    // 当 i = 1 时，dp[i - 1][j] = dp[0][j]
+                    // 因为空数组没有子集的和为 j >= 1
+                    // 所以定义 dp[0][j] = false (j >= 1)
+                    let sp2 = dp[i - 1][j];
+                    dp[i][j] = sp1 || sp2;
+                } else {
+                    // 不包含 x
+                    dp[i][j] = dp[i - 1][j];
+                }
+            }
+        }
+        return dp[n][sum];
+    }
+}
+// https://leetcode.cn/submissions/detail/387750751/
 ```
 
 ## 435. 无重叠区间
@@ -3840,7 +5109,31 @@ class Solution {
 <https://leetcode.cn/problems/non-overlapping-intervals/>
 
 ```swift
+class Solution {
+    func eraseOverlapIntervals(_ intervals: [[Int]]) -> Int {
+        intervals.count - maxNonOverlappingIntervals(intervals);
+    }
 
+    // 返回区间数组 intervals 无重叠区间的最大数量
+    private func maxNonOverlappingIntervals(_ intervals: [[Int]]) -> Int {
+        let sortedIntervals = intervals.sorted { a, b in
+            a[1] < b[1]
+        };
+        var count = 0;
+        var minEnd = Int.min;
+        for interval in sortedIntervals {
+            let start = interval[0];
+            let end = interval[1];
+            if (start < minEnd) {
+                continue;
+            }
+            count += 1;
+            minEnd = end;
+        }
+        return count;
+    }
+}
+// https://leetcode.cn/submissions/detail/385543314/
 ```
 
 ## 438. 找到字符串中所有字母异位词
@@ -3848,7 +5141,49 @@ class Solution {
 <https://leetcode.cn/problems/find-all-anagrams-in-a-string/>
 
 ```swift
-
+class Solution {
+    func findAnagrams(_ s: String, _ p: String) -> [Int] {
+        let schs = [Character](s), pchs = [Character](p);
+        var need: [Character: Int] = [:];
+        for ch in pchs {
+            need[ch] = (need[ch] ?? 0) + 1;
+        }
+        var window: [Character: Int] = [:];
+        var valid = 0;
+        var ans: [Int] = [];
+        // s[left..right) = Window Substring
+        // s[right..n-1]  = Scanning
+        var left = 0;
+        var right = 0;
+        while (right < schs.count) {
+            let add = schs[right];
+            right += 1;
+            if (need[add] != nil) {
+                window[add] = (window[add] ?? 0) + 1;
+                if (window[add] == need[add]) {
+                    valid += 1;
+                }
+            }
+            if (valid == need.count) {
+                while (left < right - pchs.count) {
+                    let del = schs[left];
+                    left += 1;
+                    if (need[del] != nil) {
+                        if (window[del] == need[del]) {
+                            valid -= 1;
+                        }
+                        window[del]! -= 1;
+                    }
+                }
+                if (valid == need.count) {
+                    ans.append(left);
+                }
+            }
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/385516298/
 ```
 
 ## 445. 两数相加 II
@@ -3856,7 +5191,45 @@ class Solution {
 <https://leetcode.cn/problems/add-two-numbers-ii/>
 
 ```swift
+class Solution {
+    func addTwoNumbers(_ l1: ListNode?, _ l2: ListNode?) -> ListNode? {
+        var ptr1 = reverseList(l1), ptr2 = reverseList(l2);
+        let dummyHead = ListNode();
+        var ptr = dummyHead;
+        var carry = 0;
+        while (ptr1 != nil || ptr2 != nil || carry > 0) {
+            var sum = carry;
+            if (ptr1 != nil) {
+                sum += ptr1!.val;
+                ptr1 = ptr1!.next;
+            }
+            if (ptr2 != nil) {
+                sum += ptr2!.val;
+                ptr2 = ptr2!.next;
+            }
+            ptr.next = ListNode(sum % 10);
+            ptr = ptr.next!;
+            carry = sum / 10;
+        }
+        reverseList(ptr1);
+        reverseList(ptr2);
+        return reverseList(dummyHead.next);
+    }
 
+    @discardableResult
+    private func reverseList(_ head: ListNode?) -> ListNode? {
+        var reverseHead: ListNode?;
+        var ptr = head;
+        while (ptr != nil) {
+            let x = ptr!.next;
+            ptr!.next = reverseHead;
+            reverseHead = ptr;
+            ptr = x;
+        }
+        return reverseHead;
+    }
+}
+// https://leetcode.cn/submissions/detail/384881890/
 ```
 
 ## 450. 删除二叉搜索树中的节点
@@ -3864,7 +5237,46 @@ class Solution {
 <https://leetcode.cn/problems/delete-node-in-a-bst/>
 
 ```swift
+class Solution {
+    func deleteNode(_ root: TreeNode?, _ key: Int) -> TreeNode? {
+        if (root == nil) {
+            return nil;
+        }
+        if (key < root!.val) {
+            root!.left = deleteNode(root!.left, key);
+        } else if (key > root!.val) {
+            root!.right = deleteNode(root!.right, key);
+        } else {
+            if (root!.left == nil) {
+                return root!.right;
+            }
+            if (root!.right == nil) {
+                return root!.left;
+            }
+            let newRoot = findMin(root!.right!);
+            newRoot.right = deleteMin(root!.right!);
+            newRoot.left = root!.left;
+            return newRoot;
+        }
+        return root;
+    }
 
+    private func findMin(_ root: TreeNode) -> TreeNode {
+        if (root.left == nil) {
+            return root;
+        }
+        return findMin(root.left!);
+    }
+
+    private func deleteMin(_ root: TreeNode) -> TreeNode? {
+        if (root.left == nil) {
+            return root.right;
+        }
+        root.left = deleteMin(root.left!);
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/385075346/
 ```
 
 ## 452. 用最少数量的箭引爆气球
@@ -3872,7 +5284,31 @@ class Solution {
 <https://leetcode.cn/problems/minimum-number-of-arrows-to-burst-balloons/>
 
 ```swift
+class Solution {
+    func findMinArrowShots(_ points: [[Int]]) -> Int {
+        maxNonOverlappingIntervals(points);
+    }
 
+    // 返回区间数组 intervals 无重叠区间的最大数量
+    private func maxNonOverlappingIntervals(_ intervals: [[Int]]) -> Int {
+        let sortedIntervals = intervals.sorted { a, b in
+            a[1] < b[1]
+        };
+        var count = 0;
+        var minEnd = Int.min;
+        for interval in sortedIntervals {
+            let start = interval[0];
+            let end = interval[1];
+            if (start <= minEnd) {
+                continue;
+            }
+            count += 1;
+            minEnd = end;
+        }
+        return count;
+    }
+}
+// https://leetcode.cn/submissions/detail/385543828/
 ```
 
 ## 460. LFU 缓存
@@ -3880,7 +5316,165 @@ class Solution {
 <https://leetcode.cn/problems/lfu-cache/>
 
 ```swift
+import Foundation
 
+class Node {
+    public var key: Int;
+    public var val: Int;
+    public var freq: Int;
+    public var prev: Node?;
+    public var next: Node?;
+
+    init(_ key: Int, _ val: Int, _ freq: Int, _ prev: Node? = nil, _ next: Node? = nil) {
+        self.key = key;
+        self.val = val;
+        self.freq = freq;
+        self.prev = prev;
+        self.next = next;
+    }
+}
+
+struct DoublyLinkedList {
+    private var first: Node? = nil;
+    private var last: Node? = nil;
+    private var n = 0;
+
+    public mutating func addLast(_ x: Node) {
+        if (n == 0) {
+            first = x;
+            last = x;
+        } else {
+            last!.next = x;
+            x.prev = last;
+            last = x;
+        }
+        n += 1;
+    }
+
+    @discardableResult
+    public mutating func removeFirst() -> Node {
+        let oldFirst = first;
+        if (n == 1) {
+            first = nil;
+            last = nil;
+        } else {
+            first = first!.next;
+            first!.prev = nil;
+            oldFirst!.next = nil;
+        }
+        n -= 1;
+        return oldFirst!;
+    }
+
+    @discardableResult
+    public mutating func removeLast() -> Node {
+        let oldLast = last;
+        if (n == 1) {
+            first = nil;
+            last = nil;
+        } else {
+            last = last!.prev;
+            last!.next = nil;
+            oldLast!.prev = nil;
+        }
+        n -= 1;
+        return oldLast!;
+    }
+
+    public mutating func remove(_ x: Node) {
+        if (x === first) {
+            removeFirst();
+        } else if (x === last) {
+            removeLast();
+        } else {
+            x.prev!.next = x.next;
+            x.next!.prev = x.prev;
+            x.prev = nil;
+            x.next = nil;
+            n -= 1;
+        }
+    }
+
+    public func empty() -> Bool {
+        first == nil;
+    }
+}
+
+class LFUCache {
+    private var capacity: Int;
+    private var minFreq = 0;
+    private var keyToNode: [Int: Node] = [:];
+    private var freqToList: [Int: DoublyLinkedList] = [:];
+
+    init(_ capacity: Int) {
+        self.capacity = capacity;
+    }
+
+    func get(_ key: Int) -> Int {
+        if (contains(key)) {
+            return touchCache(key, nil);
+        }
+        return -1;
+    }
+
+    func put(_ key: Int, _ value: Int) {
+        if (capacity > 0) {
+            if (contains(key)) {
+                touchCache(key, value);
+            } else {
+                if (full()) {
+                    removeCache();
+                }
+                addCache(key, value);
+            }
+        }
+    }
+
+    private func contains(_ key: Int) -> Bool {
+        keyToNode[key] != nil;
+    }
+
+    private func full() -> Bool {
+        keyToNode.count == capacity;
+    }
+
+    private func addCache(_ key: Int, _ val: Int) {
+        let x = Node(key, val, 1);
+        keyToNode[key] = x;
+        freqToList[1] = freqToList[1] ?? DoublyLinkedList();
+        freqToList[1]!.addLast(x);
+        minFreq = 1;
+    }
+
+    private func removeCache() {
+        keyToNode.removeValue(forKey: freqToList[minFreq]!.removeFirst().key);
+        if (freqToList[minFreq]!.empty()) {
+            freqToList.removeValue(forKey: minFreq);
+        }
+    }
+
+    @discardableResult
+    private func touchCache(_ key: Int, _ val: Int?) -> Int {
+        let x = keyToNode[key]!;
+        if (val != nil) {
+            x.val = val!;
+        }
+        let oldFreq = x.freq;
+        let newFreq = oldFreq + 1;
+        x.freq = newFreq;
+        freqToList[oldFreq]!.remove(x);
+        if (freqToList[oldFreq]!.empty()) {
+            freqToList.removeValue(forKey: oldFreq);
+            if (minFreq == oldFreq) {
+                minFreq = newFreq;
+            }
+        }
+        freqToList[newFreq] = freqToList[newFreq] ?? DoublyLinkedList();
+        freqToList[newFreq]!.addLast(x);
+        return x.val;
+    }
+}
+// https://leetcode.cn/submissions/detail/387974541/
 ```
 
 ## 493. 翻转对
@@ -3888,7 +5482,69 @@ class Solution {
 <https://leetcode.cn/problems/reverse-pairs/>
 
 ```swift
+class Solution {
+    private var ans = 0;
 
+    func reversePairs(_ nums: [Int]) -> Int {
+        var copy = nums;
+        var aux = nums;
+        sort(&copy, 0, copy.count - 1, &aux);
+        return ans;
+    }
+
+    private func sort(_ nums: inout [Int], _ lo: Int, _ hi: Int, _ aux: inout [Int]) {
+        if (lo >= hi) {
+            return;
+        }
+        let mid = lo + (hi - lo) / 2;
+        sort(&nums, lo, mid, &aux);
+        sort(&nums, mid + 1, hi, &aux);
+        merge(&nums, lo, mid, hi, &aux);
+    }
+
+    private func merge(_ nums: inout [Int], _ lo: Int, _ mid: Int, _ hi: Int, _ aux: inout [Int]) {
+        for k in lo...hi {
+            aux[k] = nums[k];
+        }
+        ans += countReversePairs(nums, lo, mid, hi);
+        var i = lo, j = mid + 1;
+        for k in lo...hi {
+            if (i > mid || (j <= hi && aux[j] < aux[i])) {
+                nums[k] = aux[j];
+                j += 1;
+            } else {
+                nums[k] = aux[i];
+                i += 1;
+            }
+        }
+    }
+
+    private func countReversePairs(_ nums: [Int], _ lo: Int, _ mid: Int, _ hi: Int) -> Int {
+        var res = 0;
+        //     nums[i]      > 2*nums[j]
+        // (1) nums[i]      > 2*nums[mid+1..j]
+        // (2) nums[i..mid] > 2*nums[j]
+        //
+        //     nums[i]     <= 2*nums[j]
+        // (1) nums[i]     <= 2*nums[j..hi]
+        // (2) nums[lo..i] <= 2*nums[j]
+        var i = lo, j = mid + 1;
+        while (i <= mid && j <= hi) {
+            if (isReversePair(nums, i, j)) {
+                res += (mid - i + 1);
+                j += 1;
+            } else {
+                i += 1;
+            }
+        }
+        return res;
+    }
+
+    private func isReversePair(_ nums: [Int], _ i: Int, _ j: Int) -> Bool {
+        i < j && nums[i] > 2 * nums[j];
+    }
+}
+// https://leetcode.cn/submissions/detail/385989466/
 ```
 
 ## 494. 目标和
@@ -3896,7 +5552,37 @@ class Solution {
 <https://leetcode.cn/problems/target-sum/>
 
 ```swift
+class Solution {
+    private var memo: [String: Int] = [:];
 
+    func findTargetSumWays(_ nums: [Int], _ target: Int) -> Int {
+        let sum = nums.reduce(0, +);
+        if (abs(target) > sum) {
+            return 0;
+        }
+        return findTargetSumWays(nums, nums.count - 1, target);
+    }
+
+    // 子数组 nums[0..i] 目标和为 target 的不同表达式的数目
+    private func findTargetSumWays(_ nums: [Int], _ i: Int, _ target: Int) -> Int {
+        if (i < 0) {
+            return target == 0 ? 1 : 0;
+        }
+        let key = "\(i),\(target)";
+        if (memo[key] == nil) {
+            let x = nums[i];
+            // x 前添加 + 号
+            // sum(nums[0..i-1]) = target - x
+            let sp1 = findTargetSumWays(nums, i - 1, target - x);
+            // x 前添加 - 号
+            // sum(nums[0..i-1]) = target + x
+            let sp2 = findTargetSumWays(nums, i - 1, target + x);
+            memo[key] = sp1 + sp2;
+        }
+        return memo[key]!;
+    }
+}
+// https://leetcode.cn/submissions/detail/385960656/
 ```
 
 ## 496. 下一个更大元素 I
@@ -3904,7 +5590,36 @@ class Solution {
 <https://leetcode.cn/problems/next-greater-element-i/>
 
 ```swift
+class Solution {
+    func nextGreaterElement(_ nums1: [Int], _ nums2: [Int]) -> [Int] {
+        let greater = nextGreaterElement(nums2);
+        var valueToGreater: [Int: Int] = [:];
+        for (index, value) in nums2.enumerated() {
+            valueToGreater[value] = greater[index];
+        }
+        var ans: [Int] = [];
+        for value in nums1 {
+            ans.append(valueToGreater[value]!);
+        }
+        return ans;
+    }
 
+    private func nextGreaterElement(_ nums: [Int]) -> [Int] {
+        let n = nums.count;
+        var res = nums;
+        var minMonoStack: [Int] = [];
+        for i in stride(from: n - 1, through: 0, by: -1) {
+            let x = nums[i];
+            while (!minMonoStack.isEmpty && minMonoStack.last! < x) {
+                minMonoStack.removeLast();
+            }
+            res[i] = minMonoStack.isEmpty ? -1 : minMonoStack.last!;
+            minMonoStack.append(x);
+        }
+        return res;
+    }
+}
+// https://leetcode.cn/submissions/detail/386755168/
 ```
 
 ## 503. 下一个更大元素 II
@@ -3912,7 +5627,24 @@ class Solution {
 <https://leetcode.cn/problems/next-greater-element-ii/>
 
 ```swift
-
+class Solution {
+    func nextGreaterElements(_ nums: [Int]) -> [Int] {
+        let n = nums.count;
+        var ans = nums;
+        var minMonoStack: [Int] = [];
+        for i in stride(from: 2 * n - 1, through: 0, by: -1) {
+            let k = i % n;
+            let x = nums[k];
+            while (!minMonoStack.isEmpty && minMonoStack.last! <= x) {
+                minMonoStack.removeLast();
+            }
+            ans[k] = minMonoStack.isEmpty ? -1 : minMonoStack.last!;
+            minMonoStack.append(x);
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/386755885/
 ```
 
 ## 509. 斐波那契数
@@ -3920,7 +5652,24 @@ class Solution {
 <https://leetcode.cn/problems/fibonacci-number/>
 
 ```swift
-
+class Solution {
+    func fib(_ n: Int) -> Int {
+        if (n == 0) {
+            return 0;
+        }
+        if (n == 1) {
+            return 1;
+        }
+        var dp = Array(repeating: 0, count: n + 1);
+        dp[0] = 0;
+        dp[1] = 1;
+        for i in 2...n {
+            dp[i] = dp[i - 1] + dp[i - 2];
+        }
+        return dp[n];
+    }
+}
+// https://leetcode.cn/submissions/detail/384861495/
 ```
 
 ## 516. 最长回文子序列
@@ -3928,7 +5677,38 @@ class Solution {
 <https://leetcode.cn/problems/longest-palindromic-subsequence/>
 
 ```swift
-
+class Solution {
+    func longestPalindromeSubseq(_ s: String) -> Int {
+        let chs = [Character](s);
+        let n = chs.count;
+        // dp[i][j] = 子串 s[i..j] 的最长回文子序列的长度
+        var dp = Array(repeating: Array(repeating: 0, count: n), count: n);
+        // 遍历对角线
+        for i in 0...n - 1 {
+            dp[i][i] = 1;
+        }
+        // 遍历上三角形
+        for i in stride(from: n - 2, through: 0, by: -1) {
+            for j in i + 1...n - 1 {
+                if (chs[i] == chs[j]) {
+                    // s[i][i+1..j-1][j]
+                    // s   [i+1..j-1]
+                    dp[i][j] = dp[i + 1][j - 1] + 2;
+                } else {
+                    // s[i..j-1][j]
+                    // s[i..j-1]
+                    let sp1 = dp[i][j - 1];
+                    // s[i][i+1..j]
+                    // s   [i+1..j]
+                    let sp2 = dp[i + 1][j];
+                    dp[i][j] = max(sp1, sp2);
+                }
+            }
+        }
+        return dp[0][n - 1];
+    }
+}
+// https://leetcode.cn/submissions/detail/387506894/
 ```
 
 ## 518. 零钱兑换 II
@@ -3936,7 +5716,47 @@ class Solution {
 <https://leetcode.cn/problems/coin-change-2/>
 
 ```swift
-
+class Solution {
+    func change(_ amount: Int, _ coins: [Int]) -> Int {
+        if (amount == 0) {
+            return 1;
+        }
+        let n = coins.count;
+        // dp[i][j] = 使用硬币 coins[0..i-1] 凑成总金额 j 的组合数
+        var dp = Array(repeating: Array(repeating: 0, count: amount + 1), count: n + 1);
+        // 总金额为 0
+        for i in 1...n {
+            dp[i][0] = 1;
+        }
+        // 硬币数为 0
+        for j in 1...amount {
+            dp[0][j] = 0;
+        }
+        dp[0][0] = 1;
+        for i in 1...n {
+            for j in 1...amount {
+                let x = coins[i - 1];
+                if (j >= x) {
+                    let sp1 = dp[i - 1][j]; // 包含    0 个硬币 x
+                    let sp2 = dp[i][j - x]; // 包含 >= 1 个硬币 x
+                    dp[i][j] = sp1 + sp2;
+                    // 注意
+                    // dp[i][j - x] = 包含 >= 1 个硬币 x
+                    // dp[i-1][j-x] = 包含    1 个硬币 x
+                    // 举例 amount = 79, coins = [1, 2, 5]
+                    // dp[2][79] = 包含    0 个硬币 5，79 = 0 x 5 + 79，剩余 79 只能从 [1, 2] 凑
+                    // dp[2][74] = 包含    1 个硬币 5，79 = 1 x 5 + 74，剩余 74 只能从 [1, 2] 凑
+                    // dp[3][74] = 包含 >= 1 个硬币 5，79 = 1 x 5 + 74，剩余 74 可以从 [1, 2, 5] 凑
+                } else {
+                    // 不包含硬币 x
+                    dp[i][j] = dp[i - 1][j];
+                }
+            }
+        }
+        return dp[n][amount];
+    }
+}
+// https://leetcode.cn/submissions/detail/385799062/
 ```
 
 ## 538. 把二叉搜索树转换为累加树
@@ -3944,7 +5764,25 @@ class Solution {
 <https://leetcode.cn/problems/convert-bst-to-greater-tree/>
 
 ```swift
+class Solution {
+    private var sum = 0;
 
+    func convertBST(_ root: TreeNode?) -> TreeNode? {
+        dfs(root);
+        return root;
+    }
+
+    private func dfs(_ root: TreeNode?) {
+        if (root == nil) {
+            return;
+        }
+        dfs(root!.right);
+        sum += root!.val;
+        root!.val = sum;
+        dfs(root!.left);
+    }
+}
+// https://leetcode.cn/submissions/detail/384994478/
 ```
 
 ## 543. 二叉树的直径
@@ -3952,7 +5790,30 @@ class Solution {
 <https://leetcode.cn/problems/diameter-of-binary-tree/>
 
 ```swift
+// rootLP = 穿过根节点的最长路径（左右子树的最大深度之和）
+// rootLP(root) = maxDepth(root.left) + maxDepth(root.right)
+// diameter = 所有子树的 rootLP 的最大值
+// diameter(root) = max({rootLP(subtree) | subtree 是 root 的任意子树})
+class Solution {
+    private var ans = 0;
 
+    func diameterOfBinaryTree(_ root: TreeNode?) -> Int {
+        maxDepth(root);
+        return ans;
+    }
+
+    @discardableResult
+    private func maxDepth(_ root: TreeNode?) -> Int {
+        if (root == nil) {
+            return 0;
+        }
+        let left = maxDepth(root!.left);
+        let right = maxDepth(root!.right);
+        ans = max(ans, left + right);
+        return 1 + max(left, right);
+    }
+}
+// https://leetcode.cn/submissions/detail/384928600/
 ```
 
 ## 567. 字符串的排列
@@ -3960,7 +5821,48 @@ class Solution {
 <https://leetcode.cn/problems/permutation-in-string/>
 
 ```swift
-
+class Solution {
+    func checkInclusion(_ s1: String, _ s2: String) -> Bool {
+        let chs2 = [Character](s2), chs1 = [Character](s1);
+        var need: [Character: Int] = [:];
+        for ch in chs1 {
+            need[ch] = (need[ch] ?? 0) + 1;
+        }
+        var window: [Character: Int] = [:];
+        var valid = 0;
+        // s[left..right) = Window Substring
+        // s[right..n-1]  = Scanning
+        var left = 0;
+        var right = 0;
+        while (right < chs2.count) {
+            let add = chs2[right];
+            right += 1;
+            if (need[add] != nil) {
+                window[add] = (window[add] ?? 0) + 1;
+                if (window[add] == need[add]) {
+                    valid += 1;
+                }
+            }
+            if (valid == need.count) {
+                while (left < right - chs1.count) {
+                    let del = chs2[left];
+                    left += 1;
+                    if (need[del] != nil) {
+                        if (window[del] == need[del]) {
+                            valid -= 1;
+                        }
+                        window[del]! -= 1;
+                    }
+                }
+                if (valid == need.count) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+}
+// https://leetcode.cn/submissions/detail/385518118/
 ```
 
 ## 583. 两个字符串的删除操作
@@ -3968,7 +5870,56 @@ class Solution {
 <https://leetcode.cn/problems/delete-operation-for-two-strings/>
 
 ```swift
+import Foundation
 
+class Solution {
+    private var memo: [[Int?]] = [];
+
+    func minDistance(_ word1: String, _ word2: String) -> Int {
+        let n1 = word1.count, n2 = word2.count;
+        memo = Array(repeating: Array(repeating: nil, count: n2), count: n1);
+        return minDistance([Character](word1), n1 - 1, [Character](word2), n2 - 1);
+    }
+
+    // 子串 s1[0..i] s2[0..j] 的最小删除步数
+    private func minDistance(_ s1: [Character], _ i: Int, _ s2: [Character], _ j: Int) -> Int {
+        if (i < 0) {
+            // 删除 s2[0..j]
+            // s1""
+            // s2[0..j]
+            return j + 1;
+        }
+        if (j < 0) {
+            // 删除 s1[0..i]
+            // s1[0..i]
+            // s2""
+            return i + 1;
+        }
+        if (memo[i][j] == nil) {
+            if (s1[i] == s2[j]) {
+                // s1[0..i-1][i]
+                // s2[0..j-1][j]
+                memo[i][j] = minDistance(s1, i - 1, s2, j - 1);
+            } else {
+                // 删除 s1[i] s2[j]
+                // s1[0..i-1][i]
+                // s2[0..j-1][j]
+                let sp1 = minDistance(s1, i - 1, s2, j - 1) + 2;
+                // 删除 s2[j]
+                // s1[0..i]
+                // s2[0..j-1][j]
+                let sp2 = minDistance(s1, i, s2, j - 1) + 1;
+                // 删除 s1[i]
+                // s1[0..i-1][i]
+                // s2[0..j]
+                let sp3 = minDistance(s1, i - 1, s2, j) + 1;
+                memo[i][j] = min(sp1, sp2, sp3);
+            }
+        }
+        return memo[i][j]!;
+    }
+}
+// https://leetcode.cn/submissions/detail/387511451/
 ```
 
 ## 617. 合并二叉树
@@ -3976,7 +5927,21 @@ class Solution {
 <https://leetcode.cn/problems/merge-two-binary-trees/>
 
 ```swift
-
+class Solution {
+    func mergeTrees(_ root1: TreeNode?, _ root2: TreeNode?) -> TreeNode? {
+        if (root1 == nil) {
+            return root2;
+        }
+        if (root2 == nil) {
+            return root1;
+        }
+        let mRoot = TreeNode(root1!.val + root2!.val);
+        mRoot.left = mergeTrees(root1!.left, root2!.left);
+        mRoot.right = mergeTrees(root1!.right, root2!.right);
+        return mRoot;
+    }
+}
+// https://leetcode.cn/submissions/detail/384991903/
 ```
 
 ## 652. 寻找重复的子树
@@ -3984,7 +5949,31 @@ class Solution {
 <https://leetcode.cn/problems/find-duplicate-subtrees/>
 
 ```swift
+class Solution {
+    private var ans: [TreeNode] = [];
+    private var counter: [String: Int] = [:];
 
+    func findDuplicateSubtrees(_ root: TreeNode?) -> [TreeNode?] {
+        postorder(root);
+        return ans;
+    }
+
+    @discardableResult
+    private func postorder(_ root: TreeNode?) -> String {
+        if (root == nil) {
+            return "#";
+        }
+        let left = postorder(root!.left);
+        let right = postorder(root!.right);
+        let res = left + "," + right + "," + String(root!.val);
+        counter[res] = (counter[res] ?? 0) + 1;
+        if (counter[res] == 2) {
+            ans.append(root!);
+        }
+        return res;
+    }
+}
+// https://leetcode.cn/submissions/detail/384927057/
 ```
 
 ## 654. 最大二叉树
@@ -3992,7 +5981,28 @@ class Solution {
 <https://leetcode.cn/problems/maximum-binary-tree/>
 
 ```swift
+class Solution {
+    func constructMaximumBinaryTree(_ nums: [Int]) -> TreeNode? {
+        constructMaximumBinaryTree(nums, 0, nums.count - 1);
+    }
 
+    private func constructMaximumBinaryTree(_ nums: [Int], _ lo: Int, _ hi: Int) -> TreeNode? {
+        if (lo > hi) {
+            return nil;
+        }
+        var maxIndex = lo;
+        for i in lo...hi {
+            if (nums[i] > nums[maxIndex]) {
+                maxIndex = i;
+            }
+        }
+        let root = TreeNode(nums[maxIndex]);
+        root.left = constructMaximumBinaryTree(nums, lo, maxIndex - 1);
+        root.right = constructMaximumBinaryTree(nums, maxIndex + 1, hi);
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/384966110/
 ```
 
 ## 695. 岛屿的最大面积
@@ -4000,7 +6010,40 @@ class Solution {
 <https://leetcode.cn/problems/max-area-of-island/>
 
 ```swift
+class Solution {
+    private static let LAND = 1;
+    private static let WATER = 0;
+    private var area = 0;
 
+    func maxAreaOfIsland(_ grid: [[Int]]) -> Int {
+        var copy = grid;
+        var ans = 0;
+        for row in 0...copy.count - 1 {
+            for col in 0...copy[0].count - 1 {
+                if (copy[row][col] == Solution.LAND) {
+                    area = 0;
+                    floodFill(&copy, row, col);
+                    ans = max(ans, area);
+                }
+            }
+        }
+        return ans;
+    }
+
+    private func floodFill(_ grid: inout [[Int]], _ row: Int, _ col: Int) {
+        if (row < 0 || row >= grid.count || col < 0 || col >= grid[0].count
+                || grid[row][col] == Solution.WATER) {
+            return;
+        }
+        area += 1;
+        grid[row][col] = Solution.WATER;
+        floodFill(&grid, row - 1, col);
+        floodFill(&grid, row + 1, col);
+        floodFill(&grid, row, col - 1);
+        floodFill(&grid, row, col + 1);
+    }
+}
+// https://leetcode.cn/submissions/detail/387741960/
 ```
 
 ## 698. 划分为 K 个相等的子集
