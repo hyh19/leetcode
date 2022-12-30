@@ -2045,7 +2045,22 @@ class Solution:
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/>
 
 ```python
-
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        n = len(prices)
+        # dp[i][0] = 第 i 天，空仓状态下的最大利润
+        # dp[i][1] = 第 i 天，持仓状态下的最大利润
+        dp = [[0] * 2 for _ in range(n)]
+        dp[0][0] = 0
+        dp[0][1] = -prices[0]
+        for i in range(1, n):
+            # dp[i - 1][0]             >= -prices[i]
+            # dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+            # => dp[i][0] >= dp[i][1]
+            dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices[i])
+            dp[i][1] = max(-prices[i], dp[i - 1][1])
+        return dp[n - 1][0]
+# https://leetcode.cn/submissions/detail/379358404/
 ```
 
 ## 122. 买卖股票的最佳时机 II
@@ -2053,7 +2068,22 @@ class Solution:
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/>
 
 ```python
-
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        n = len(prices)
+        # dp[i][0] = 第 i 天，空仓状态下的最大利润
+        # dp[i][1] = 第 i 天，持仓状态下的最大利润
+        dp = [[0] * 2 for _ in range(n)]
+        dp[0][0] = 0
+        dp[0][1] = -prices[0]
+        for i in range(1, n):
+            # dp[i - 1][0]             >= dp[i - 1][0] - prices[i]
+            # dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+            # => dp[i][0] >= dp[i][1]
+            dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices[i])
+            dp[i][1] = max(dp[i - 1][0] - prices[i], dp[i - 1][1])
+        return dp[n - 1][0]
+# https://leetcode.cn/submissions/detail/379359304/
 ```
 
 ## 123. 买卖股票的最佳时机 III
@@ -2061,7 +2091,35 @@ class Solution:
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iii/>
 
 ```python
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        return self._maxProfit(2, prices)
 
+    def _maxProfit(self, k: int, prices: List[int]) -> int:
+        n = len(prices)
+        if k <= 0 or n <= 1:
+            return 0
+        # dp[t][i][0] = 交易次数限制为 t 时，第 i 天，空仓状态下的最大利润
+        # dp[t][i][1] = 交易次数限制为 t 时，第 i 天，持仓状态下的最大利润
+        dp = [[[0] * 2 for _ in range(n)] for _ in range(k + 1)]
+        # 交易次数限制为 0 时
+        # 填写第 0 个 n x 2 矩阵
+        for i in range(n):
+            dp[0][i][0] = 0
+            dp[0][i][1] = -math.inf
+        # 交易次数限制为 [1..k] 时
+        # 填写第 t 个 n x 2 矩阵
+        for t in range(1, k + 1):
+            dp[t][0][0] = 0
+            dp[t][0][1] = -prices[0]
+            for i in range(1, n):
+                # dp[t][i - 1][0]             >= dp[t - 1][i - 1][0] - prices[i]
+                # dp[t][i - 1][1] + prices[i] >= dp[t][i - 1][1]
+                # => dp[t][i][0] >= dp[t][i][1]
+                dp[t][i][0] = max(dp[t][i - 1][0], dp[t][i - 1][1] + prices[i])
+                dp[t][i][1] = max(dp[t - 1][i - 1][0] - prices[i], dp[t][i - 1][1])
+        return dp[k][n - 1][0]
+# https://leetcode.cn/submissions/detail/379363236/
 ```
 
 ## 125. 验证回文串
@@ -2069,7 +2127,21 @@ class Solution:
 <https://leetcode.cn/problems/valid-palindrome/>
 
 ```python
-
+class Solution:
+    def isPalindrome(self, s: str) -> bool:
+        i = 0
+        j = len(s) - 1
+        while i < j:
+            while i < j and not s[i].isalnum():
+                i += 1
+            while i < j and not s[j].isalnum():
+                j -= 1
+            if s[i].lower() != s[j].lower():
+                return False
+            i += 1
+            j -= 1
+        return True
+# https://leetcode.cn/submissions/detail/378874027/
 ```
 
 ## 128. 最长连续序列
@@ -2077,7 +2149,24 @@ class Solution:
 <https://leetcode.cn/problems/longest-consecutive-sequence/>
 
 ```python
-
+class Solution:
+    def longestConsecutive(self, nums: List[int]) -> int:
+        ans = 0
+        numSet = set(nums)
+        for x in nums:
+            if x in numSet:
+                lo = x - 1
+                while lo in numSet:
+                    numSet.remove(lo)
+                    lo -= 1
+                hi = x + 1
+                while hi in numSet:
+                    numSet.remove(hi)
+                    hi += 1
+                ans = max(ans, hi - lo - 1)
+                numSet.remove(x)
+        return ans
+# https://leetcode.cn/submissions/detail/380059965/
 ```
 
 ## 130. 被围绕的区域
@@ -2085,7 +2174,49 @@ class Solution:
 <https://leetcode.cn/problems/surrounded-regions/>
 
 ```python
+class Solution:
+    LAND = 'O'
+    WATER = 'X'
 
+    def __init__(self):
+        self.mark = False
+        self.recovery = set()
+
+    def solve(self, grid: List[List[str]]) -> None:
+        m = len(grid)
+        n = len(grid[0])
+        self.mark = True
+        # 淹没与左右边界的陆地相连的岛屿
+        for row in range(m):
+            self.floodFill(grid, row, 0)
+            self.floodFill(grid, row, n - 1)
+        # 淹没与上下边界的陆地相连的岛屿
+        for col in range(n):
+            self.floodFill(grid, 0, col)
+            self.floodFill(grid, m - 1, col)
+        self.mark = False
+        # 淹没封闭岛屿
+        for row in range(m):
+            for col in range(n):
+                if grid[row][col] == Solution.LAND:
+                    self.floodFill(grid, row, col)
+        # 重建原来与边界陆地相连的岛屿
+        for x in self.recovery:
+            row = x[0]
+            col = x[1]
+            grid[row][col] = Solution.LAND
+
+    def floodFill(self, grid: List[List[str]], row: int, col: int) -> None:
+        if row < 0 or row >= len(grid) or col < 0 or col >= len(grid[0]) or grid[row][col] == Solution.WATER:
+            return
+        if self.mark:
+            self.recovery.add((row, col))
+        grid[row][col] = Solution.WATER
+        self.floodFill(grid, row - 1, col)
+        self.floodFill(grid, row + 1, col)
+        self.floodFill(grid, row, col - 1)
+        self.floodFill(grid, row, col + 1)
+# https://leetcode.cn/submissions/detail/380264429/
 ```
 
 ## 136. 只出现一次的数字
@@ -2093,7 +2224,13 @@ class Solution:
 <https://leetcode.cn/problems/single-number/>
 
 ```python
-
+class Solution:
+    def singleNumber(self, nums: List[int]) -> int:
+        ans = 0
+        for x in nums:
+            ans ^= x
+        return ans
+# https://leetcode.cn/submissions/detail/380301369/
 ```
 
 ## 141. 环形链表
@@ -2101,7 +2238,17 @@ class Solution:
 <https://leetcode-cn.com/problems/linked-list-cycle/>
 
 ```python
-
+class Solution:
+    def hasCycle(self, head: Optional[ListNode]) -> bool:
+        slow = head
+        fast = head
+        while fast is not None and fast.next is not None:
+            slow = slow.next
+            fast = fast.next.next
+            if slow is fast:
+                return True
+        return False
+# https://leetcode.cn/submissions/detail/378719570/
 ```
 
 ## 142. 环形链表 II
@@ -2109,7 +2256,21 @@ class Solution:
 <https://leetcode-cn.com/problems/linked-list-cycle-ii/>
 
 ```python
-
+class Solution:
+    def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        slow = head
+        fast = head
+        while fast is not None and fast.next is not None:
+            slow = slow.next
+            fast = fast.next.next
+            if slow is fast:
+                fast = head
+                while slow is not fast:
+                    slow = slow.next
+                    fast = fast.next
+                return slow
+        return None
+# https://leetcode.cn/submissions/detail/378721333/
 ```
 
 ## 143. 重排链表
@@ -2117,7 +2278,33 @@ class Solution:
 <https://leetcode.cn/problems/reorder-list/>
 
 ```python
+class Solution:
+    def reorderList(self, head: Optional[ListNode]) -> None:
+        slow = fast = head
+        while fast.next is not None and fast.next.next is not None:
+            slow = slow.next
+            fast = fast.next.next
+        reverseHead = self.reverseList(slow.next)
+        slow.next = None
+        ptr = ListNode()
+        while head is not None:
+            ptr.next = head
+            ptr = ptr.next
+            head = head.next
+            if reverseHead is not None:
+                ptr.next = reverseHead
+                ptr = ptr.next
+                reverseHead = reverseHead.next
 
+    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        reverseHead = None
+        while head is not None:
+            x = head.next
+            head.next = reverseHead
+            reverseHead = head
+            head = x
+        return reverseHead
+# https://leetcode.cn/submissions/detail/378898435/
 ```
 
 ## 144. 二叉树的前序遍历
@@ -2125,7 +2312,21 @@ class Solution:
 <https://leetcode.cn/problems/binary-tree-preorder-traversal/>
 
 ```python
+class Solution:
+    def __init__(self):
+        self.ans = []
 
+    def preorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+        self.dfs(root)
+        return self.ans
+
+    def dfs(self, root: Optional[TreeNode]) -> None:
+        if root is None:
+            return
+        self.ans.append(root.val)
+        self.dfs(root.left)
+        self.dfs(root.right)
+# https://leetcode.cn/submissions/detail/379975704/
 ```
 
 ## 145. 二叉树的后序遍历
@@ -2133,7 +2334,21 @@ class Solution:
 <https://leetcode.cn/problems/binary-tree-postorder-traversal/>
 
 ```python
+class Solution:
+    def __init__(self):
+        self.ans = []
 
+    def postorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+        self.dfs(root)
+        return self.ans
+
+    def dfs(self, root: Optional[TreeNode]) -> None:
+        if root is None:
+            return
+        self.dfs(root.left)
+        self.dfs(root.right)
+        self.ans.append(root.val)
+# https://leetcode.cn/submissions/detail/379977598/
 ```
 
 ## 146. LRU 缓存
@@ -2141,7 +2356,112 @@ class Solution:
 <https://leetcode.cn/problems/lru-cache/>
 
 ```python
+class Node:
+    def __init__(self, key: int, val: int):
+        self.key = key
+        self.val = val
+        self.prev = None
+        self.next = None
 
+
+class DoublyLinkedList:
+    def __init__(self):
+        self.__first = None
+        self.__last = None
+        self.__n = 0
+
+    def addLast(self, x: Node) -> None:
+        if self.__n == 0:
+            self.__first = x
+            self.__last = x
+            self.__n = 1
+        else:
+            self.__last.next = x
+            x.prev = self.__last
+            self.__last = x
+            self.__n += 1
+
+    def removeFirst(self) -> Node:
+        oldFirst = self.__first
+        if self.__n == 1:
+            self.__first = None
+            self.__last = None
+            self.__n = 0
+        else:
+            self.__first = self.__first.next
+            self.__first.prev = None
+            oldFirst.next = None
+            self.__n -= 1
+        return oldFirst
+
+    def removeLast(self) -> Node:
+        oldLast = self.__last
+        if self.__n == 1:
+            self.__first = None
+            self.__last = None
+            self.__n = 0
+        else:
+            self.__last = self.__last.prev
+            self.__last.next = None
+            oldLast.prev = None
+            self.__n -= 1
+        return oldLast
+
+    def remove(self, x: Node) -> None:
+        if x is self.__first:
+            self.removeFirst()
+        elif x is self.__last:
+            self.removeLast()
+        else:
+            x.prev.next = x.next
+            x.next.prev = x.prev
+            x.prev = None
+            x.next = None
+            self.__n -= 1
+
+
+class LRUCache:
+    def __init__(self, capacity: int):
+        self.__capacity = capacity
+        self.__list = DoublyLinkedList()
+        self.__keyToNode = {}
+
+    def get(self, key: int) -> int:
+        if self.__contains(key):
+            return self.__touchCache(key, None)
+        return -1
+
+    def put(self, key: int, value: int) -> None:
+        if self.__capacity > 0:
+            if self.__contains(key):
+                self.__touchCache(key, value)
+            else:
+                if self.__full():
+                    self.__removeCache()
+                self.__addCache(key, value)
+
+    def __contains(self, key: int) -> bool:
+        return key in self.__keyToNode
+
+    def __full(self) -> bool:
+        return len(self.__keyToNode) == self.__capacity
+
+    def __addCache(self, key: int, val: int) -> None:
+        x = Node(key, val)
+        self.__list.addLast(x)
+        self.__keyToNode[key] = x
+
+    def __removeCache(self) -> None:
+        self.__keyToNode.pop(self.__list.removeFirst().key)
+
+    def __touchCache(self, key: int, val: Optional[int]) -> int:
+        x = self.__keyToNode[key]
+        if val is not None:
+            x.val = val
+        self.__list.remove(x)
+        self.__list.addLast(x)
+        return x.val
+# https://leetcode.cn/submissions/detail/380510819/
 ```
 
 ## 153. 寻找旋转排序数组中的最小值
