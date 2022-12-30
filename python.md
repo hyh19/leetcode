@@ -180,7 +180,7 @@
 
 <https://leetcode-cn.com/problems/two-sum/>
 
-```python
+```py
 class Solution:
     def twoSum(self, nums: List[int], target: int) -> List[int]:
         valToIndex = {}
@@ -198,7 +198,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/add-two-numbers/>
 
-```python
+```py
 class Solution:
     def addTwoNumbers(self, l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:
         ptr = dummyHead = ListNode()
@@ -222,7 +222,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/>
 
-```python
+```py
 class Solution:
     def lengthOfLongestSubstring(self, s: str) -> int:
         ans = 0
@@ -251,7 +251,7 @@ class Solution:
 
 <https://leetcode.cn/problems/median-of-two-sorted-arrays/>
 
-```python
+```py
 class Solution:
     def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
         total = len(nums1) + len(nums2)
@@ -288,7 +288,7 @@ class Solution:
 
 <https://leetcode.cn/problems/longest-palindromic-substring/>
 
-```python
+```py
 class Solution:
     def longestPalindrome(self, s: str) -> str:
         ans = ''
@@ -316,7 +316,7 @@ class Solution:
 
 <https://leetcode.cn/problems/reverse-integer/>
 
-```python
+```py
 
 ```
 
@@ -324,7 +324,7 @@ class Solution:
 
 <https://leetcode.cn/problems/container-with-most-water/>
 
-```python
+```py
 class Solution:
     def maxArea(self, height: List[int]) -> int:
         ans = 0
@@ -345,7 +345,7 @@ class Solution:
 
 <https://leetcode.cn/problems/longest-common-prefix/>
 
-```python
+```py
 class Solution:
     def longestCommonPrefix(self, strs: List[str]) -> str:
         return self.longestCommonPrefixRange(strs, 0, len(strs) - 1)
@@ -371,7 +371,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/3sum/>
 
-```python
+```py
 class Solution:
     def threeSum(self, nums: List[int]) -> List[List[int]]:
         nums.sort()
@@ -422,7 +422,7 @@ class Solution:
 
 <https://leetcode.cn/problems/4sum/>
 
-```python
+```py
 class Solution:
     def fourSum(self, nums: List[int], target: int) -> List[List[int]]:
         nums.sort()
@@ -473,7 +473,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/>
 
-```python
+```py
 class Solution:
     def removeNthFromEnd(self, head: Optional[ListNode], n: int) -> Optional[ListNode]:
         slow = fast = ListNode(-1, head)
@@ -495,7 +495,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/valid-parentheses/>
 
-```python
+```py
 class Solution:
     def isValid(self, s: str) -> bool:
         n = len(s)
@@ -520,7 +520,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/merge-two-sorted-lists/>
 
-```python
+```py
 class Solution:
     def mergeTwoLists(self, list1: Optional[ListNode], list2: Optional[ListNode]) -> Optional[ListNode]:
         ptr = dummyHead = ListNode()
@@ -541,7 +541,7 @@ class Solution:
 
 <https://leetcode.cn/problems/generate-parentheses/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.left = 0  # 已使用的『左括号』数量
@@ -584,7 +584,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/merge-k-sorted-lists/>
 
-```python
+```py
 class Solution:
     def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
         return self._mergeKLists(lists, 0, len(lists) - 1)
@@ -618,7 +618,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/swap-nodes-in-pairs/>
 
-```python
+```py
 class Solution:
     def swapPairs(self, head: Optional[ListNode]) -> Optional[ListNode]:
         if head is None or head.next is None:
@@ -636,7 +636,7 @@ class Solution:
 
 <https://leetcode.cn/problems/reverse-nodes-in-k-group/>
 
-```python
+```py
 class Solution:
     def reverseKGroup(self, head: Optional[ListNode], k: int) -> Optional[ListNode]:
         if head is None or head.next is None:
@@ -667,7 +667,7 @@ class Solution:
 
 <https://leetcode.cn/problems/remove-duplicates-from-sorted-array/>
 
-```python
+```py
 class Solution:
     def removeDuplicates(self, nums: List[int]) -> int:
         # [0..i-1] 不重复元素区间
@@ -690,7 +690,7 @@ class Solution:
 
 <https://leetcode.cn/problems/remove-element/>
 
-```python
+```py
 class Solution:
     def removeElement(self, nums: List[int], val: int) -> int:
         # nums[0..i-1]   != val
@@ -713,7 +713,7 @@ class Solution:
 
 <https://leetcode.cn/problems/implement-strstr/>
 
-```python
+```py
 class KMP:
     def __init__(self, pat: str):
         R = 256
@@ -746,7 +746,7 @@ class Solution:
 # https://leetcode.cn/submissions/detail/380392047/
 ```
 
-```python
+```py
 class BoyerMoore:
     def __init__(self, pat: str):
         self.pat = pat
@@ -783,7 +783,7 @@ class Solution:
 
 <https://leetcode.cn/problems/search-in-rotated-sorted-array/>
 
-```python
+```py
 class Solution:
     def search(self, nums: List[int], target: int) -> int:
         lo = 0
@@ -810,7 +810,7 @@ class Solution:
 
 <https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/>
 
-```python
+```py
 class Solution:
     def searchRange(self, nums: List[int], target: int) -> List[int]:
         return [self.search(nums, target, True), self.search(nums, target, False)]
@@ -838,7 +838,7 @@ class Solution:
 
 <https://leetcode.cn/problems/sudoku-solver/>
 
-```python
+```py
 class Solution:
     def solveSudoku(self, board: List[List[str]]) -> None:
         self.backtrack(board, 0, -1)
@@ -887,7 +887,7 @@ class Solution:
 
 <https://leetcode.cn/problems/combination-sum/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.nums = None
@@ -926,7 +926,7 @@ class Solution:
 
 <https://leetcode.cn/problems/combination-sum-ii/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.nums = None
@@ -966,7 +966,7 @@ class Solution:
 
 <https://leetcode.cn/problems/trapping-rain-water/>
 
-```python
+```py
 class Solution:
     def trap(self, height: List[int]) -> int:
         n = len(height)
@@ -989,7 +989,7 @@ class Solution:
 
 <https://leetcode.cn/problems/permutations/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.nums = None
@@ -1022,7 +1022,7 @@ class Solution:
 
 <https://leetcode.cn/problems/permutations-ii/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.nums = None
@@ -1059,7 +1059,7 @@ class Solution:
 
 <https://leetcode.cn/problems/n-queens/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.ans = []
@@ -1113,7 +1113,7 @@ class Solution:
 
 <https://leetcode.cn/problems/n-queens-ii/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.ans = 0
@@ -1167,7 +1167,7 @@ class Solution:
 
 <https://leetcode.cn/problems/maximum-subarray/>
 
-```python
+```py
 class Solution:
     def maxSubArray(self, nums: List[int]) -> int:
         n = len(nums)
@@ -1185,7 +1185,7 @@ class Solution:
 
 <https://leetcode.cn/problems/merge-intervals/>
 
-```python
+```py
 class Solution:
     def merge(self, intervals: List[List[int]]) -> List[List[int]]:
         intervals.sort(key=lambda interval: (interval[0], -interval[1]))
@@ -1205,7 +1205,7 @@ class Solution:
 # https://leetcode.cn/submissions/detail/379137344/
 ```
 
-```python
+```py
 class Solution:
     def merge(self, intervals: List[List[int]]) -> List[List[int]]:
         def cmp(a, b):
@@ -1232,7 +1232,7 @@ class Solution:
 
 <https://leetcode.cn/problems/minimum-path-sum/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.memo = {}
@@ -1259,7 +1259,7 @@ class Solution:
 
 <https://leetcode.cn/problems/sqrtx/>
 
-```python
+```py
 class Solution:
     def mySqrt(self, x: int) -> int:
         if x == 0:
@@ -1281,7 +1281,7 @@ class Solution:
 
 <https://leetcode.cn/problems/climbing-stairs/>
 
-```python
+```py
 class Solution:
     def climbStairs(self, n: int) -> int:
         if n == 1:
@@ -1302,7 +1302,7 @@ class Solution:
 
 <https://leetcode.cn/problems/edit-distance/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.memo = {}
@@ -1345,7 +1345,7 @@ class Solution:
 # https://leetcode.cn/submissions/detail/379341598/
 ```
 
-```python
+```py
 class Solution:
     def minDistance(self, s1: str, s2: str) -> int:
         return self._minDistance(s1, len(s1) - 1, s2, len(s2) - 1)
@@ -1388,7 +1388,7 @@ class Solution:
 
 <https://leetcode.cn/problems/sort-colors/>
 
-```python
+```py
 class Solution:
     def sortColors(self, nums: List[int]) -> None:
         v = 1
@@ -1411,7 +1411,7 @@ class Solution:
 
 <https://leetcode.cn/problems/minimum-window-substring/>
 
-```python
+```py
 class Solution:
     def minWindow(self, s: str, t: str) -> str:
         need = {}
@@ -1452,7 +1452,7 @@ class Solution:
 
 <https://leetcode.cn/problems/combinations/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.n = None
@@ -1484,7 +1484,7 @@ class Solution:
 
 <https://leetcode.cn/problems/subsets/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.nums = None
@@ -1512,7 +1512,7 @@ class Solution:
 
 <https://leetcode.cn/problems/search-in-rotated-sorted-array-ii/>
 
-```python
+```py
 class Solution:
     def search(self, nums: List[int], target: int) -> bool:
         lo = 0
@@ -1543,7 +1543,7 @@ class Solution:
 
 <https://leetcode.cn/problems/remove-duplicates-from-sorted-list/>
 
-```python
+```py
 class Solution:
     def deleteDuplicates(self, head: Optional[ListNode]) -> Optional[ListNode]:
         ptr = head
@@ -1560,7 +1560,7 @@ class Solution:
 
 <https://leetcode.cn/problems/partition-list/>
 
-```python
+```py
 class Solution:
     def partition(self, head: Optional[ListNode], x: int) -> Optional[ListNode]:
         lessPtr = lessDummyHead = ListNode()
@@ -1583,7 +1583,7 @@ class Solution:
 
 <https://leetcode.cn/problems/subsets-ii/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.nums = None
@@ -1616,7 +1616,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/reverse-linked-list-ii/>
 
-```python
+```py
 class Solution:
     def reverseBetween(self, head: Optional[ListNode], left: int, right: int) -> Optional[ListNode]:
         if left == 1:
@@ -1646,7 +1646,7 @@ class Solution:
 
 <https://leetcode.cn/problems/binary-tree-inorder-traversal/>
 
-```python
+```py
 class TreeNode:
     def __init__(self, val=0, left=None, right=None):
         self.val = val
@@ -1675,7 +1675,7 @@ class Solution:
 
 <https://leetcode.cn/problems/unique-binary-search-trees-ii/>
 
-```python
+```py
 class Solution:
     def generateTrees(self, n: int) -> List[Optional[TreeNode]]:
         return self._generateTrees(1, n)
@@ -1702,7 +1702,7 @@ class Solution:
 
 <https://leetcode.cn/problems/unique-binary-search-trees/>
 
-```python
+```py
 class Solution:
     # 由 n 个不同数字 x_1 < x_2 < ... < x_n
     # 组成的节点值互不相同的二叉搜索树的种数
@@ -1724,7 +1724,7 @@ class Solution:
 
 <https://leetcode.cn/problems/validate-binary-search-tree/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.ans = True
@@ -1753,7 +1753,7 @@ class Solution:
 
 <https://leetcode.cn/problems/same-tree/>
 
-```python
+```py
 class Solution:
     def isSameTree(self, p: Optional[TreeNode], q: Optional[TreeNode]) -> bool:
         if (p is None) and (q is None):
@@ -1768,7 +1768,7 @@ class Solution:
 
 <https://leetcode.cn/problems/binary-tree-level-order-traversal/>
 
-```python
+```py
 class Solution:
     def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
         ans = []
@@ -1796,7 +1796,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/binary-tree-zigzag-level-order-traversal/>
 
-```python
+```py
 class Solution:
     def zigzagLevelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
         ans = []
@@ -1828,7 +1828,7 @@ class Solution:
 
 <https://leetcode.cn/problems/maximum-depth-of-binary-tree/>
 
-```python
+```py
 class Solution:
     def maxDepth(self, root: Optional[TreeNode]) -> int:
         if root is None:
@@ -1841,7 +1841,7 @@ class Solution:
 
 <https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.valToIndex = {}
@@ -1869,7 +1869,7 @@ class Solution:
 
 <https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.valToIndex = {}
@@ -1897,7 +1897,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/binary-tree-level-order-traversal-ii/>
 
-```python
+```py
 class Solution:
     def levelOrderBottom(self, root: Optional[TreeNode]) -> List[List[int]]:
         ans = []
@@ -1926,7 +1926,7 @@ class Solution:
 
 <https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/>
 
-```python
+```py
 class Solution:
     def sortedArrayToBST(self, nums: List[int]) -> Optional[TreeNode]:
         return self._sortedArrayToBST(nums, 0, len(nums) - 1)
@@ -1947,7 +1947,7 @@ class Solution:
 
 <https://leetcode.cn/problems/balanced-binary-tree/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.ans = True
@@ -1971,7 +1971,7 @@ class Solution:
 
 <https://leetcode.cn/problems/minimum-depth-of-binary-tree/>
 
-```python
+```py
 class Solution:
     def minDepth(self, root: Optional[TreeNode]) -> int:
         depth = 0
@@ -1999,7 +1999,7 @@ class Solution:
 
 <https://leetcode.cn/problems/path-sum/>
 
-```python
+```py
 class Solution:
     def hasPathSum(self, root: Optional[TreeNode], targetSum: int) -> bool:
         if root is None:
@@ -2014,7 +2014,7 @@ class Solution:
 
 <https://leetcode.cn/problems/flatten-binary-tree-to-linked-list/>
 
-```python
+```py
 class Solution:
     def flatten(self, root: Optional[TreeNode]) -> None:
         if root is None:
@@ -2036,7 +2036,7 @@ class Solution:
 
 <https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/>
 
-```python
+```py
 
 ```
 
@@ -2044,7 +2044,7 @@ class Solution:
 
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/>
 
-```python
+```py
 class Solution:
     def maxProfit(self, prices: List[int]) -> int:
         n = len(prices)
@@ -2067,7 +2067,7 @@ class Solution:
 
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/>
 
-```python
+```py
 class Solution:
     def maxProfit(self, prices: List[int]) -> int:
         n = len(prices)
@@ -2090,7 +2090,7 @@ class Solution:
 
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iii/>
 
-```python
+```py
 class Solution:
     def maxProfit(self, prices: List[int]) -> int:
         return self._maxProfit(2, prices)
@@ -2126,7 +2126,7 @@ class Solution:
 
 <https://leetcode.cn/problems/valid-palindrome/>
 
-```python
+```py
 class Solution:
     def isPalindrome(self, s: str) -> bool:
         i = 0
@@ -2148,7 +2148,7 @@ class Solution:
 
 <https://leetcode.cn/problems/longest-consecutive-sequence/>
 
-```python
+```py
 class Solution:
     def longestConsecutive(self, nums: List[int]) -> int:
         ans = 0
@@ -2173,7 +2173,7 @@ class Solution:
 
 <https://leetcode.cn/problems/surrounded-regions/>
 
-```python
+```py
 class Solution:
     LAND = 'O'
     WATER = 'X'
@@ -2223,7 +2223,7 @@ class Solution:
 
 <https://leetcode.cn/problems/single-number/>
 
-```python
+```py
 class Solution:
     def singleNumber(self, nums: List[int]) -> int:
         ans = 0
@@ -2237,7 +2237,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/linked-list-cycle/>
 
-```python
+```py
 class Solution:
     def hasCycle(self, head: Optional[ListNode]) -> bool:
         slow = head
@@ -2255,7 +2255,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/linked-list-cycle-ii/>
 
-```python
+```py
 class Solution:
     def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:
         slow = head
@@ -2277,7 +2277,7 @@ class Solution:
 
 <https://leetcode.cn/problems/reorder-list/>
 
-```python
+```py
 class Solution:
     def reorderList(self, head: Optional[ListNode]) -> None:
         slow = fast = head
@@ -2311,7 +2311,7 @@ class Solution:
 
 <https://leetcode.cn/problems/binary-tree-preorder-traversal/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.ans = []
@@ -2333,7 +2333,7 @@ class Solution:
 
 <https://leetcode.cn/problems/binary-tree-postorder-traversal/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.ans = []
@@ -2355,7 +2355,7 @@ class Solution:
 
 <https://leetcode.cn/problems/lru-cache/>
 
-```python
+```py
 class Node:
     def __init__(self, key: int, val: int):
         self.key = key
@@ -2468,7 +2468,7 @@ class LRUCache:
 
 <https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/>
 
-```python
+```py
 class Solution:
     def findMin(self, nums: List[int]) -> int:
         lo = 0
@@ -2487,7 +2487,7 @@ class Solution:
 
 <https://leetcode.cn/problems/min-stack/>
 
-```python
+```py
 class MinStack:
     def __init__(self):
         self.stack = []
@@ -2511,7 +2511,7 @@ class MinStack:
 
 <https://leetcode-cn.com/problems/intersection-of-two-linked-lists/>
 
-```python
+```py
 class Solution:
     def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> Optional[ListNode]:
         ptrA = headA
@@ -2527,7 +2527,7 @@ class Solution:
 
 <https://leetcode.cn/problems/compare-version-numbers/>
 
-```python
+```py
 class Solution:
     DOT = ord('.')
     ZERO = ord('0')
@@ -2561,7 +2561,7 @@ class Solution:
 # https://leetcode.cn/submissions/detail/380189352/
 ```
 
-```python
+```py
 class Solution:
     def compareVersion(self, version1: str, version2: str) -> int:
         n1 = len(version1)
@@ -2594,7 +2594,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/>
 
-```python
+```py
 class Solution:
     def twoSum(self, numbers: List[int], target: int) -> List[int]:
         i = 0
@@ -2615,7 +2615,7 @@ class Solution:
 
 <https://leetcode.cn/problems/majority-element/>
 
-```python
+```py
 class Solution:
     def majorityElement(self, nums: List[int]) -> int:
         candidate = math.inf
@@ -2637,7 +2637,7 @@ class Solution:
 
 <https://leetcode.cn/problems/largest-number/>
 
-```python
+```py
 class Solution:
     def largestNumber(self, nums: List[int]) -> str:
         strs = [str(x) for x in nums]
@@ -2661,7 +2661,7 @@ class Solution:
 
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/>
 
-```python
+```py
 class Solution:
     def maxProfit(self, k: int, prices: List[int]) -> int:
         n = len(prices)
@@ -2694,7 +2694,7 @@ class Solution:
 
 <https://leetcode.cn/problems/rotate-array/>
 
-```python
+```py
 class Solution:
     def rotate(self, nums: List[int], k: int) -> None:
         n = len(nums)
@@ -2715,7 +2715,7 @@ class Solution:
 
 <https://leetcode.cn/problems/house-robber/>
 
-```python
+```py
 class Solution:
     def rob(self, nums: List[int]) -> int:
         return self.subseqSum(nums)
@@ -2745,7 +2745,7 @@ class Solution:
 
 <https://leetcode.cn/problems/binary-tree-right-side-view/>
 
-```python
+```py
 class Solution:
     def rightSideView(self, root: Optional[TreeNode]) -> List[int]:
         ans = []
@@ -2771,7 +2771,7 @@ class Solution:
 
 <https://leetcode.cn/problems/number-of-islands/>
 
-```python
+```py
 class Solution:
     LAND = '1'
     WATER = '0'
@@ -2800,7 +2800,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/remove-linked-list-elements/>
 
-```python
+```py
 class Solution:
     def removeElements(self, head: Optional[ListNode], val: int) -> Optional[ListNode]:
         ptr = dummyHead = ListNode(-1, head)
@@ -2817,7 +2817,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/reverse-linked-list/>
 
-```python
+```py
 class Solution:
     def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
         reverseHead = None
@@ -2834,7 +2834,7 @@ class Solution:
 
 <https://leetcode.cn/problems/course-schedule/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.marked = None
@@ -2872,7 +2872,7 @@ class Solution:
 
 <https://leetcode.cn/problems/course-schedule-ii/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.marked = None
@@ -2917,7 +2917,7 @@ class Solution:
 
 <https://leetcode.cn/problems/house-robber-ii/>
 
-```python
+```py
 class Solution:
     def rob(self, nums: List[int]) -> int:
         n = len(nums)
@@ -2952,7 +2952,7 @@ class Solution:
 
 <https://leetcode.cn/problems/kth-largest-element-in-an-array/>
 
-```python
+```py
 class Solution:
     def findKthLargest(self, nums: List[int], k: int) -> int:
         return self.quickSelect(nums, len(nums) - k)
@@ -2999,7 +2999,7 @@ class Solution:
 
 <https://leetcode.cn/problems/combination-sum-iii/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.k = None
@@ -3035,7 +3035,7 @@ class Solution:
 
 <https://leetcode.cn/problems/count-complete-tree-nodes/>
 
-```python
+```py
 class Solution:
     def countNodes(self, root: Optional[TreeNode]) -> int:
         if root is None:
@@ -3060,7 +3060,7 @@ class Solution:
 
 <https://leetcode.cn/problems/implement-stack-using-queues/>
 
-```python
+```py
 class MyStack:
     def __init__(self):
         self.q = deque()
@@ -3085,7 +3085,7 @@ class MyStack:
 
 <https://leetcode.cn/problems/invert-binary-tree/>
 
-```python
+```py
 class Solution:
     def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
         if root is None:
@@ -3101,7 +3101,7 @@ class Solution:
 
 <https://leetcode.cn/problems/kth-smallest-element-in-a-bst/>
 
-```python
+```py
 class Solution:
     def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
         return self.select(root, k - 1)
@@ -3128,7 +3128,7 @@ class Solution:
 
 <https://leetcode.cn/problems/implement-queue-using-stacks/>
 
-```python
+```py
 # ------------------| |--------------------
 # pop <- Left Stack | | Right Stack <- push
 # ------------------| |--------------------
@@ -3163,7 +3163,7 @@ class MyQueue:
 
 <https://leetcode.cn/problems/palindrome-linked-list/>
 
-```python
+```py
 class Solution:
     def isPalindrome(self, head: Optional[ListNode]) -> bool:
         # 寻找链表的中点（偶数个节点时选择左侧），即前半部分链表的尾节点
@@ -3201,7 +3201,7 @@ class Solution:
 
 <https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/>
 
-```python
+```py
 class Solution:
     def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
         # 保证 p < q
@@ -3221,7 +3221,7 @@ class Solution:
 
 <https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.lca = None
@@ -3251,7 +3251,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/delete-node-in-a-linked-list/>
 
-```python
+```py
 class Solution:
     def deleteNode(self, node):
         while True:
@@ -3267,7 +3267,7 @@ class Solution:
 
 <https://leetcode.cn/problems/sliding-window-maximum/>
 
-```python
+```py
 class Solution:
     def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:
         ans = []
@@ -3291,7 +3291,7 @@ class Solution:
 
 <https://leetcode.cn/problems/meeting-rooms-ii/>
 
-```python
+```py
 
 ```
 
@@ -3299,7 +3299,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/move-zeroes/>
 
-```python
+```py
 class Solution:
     def moveZeroes(self, nums: List[int]) -> None:
         # nums[0..i-1] != 0
@@ -3322,7 +3322,7 @@ class Solution:
 
 <https://leetcode.cn/problems/serialize-and-deserialize-binary-tree/>
 
-```python
+```py
 class Codec:
     def serialize(self, root):
         if root is None:
@@ -3349,7 +3349,7 @@ class Codec:
 
 <https://leetcode.cn/problems/longest-increasing-subsequence/>
 
-```python
+```py
 class Solution:
     def lengthOfLIS(self, nums: List[int]) -> int:
         n = len(nums)
@@ -3369,7 +3369,7 @@ class Solution:
 
 <https://leetcode.cn/problems/range-sum-query-immutable/>
 
-```python
+```py
 class NumArray:
     def __init__(self, nums: List[int]):
         n = len(nums)
@@ -3389,7 +3389,7 @@ class NumArray:
 
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/>
 
-```python
+```py
 class Solution:
     def maxProfit(self, prices: List[int]) -> int:
         n = len(prices)
@@ -3416,7 +3416,7 @@ class Solution:
 
 <https://leetcode.cn/problems/count-of-smaller-numbers-after-self/>
 
-```python
+```py
 @total_ordering
 class Pair:
     def __init__(self, val: int, idx: int):
@@ -3470,7 +3470,7 @@ class Solution:
 
 <https://leetcode.cn/problems/coin-change/>
 
-```python
+```py
 class Solution:
     def coinChange(self, coins: List[int], amount: int) -> int:
         # dp[i] = 凑成总金额 i 所需的最少的硬币个数
@@ -3494,7 +3494,7 @@ class Solution:
 
 <https://leetcode.cn/problems/house-robber-iii/>
 
-```python
+```py
 class Solution:
     @cache
     def rob(self, root: Optional[TreeNode]) -> int:
@@ -3516,7 +3516,7 @@ class Solution:
 
 <https://leetcode.cn/problems/reverse-string/>
 
-```python
+```py
 class Solution:
     def reverseString(self, s: List[str]) -> None:
         i = 0
@@ -3532,7 +3532,7 @@ class Solution:
 
 <https://leetcode.cn/problems/russian-doll-envelopes/>
 
-```python
+```py
 
 ```
 
@@ -3540,7 +3540,7 @@ class Solution:
 
 <https://leetcode.cn/problems/decode-string/>
 
-```python
+```py
 class Solution:
     def decodeString(self, s: str) -> str:
         stack = []
@@ -3585,7 +3585,7 @@ class Solution:
 
 <https://leetcode.cn/problems/partition-equal-subset-sum/>
 
-```python
+```py
 class Solution:
     def canPartition(self, nums: List[int]) -> bool:
         s = sum(nums)
@@ -3632,7 +3632,7 @@ class Solution:
 
 <https://leetcode.cn/problems/non-overlapping-intervals/>
 
-```python
+```py
 class Solution:
     def eraseOverlapIntervals(self, intervals: List[List[int]]) -> int:
         return len(intervals) - self.maxNonOverlappingIntervals(intervals)
@@ -3656,7 +3656,7 @@ class Solution:
 
 <https://leetcode.cn/problems/find-all-anagrams-in-a-string/>
 
-```python
+```py
 class Solution:
     def findAnagrams(self, s: str, p: str) -> List[int]:
         need = {}
@@ -3695,7 +3695,7 @@ class Solution:
 
 <https://leetcode.cn/problems/add-two-numbers-ii/>
 
-```python
+```py
 class Solution:
     def addTwoNumbers(self, l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:
         # 翻转链表
@@ -3734,7 +3734,7 @@ class Solution:
 
 <https://leetcode.cn/problems/delete-node-in-a-bst/>
 
-```python
+```py
 class Solution:
     def deleteNode(self, root: Optional[TreeNode], key: int) -> Optional[TreeNode]:
         if root is None:
@@ -3771,7 +3771,7 @@ class Solution:
 
 <https://leetcode.cn/problems/minimum-number-of-arrows-to-burst-balloons/>
 
-```python
+```py
 class Solution:
     def findMinArrowShots(self, points: List[List[int]]) -> int:
         return self.maxNonOverlappingIntervals(points)
@@ -3795,7 +3795,7 @@ class Solution:
 
 <https://leetcode.cn/problems/lfu-cache/>
 
-```python
+```py
 class Node:
     def __init__(self, key: int, val: int, freq: int):
         self.key = key
@@ -3926,7 +3926,7 @@ class LFUCache:
 
 <https://leetcode.cn/problems/reverse-pairs/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.ans = 0
@@ -3984,7 +3984,7 @@ class Solution:
 
 <https://leetcode.cn/problems/target-sum/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.memo = {}
@@ -4016,7 +4016,7 @@ class Solution:
 
 <https://leetcode.cn/problems/next-greater-element-i/>
 
-```python
+```py
 class Solution:
     def nextGreaterElement(self, nums1: List[int], nums2: List[int]) -> List[int]:
         greater = self._nextGreaterElement(nums2)
@@ -4043,7 +4043,7 @@ class Solution:
 
 <https://leetcode.cn/problems/next-greater-element-ii/>
 
-```python
+```py
 class Solution:
     def nextGreaterElements(self, nums: List[int]) -> List[int]:
         n = len(nums)
@@ -4064,7 +4064,7 @@ class Solution:
 
 <https://leetcode.cn/problems/fibonacci-number/>
 
-```python
+```py
 class Solution:
     def fib(self, n: int) -> int:
         if n == 0:
@@ -4084,7 +4084,7 @@ class Solution:
 
 <https://leetcode.cn/problems/longest-palindromic-subsequence/>
 
-```python
+```py
 class Solution:
     def longestPalindromeSubseq(self, s: str) -> int:
         n = len(s)
@@ -4116,7 +4116,7 @@ class Solution:
 
 <https://leetcode.cn/problems/coin-change-2/>
 
-```python
+```py
 class Solution:
     def change(self, amount: int, coins: List[int]) -> int:
         n = len(coins)
@@ -4154,7 +4154,7 @@ class Solution:
 
 <https://leetcode.cn/problems/convert-bst-to-greater-tree/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.sum = 0
@@ -4177,7 +4177,7 @@ class Solution:
 
 <https://leetcode.cn/problems/diameter-of-binary-tree/>
 
-```python
+```py
 # rootLP = 穿过根节点的最长路径（左右子树的最大深度之和）
 # rootLP(root) = maxDepth(root.left) + maxDepth(root.right)
 # diameter = 所有子树的 rootLP 的最大值
@@ -4204,7 +4204,7 @@ class Solution:
 
 <https://leetcode.cn/problems/permutation-in-string/>
 
-```python
+```py
 class Solution:
     def checkInclusion(self, s1: str, s2: str) -> bool:
         need = {}
@@ -4242,7 +4242,7 @@ class Solution:
 
 <https://leetcode.cn/problems/delete-operation-for-two-strings/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.memo = {}
@@ -4289,7 +4289,7 @@ class Solution:
 
 <https://leetcode.cn/problems/merge-two-binary-trees/>
 
-```python
+```py
 class Solution:
     def mergeTrees(self, root1: Optional[TreeNode], root2: Optional[TreeNode]) -> Optional[TreeNode]:
         if root1 is None:
@@ -4307,7 +4307,7 @@ class Solution:
 
 <https://leetcode.cn/problems/find-duplicate-subtrees/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.ans = []
@@ -4334,7 +4334,7 @@ class Solution:
 
 <https://leetcode.cn/problems/maximum-binary-tree/>
 
-```python
+```py
 class Solution:
     def constructMaximumBinaryTree(self, nums: List[int]) -> Optional[TreeNode]:
         return self._constructMaximumBinaryTree(nums, 0, len(nums) - 1)
@@ -4357,7 +4357,7 @@ class Solution:
 
 <https://leetcode.cn/problems/max-area-of-island/>
 
-```python
+```py
 class Solution:
     LAND = 1
     WATER = 0
@@ -4391,7 +4391,7 @@ class Solution:
 
 <https://leetcode.cn/problems/partition-to-k-equal-sum-subsets/>
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.nums = None
@@ -4450,7 +4450,7 @@ class Solution:
 # https://leetcode.cn/submissions/detail/379813608/
 ```
 
-```python
+```py
 class Solution:
     def __init__(self):
         self.nums = None
@@ -4514,7 +4514,7 @@ class Solution:
 
 <https://leetcode.cn/problems/search-in-a-binary-search-tree/>
 
-```python
+```py
 
 ```
 
@@ -4522,7 +4522,7 @@ class Solution:
 
 <https://leetcode.cn/problems/insert-into-a-binary-search-tree/>
 
-```python
+```py
 
 ```
 
@@ -4530,7 +4530,7 @@ class Solution:
 
 <https://leetcode.cn/problems/binary-search/>
 
-```python
+```py
 
 ```
 
@@ -4538,7 +4538,7 @@ class Solution:
 
 <https://leetcode.cn/problems/minimum-ascii-delete-sum-for-two-strings/>
 
-```python
+```py
 
 ```
 
@@ -4546,7 +4546,7 @@ class Solution:
 
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/>
 
-```python
+```py
 
 ```
 
@@ -4554,7 +4554,7 @@ class Solution:
 
 <https://leetcode.cn/problems/daily-temperatures/>
 
-```python
+```py
 
 ```
 
@@ -4562,7 +4562,7 @@ class Solution:
 
 <https://leetcode.cn/problems/network-delay-time/>
 
-```python
+```py
 
 ```
 
@@ -4570,7 +4570,7 @@ class Solution:
 
 <https://leetcode.cn/problems/open-the-lock/>
 
-```python
+```py
 
 ```
 
@@ -4578,7 +4578,7 @@ class Solution:
 
 <https://leetcode.cn/problems/is-graph-bipartite/>
 
-```python
+```py
 
 ```
 
@@ -4586,7 +4586,7 @@ class Solution:
 
 <https://leetcode.cn/problems/all-paths-from-source-to-target/>
 
-```python
+```py
 
 ```
 
@@ -4594,7 +4594,7 @@ class Solution:
 
 <https://leetcode.cn/problems/hand-of-straights/>
 
-```python
+```py
 
 ```
 
@@ -4602,7 +4602,7 @@ class Solution:
 
 <https://leetcode.cn/problems/koko-eating-bananas/>
 
-```python
+```py
 
 ```
 
@@ -4610,7 +4610,7 @@ class Solution:
 
 <https://leetcode-cn.com/problems/middle-of-the-linked-list/>
 
-```python
+```py
 
 ```
 
@@ -4618,7 +4618,7 @@ class Solution:
 
 <https://leetcode.cn/problems/possible-bipartition/>
 
-```python
+```py
 
 ```
 
@@ -4626,7 +4626,7 @@ class Solution:
 
 <https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/>
 
-```python
+```py
 
 ```
 
@@ -4634,7 +4634,7 @@ class Solution:
 
 <https://leetcode.cn/problems/sort-array-by-parity/>
 
-```python
+```py
 
 ```
 
@@ -4642,7 +4642,7 @@ class Solution:
 
 <https://leetcode.cn/problems/sort-an-array/>
 
-```python
+```py
 
 ```
 
@@ -4650,7 +4650,7 @@ class Solution:
 
 <https://leetcode.cn/problems/minimum-add-to-make-parentheses-valid/>
 
-```python
+```py
 
 ```
 
@@ -4658,7 +4658,7 @@ class Solution:
 
 <https://leetcode.cn/problems/sort-array-by-parity-ii/>
 
-```python
+```py
 
 ```
 
@@ -4666,7 +4666,7 @@ class Solution:
 
 <https://leetcode.cn/problems/minimum-falling-path-sum/>
 
-```python
+```py
 
 ```
 
@@ -4674,7 +4674,7 @@ class Solution:
 
 <https://leetcode.cn/problems/interval-list-intersections/>
 
-```python
+```py
 
 ```
 
@@ -4682,7 +4682,7 @@ class Solution:
 
 <https://leetcode.cn/problems/satisfiability-of-equality-equations/>
 
-```python
+```py
 
 ```
 
@@ -4690,7 +4690,7 @@ class Solution:
 
 <https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/>
 
-```python
+```py
 
 ```
 
@@ -4698,7 +4698,7 @@ class Solution:
 
 <https://leetcode.cn/problems/number-of-enclaves/>
 
-```python
+```py
 
 ```
 
@@ -4706,7 +4706,7 @@ class Solution:
 
 <https://leetcode.cn/problems/video-stitching/>
 
-```python
+```py
 
 ```
 
@@ -4714,7 +4714,7 @@ class Solution:
 
 <https://leetcode.cn/problems/longest-common-subsequence/>
 
-```python
+```py
 
 ```
 
@@ -4722,7 +4722,7 @@ class Solution:
 
 <https://leetcode.cn/problems/number-of-closed-islands/>
 
-```python
+```py
 
 ```
 
@@ -4730,7 +4730,7 @@ class Solution:
 
 <https://leetcode.cn/problems/remove-covered-intervals/>
 
-```python
+```py
 
 ```
 
@@ -4738,7 +4738,7 @@ class Solution:
 
 <https://leetcode.cn/problems/balance-a-binary-search-tree/>
 
-```python
+```py
 
 ```
 
@@ -4746,7 +4746,7 @@ class Solution:
 
 <https://leetcode.cn/problems/path-with-maximum-probability/>
 
-```python
+```py
 
 ```
 
@@ -4754,7 +4754,7 @@ class Solution:
 
 <https://leetcode.cn/problems/minimum-insertions-to-balance-a-parentheses-string/>
 
-```python
+```py
 
 ```
 
@@ -4762,7 +4762,7 @@ class Solution:
 
 <https://leetcode.cn/problems/min-cost-to-connect-all-points/>
 
-```python
+```py
 
 ```
 
@@ -4770,7 +4770,7 @@ class Solution:
 
 <https://leetcode.cn/problems/path-with-minimum-effort/>
 
-```python
+```py
 
 ```
 
@@ -4778,7 +4778,7 @@ class Solution:
 
 <https://leetcode.cn/problems/count-sub-islands/>
 
-```python
+```py
 
 ```
 
@@ -4786,6 +4786,6 @@ class Solution:
 
 <https://leetcode-cn.com/problems/kth-node-from-end-of-list-lcci/>
 
-```python
+```py
 
 ```
