@@ -2172,7 +2172,27 @@ class Solution {
 <https://leetcode.cn/problems/balanced-binary-tree/>
 
 ```dart
+class Solution {
+  bool _ans = true;
 
+  bool isBalanced(TreeNode? root) {
+    _height(root);
+    return _ans;
+  }
+
+  int _height(TreeNode? root) {
+    if (root == null) {
+      return -1;
+    }
+    final left = _height(root.left);
+    final right = _height(root.right);
+    if ((left - right).abs() > 1) {
+      _ans = false;
+    }
+    return 1 + max(left, right);
+  }
+}
+// https://leetcode.cn/submissions/detail/377226421/
 ```
 
 ## 111. 二叉树的最小深度
@@ -2180,7 +2200,37 @@ class Solution {
 <https://leetcode.cn/problems/minimum-depth-of-binary-tree/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  int minDepth(TreeNode? root) {
+    final queue = Queue<TreeNode>();
+    if (root != null) {
+      queue.addLast(root);
+    }
+    var depth = 0;
+    while (queue.isNotEmpty) {
+      ++depth;
+      final n = queue.length;
+      for (var i = 0; i < n; ++i) {
+        final x = queue.removeFirst();
+        final left = x.left;
+        final right = x.right;
+        if (left == null && right == null) {
+          return depth;
+        }
+        if (left != null) {
+          queue.addLast(left);
+        }
+        if (right != null) {
+          queue.addLast(right);
+        }
+      }
+    }
+    return 0;
+  }
+}
+// https://leetcode.cn/submissions/detail/377683928/
 ```
 
 ## 112. 路径总和
@@ -2188,7 +2238,46 @@ class Solution {
 <https://leetcode.cn/problems/path-sum/>
 
 ```dart
+class Solution {
+  int _pathSum = 0;
+  late final int _targetSum;
 
+  bool hasPathSum(TreeNode? root, int targetSum) {
+    _targetSum = targetSum;
+    if (root != null) {
+      _pathSum += root.val;
+      if (_backtrack(root)) {
+        return true;
+      }
+      _pathSum -= root.val;
+    }
+    return false;
+  }
+
+  bool _backtrack(TreeNode root) {
+    final left = root.left;
+    final right = root.right;
+    if (left == null && right == null) {
+      return _pathSum == _targetSum;
+    }
+    if (left != null) {
+      _pathSum += left.val;
+      if (_backtrack(left)) {
+        return true;
+      }
+      _pathSum -= left.val;
+    }
+    if (right != null) {
+      _pathSum += right.val;
+      if (_backtrack(right)) {
+        return true;
+      }
+      _pathSum -= right.val;
+    }
+    return false;
+  }
+}
+// https://leetcode.cn/submissions/detail/377194086/
 ```
 
 ## 114. 二叉树展开为链表
@@ -2196,7 +2285,25 @@ class Solution {
 <https://leetcode.cn/problems/flatten-binary-tree-to-linked-list/>
 
 ```dart
-
+class Solution {
+  void flatten(TreeNode? root) {
+    if (root == null) {
+      return;
+    }
+    flatten(root.left);
+    flatten(root.right);
+    final left = root.left;
+    final right = root.right;
+    root.left = null;
+    root.right = left;
+    var ptr = root;
+    while (ptr.right != null) {
+      ptr = ptr.right!;
+    }
+    ptr.right = right;
+  }
+}
+// https://leetcode.cn/submissions/detail/377212736/
 ```
 
 ## 116. 填充每个节点的下一个右侧节点指针
@@ -2212,7 +2319,25 @@ class Solution {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/>
 
 ```dart
-
+class Solution {
+  int maxProfit(List<int> prices) {
+    final n = prices.length;
+    // dp[i][0] = 第 i 天，空仓状态下的最大利润
+    // dp[i][1] = 第 i 天，持仓状态下的最大利润
+    final dp = List.generate(n, (_) => List.filled(2, 0));
+    dp[0][0] = 0;
+    dp[0][1] = -prices[0];
+    for (var i = 1; i < n; ++i) {
+      // dp[i - 1][0]             >= -prices[i]
+      // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+      // => dp[i][0] >= dp[i][1]
+      dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+      dp[i][1] = max(-prices[i], dp[i - 1][1]);
+    }
+    return dp[n - 1][0];
+  }
+}
+// https://leetcode.cn/submissions/detail/376687275/
 ```
 
 ## 122. 买卖股票的最佳时机 II
@@ -2220,7 +2345,25 @@ class Solution {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/>
 
 ```dart
-
+class Solution {
+  int maxProfit(List<int> prices) {
+    final n = prices.length;
+    // dp[i][0] = 第 i 天，空仓状态下的最大利润
+    // dp[i][1] = 第 i 天，持仓状态下的最大利润
+    final dp = List.generate(n, (_) => List.filled(2, 0));
+    dp[0][0] = 0;
+    dp[0][1] = -prices[0];
+    for (var i = 1; i < n; ++i) {
+      // dp[i - 1][0]             >= dp[i - 1][0] - prices[i]
+      // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+      // => dp[i][0] >= dp[i][1]
+      dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+      dp[i][1] = max(dp[i - 1][0] - prices[i], dp[i - 1][1]);
+    }
+    return dp[n - 1][0];
+  }
+}
+// https://leetcode.cn/submissions/detail/376686786/
 ```
 
 ## 123. 买卖股票的最佳时机 III
@@ -2228,7 +2371,43 @@ class Solution {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iii/>
 
 ```dart
+class Solution {
+  int maxProfit(List<int> prices) {
+    return _maxProfit(2, prices);
+  }
 
+  int _maxProfit(int k, List<int> prices) {
+    final n = prices.length;
+    if (k <= 0 || n <= 1) {
+      return 0;
+    }
+    // dp[t][i][0] = 交易次数限制为 t 时，第 i 天，空仓状态下的最大利润
+    // dp[t][i][1] = 交易次数限制为 t 时，第 i 天，持仓状态下的最大利润
+    final dp =
+        List.generate(k + 1, (_) => List.generate(n, (_) => List.filled(2, 0)));
+    // 交易次数限制为 0 时
+    // 填写第 0 个 n x 2 矩阵
+    for (var i = 0; i < n; ++i) {
+      dp[0][i][0] = 0;
+      dp[0][i][1] = -1000000;
+    }
+    // 交易次数限制为 [1..k] 时
+    // 填写第 t 个 n x 2 矩阵
+    for (var t = 1; t <= k; ++t) {
+      dp[t][0][0] = 0;
+      dp[t][0][1] = -prices[0];
+      for (var i = 1; i < n; ++i) {
+        // dp[t][i - 1][0]             >= dp[t - 1][i - 1][0] - prices[i]
+        // dp[t][i - 1][1] + prices[i] >= dp[t][i - 1][1]
+        // => dp[t][i][0] >= dp[t][i][1]
+        dp[t][i][0] = max(dp[t][i - 1][0], dp[t][i - 1][1] + prices[i]);
+        dp[t][i][1] = max(dp[t - 1][i - 1][0] - prices[i], dp[t][i - 1][1]);
+      }
+    }
+    return dp[k][n - 1][0];
+  }
+}
+// https://leetcode.cn/submissions/detail/376692047/
 ```
 
 ## 125. 验证回文串
@@ -2236,7 +2415,24 @@ class Solution {
 <https://leetcode.cn/problems/valid-palindrome/>
 
 ```dart
-
+class Solution {
+  bool isPalindrome(String s) {
+    final t = s
+        .toLowerCase()
+        .codeUnits
+        .where((x) => (48 <= x && x <= 57) || (97 <= x && x <= 122))
+        .toList();
+    var i = 0;
+    var j = t.length - 1;
+    while (i < j) {
+      if (t[i++] != t[j--]) {
+        return false;
+      }
+    }
+    return true;
+  }
+}
+// https://leetcode.cn/submissions/detail/378006834/
 ```
 
 ## 128. 最长连续序列
@@ -2244,7 +2440,30 @@ class Solution {
 <https://leetcode.cn/problems/longest-consecutive-sequence/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  int longestConsecutive(List<int> nums) {
+    var ans = 0;
+    final numSet = HashSet<int>.of(nums);
+    for (final x in nums) {
+      if (numSet.contains(x)) {
+        var lo = x - 1;
+        while (numSet.contains(lo)) {
+          numSet.remove(lo--);
+        }
+        var hi = x + 1;
+        while (numSet.contains(hi)) {
+          numSet.remove(hi++);
+        }
+        ans = max(ans, hi - lo - 1);
+        numSet.remove(x);
+      }
+    }
+    return ans;
+  }
+}
+// https://leetcode.cn/submissions/detail/378439302/
 ```
 
 ## 130. 被围绕的区域
@@ -2252,7 +2471,64 @@ class Solution {
 <https://leetcode.cn/problems/surrounded-regions/>
 
 ```dart
+// 1254. 统计封闭岛屿的数目
+// https://leetcode.cn/problems/number-of-closed-islands/
+import 'dart:collection';
 
+class Solution {
+  static const LAND = 'O';
+  static const WATER = 'X';
+  bool _mark = false;
+  late final _recovery = HashSet<int>();
+
+  void solve(List<List<String>> grid) {
+    final m = grid.length;
+    final n = grid[0].length;
+    _mark = true;
+    // 淹没与左右边界的陆地相连的岛屿
+    for (var row = 0; row < m; ++row) {
+      _floodFill(grid, row, 0);
+      _floodFill(grid, row, n - 1);
+    }
+    // 淹没与上下边界的陆地相连的岛屿
+    for (var col = 0; col < n; ++col) {
+      _floodFill(grid, 0, col);
+      _floodFill(grid, m - 1, col);
+    }
+    _mark = false;
+    // 淹没封闭岛屿
+    for (var row = 0; row < m; ++row) {
+      for (var col = 0; col < n; ++col) {
+        if (grid[row][col] == LAND) {
+          _floodFill(grid, row, col);
+        }
+      }
+    }
+    // 重建原来与边界陆地相连的岛屿
+    _recovery.forEach((x) {
+      final row = x ~/ n;
+      final col = x % n;
+      grid[row][col] = LAND;
+    });
+  }
+
+  void _floodFill(List<List<String>> grid, int row, int col) {
+    final m = grid.length;
+    final n = grid[0].length;
+    if (row < 0 || row >= m || col < 0 || col >= n || grid[row][col] == WATER) {
+      return;
+    }
+    if (_mark) {
+      _recovery.add(row * n + col);
+    }
+    grid[row][col] = WATER;
+    _floodFill(grid, row - 1, col);
+    _floodFill(grid, row + 1, col);
+    _floodFill(grid, row, col - 1);
+    _floodFill(grid, row, col + 1);
+  }
+}
+// Stack Overflow https://leetcode.cn/submissions/detail/377646750/ 2943
 ```
 
 ## 136. 只出现一次的数字
@@ -2284,7 +2560,41 @@ class Solution {
 <https://leetcode.cn/problems/reorder-list/>
 
 ```dart
+class Solution {
+  void reorderList(ListNode? head) {
+    var slow = head;
+    var fast = head;
+    while (fast!.next != null && fast.next!.next != null) {
+      slow = slow!.next;
+      fast = fast.next!.next;
+    }
+    var reverseHead = _reverseList(slow!.next);
+    slow.next = null;
+    var ptr = ListNode();
+    while (head != null) {
+      ptr.next = head;
+      ptr = ptr.next!;
+      head = head.next;
+      if (reverseHead != null) {
+        ptr.next = reverseHead;
+        ptr = ptr.next!;
+        reverseHead = reverseHead.next;
+      }
+    }
+  }
 
+  ListNode? _reverseList(ListNode? head) {
+    ListNode? reverseHead;
+    while (head != null) {
+      final x = head.next;
+      head.next = reverseHead;
+      reverseHead = head;
+      head = x;
+    }
+    return reverseHead;
+  }
+}
+// https://leetcode.cn/submissions/detail/378296753/
 ```
 
 ## 144. 二叉树的前序遍历
@@ -2292,7 +2602,24 @@ class Solution {
 <https://leetcode.cn/problems/binary-tree-preorder-traversal/>
 
 ```dart
+class Solution {
+  late final List<int> _ans = [];
 
+  List<int> preorderTraversal(TreeNode? root) {
+    _dfs(root);
+    return _ans;
+  }
+
+  void _dfs(TreeNode? root) {
+    if (root == null) {
+      return;
+    }
+    _ans.add(root.val);
+    _dfs(root.left);
+    _dfs(root.right);
+  }
+}
+// https://leetcode.cn/submissions/detail/377325777/
 ```
 
 ## 145. 二叉树的后序遍历
@@ -2300,7 +2627,24 @@ class Solution {
 <https://leetcode.cn/problems/binary-tree-postorder-traversal/>
 
 ```dart
+class Solution {
+  late final List<int> _ans = [];
 
+  List<int> postorderTraversal(TreeNode? root) {
+    _dfs(root);
+    return _ans;
+  }
+
+  void _dfs(TreeNode? root) {
+    if (root == null) {
+      return;
+    }
+    _dfs(root.left);
+    _dfs(root.right);
+    _ans.add(root.val);
+  }
+}
+// https://leetcode.cn/submissions/detail/377323768/
 ```
 
 ## 146. LRU 缓存
@@ -2316,7 +2660,22 @@ class Solution {
 <https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/>
 
 ```dart
-
+class Solution {
+  int findMin(List<int> nums) {
+    var lo = 0;
+    var hi = nums.length - 1;
+    while (lo < hi) {
+      final mid = lo + (hi - lo) ~/ 2;
+      if (nums[mid] < nums[hi]) {
+        hi = mid;
+      } else {
+        lo = mid + 1;
+      }
+    }
+    return nums[lo];
+  }
+}
+// https://leetcode.cn/submissions/detail/376142956/
 ```
 
 ## 155. 最小栈
@@ -2324,7 +2683,31 @@ class Solution {
 <https://leetcode.cn/problems/min-stack/>
 
 ```dart
+import 'dart:collection';
 
+class MinStack {
+  late final _stack = Queue<List<int>>();
+
+  MinStack();
+
+  void push(int val) {
+    final x = _stack.isEmpty ? val : min(getMin(), val);
+    _stack.addLast([val, x]);
+  }
+
+  void pop() {
+    _stack.removeLast();
+  }
+
+  int top() {
+    return _stack.last[0];
+  }
+
+  int getMin() {
+    return _stack.last[1];
+  }
+}
+// https://leetcode.cn/submissions/detail/378432620/
 ```
 
 ## 160. 相交链表
@@ -2340,7 +2723,43 @@ class Solution {
 <https://leetcode.cn/problems/compare-version-numbers/>
 
 ```dart
+class Solution {
+  late final _DOT = '.'.codeUnitAt(0);
+  late final _ZERO = '0'.codeUnitAt(0);
 
+  int compareVersion(String version1, String version2) {
+    final n1 = version1.length;
+    final n2 = version2.length;
+    var i = 0;
+    var j = 0;
+    while (i < n1 || j < n2) {
+      var r1 = 0;
+      while (i < n1) {
+        final ch = version1.codeUnitAt(i++);
+        if (ch == _DOT) {
+          break;
+        }
+        r1 = r1 * 10 + (ch - _ZERO);
+      }
+      var r2 = 0;
+      while (j < n2) {
+        final ch = version2.codeUnitAt(j++);
+        if (ch == _DOT) {
+          break;
+        }
+        r2 = r2 * 10 + (ch - _ZERO);
+      }
+      if (r1 > r2) {
+        return 1;
+      }
+      if (r1 < r2) {
+        return -1;
+      }
+    }
+    return 0;
+  }
+}
+// https://leetcode.cn/submissions/detail/378388288/
 ```
 
 ## 167. 两数之和 II - 输入有序数组
@@ -2348,7 +2767,25 @@ class Solution {
 <https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/>
 
 ```dart
-
+class Solution {
+  List<int> twoSum(List<int> numbers, int target) {
+    final n = numbers.length;
+    var i = 0;
+    var j = n - 1;
+    while (i < j) {
+      final sum = numbers[i] + numbers[j];
+      if (sum < target) {
+        ++i;
+      } else if (sum > target) {
+        --j;
+      } else {
+        return [i + 1, j + 1];
+      }
+    }
+    return [-1, -1];
+  }
+}
+// https://leetcode.cn/submissions/detail/377991574/
 ```
 
 ## 169. 多数元素
@@ -2356,7 +2793,26 @@ class Solution {
 <https://leetcode.cn/problems/majority-element/>
 
 ```dart
-
+class Solution {
+  int majorityElement(List<int> nums) {
+    var candidate = 0;
+    var count = 0;
+    for (final x in nums) {
+      if (count == 0) {
+        candidate = x;
+        count = 1;
+      } else {
+        if (x == candidate) {
+          ++count;
+        } else {
+          --count;
+        }
+      }
+    }
+    return candidate;
+  }
+}
+// https://leetcode.cn/submissions/detail/378328300/
 ```
 
 ## 179. 最大数
@@ -2364,7 +2820,17 @@ class Solution {
 <https://leetcode.cn/problems/largest-number/>
 
 ```dart
-
+class Solution {
+  String largestNumber(List<int> nums) {
+    final strs = nums.map((x) => x.toString()).toList();
+    strs.sort((s1, s2) => (s2 + s1).compareTo(s1 + s2));
+    final sb = StringBuffer();
+    sb.writeAll(strs);
+    final ans = sb.toString();
+    return ans[0] == '0' ? '0' : ans;
+  }
+}
+// https://leetcode.cn/submissions/detail/378400068/
 ```
 
 ## 188. 买卖股票的最佳时机 IV
@@ -2372,7 +2838,39 @@ class Solution {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/>
 
 ```dart
-
+class Solution {
+  int maxProfit(int k, List<int> prices) {
+    final n = prices.length;
+    if (k <= 0 || n <= 1) {
+      return 0;
+    }
+    // dp[t][i][0] = 交易次数限制为 t 时，第 i 天，空仓状态下的最大利润
+    // dp[t][i][1] = 交易次数限制为 t 时，第 i 天，持仓状态下的最大利润
+    final dp =
+        List.generate(k + 1, (_) => List.generate(n, (_) => List.filled(2, 0)));
+    // 交易次数限制为 0 时
+    // 填写第 0 个 n x 2 矩阵
+    for (var i = 0; i < n; ++i) {
+      dp[0][i][0] = 0;
+      dp[0][i][1] = -1000000;
+    }
+    // 交易次数限制为 [1..k] 时
+    // 填写第 t 个 n x 2 矩阵
+    for (var t = 1; t <= k; ++t) {
+      dp[t][0][0] = 0;
+      dp[t][0][1] = -prices[0];
+      for (var i = 1; i < n; ++i) {
+        // dp[t][i - 1][0]             >= dp[t - 1][i - 1][0] - prices[i]
+        // dp[t][i - 1][1] + prices[i] >= dp[t][i - 1][1]
+        // => dp[t][i][0] >= dp[t][i][1]
+        dp[t][i][0] = max(dp[t][i - 1][0], dp[t][i - 1][1] + prices[i]);
+        dp[t][i][1] = max(dp[t - 1][i - 1][0] - prices[i], dp[t][i - 1][1]);
+      }
+    }
+    return dp[k][n - 1][0];
+  }
+}
+// https://leetcode.cn/submissions/detail/376691291/
 ```
 
 ## 189. 轮转数组
@@ -2380,7 +2878,28 @@ class Solution {
 <https://leetcode.cn/problems/rotate-array/>
 
 ```dart
+class Solution {
+  void rotate(List<int> nums, int k) {
+    final n = nums.length;
+    k %= n;
+    _reverse(nums, 0, n - 1);
+    _reverse(nums, 0, k - 1);
+    _reverse(nums, k, n - 1);
+  }
 
+  void _reverse(List<int> nums, int lo, int hi) {
+    while (lo < hi) {
+      _swap(nums, lo++, hi--);
+    }
+  }
+
+  void _swap(List<int> nums, int i, int j) {
+    final swap = nums[i];
+    nums[i] = nums[j];
+    nums[j] = swap;
+  }
+}
+// https://leetcode.cn/submissions/detail/376047347/
 ```
 
 ## 198. 打家劫舍
@@ -2388,7 +2907,35 @@ class Solution {
 <https://leetcode.cn/problems/house-robber/>
 
 ```dart
+class Solution {
+  int rob(List<int> nums) {
+    return _subseqSum(nums);
+  }
 
+  // max({sum(subseq) | subseq 是数组 nums 的不连续子序列})
+  int _subseqSum(List<int> nums) {
+    final n = nums.length;
+    if (n == 0) {
+      return 0;
+    }
+    if (n == 1) {
+      return nums[0];
+    }
+    // dp[i] = max({sum(subseq) | subseq 是子数组 nums[0..i] 的不连续子序列})
+    final dp = List.filled(n, 0);
+    dp[0] = nums[0];
+    dp[1] = max(nums[0], nums[1]);
+    for (var i = 2; i < n; ++i) {
+      // 包含 nums[i]
+      final sp1 = dp[i - 2] + nums[i];
+      // 不包含 nums[i]
+      final sp2 = dp[i - 1];
+      dp[i] = max(sp1, sp2);
+    }
+    return dp[n - 1];
+  }
+}
+// https://leetcode.cn/submissions/detail/376664936/
 ```
 
 ## 199. 二叉树的右视图
@@ -2396,7 +2943,34 @@ class Solution {
 <https://leetcode.cn/problems/binary-tree-right-side-view/>
 
 ```dart
+import 'dart:collection';
 
+class Solution {
+  List<int> rightSideView(TreeNode? root) {
+    final ans = <int>[];
+    final queue = Queue<TreeNode>();
+    if (root != null) {
+      queue.addLast(root);
+    }
+    while (queue.isNotEmpty) {
+      ans.add(queue.last.val);
+      final n = queue.length;
+      for (var i = 0; i < n; ++i) {
+        final x = queue.removeFirst();
+        final left = x.left;
+        if (left != null) {
+          queue.addLast(left);
+        }
+        final right = x.right;
+        if (right != null) {
+          queue.addLast(right);
+        }
+      }
+    }
+    return ans;
+  }
+}
+// https://leetcode.cn/submissions/detail/377694625/
 ```
 
 ## 200. 岛屿数量
