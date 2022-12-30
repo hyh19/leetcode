@@ -181,7 +181,20 @@
 <https://leetcode-cn.com/problems/two-sum/>
 
 ```swift
-
+class Solution {
+    func twoSum(_ nums: [Int], _ target: Int) -> [Int] {
+        var valueToIndex: [Int: Int] = [:];
+        for (index, value) in nums.enumerated() {
+            let need = target - value;
+            if (valueToIndex[need] != nil) {
+                return [valueToIndex[need]!, index];
+            }
+            valueToIndex[value] = index;
+        }
+        return [];
+    }
+}
+// https://leetcode.cn/submissions/detail/386774665/
 ```
 
 ## 2. 两数相加
@@ -189,7 +202,30 @@
 <https://leetcode-cn.com/problems/add-two-numbers/>
 
 ```swift
-
+class Solution {
+    func addTwoNumbers(_ l1: ListNode?, _ l2: ListNode?) -> ListNode? {
+        var ptr1 = l1, ptr2 = l2;
+        let dummyHead = ListNode();
+        var ptr = dummyHead;
+        var carry = 0;
+        while (ptr1 != nil || ptr2 != nil || carry > 0) {
+            var sum = carry;
+            if (ptr1 != nil) {
+                sum += ptr1!.val;
+                ptr1 = ptr1!.next;
+            }
+            if (ptr2 != nil) {
+                sum += ptr2!.val;
+                ptr2 = ptr2!.next;
+            }
+            ptr.next = ListNode(sum % 10);
+            ptr = ptr.next!;
+            carry = sum / 10;
+        }
+        return dummyHead.next;
+    }
+}
+// https://leetcode.cn/submissions/detail/384880797/
 ```
 
 ## 3. 无重复字符的最长子串
@@ -197,7 +233,36 @@
 <https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/>
 
 ```swift
-
+class Solution {
+    func lengthOfLongestSubstring(_ s: String) -> Int {
+        let chs = [Character](s);
+        var ans = 0;
+        var window = Set<Character>();
+        // s[left..right) = Window Substring
+        // s[right..n-1]  = Scanning
+        var left = 0;
+        var right = 0;
+        while (right < chs.count) {
+            let add = chs[right];
+            if (!window.contains(add)) {
+                window.insert(add);
+                right += 1;
+            } else {
+                while (left < right) {
+                    let del = chs[left];
+                    left += 1;
+                    window.remove(del);
+                    if (add == del) {
+                        break;
+                    }
+                }
+            }
+            ans = max(ans, right - left);
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/385501653/
 ```
 
 ## 4. 寻找两个正序数组的中位数
@@ -205,7 +270,43 @@
 <https://leetcode.cn/problems/median-of-two-sorted-arrays/>
 
 ```swift
+class Solution {
+    func findMedianSortedArrays(_ nums1: [Int], _ nums2: [Int]) -> Double {
+        let total = nums1.count + nums2.count;
+        let half = total / 2;
+        if (total % 2 == 0) {
+            let k1 = getKthElement(nums1, 0, nums2, 0, half);
+            let k2 = getKthElement(nums1, 0, nums2, 0, half + 1);
+            return Double(k1 + k2) / 2.0;
+        }
+        return Double(getKthElement(nums1, 0, nums2, 0, half + 1));
+    }
 
+    // 寻找两个正序数组 nums1[start1..end1] 和 nums2[start2..end2] 从小到大排列的第 k 个数
+    private func getKthElement(_ nums1: [Int], _ start1: Int, _ nums2: [Int], _ start2: Int, _ k: Int) -> Int {
+        let n1 = nums1.count, n2 = nums2.count;
+        if (start1 == n1) {
+            return nums2[start2 + k - 1];
+        }
+        if (start2 == n2) {
+            return nums1[start1 + k - 1];
+        }
+        if (k == 1) {
+            return min(nums1[start1], nums2[start2]);
+        }
+        let half = k / 2;
+        let i = min(n1 - 1, start1 + half - 1);
+        let j = min(n2 - 1, start2 + half - 1);
+        if (nums1[i] < nums2[j]) {
+            // 排除 nums1[start1..i] 共 i-start1+1 个元素
+            return getKthElement(nums1, i + 1, nums2, start2, k - (i - start1 + 1));
+        } else {
+            // 排除 nums2[start2..j] 共 j-start2+1 个元素
+            return getKthElement(nums1, start1, nums2, j + 1, k - (j - start2 + 1));
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/384860307/
 ```
 
 ## 5. 最长回文子串
@@ -213,7 +314,34 @@
 <https://leetcode.cn/problems/longest-palindromic-substring/>
 
 ```swift
+class Solution {
+    func longestPalindrome(_ s: String) -> String {
+        let t = [Character](s);
+        var ans = "";
+        for i in 0...t.count - 1 {
+            let s1 = longestPalindrome(t, i, i);
+            if (s1.count > ans.count) {
+                ans = s1;
+            }
+            let s2 = longestPalindrome(t, i, i + 1);
+            if (s2.count > ans.count) {
+                ans = s2;
+            }
+        }
+        return ans;
+    }
 
+    // 字符串 s 中以 s[i] 和 s[j] 为中心的最长回文子串
+    private func longestPalindrome(_ s: [Character], _ i: Int, _ j: Int) -> String {
+        var left = i, right = j;
+        while (left >= 0 && right < s.count && s[left] == s[right]) {
+            left -= 1;
+            right += 1;
+        }
+        return left + 1 > right - 1 ? "" : String(s[left + 1...right - 1]);
+    }
+}
+// https://leetcode.cn/submissions/detail/385123737/
 ```
 
 ## 7. 整数反转
@@ -229,7 +357,23 @@
 <https://leetcode.cn/problems/container-with-most-water/>
 
 ```swift
-
+class Solution {
+    func maxArea(_ height: [Int]) -> Int {
+        var ans = 0;
+        var i = 0, j = height.count - 1;
+        while (i < j) {
+            let area = min(height[i], height[j]) * (j - i);
+            ans = max(ans, area);
+            if (height[i] < height[j]) {
+                i += 1;
+            } else {
+                j -= 1;
+            }
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/384824510/
 ```
 
 ## 14. 最长公共前缀
@@ -237,7 +381,32 @@
 <https://leetcode.cn/problems/longest-common-prefix/>
 
 ```swift
+class Solution {
+    func longestCommonPrefix(_ strs: [String]) -> String {
+        longestCommonPrefix(strs, 0, strs.count - 1);
+    }
 
+    private func longestCommonPrefix(_ strs: [String], _ lo: Int, _ hi: Int) -> String {
+        if (lo == hi) {
+            return strs[lo];
+        }
+        let mid = lo + (hi - lo) / 2;
+        let left = longestCommonPrefix(strs, lo, mid);
+        let right = longestCommonPrefix(strs, mid + 1, hi);
+        return longestCommonPrefix(left, right);
+    }
+
+    private func longestCommonPrefix(_ s1: String, _ s2: String) -> String {
+        let chs1 = [Character](s1), chs2 = [Character](s2);
+        let n = min(chs1.count, chs2.count);
+        var i = 0;
+        while (i < n && chs1[i] == chs2[i]) {
+            i += 1;
+        }
+        return i < 1 ? "" : String(chs1[0...i - 1]);
+    }
+}
+// https://leetcode.cn/submissions/detail/385527449/
 ```
 
 ## 15. 三数之和
@@ -245,7 +414,66 @@
 <https://leetcode-cn.com/problems/3sum/>
 
 ```swift
+class Solution {
+    func threeSum(_ nums: [Int]) -> [[Int]] {
+        let copy = nums.sorted();
+        return kSum(3, copy, 0, copy.count - 1, 0);
+    }
 
+    // 返回升序数组 nums[lo..hi] 中所有和为 target 且不重复的 k 元组
+    private func kSum(_ k: Int, _ nums: [Int], _ lo: Int, _ hi: Int, _ target: Int) -> [[Int]] {
+        if (hi - lo + 1 < k) {
+            return [];
+        }
+        if (k == 2) {
+            return twoSum(nums, lo, hi, target);
+        }
+        var res: [[Int]] = [];
+        var i = lo;
+        while (i <= hi) {
+            let curNum = nums[i];
+            let sp = kSum(k - 1, nums, i + 1, hi, target - curNum);
+            for x in sp {
+                var t = x;
+                t.append(curNum);
+                res.append(t);
+            }
+            while (i <= hi && nums[i] == curNum) {
+                i += 1;
+            }
+        }
+        return res;
+    }
+
+    // 返回升序数组 nums[lo..hi] 中所有和为 target 且不重复的二元组
+    private func twoSum(_ nums: [Int], _ lo: Int, _ hi: Int, _ target: Int) -> [[Int]] {
+        var res: [[Int]] = [];
+        var i = lo, j = hi;
+        while (i < j) {
+            let first = nums[i], second = nums[j];
+            let sum = first + second;
+            if (sum < target) {
+                while (i < j && nums[i] == first) {
+                    i += 1;
+                }
+            } else if (sum > target) {
+                while (i < j && nums[j] == second) {
+                    j -= 1;
+                }
+            } else {
+                res.append([first, second]);
+                while (i < j && nums[i] == first) {
+                    i += 1;
+                }
+                while (i < j && nums[j] == second) {
+                    j -= 1;
+                }
+            }
+        }
+        return res;
+    }
+}
+// https://leetcode.cn/submissions/detail/386772439/
 ```
 
 ## 18. 四数之和
@@ -253,7 +481,66 @@
 <https://leetcode.cn/problems/4sum/>
 
 ```swift
+class Solution {
+    func fourSum(_ nums: [Int], _ target: Int) -> [[Int]] {
+        var copy = nums.sorted();
+        return kSum(4, copy, 0, copy.count - 1, target);
+    }
 
+    // 返回升序数组 nums[lo..hi] 中所有和为 target 且不重复的 k 元组
+    private func kSum(_ k: Int, _ nums: [Int], _ lo: Int, _ hi: Int, _ target: Int) -> [[Int]] {
+        if (hi - lo + 1 < k) {
+            return [];
+        }
+        if (k == 2) {
+            return twoSum(nums, lo, hi, target);
+        }
+        var res: [[Int]] = [];
+        var i = lo;
+        while (i <= hi) {
+            let curNum = nums[i];
+            var sp = kSum(k - 1, nums, i + 1, hi, target - curNum);
+            for x in sp {
+                var t = x;
+                t.append(curNum);
+                res.append(t);
+            }
+            while (i <= hi && nums[i] == curNum) {
+                i += 1;
+            }
+        }
+        return res;
+    }
+
+    // 返回升序数组 nums[lo..hi] 中所有和为 target 且不重复的二元组
+    private func twoSum(_ nums: [Int], _ lo: Int, _ hi: Int, _ target: Int) -> [[Int]] {
+        var res: [[Int]] = [];
+        var i = lo, j = hi;
+        while (i < j) {
+            let first = nums[i], second = nums[j];
+            let sum = first + second;
+            if (sum < target) {
+                while (i < j && nums[i] == first) {
+                    i += 1;
+                }
+            } else if (sum > target) {
+                while (i < j && nums[j] == second) {
+                    j -= 1;
+                }
+            } else {
+                res.append([first, second]);
+                while (i < j && nums[i] == first) {
+                    i += 1;
+                }
+                while (i < j && nums[j] == second) {
+                    j -= 1;
+                }
+            }
+        }
+        return res;
+    }
+}
+// https://leetcode.cn/submissions/detail/386773075/
 ```
 
 ## 19. 删除链表的倒数第 N 个结点
@@ -261,7 +548,22 @@
 <https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/>
 
 ```swift
-
+class Solution {
+    func removeNthFromEnd(_ head: ListNode?, _ n: Int) -> ListNode? {
+        let dummyHead = ListNode(-1, head);
+        var slow = dummyHead, fast = dummyHead;
+        for _ in 1...n {
+            fast = fast.next!;
+        }
+        while (fast.next != nil) {
+            slow = slow.next!;
+            fast = fast.next!;
+        }
+        slow.next = slow.next!.next;
+        return dummyHead.next;
+    }
+}
+// https://leetcode.cn/submissions/detail/384872360/
 ```
 
 ## 20. 有效的括号
@@ -269,7 +571,34 @@
 <https://leetcode-cn.com/problems/valid-parentheses/>
 
 ```swift
-
+class Solution {
+    func isValid(_ s: String) -> Bool {
+        let n = s.count;
+        if (n % 2 == 1) {
+            return false;
+        }
+        var stack: [Character] = [];
+        for ch in s {
+            switch (ch) {
+            case "(":
+                stack.append(")");
+                break;
+            case "[":
+                stack.append("]");
+                break;
+            case "{":
+                stack.append("}");
+                break;
+            default:
+                if (stack.isEmpty || stack.removeLast() != ch) {
+                    return false;
+                }
+            }
+        }
+        return stack.isEmpty;
+    }
+}
+// https://leetcode.cn/submissions/detail/387237752/
 ```
 
 ## 21. 合并两个有序链表
@@ -277,7 +606,26 @@
 <https://leetcode-cn.com/problems/merge-two-sorted-lists/>
 
 ```swift
-
+class Solution {
+    func mergeTwoLists(_ list1: ListNode?, _ list2: ListNode?) -> ListNode? {
+        var ptr1 = list1, ptr2 = list2;
+        let dummyHead = ListNode();
+        var ptr = dummyHead;
+        while (ptr1 != nil && ptr2 != nil) {
+            if (ptr1!.val < ptr2!.val) {
+                ptr.next = ptr1;
+                ptr1 = ptr1!.next;
+            } else {
+                ptr.next = ptr2;
+                ptr2 = ptr2!.next;
+            }
+            ptr = ptr.next!;
+        }
+        ptr.next = (ptr1 ?? ptr2);
+        return dummyHead.next;
+    }
+}
+// https://leetcode.cn/submissions/detail/384919316/
 ```
 
 ## 22. 括号生成
@@ -285,7 +633,44 @@
 <https://leetcode.cn/problems/generate-parentheses/>
 
 ```swift
+class Solution {
+    private var left = 0; // 已使用的『左括号』数量
+    private var right = 0; // 已使用的『右括号』数量
+    private var path: [String] = []; // 取 '(', ')' 为元素
+    private var ans: [String] = [];
 
+    func generateParenthesis(_ n: Int) -> [String] {
+        backtrack(n);
+        return ans;
+    }
+
+    private func backtrack(_ n: Int) {
+        // 对于一个「合法」的括号字符串组合 p，必然对于任何 0 <= i < len(p) 都有：
+        // 子串 p[0..i] 中左括号的数量都大于或等于右括号的数量
+        if (left < right || left > n) {
+            return;
+        }
+        // 一个「合法」括号组合的左括号数量一定等于右括号数量
+        if (left == n && right == n) {
+            ans.append(path.joined());
+            return;
+        }
+        // edge = 取 '(', ')' 为值
+        // 使用『左括号』
+        path.append("(");
+        left += 1;
+        backtrack(n);
+        path.removeLast();
+        left -= 1;
+        // 使用『右括号』
+        path.append(")");
+        right += 1;
+        backtrack(n);
+        path.removeLast();
+        right -= 1;
+    }
+}
+// https://leetcode.cn/submissions/detail/387240903/
 ```
 
 ## 23. 合并 K 个升序链表
@@ -293,7 +678,43 @@
 <https://leetcode-cn.com/problems/merge-k-sorted-lists/>
 
 ```swift
+class Solution {
+    func mergeKLists(_ lists: [ListNode?]) -> ListNode? {
+        mergeKLists(lists, 0, lists.count - 1);
+    }
 
+    private func mergeKLists(_ lists: [ListNode?], _ lo: Int, _ hi: Int) -> ListNode? {
+        if (lo > hi) {
+            return nil;
+        }
+        if (lo == hi) {
+            return lists[lo];
+        }
+        let mid = lo + (hi - lo) / 2;
+        let left = mergeKLists(lists, lo, mid);
+        let right = mergeKLists(lists, mid + 1, hi);
+        return mergeTwoLists(left, right);
+    }
+
+    private func mergeTwoLists(_ list1: ListNode?, _ list2: ListNode?) -> ListNode? {
+        var ptr1 = list1, ptr2 = list2;
+        let dummyHead = ListNode();
+        var ptr = dummyHead;
+        while (ptr1 != nil && ptr2 != nil) {
+            if (ptr1!.val < ptr2!.val) {
+                ptr.next = ptr1;
+                ptr1 = ptr1!.next;
+            } else {
+                ptr.next = ptr2;
+                ptr2 = ptr2!.next;
+            }
+            ptr = ptr.next!;
+        }
+        ptr.next = (ptr1 ?? ptr2);
+        return dummyHead.next;
+    }
+}
+// https://leetcode.cn/submissions/detail/384920056/
 ```
 
 ## 24. 两两交换链表中的节点
@@ -301,7 +722,20 @@
 <https://leetcode-cn.com/problems/swap-nodes-in-pairs/>
 
 ```swift
-
+class Solution {
+    func swapPairs(_ head: ListNode?) -> ListNode? {
+        if (head == nil || head!.next == nil) {
+            return head;
+        }
+        let x = head;
+        let y = head!.next;
+        let z = head!.next!.next;
+        y!.next = x;
+        x!.next = swapPairs(z);
+        return y;
+    }
+}
+// https://leetcode.cn/submissions/detail/384876511/
 ```
 
 ## 25. K 个一组翻转链表
@@ -309,7 +743,40 @@
 <https://leetcode.cn/problems/reverse-nodes-in-k-group/>
 
 ```swift
+class Solution {
+    func reverseKGroup(_ head: ListNode?, _ k: Int) -> ListNode? {
+        if (head == nil || head!.next == nil) {
+            return head;
+        }
+        var ptr = head;
+        if (k > 1) {
+            for _ in 1...k - 1 {
+                ptr = ptr!.next;
+                if (ptr == nil) {
+                    return head;
+                }
+            }
+        }
+        let nextGroup = ptr!.next;
+        ptr!.next = nil;
+        let reverseHead = reverseList(head);
+        head!.next = reverseKGroup(nextGroup, k);
+        return reverseHead;
+    }
 
+    private func reverseList(_ head: ListNode?) -> ListNode? {
+        var reverseHead: ListNode?;
+        var ptr = head;
+        while (ptr != nil) {
+            let x = ptr!.next;
+            ptr!.next = reverseHead;
+            reverseHead = ptr;
+            ptr = x;
+        }
+        return reverseHead;
+    }
+}
+// https://leetcode.cn/submissions/detail/386778449/
 ```
 
 ## 26. 删除有序数组中的重复项
@@ -317,7 +784,25 @@
 <https://leetcode.cn/problems/remove-duplicates-from-sorted-array/>
 
 ```swift
-
+class Solution {
+    func removeDuplicates(_ nums: inout [Int]) -> Int {
+        // [0..i-1] 不重复元素区间
+        // [i..j-1] 重复元素区间
+        // [j..n-1] 扫描区间
+        var i = 0, j = 0;
+        let n = nums.count;
+        while (j < n) {
+            while (j + 1 < n && nums[j] == nums[j + 1]) {
+                j += 1;
+            }
+            nums.swapAt(i, j);
+            i += 1;
+            j += 1;
+        }
+        return i;
+    }
+}
+// https://leetcode.cn/submissions/detail/384823368/
 ```
 
 ## 27. 移除元素
@@ -325,7 +810,27 @@
 <https://leetcode.cn/problems/remove-element/>
 
 ```swift
-
+class Solution {
+    func removeElement(_ nums: inout [Int], _ val: Int) -> Int {
+        // nums[0..i-1]   != val
+        // nums[i..j]     Scanning
+        // nums[j+1..n-1] == val
+        var i = 0, j = nums.count - 1;
+        while (i <= j) {
+            while (i <= j && nums[i] != val) {
+                i += 1;
+            }
+            while (i <= j && nums[j] == val) {
+                j -= 1;
+            }
+            if (i <= j) {
+                nums.swapAt(i, j);
+            }
+        }
+        return i;
+    }
+}
+// https://leetcode.cn/submissions/detail/384787907/
 ```
 
 ## 28. 实现 strStr()
@@ -333,7 +838,94 @@
 <https://leetcode.cn/problems/implement-strstr/>
 
 ```swift
+struct KMP {
+    private let m: Int;
+    private var dfa: [[Int]];
 
+    init(_ pat: String) {
+        let patArray = [Character](pat);
+        m = patArray.count;
+        dfa = Array(repeating: Array(repeating: 0, count: m), count: 256);
+        dfa[Int(patArray[0].asciiValue!)][0] = 1;
+        var x = 0, j = 1;
+        while (j < m) {
+            for c in 0...255 {
+                dfa[c][j] = dfa[c][x];
+            }
+            dfa[Int(patArray[j].asciiValue!)][j] = j + 1;
+            x = dfa[Int(patArray[j].asciiValue!)][x];
+            j += 1;
+        }
+    }
+
+    public func search(_ txt: String) -> Int {
+        let txtArray = [Character](txt);
+        let n = txtArray.count;
+        var i = 0, j = 0;
+        while (i < n && j < m) {
+            j = dfa[Int(txtArray[i].asciiValue!)][j];
+            i += 1;
+        }
+        if (j == m) {
+            return i - m;
+        }
+        return -1;
+    }
+}
+
+class Solution {
+    func strStr(_ haystack: String, _ needle: String) -> Int {
+        let kmp = KMP(needle);
+        return kmp.search(haystack);
+    }
+}
+// https://leetcode.cn/submissions/detail/386214692/
+```
+
+```swift
+struct BoyerMoore {
+    private let patArray: [Character];
+    private var right: [Int];
+
+    init(_ pat: String) {
+        patArray = [Character](pat);
+        right = Array(repeating: -1, count: 256);
+        for j in 0...patArray.count - 1 {
+            right[Int(patArray[j].asciiValue!)] = j;
+        }
+    }
+
+    public func search(_ txt: String) -> Int {
+        let txtArray = [Character](txt);
+        let n = txtArray.count;
+        let m = patArray.count;
+        var i = 0;
+        while (i <= n - m) {
+            var skip = 0;
+            var j = m - 1;
+            while (j >= 0) {
+                if (patArray[j] != txtArray[i + j]) {
+                    skip = max(1, j - right[Int(txtArray[i + j].asciiValue!)]);
+                    break;
+                }
+                j -= 1;
+            }
+            if (skip == 0) {
+                return i;
+            }
+            i += skip;
+        }
+        return -1;
+    }
+}
+
+class Solution {
+    func strStr(_ haystack: String, _ needle: String) -> Int {
+        let bm = BoyerMoore(needle);
+        return bm.search(haystack);
+    }
+}
+// https://leetcode.cn/submissions/detail/386216501/
 ```
 
 ## 33. 搜索旋转排序数组
