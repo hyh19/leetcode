@@ -8009,7 +8009,24 @@ class Solution {
 <https://leetcode.cn/problems/next-greater-element-ii/>
 
 ```java
-
+class Solution {
+    public int[] nextGreaterElements(int[] nums) {
+        int n = nums.length;
+        int[] ans = new int[n];
+        Deque<Integer> stack = new LinkedList();
+        for (int i = 2 * n - 1; i >= 0; --i) {
+            int k = i % n;
+            int x = nums[k];
+            while (!stack.isEmpty() && stack.peek() <= x) {
+                stack.pop();
+            }
+            ans[k] = stack.isEmpty() ? -1 : stack.peek();
+            stack.push(x);
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/374193018/
 ```
 
 ## 509. 斐波那契数
@@ -8017,7 +8034,58 @@ class Solution {
 <https://leetcode.cn/problems/fibonacci-number/>
 
 ```java
+class Solution {
+    public int fib(int n) {
+        if (n == 0) {
+            return 0;
+        }
+        if (n == 1) {
+            return 1;
+        }
+        int[] dp = new int[n + 1];
+        dp[0] = 0;
+        dp[1] = 1;
+        for (int i = 2; i <= n; ++i) {
+            dp[i] = dp[i - 1] + dp[i - 2];
+        }
+        return dp[n];
+    }
+}
+// https://leetcode.cn/submissions/detail/375040133/
+```
 
+```java
+class Solution {
+    public int fib(int n) {
+        if (n == 0 || n == 1) return n;
+        int fib_i_1 = 1;
+        int fib_i_2 = 0;
+        for (int i = 2; i <= n; i++) {
+            int fib_i = fib_i_1 + fib_i_2;
+            fib_i_2 = fib_i_1;
+            fib_i_1 = fib_i;
+        }
+        return fib_i_1;
+    }
+}
+// https://leetcode.cn/submissions/detail/329150543/
+```
+
+```java
+class Solution {
+    private HashMap<Integer, Integer> memo = new HashMap<Integer, Integer>();
+
+    public int fib(int n) {
+        if (memo.get(n) != null) return memo.get(n);
+        if (n == 0 || n == 1) {
+            memo.put(n, n);
+            return n;
+        }
+        memo.put(n, fib(n - 1) + fib(n - 2));
+        return memo.get(n);
+    }
+}
+// https://leetcode.cn/submissions/detail/329140367/
 ```
 
 ## 516. 最长回文子序列
@@ -8025,7 +8093,42 @@ class Solution {
 <https://leetcode.cn/problems/longest-palindromic-subsequence/>
 
 ```java
-
+class Solution {
+    public int longestPalindromeSubseq(String s) {
+        int n = s.length();
+        // dp[i][j] = 子串 s[i..j] 的最长回文子序列的长度
+        int[][] dp = new int[n][n];
+        // 遍历对角线
+        for (int i = 0; i < n; ++i) {
+            dp[i][i] = 1;
+        }
+        // 遍历下三角形
+        // for (int i = 0; i < n; ++i) {
+        //     for (int j = 0; j < i; ++j) {
+        //         dp[i][j] = 0;
+        //     }
+        // }
+        for (int i = n - 2; i >= 0; --i) {
+            for (int j = i + 1; j < n; ++j) {
+                if (s.charAt(i) == s.charAt(j)) {
+                    // s[i][i+1..j-1][j]
+                    // s   [i+1..j-1]
+                    dp[i][j] = dp[i + 1][j - 1] + 2;
+                } else {
+                    // s[i..j-1][j]
+                    // s[i..j-1]
+                    int sp1 = dp[i][j - 1];
+                    // s[i][i+1..j]
+                    // s   [i+1..j]
+                    int sp2 = dp[i + 1][j];
+                    dp[i][j] = Math.max(sp1, sp2);
+                }
+            }
+        }
+        return dp[0][n - 1];
+    }
+}
+// https://leetcode.cn/submissions/detail/374535185/
 ```
 
 ## 518. 零钱兑换 II
@@ -8033,7 +8136,88 @@ class Solution {
 <https://leetcode.cn/problems/coin-change-2/>
 
 ```java
+class Solution {
+    public int change(int amount, int[] coins) {
+        int n = coins.length;
+        // dp[i][j] = 使用硬币 coins[0..i-1] 凑成总金额 j 的组合数
+        int[][] dp = new int[n + 1][amount + 1];
+        // 总金额为 0
+        for (int i = 1; i <= n; ++i) {
+            dp[i][0] = 1;
+        }
+        // 硬币数为 0
+        for (int j = 1; j <= amount; ++j) {
+            dp[0][j] = 0;
+        }
+        dp[0][0] = 1;
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= amount; ++j) {
+                int x = coins[i - 1];
+                if (j < x) {
+                    // 不包含硬币 x
+                    dp[i][j] = dp[i - 1][j];
+                } else {
+                    int sp1 = dp[i - 1][j]; // 包含    0 个硬币 x
+                    int sp2 = dp[i][j - x]; // 包含 >= 1 个硬币 x
+                    dp[i][j] = sp1 + sp2;
+                    // 注意
+                    // dp[i][j - x] = 包含 >= 1 个硬币 x
+                    // dp[i-1][j-x] = 包含    1 个硬币 x
+                    // 举例 amount = 79, coins = [1, 2, 5]
+                    // dp[2][79] = 包含    0 个硬币 5，79 = 0 x 5 + 79，剩余 79 只能从 [1, 2] 凑
+                    // dp[2][74] = 包含    1 个硬币 5，79 = 1 x 5 + 74，剩余 74 只能从 [1, 2] 凑
+                    // dp[3][74] = 包含 >= 1 个硬币 5，79 = 1 x 5 + 74，剩余 74 可以从 [1, 2, 5] 凑
+                }
+            }
+        }
+        return dp[n][amount];
+    }
+}
+// https://leetcode.cn/submissions/detail/372576859/
+```
 
+```java
+class Solution {
+    private int[][] memo;
+
+    public int change(int amount, int[] coins) {
+        int n = coins.length;
+        memo = new int[amount + 1][n + 1];
+        for (int i = 0; i <= amount; i++) {
+            for (int j = 0; j <= n; j++) {
+                memo[i][j] = -1;
+            }
+        }
+        dp(amount, coins, n);
+
+        return memo[amount][n];
+    }
+
+    private int dp(int amount, int[] coins, int k) {
+        if (memo[amount][k] != -1) {
+            return memo[amount][k];
+        }
+
+        if (amount == 0) {
+            memo[0][k] = 1;
+            return 1;
+        }
+
+        if (k == 0) {
+            memo[amount][0] = 0;
+            return 0;
+        }
+
+        if (amount >= coins[k - 1]) {
+            memo[amount][k] = dp(amount, coins, k - 1) + dp(amount - coins[k - 1], coins, k);
+        } else {
+            memo[amount][k] = dp(amount, coins, k - 1);
+        }
+
+        return memo[amount][k];
+    }
+}
+// https://leetcode.cn/submissions/detail/331029268/
 ```
 
 ## 538. 把二叉搜索树转换为累加树
@@ -8041,7 +8225,25 @@ class Solution {
 <https://leetcode.cn/problems/convert-bst-to-greater-tree/>
 
 ```java
+class Solution {
+    int sum = 0;
 
+    public TreeNode convertBST(TreeNode root) {
+        traverse(root);
+        return root;
+    }
+
+    void traverse(TreeNode root) {
+        if (root == null) {
+            return;
+        }
+        traverse(root.right);
+        sum += root.val;
+        root.val = sum;
+        traverse(root.left);
+    }
+}
+// https://leetcode.cn/submissions/detail/322655153/
 ```
 
 ## 543. 二叉树的直径
@@ -8049,7 +8251,30 @@ class Solution {
 <https://leetcode.cn/problems/diameter-of-binary-tree/>
 
 ```java
+// rootLP = 穿过根节点的最长路径（左右子树的最大深度之和）
+// rootLP(root) = maxDepth(root.left) + maxDepth(root.right)
+// diameter = 所有子树的 rootLP 的最大值
+// diameter(root) = max({ rootLP(subtree) | subtree 是 root 的任意子树 })
+class Solution {
+    private int ans = 0;
 
+    public int diameterOfBinaryTree(TreeNode root) {
+        maxDepth(root);
+        return ans;
+    }
+
+    private int maxDepth(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        int left = maxDepth(root.left);
+        int right = maxDepth(root.right);
+        int rootLP = left + right;
+        ans = Math.max(ans, rootLP);
+        return 1 + Math.max(left, right);
+    }
+}
+// https://leetcode.cn/submissions/detail/365645931/
 ```
 
 ## 567. 字符串的排列
@@ -8057,7 +8282,44 @@ class Solution {
 <https://leetcode.cn/problems/permutation-in-string/>
 
 ```java
-
+class Solution {
+    public boolean checkInclusion(String s1, String s2) {
+        Map<Character, Integer> need = new HashMap();
+        for (char c : s1.toCharArray()) {
+            need.put(c, need.getOrDefault(c, 0) + 1);
+        }
+        Map<Character, Integer> window = new HashMap();
+        int valid = 0;
+        // s[left..right) = Window Substring
+        // s[right..n-1]  = Scanning
+        int left = 0, right = 0;
+        while (right < s2.length()) {
+            char c = s2.charAt(right++);
+            if (need.containsKey(c)) {
+                window.put(c, window.getOrDefault(c, 0) + 1);
+                if (window.get(c).equals(need.get(c))) {
+                    ++valid;
+                }
+            }
+            if (valid == need.size()) {
+                while (left < right - s1.length()) {
+                    char d = s2.charAt(left++);
+                    if (need.containsKey(d)) {
+                        if (window.get(d).equals(need.get(d))) {
+                            --valid;
+                        }
+                        window.put(d, window.get(d) - 1);
+                    }
+                }
+            }
+            if (valid == need.size()) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+// https://leetcode.cn/submissions/detail/365643758/
 ```
 
 ## 583. 两个字符串的删除操作
@@ -8065,7 +8327,86 @@ class Solution {
 <https://leetcode.cn/problems/delete-operation-for-two-strings/>
 
 ```java
+class Solution {
+    public int minDistance(String word1, String word2) {
+        int m = word1.length();
+        int n = word2.length();
+        int[][] dp = new int[m + 1][n + 1];
+        for (int i = 0; i <= m; i++) {
+            dp[i][0] = i;
+        }
+        for (int j = 0; j <= n; j++) {
+            dp[0][j] = j;
+        }
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                int result = Integer.MAX_VALUE;
+                if (word1.charAt(i - 1) == word2.charAt(j - 1)) {
+                    result = dp[i - 1][j - 1];
+                } else {
+                    result = 1 + Math.min(dp[i][j - 1], dp[i - 1][j]);
+                }
+                dp[i][j] = result;
+            }
+        }
+        return dp[m][n];
+    }
+}
+// https://leetcode.cn/submissions/detail/330176023/
+```
 
+```java
+class Solution {
+    private int[][] memo;
+
+    public int minDistance(String word1, String word2) {
+        int n1 = word1.length(), n2 = word2.length();
+        memo = new int[n1][n2];
+        for (int[] a : memo) {
+            Arrays.fill(a, -1);
+        }
+        return minDistance(word1, n1 - 1, word2, n2 - 1);
+    }
+
+    // 子串 s1[0..i] s2[0..j] 的最小删除步数
+    private int minDistance(String s1, int i, String s2, int j) {
+        // 删除 s2[0..j]
+        // s1""
+        // s2[0..j]
+        if (i < 0) {
+            return j + 1;
+        }
+        // 删除 s1[0..i]
+        // s1[0..i]
+        // s2""
+        if (j < 0) {
+            return i + 1;
+        }
+        if (memo[i][j] == -1) {
+            if (s1.charAt(i) == s2.charAt(j)) {
+                // s1[0..i-1][i]
+                // s2[0..j-1][j]
+                memo[i][j] = minDistance(s1, i - 1, s2, j - 1);
+            } else {
+                // 删除 s1[i] s2[j]
+                // s1[0..i-1][i]
+                // s2[0..j-1][j]
+                int sp1 = minDistance(s1, i - 1, s2, j - 1) + 2;
+                // 删除 s2[j]
+                // s1[0..i]
+                // s2[0..j-1][j]
+                int sp2 = minDistance(s1, i, s2, j - 1) + 1;
+                // 删除 s1[i]
+                // s1[0..i-1][i]
+                // s2[0..j]
+                int sp3 = minDistance(s1, i - 1, s2, j) + 1;
+                memo[i][j] = Math.min(Math.min(sp1, sp2), sp3);
+            }
+        }
+        return memo[i][j];
+    }
+}
+// https://leetcode.cn/submissions/detail/374430111/
 ```
 
 ## 617. 合并二叉树
@@ -8073,7 +8414,72 @@ class Solution {
 <https://leetcode.cn/problems/merge-two-binary-trees/>
 
 ```java
+class Solution {
+    public TreeNode mergeTrees(TreeNode root1, TreeNode root2) {
+        if (root1 == null) {
+            return root2;
+        }
+        if (root2 == null) {
+            return root1;
+        }
+        TreeNode mergeRoot = new TreeNode(root1.val + root2.val);
+        mergeRoot.left = mergeTrees(root1.left, root2.left);
+        mergeRoot.right = mergeTrees(root1.right, root2.right);
+        return mergeRoot;
+    }
+}
+// https://leetcode.cn/submissions/detail/350393289/
+```
 
+```java
+class Solution {
+    public TreeNode mergeTrees(TreeNode root1, TreeNode root2) {
+        Deque<TreeNode> queue1 = new LinkedList();
+        Deque<TreeNode> queue2 = new LinkedList();
+        Deque<TreeNode> mergeQueue = new LinkedList();
+        TreeNode mergeRoot = merge(root1, root2);
+        if (root1 != null && root2 != null) {
+            queue1.offer(root1);
+            queue2.offer(root2);
+            mergeQueue.offer(mergeRoot);
+        }
+        while (!mergeQueue.isEmpty()) {
+            TreeNode node1 = queue1.poll();
+            TreeNode node2 = queue2.poll();
+            TreeNode mergeNode = mergeQueue.poll();
+            // left
+            TreeNode left1 = node1.left;
+            TreeNode left2 = node2.left;
+            mergeNode.left = merge(left1, left2);
+            if (left1 != null && left2 != null) {
+                queue1.offer(left1);
+                queue2.offer(left2);
+                mergeQueue.offer(mergeNode.left);
+            }
+            // right
+            TreeNode right1 = node1.right;
+            TreeNode right2 = node2.right;
+            mergeNode.right = merge(right1, right2);
+            if (right1 != null && right2 != null) {
+                queue1.offer(right1);
+                queue2.offer(right2);
+                mergeQueue.offer(mergeNode.right);
+            }
+        }
+        return mergeRoot;
+    }
+
+    private TreeNode merge(TreeNode node1, TreeNode node2) {
+        if (node1 == null) {
+            return node2;
+        }
+        if (node2 == null) {
+            return node1;
+        }
+        return new TreeNode(node1.val + node2.val);
+    }
+}
+// https://leetcode.cn/submissions/detail/350393022/
 ```
 
 ## 652. 寻找重复的子树
@@ -8081,7 +8487,42 @@ class Solution {
 <https://leetcode.cn/problems/find-duplicate-subtrees/>
 
 ```java
+class Solution {
+    String NULL = "#";
+    String SEP = ",";
+    Map<String, Integer> map = new HashMap<>();
+    List<TreeNode> ans = new LinkedList<>();
 
+    public List<TreeNode> findDuplicateSubtrees(TreeNode root) {
+        traverse(root);
+        return ans;
+    }
+
+    String traverse(TreeNode root) {
+        if (root == null) {
+            return NULL;
+        }
+
+        String leftStr = traverse(root.left);
+        String rightStr = traverse(root.right);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(root.val).append(SEP);
+        sb.append(leftStr).append(SEP);
+        sb.append(rightStr);
+
+        String rootStr = sb.toString();
+
+        int freq = map.getOrDefault(rootStr, 0);
+        map.put(rootStr, ++freq);
+        if (freq == 2) {
+            ans.add(root);
+        }
+
+        return rootStr;
+    }
+}
+// https://leetcode.cn/submissions/detail/322169652/
 ```
 
 ## 654. 最大二叉树
@@ -8089,7 +8530,24 @@ class Solution {
 <https://leetcode.cn/problems/maximum-binary-tree/>
 
 ```java
+class Solution {
+    public TreeNode constructMaximumBinaryTree(int[] nums) {
+        return construct(nums, 0, nums.length - 1);
+    }
 
+    private TreeNode construct(int[] nums, int lo, int hi) {
+        if (lo > hi) return null;
+        int idx = lo;
+        for (int i = lo + 1; i <= hi; i++) {
+            if (nums[i] > nums[idx]) idx = i;
+        }
+        TreeNode root = new TreeNode(nums[idx]);
+        root.left = construct(nums, lo, idx - 1);
+        root.right = construct(nums, idx + 1, hi);
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/343841184/
 ```
 
 ## 695. 岛屿的最大面积
@@ -8097,7 +8555,38 @@ class Solution {
 <https://leetcode.cn/problems/max-area-of-island/>
 
 ```java
+class Solution {
+    private static final int LAND = 1;
+    private static final int WATER = 0;
+    private int area;
 
+    public int maxAreaOfIsland(int[][] grid) {
+        int ans = 0;
+        for (int i = 0; i < grid.length; ++i) {
+            for (int j = 0; j < grid[0].length; ++j) {
+                if (grid[i][j] == LAND) {
+                    area = 0;
+                    floodFill(grid, i, j);
+                    ans = Math.max(ans, area);
+                }
+            }
+        }
+        return ans;
+    }
+
+    private void floodFill(int[][] grid, int i, int j) {
+        if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length || grid[i][j] == WATER) {
+            return;
+        }
+        ++area;
+        grid[i][j] = WATER;
+        floodFill(grid, i, j + 1);
+        floodFill(grid, i, j - 1);
+        floodFill(grid, i + 1, j);
+        floodFill(grid, i - 1, j);
+    }
+}
+// https://leetcode.cn/submissions/detail/366265844/
 ```
 
 ## 698. 划分为 K 个相等的子集
@@ -8105,7 +8594,333 @@ class Solution {
 <https://leetcode.cn/problems/partition-to-k-equal-sum-subsets/>
 
 ```java
+class Solution {
+    private int k, target;
+    private int used;
+    private int[] nums;
+    private int[] pathSums;
+    private Map<Integer, Boolean> memo = new HashMap();
 
+    public boolean canPartitionKSubsets(int[] nums, int k) {
+        int n = nums.length;
+        if (k > n) {
+            return false;
+        }
+        int sum = 0;
+        for (int x : nums) {
+            sum += x;
+        }
+        if (sum % k != 0) {
+            return false;
+        }
+        this.nums = nums;
+        this.k = k;
+        this.target = sum / k;
+        this.used = 0;
+        this.pathSums = new int[k];
+        return backtrack(0, -1);
+    }
+
+    // 遍历『决策森林』的 k 棵『决策树』
+    // 一棵『决策树』的『路径』代表一个『等和子集』
+    // tree = 第几棵『决策树』，取 [0..k-1] 为值
+    // edge =『决策树』的『边』，取数组 nums 的索引为值
+    // pathSums[tree] = 第几棵『决策树』的『路径和』
+    private boolean backtrack(int tree, int edge) {
+        boolean res = false;
+        if (tree == k) {
+            res = true;
+        } else if (pathSums[tree] == target) {
+            // 通过缓存，对同一个『森林』，优化『树』的遍历，避免『路径+路径』重复
+            // 例如 [1->2->3] 和 [4->5->6] 分别是两条『路径』
+            // 如果 A.[1->2->3] -> B.[4->5->6] -> C.[] 是不行的
+            // 那么 A.[4->5->6] -> B.[1->2->3] -> C.[] 也是不行的
+            // 因为 C 的可选『边』是一样的
+            if (!memo.containsKey(used)) {
+                // 遍历下一棵『决策树』
+                res = backtrack(tree + 1, -1);
+                memo.put(used, res);
+            }
+            res = memo.get(used);
+        } else {
+            // 通过去重，对同一棵树，优化『边』的遍历，避免『边+边』重复
+            // 例如 1 和 2 分别是两条『边』，[1->2] 和 [2->1] 是重复的
+            while (++edge < nums.length) {
+                // 检查第 edge 位是否为 1
+                // 即 nums[edge] 是否已经被其他『树』使用
+                if (((used >> edge) & 1) == 1) {
+                    continue;
+                }
+                int x = nums[edge];
+                if (pathSums[tree] + x > target) {
+                    continue;
+                }
+                pathSums[tree] += x;
+                //『或』运算，将第 edge 位修改为 1
+                used |= 1 << edge;
+                res = backtrack(tree, edge);
+                if (res) {
+                    break;
+                }
+                pathSums[tree] -= x;
+                //『异或』运算，将第 edge 位修改为 0
+                used ^= 1 << edge;
+            }
+        }
+        return res;
+    }
+}
+// https://leetcode.cn/submissions/detail/374888808/
+```
+
+```java
+class Solution {
+    private int k, target;
+    private int used;
+    private int[] nums;
+    private int[] pathSums;
+    private Map<Integer, Boolean> memo = new HashMap();
+
+    public boolean canPartitionKSubsets(int[] nums, int k) {
+        int n = nums.length;
+        if (k > n) {
+            return false;
+        }
+        int sum = 0;
+        for (int x : nums) {
+            sum += x;
+        }
+        if (sum % k != 0) {
+            return false;
+        }
+        this.nums = nums;
+        this.k = k;
+        this.target = sum / k;
+        this.used = 0;
+        this.pathSums = new int[k];
+        return dfs(0, -1);
+    }
+
+    // 遍历『决策森林』的 k 棵『决策树』
+    // 一棵『决策树』的『路径』代表一个『等和子集』
+    // tree = 第几棵『决策树』，取 [0..k-1] 为值
+    // vertex =『决策树』的『顶点』，取数组 nums 的索引为值
+    // pathSums[tree] = 第几棵『决策树』的『路径和』
+    private boolean dfs(int tree, int vertex) {
+        int x = (vertex == -1 ? 0 : nums[vertex]);
+        if (vertex >= 0) {
+            pathSums[tree] += x;
+            //『或』运算，将第 vertex 位修改为 1
+            used |= 1 << vertex;
+        }
+        boolean res = false;
+        if (tree == k) {
+            res = true;
+        } else if (pathSums[tree] == target) {
+            // 通过缓存，对同一个『森林』，优化『树』的遍历，避免『路径+路径』重复
+            // 例如 [1->2->3] 和 [4->5->6] 分别是两条『路径』
+            // 如果 A.[1->2->3] -> B.[4->5->6] -> C.[] 是不行的
+            // 那么 A.[4->5->6] -> B.[1->2->3] -> C.[] 也是不行的
+            // 因为 C 的可选『顶点』是一样的
+            if (!memo.containsKey(used)) {
+                // 遍历下一棵『决策树』
+                res = dfs(tree + 1, -1);
+                memo.put(used, res);
+            }
+            res = memo.get(used);
+        } else {
+            // 通过去重，对同一棵树，优化『顶点』的遍历，避免『顶点+顶点』重复
+            // 例如 1 和 2 分别是两条『顶点』，[1->2] 和 [2->1] 是重复的
+            int v = vertex;
+            while (++v < nums.length) {
+                // 检查第 vertex 位是否为 1
+                // 即 nums[vertex] 是否已经被其他『树』使用
+                if (((used >> v) & 1) == 1) {
+                    continue;
+                }
+                if (pathSums[tree] + nums[v] > target) {
+                    continue;
+                }
+                res = dfs(tree, v);
+                if (res) {
+                    break;
+                }
+            }
+        }
+        if (vertex >= 0 && !res) {
+            pathSums[tree] -= x;
+            //『异或』运算，将第 vertex 位修改为 0
+            used ^= 1 << vertex;
+        }
+        return res;
+    }
+}
+// https://leetcode.cn/submissions/detail/374889826/
+```
+
+```java
+class Solution {
+    private int k, target;
+    private char[] used;
+    private int[] nums;
+    private int[] pathSums;
+    private Map<String, Boolean> memo = new HashMap();
+
+    public boolean canPartitionKSubsets(int[] nums, int k) {
+        int n = nums.length;
+        if (k > n) {
+            return false;
+        }
+        int sum = 0;
+        for (int x : nums) {
+            sum += x;
+        }
+        if (sum % k != 0) {
+            return false;
+        }
+        this.nums = nums;
+        this.k = k;
+        this.target = sum / k;
+        this.used = new char[16];
+        Arrays.fill(this.used, '0');
+        this.pathSums = new int[k];
+        return backtrack(0, -1);
+    }
+
+    // 遍历『决策森林』的 k 棵『决策树』
+    // 一棵『决策树』的『路径』代表一个『等和子集』
+    // tree = 第几棵『决策树』，取 [0..k-1] 为值
+    // edge =『决策树』的『边』，取数组 nums 的索引为值
+    // pathSums[tree] = 第几棵『决策树』的『路径和』
+    private boolean backtrack(int tree, int edge) {
+        boolean res = false;
+        if (tree == k) {
+            res = true;
+        } else if (pathSums[tree] == target) {
+            // 通过缓存，对同一个『森林』，优化『树』的遍历，避免『路径+路径』重复
+            // 例如 [1->2->3] 和 [4->5->6] 分别是两条『路径』
+            // 如果 A.[1->2->3] -> B.[4->5->6] -> C.[] 是不行的
+            // 那么 A.[4->5->6] -> B.[1->2->3] -> C.[] 也是不行的
+            // 因为 C 的可选『边』是一样的
+            String key = new String(used);
+            if (!memo.containsKey(key)) {
+                // 遍历下一棵『决策树』
+                res = backtrack(tree + 1, -1);
+                memo.put(key, res);
+            }
+            res = memo.get(key);
+        } else {
+            // 通过去重，对同一棵树，优化『边』的遍历，避免『边+边』重复
+            // 例如 1 和 2 分别是两条『边』，[1->2] 和 [2->1] 是重复的
+            while (++edge < nums.length) {
+                // 检查第 edge 位是否为 1
+                // 即 nums[edge] 是否已经被其他『树』使用
+                if (used[edge] == '1') {
+                    continue;
+                }
+                int x = nums[edge];
+                if (pathSums[tree] + x > target) {
+                    continue;
+                }
+                pathSums[tree] += x;
+                used[edge] = '1';
+                res = backtrack(tree, edge);
+                if (res) {
+                    break;
+                }
+                pathSums[tree] -= x;
+                used[edge] = '0';
+            }
+        }
+        return res;
+    }
+}
+// https://leetcode.cn/submissions/detail/374888246/
+```
+
+```java
+class Solution {
+    private int k, target;
+    private char[] used;
+    private int[] nums;
+    private int[] pathSums;
+    private Map<String, Boolean> memo = new HashMap();
+
+    public boolean canPartitionKSubsets(int[] nums, int k) {
+        int n = nums.length;
+        if (k > n) {
+            return false;
+        }
+        int sum = 0;
+        for (int x : nums) {
+            sum += x;
+        }
+        if (sum % k != 0) {
+            return false;
+        }
+        this.nums = nums;
+        this.k = k;
+        this.target = sum / k;
+        this.used = new char[16];
+        Arrays.fill(this.used, '0');
+        this.pathSums = new int[k];
+        return dfs(0, -1);
+    }
+
+    // 遍历『决策森林』的 k 棵『决策树』
+    // 一棵『决策树』的『路径』代表一个『等和子集』
+    // tree = 第几棵『决策树』，取 [0..k-1] 为值
+    // vertex =『决策树』的『顶点』，取数组 nums 的索引为值
+    // pathSums[tree] = 第几棵『决策树』的『路径和』
+    private boolean dfs(int tree, int vertex) {
+        int x = (vertex == -1 ? 0 : nums[vertex]);
+        if (vertex >= 0) {
+            pathSums[tree] += x;
+            used[vertex] = '1';
+        }
+        boolean res = false;
+        if (tree == k) {
+            res = true;
+        } else if (pathSums[tree] == target) {
+            // 通过缓存，对同一个『森林』，优化『树』的遍历，避免『路径+路径』重复
+            // 例如 [1->2->3] 和 [4->5->6] 分别是两条『路径』
+            // 如果 A.[1->2->3] -> B.[4->5->6] -> C.[] 是不行的
+            // 那么 A.[4->5->6] -> B.[1->2->3] -> C.[] 也是不行的
+            // 因为 C 的可选『顶点』是一样的
+            String key = new String(used);
+            if (!memo.containsKey(key)) {
+                // 遍历下一棵『决策树』
+                res = dfs(tree + 1, -1);
+                memo.put(key, res);
+            }
+            res = memo.get(key);
+        } else {
+            // 通过去重，对同一棵树，优化『顶点』的遍历，避免『顶点+顶点』重复
+            // 例如 1 和 2 分别是两条『顶点』，[1->2] 和 [2->1] 是重复的
+            int v = vertex;
+            while (++v < nums.length) {
+                // 检查第 vertex 位是否为 1
+                // 即 nums[vertex] 是否已经被其他『树』使用
+                if (used[v] == '1') {
+                    continue;
+                }
+                if (pathSums[tree] + nums[v] > target) {
+                    continue;
+                }
+                res = dfs(tree, v);
+                if (res) {
+                    break;
+                }
+            }
+        }
+        if (vertex >= 0 && !res) {
+            pathSums[tree] -= x;
+            used[vertex] = '0';
+        }
+        return res;
+    }
+}
+// https://leetcode.cn/submissions/detail/374889201/
 ```
 
 ## 700. 二叉搜索树中的搜索
@@ -8113,7 +8928,30 @@ class Solution {
 <https://leetcode.cn/problems/search-in-a-binary-search-tree/>
 
 ```java
+class Solution {
+    public TreeNode searchBST(TreeNode root, int val) {
+        if (root == null) return null;
+        if (val < root.val) return searchBST(root.left, val);
+        else if (val > root.val) return searchBST(root.right, val);
+        else return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/322861573/
+```
 
+```java
+class Solution {
+    public TreeNode searchBST(TreeNode root, int val) {
+        TreeNode ptr = root;
+        while (ptr != null) {
+            if (val < ptr.val) ptr = ptr.left;
+            else if (val > ptr.val) ptr = ptr.right;
+            else return ptr;
+        }
+        return ptr;
+    }
+}
+// https://leetcode.cn/submissions/detail/322863690/
 ```
 
 ## 701. 二叉搜索树中的插入操作
@@ -8121,7 +8959,42 @@ class Solution {
 <https://leetcode.cn/problems/insert-into-a-binary-search-tree/>
 
 ```java
+class Solution {
+    public TreeNode insertIntoBST(TreeNode root, int val) {
+        if (root == null) return new TreeNode(val);
+        if (val < root.val) root.left = insertIntoBST(root.left, val);
+        else if (val > root.val) root.right = insertIntoBST(root.right, val);
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/322869491/
+```
 
+```java
+class Solution {
+    public TreeNode insertIntoBST(TreeNode root, int val) {
+        if (root == null) return new TreeNode(val);
+
+        TreeNode ptr = root;
+        while (true) {
+            if (val < ptr.val) {
+                if (ptr.left == null) {
+                    ptr.left = new TreeNode(val);
+                    break;
+                }
+                ptr = ptr.left;
+            } else if (val > ptr.val) {
+                if (ptr.right == null) {
+                    ptr.right = new TreeNode(val);
+                    break;
+                }
+                ptr = ptr.right;
+            }
+        }
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/322885847/
 ```
 
 ## 704. 二分查找
@@ -8129,7 +9002,26 @@ class Solution {
 <https://leetcode.cn/problems/binary-search/>
 
 ```java
+class Solution {
+    public int search(int[] nums, int target) {
+        return binarySearch(nums, 0, nums.length - 1, target);
+    }
 
+    private int binarySearch(int[] nums, int lo, int hi, int target) {
+        if (lo > hi) {
+            return -1;
+        }
+        int mid = lo + (hi - lo) / 2;
+        if (target < nums[mid]) {
+            return binarySearch(nums, lo, mid - 1, target);
+        }
+        if (nums[mid] < target) {
+            return binarySearch(nums, mid + 1, hi, target);
+        }
+        return mid;
+    }
+}
+// https://leetcode.cn/submissions/detail/368140881/
 ```
 
 ## 712. 两个字符串的最小 ASCII 删除和
@@ -8137,7 +9029,112 @@ class Solution {
 <https://leetcode.cn/problems/minimum-ascii-delete-sum-for-two-strings/>
 
 ```java
+class Solution {
+    private int[][] memo;
+    private int[] sum1;
+    private int[] sum2;
 
+    public int minimumDeleteSum(String s1, String s2) {
+        int n1 = s1.length(), n2 = s2.length();
+        memo = new int[n1][n2];
+        for (int[] a : memo) {
+            Arrays.fill(a, -1);
+        }
+        sum1 = prefixSum(s1);
+        sum2 = prefixSum(s2);
+        return minimumDeleteSum(s1, n1 - 1, s2, n2 - 1);
+    }
+
+    // 子串 s1[0..i] s2[0..j] 的最小 ASCII 删除和
+    private int minimumDeleteSum(String s1, int i, String s2, int j) {
+        if (i < 0 && j < 0) {
+            return 0;
+        }
+        // 删除 s2[0..j]
+        // s1""
+        // s2[0..j]
+        if (i < 0) {
+            return sum2[j];
+        }
+        // 删除 s1[0..i]
+        // s1[0..i]
+        // s2""
+        if (j < 0) {
+            return sum1[i];
+        }
+        if (memo[i][j] == -1) {
+            if (s1.charAt(i) == s2.charAt(j)) {
+                // s1[0..i-1][i]
+                // s2[0..j-1][j]
+                memo[i][j] = minimumDeleteSum(s1, i - 1, s2, j - 1);
+            } else {
+                // 删除 s1[i] s2[j]
+                // s1[0..i-1][i]
+                // s2[0..j-1][j]
+                int sp1 = minimumDeleteSum(s1, i - 1, s2, j - 1) + s1.charAt(i) + s2.charAt(j);
+                // 删除 s2[j]
+                // s1[0..i]
+                // s2[0..j-1][j]
+                int sp2 = minimumDeleteSum(s1, i, s2, j - 1) + s2.charAt(j);
+                // 删除 s1[i]
+                // s1[0..i-1][i]
+                // s2[0..j]
+                int sp3 = minimumDeleteSum(s1, i - 1, s2, j) + s1.charAt(i);
+                memo[i][j] = Math.min(Math.min(sp1, sp2), sp3);
+            }
+        }
+        return memo[i][j];
+    }
+
+    private int[] prefixSum(String s) {
+        int n = s.length();
+        int[] sum = new int[n];
+        sum[0] = s.charAt(0);
+        for (int i = 1; i < s.length(); ++i) {
+            sum[i] = sum[i - 1] + s.charAt(i);
+        }
+        return sum;
+    }
+}
+// https://leetcode.cn/submissions/detail/374439181/
+```
+
+```java
+class Solution {
+    public int minimumDeleteSum(String s1, String s2) {
+        int m = s1.length();
+        int n = s2.length();
+        int[][] dp = new int[m + 1][n + 1];
+        for (int i = 0; i <= m; i++) {
+            dp[i][0] = sum(s1, i);
+        }
+        for (int j = 0; j <= n; j++) {
+            dp[0][j] = sum(s2, j);
+        }
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                int result = Integer.MAX_VALUE;
+                if (s1.charAt(i - 1) == s2.charAt(j - 1)) {
+                    result = dp[i - 1][j - 1];
+                } else {
+                    result = Math.min(dp[i][j - 1] + s2.charAt(j - 1),
+                            dp[i - 1][j] + s1.charAt(i - 1));
+                }
+                dp[i][j] = result;
+            }
+        }
+        return dp[m][n];
+    }
+
+    private int sum(String s, int len) {
+        int sum = 0;
+        for (int i = 0; i < len; i++) {
+            sum += s.charAt(i);
+        }
+        return sum;
+    }
+}
+// https://leetcode.cn/submissions/detail/330180804/
 ```
 
 ## 714. 买卖股票的最佳时机含手续费
@@ -8145,7 +9142,25 @@ class Solution {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/>
 
 ```java
-
+class Solution {
+    public int maxProfit(int[] prices, int fee) {
+        int n = prices.length;
+        // dp[i][0] = 第 i 天，空仓状态下的最大利润
+        // dp[i][1] = 第 i 天，持仓状态下的最大利润
+        int[][] dp = new int[n][2];
+        dp[0][0] = 0;
+        dp[0][1] = -prices[0] - fee;
+        for (int i = 1; i < n; ++i) {
+            // dp[i - 1][0]             >= dp[i - 1][0] - prices[i] - fee
+            // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+            // => dp[i][0] >= dp[i][1]
+            dp[i][0] = Math.max(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+            dp[i][1] = Math.max(dp[i - 1][0] - prices[i] - fee, dp[i - 1][1]);
+        }
+        return dp[n - 1][0];
+    }
+}
+// https://leetcode.cn/submissions/detail/365503825/
 ```
 
 ## 739. 每日温度
@@ -8153,7 +9168,22 @@ class Solution {
 <https://leetcode.cn/problems/daily-temperatures/>
 
 ```java
-
+class Solution {
+    public int[] dailyTemperatures(int[] temperatures) {
+        int n = temperatures.length;
+        int[] ans = new int[n];
+        Deque<Integer> stack = new LinkedList();
+        for (int i = n - 1; i >= 0; --i) {
+            while (!stack.isEmpty() && temperatures[stack.peek()] <= temperatures[i]) {
+                stack.pop();
+            }
+            ans[i] = stack.isEmpty() ? 0 : stack.peek() - i;
+            stack.push(i);
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/372226772/
 ```
 
 ## 743. 网络延迟时间
@@ -8161,7 +9191,131 @@ class Solution {
 <https://leetcode.cn/problems/network-delay-time/>
 
 ```java
+class DirectedEdge {
+    private final int v;
+    private final int w;
+    private final double weight;
 
+    public DirectedEdge(int v, int w, double weight) {
+        this.v = v;
+        this.w = w;
+        this.weight = weight;
+    }
+
+    public int from() {
+        return v;
+    }
+
+    public int to() {
+        return w;
+    }
+
+    public double weight() {
+        return weight;
+    }
+}
+
+class EdgeWeightedDigraph {
+    private final int V;
+    private int E;
+    private LinkedList<DirectedEdge>[] adj;
+
+    public EdgeWeightedDigraph(int V) {
+        this.V = V;
+        this.E = 0;
+        adj = (LinkedList<DirectedEdge>[]) new LinkedList[V];
+        for (int v = 0; v < V; ++v) {
+            adj[v] = new LinkedList<DirectedEdge>();
+        }
+    }
+
+    public int V() {
+        return V;
+    }
+
+    public int E() {
+        return E;
+    }
+
+    public void addEdge(DirectedEdge e) {
+        int v = e.from();
+        adj[v].add(e);
+        ++E;
+    }
+
+    public Iterable<DirectedEdge> adj(int v) {
+        return adj[v];
+    }
+}
+
+class LazyDijkstraSP {
+    private boolean[] marked;
+    private double[] distTo;
+    private DirectedEdge[] edgeTo;
+    private PriorityQueue<DirectedEdge> pq;
+
+    private class ByDistanceFromSource implements Comparator<DirectedEdge> {
+        public int compare(DirectedEdge e, DirectedEdge f) {
+            double dist1 = distTo[e.from()] + e.weight();
+            double dist2 = distTo[f.from()] + f.weight();
+            return Double.compare(dist1, dist2);
+        }
+    }
+
+    public LazyDijkstraSP(EdgeWeightedDigraph G, int s) {
+        int V = G.V();
+        marked = new boolean[V];
+        distTo = new double[V];
+        edgeTo = new DirectedEdge[V];
+        pq = new PriorityQueue<DirectedEdge>(new ByDistanceFromSource());
+        for (int v = 0; v < V; ++v) {
+            distTo[v] = Double.POSITIVE_INFINITY;
+        }
+        distTo[s] = 0.0;
+        relax(G, s);
+        while (!pq.isEmpty()) {
+            DirectedEdge e = pq.poll();
+            int w = e.to();
+            if (!marked[w]) {
+                relax(G, w);
+            }
+        }
+    }
+
+    private void relax(EdgeWeightedDigraph G, int v) {
+        marked[v] = true;
+        for (DirectedEdge e : G.adj(v)) {
+            int w = e.to();
+            if (distTo[w] > distTo[v] + e.weight()) {
+                distTo[w] = distTo[v] + e.weight();
+                edgeTo[w] = e;
+                pq.offer(e);
+            }
+        }
+    }
+
+    public double distTo(int v) {
+        return distTo[v];
+    }
+}
+
+class Solution {
+    public int networkDelayTime(int[][] times, int n, int k) {
+        int V = n;
+        EdgeWeightedDigraph graph = new EdgeWeightedDigraph(V);
+        for (int[] t : times) {
+            DirectedEdge e = new DirectedEdge(t[0] - 1, t[1] - 1, t[2]);
+            graph.addEdge(e);
+        }
+        LazyDijkstraSP spt = new LazyDijkstraSP(graph, k - 1);
+        double maxTime = 0;
+        for (int v = 0; v < V; ++v) {
+            maxTime = Math.max(maxTime, spt.distTo(v));
+        }
+        return maxTime < Double.POSITIVE_INFINITY ? (int) maxTime : -1;
+    }
+}
+// https://leetcode.cn/submissions/detail/371885227/
 ```
 
 ## 752. 打开转盘锁
@@ -8169,7 +9323,65 @@ class Solution {
 <https://leetcode.cn/problems/open-the-lock/>
 
 ```java
+class Solution {
+    public int openLock(String[] deadends, String target) {
+        Set<String> marked = new HashSet();
+        for (String s : deadends) {
+            marked.add(s);
+        }
+        Deque<String> queue = new LinkedList();
+        String source = "0000";
+        if (!marked.contains(source)) {
+            marked.add(source);
+            queue.addLast(source);
+        }
+        int count = 0;
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            for (int i = 0; i < size; ++i) {
+                String s = queue.removeFirst();
+                if (s.equals(target)) {
+                    return count;
+                }
+                for (int j = 0; j < 4; ++j) {
+                    String plus = plusOne(s, j);
+                    if (!marked.contains(plus)) {
+                        marked.add(plus);
+                        queue.addLast(plus);
+                    }
+                    String minus = minusOne(s, j);
+                    if (!marked.contains(minus)) {
+                        marked.add(minus);
+                        queue.addLast(minus);
+                    }
+                }
+            }
+            ++count;
+        }
+        return -1;
+    }
 
+    private String plusOne(String s, int j) {
+        char[] a = s.toCharArray();
+        if (a[j] == '9') {
+            a[j] = '0';
+        } else {
+            a[j] += 1;
+        }
+        return new String(a);
+    }
+
+    private String minusOne(String s, int j) {
+        char[] a = s.toCharArray();
+        if (a[j] == '0') {
+            a[j] = '9';
+        } else {
+            a[j] -= 1;
+        }
+        return new String(a);
+    }
+}
+// https://leetcode.cn/submissions/detail/374230848/
 ```
 
 ## 785. 判断二分图
@@ -8177,7 +9389,79 @@ class Solution {
 <https://leetcode.cn/problems/is-graph-bipartite/>
 
 ```java
+class Solution {
+    private boolean isBipartite;
+    private boolean[] marked;
+    private boolean[] color;
 
+    public boolean isBipartite(int[][] graph) {
+        int n = graph.length;
+        isBipartite = true;
+        marked = new boolean[n];
+        color = new boolean[n];
+        for (int v = 0; v < n; v++) {
+            if (!marked[v]) {
+                bfs(graph, v);
+            }
+        }
+        return isBipartite;
+    }
+
+    private void bfs(int[][] graph, int s) {
+        Queue<Integer> queue = new LinkedList<>();
+        marked[s] = true;
+        queue.offer(s);
+        while (!queue.isEmpty()) {
+            int v = queue.poll();
+            for (int w : graph[v]) {
+                if (!marked[w]) {
+                    marked[w] = true;
+                    color[w] = !color[v];
+                    queue.offer(w);
+                } else if (color[w] == color[v]) {
+                    isBipartite = false;
+                    return;
+                }
+            }
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/325961175/
+```
+
+```java
+class Solution {
+    private boolean isBipartite;
+    private boolean[] marked;
+    private boolean[] color;
+
+    public boolean isBipartite(int[][] graph) {
+        int n = graph.length;
+        isBipartite = true;
+        marked = new boolean[n];
+        color = new boolean[n];
+        for (int v = 0; v < n; v++) {
+            if (!marked[v]) {
+                dfs(graph, v);
+            }
+        }
+        return isBipartite;
+    }
+
+    private void dfs(int[][] graph, int v) {
+        marked[v] = true;
+        for (int w : graph[v]) {
+            if (!isBipartite) return;
+            if (!marked[w]) {
+                color[w] = !color[v];
+                dfs(graph, w);
+            } else if (color[w] == color[v]) {
+                isBipartite = false;
+            }
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/325954154/
 ```
 
 ## 797. 所有可能的路径
@@ -8185,7 +9469,31 @@ class Solution {
 <https://leetcode.cn/problems/all-paths-from-source-to-target/>
 
 ```java
+class Solution {
+    private List<List<Integer>> ans = new LinkedList();
 
+    public List<List<Integer>> allPathsSourceTarget(int[][] graph) {
+        LinkedList<Integer> path = new LinkedList();
+        dfs(graph, 0, graph.length - 1, path);
+        return ans;
+    }
+
+    private void dfs(int[][] graph, int v, int target, LinkedList<Integer> path) {
+        path.addLast(v);
+
+        if (v == target) {
+            ans.add(new LinkedList(path));
+            path.removeLast();
+            return;
+        }
+
+        for (int w : graph[v]) {
+            dfs(graph, w, target, path);
+        }
+        path.removeLast();
+    }
+}
+// https://leetcode.cn/submissions/detail/325993495/
 ```
 
 ## 846. 一手顺子
@@ -8193,7 +9501,62 @@ class Solution {
 <https://leetcode.cn/problems/hand-of-straights/>
 
 ```java
+class Solution {
+    public boolean isNStraightHand(int[] hand, int groupSize) {
+        int n = hand.length;
+        if (n % groupSize != 0) {
+            return false;
+        }
+        PriorityQueue<Integer> minPQ = new PriorityQueue(n);
+        for (int card : hand) {
+            minPQ.offer(card);
+        }
+        while (!minPQ.isEmpty()) {
+            int smallest = minPQ.poll();
+            for (int i = 1; i < groupSize; ++i) {
+                int card = smallest + i;
+                if (minPQ.contains(card)) {
+                    minPQ.remove(card);
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
+// https://leetcode.cn/submissions/detail/365855710/
+```
 
+```java
+class Solution {
+    public boolean isNStraightHand(int[] hand, int groupSize) {
+        if (hand.length % groupSize != 0) {
+            return false;
+        }
+        Arrays.sort(hand);
+        Map<Integer, Integer> counter = new HashMap();
+        for (int card : hand) {
+            counter.put(card, counter.getOrDefault(card, 0) + 1);
+        }
+        for (int card : hand) {
+            if (counter.get(card) > 0) {
+                counter.put(card, counter.get(card) - 1);
+                for (int i = 1; i < groupSize; ++i) {
+                    int d = card + i;
+                    int count = counter.getOrDefault(d, 0);
+                    if (count > 0) {
+                        counter.put(d, count - 1);
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+}
+// https://leetcode.cn/submissions/detail/365865477/
 ```
 
 ## 875. 爱吃香蕉的珂珂
@@ -8201,7 +9564,36 @@ class Solution {
 <https://leetcode.cn/problems/koko-eating-bananas/>
 
 ```java
+class Solution {
+    public int minEatingSpeed(int[] piles, int h) {
+        int lo = 1;
+        int hi = 1;
+        for (int p : piles) {
+            hi = Math.max(hi, p);
+        }
+        int ans = 1;
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (canFinish(piles, mid, h)) {
+                ans = mid;
+                hi = mid - 1;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        return ans;
+    }
 
+    // 当吃香蕉的速度为 k 时，是否能在 h 小时内吃完
+    private boolean canFinish(int[] piles, int k, int h) {
+        long t = 0;
+        for (int p : piles) {
+            t += (p - 1) / k + 1;
+        }
+        return t <= h;
+    }
+}
+// https://leetcode.cn/submissions/detail/368207719/
 ```
 
 ## 876. 链表的中间结点
@@ -8209,7 +9601,17 @@ class Solution {
 <https://leetcode-cn.com/problems/middle-of-the-linked-list/>
 
 ```java
-
+class Solution {
+    public ListNode middleNode(ListNode head) {
+        ListNode slow = head, fast = head;
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        return slow;
+    }
+}
+// https://leetcode.cn/submissions/detail/364477918/
 ```
 
 ## 886. 可能的二分法
@@ -8217,7 +9619,52 @@ class Solution {
 <https://leetcode.cn/problems/possible-bipartition/>
 
 ```java
+class Solution {
+    private boolean isBipartite;
+    private boolean[] marked;
+    private boolean[] color;
 
+    public boolean possibleBipartition(int n, int[][] dislikes) {
+        List<Integer>[] graph = new LinkedList[n];
+        for (int v = 0; v < n; v++) {
+            graph[v] = new LinkedList();
+        }
+        for (int[] d : dislikes) {
+            int v = d[0] - 1;
+            int w = d[1] - 1;
+            graph[v].add(w);
+            graph[w].add(v);
+        }
+        return isBipartite(graph);
+    }
+
+    private boolean isBipartite(List<Integer>[] graph) {
+        int n = graph.length;
+        isBipartite = true;
+        marked = new boolean[n];
+        color = new boolean[n];
+        for (int v = 0; v < n; v++) {
+            if (!marked[v]) {
+                dfs(graph, v);
+            }
+        }
+        return isBipartite;
+    }
+
+    private void dfs(List<Integer>[] graph, int v) {
+        marked[v] = true;
+        for (int w : graph[v]) {
+            if (!isBipartite) return;
+            if (!marked[w]) {
+                color[w] = !color[v];
+                dfs(graph, w);
+            } else if (color[w] == color[v]) {
+                isBipartite = false;
+            }
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/325975046/
 ```
 
 ## 889. 根据前序和后序遍历构造二叉树
@@ -8225,7 +9672,38 @@ class Solution {
 <https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/>
 
 ```java
+class Solution {
+    private Map<Integer, Integer> valToIndex = new HashMap();
 
+    public TreeNode constructFromPrePost(int[] preorder, int[] postorder) {
+        for (int i = 0; i < postorder.length; ++i) {
+            valToIndex.put(postorder[i], i);
+        }
+        return buildTree(preorder, 0, preorder.length - 1,
+                postorder, 0, postorder.length - 1);
+    }
+
+    private TreeNode buildTree(int[] preorder, int preStart, int preEnd,
+                               int[] postorder, int postStart, int postEnd) {
+        if (preStart > preEnd) {
+            return null;
+        }
+        int rootVal = preorder[preStart];
+        TreeNode root = new TreeNode(rootVal);
+        if (preStart == preEnd) {
+            return root;
+        }
+        int leftRootVal = preorder[preStart + 1];
+        int index = valToIndex.get(leftRootVal);
+        int leftSize = index - postStart + 1;
+        root.left = buildTree(preorder, preStart + 1, preStart + leftSize,
+                postorder, postStart, index);
+        root.right = buildTree(preorder, preStart + leftSize + 1, preEnd,
+                postorder, index + 1, postEnd - 1);
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/364298806/
 ```
 
 ## 905. 按奇偶排序数组
@@ -8233,7 +9711,39 @@ class Solution {
 <https://leetcode.cn/problems/sort-array-by-parity/>
 
 ```java
+class Solution {
+    public int[] sortArrayByParity(int[] nums) {
+        int n = nums.length;
+        // nums[0..i]   Even
+        // nums(i..j)   Scanning
+        // nums[j..n-1] Odd
+        int i = -1, j = n;
+        while (true) {
+            while (nums[++i] % 2 == 0) {
+                if (i == n - 1) {
+                    break;
+                }
+            }
+            while (nums[--j] % 2 == 1) {
+                if (j == 0) {
+                    break;
+                }
+            }
+            if (i >= j) {
+                break;
+            }
+            exch(nums, i, j);
+        }
+        return nums;
+    }
 
+    private void exch(int[] nums, int i, int j) {
+        int swap = nums[i];
+        nums[i] = nums[j];
+        nums[j] = swap;
+    }
+}
+// https://leetcode.cn/submissions/detail/362459667/
 ```
 
 ## 912. 排序数组
@@ -8241,7 +9751,215 @@ class Solution {
 <https://leetcode.cn/problems/sort-an-array/>
 
 ```java
+class Solution {
+    public int[] sortArray(int[] nums) {
+        List<Integer> list = Arrays.stream(nums).boxed().collect(Collectors.toList());
+        Collections.shuffle(list);
+        nums = list.stream().mapToInt(i -> i).toArray();
+        sort(nums, 0, nums.length - 1);
+        return nums;
+    }
 
+    private void sort(int[] nums, int lo, int hi) {
+        if (lo >= hi) {
+            return;
+        }
+        int j = partition(nums, lo, hi);
+        sort(nums, lo, j - 1);
+        sort(nums, j + 1, hi);
+    }
+
+    private int partition(int[] nums, int lo, int hi) {
+        int v = nums[lo];
+        int i = lo, j = hi + 1;
+        while (true) {
+            while (nums[++i] < v) {
+                if (i == hi) {
+                    break;
+                }
+            }
+            while (v < nums[--j]) {
+                if (j == lo) {
+                    break;
+                }
+            }
+            if (i >= j) {
+                break;
+            }
+            exch(nums, i, j);
+        }
+        exch(nums, lo, j);
+        return j;
+    }
+
+    private void exch(int[] nums, int i, int j) {
+        int swap = nums[i];
+        nums[i] = nums[j];
+        nums[j] = swap;
+    }
+}
+// https://leetcode.cn/submissions/detail/366421198/
+```
+
+```java
+class Solution {
+    public int[] sortArray(int[] nums) {
+        List<Integer> list = Arrays.stream(nums).boxed().collect(Collectors.toList());
+        Collections.shuffle(list);
+        nums = list.stream().mapToInt(i -> i).toArray();
+        // 三向切分的快速排序算法
+        sort(nums, 0, nums.length - 1);
+        return nums;
+    }
+
+    void sort(int[] nums, int lo, int hi) {
+        if (lo >= hi) return;
+
+        int lt = lo, gt = hi, i = lo + 1;
+        int v = nums[lo];
+        while (i <= gt) {
+            if (nums[i] < v) exch(nums, lt++, i++);
+            else if (nums[i] > v) exch(nums, i, gt--);
+            else i++;
+        }
+
+        sort(nums, lo, lt - 1);
+        sort(nums, gt + 1, hi);
+    }
+
+    void exch(int[] nums, int i, int j) {
+        int t = nums[i];
+        nums[i] = nums[j];
+        nums[j] = t;
+    }
+}
+// https://leetcode.cn/submissions/detail/323470609/
+```
+
+```java
+class Solution {
+    public int[] sortArray(int[] nums) {
+        List<Integer> list = Arrays.stream(nums).boxed().collect(Collectors.toList());
+        Collections.shuffle(list);
+        nums = list.stream().mapToInt(i -> i).toArray();
+        // 归并排序算法
+        int n = nums.length;
+        int[] aux = new int[n];
+        sort(nums, 0, n - 1, aux);
+        return nums;
+    }
+
+    void sort(int[] nums, int lo, int hi, int[] aux) {
+        if (lo >= hi) return;
+        int mid = lo + (hi - lo) / 2;
+        sort(nums, lo, mid, aux);
+        sort(nums, mid + 1, hi, aux);
+        merge(nums, lo, mid, hi, aux);
+    }
+
+    void merge(int[] nums, int lo, int mid, int hi, int[] aux) {
+        for (int k = lo; k <= hi; k++)
+            aux[k] = nums[k];
+
+        int i = lo, j = mid + 1;
+        for (int k = lo; k <= hi; k++) {
+            if (i > mid) nums[k] = aux[j++];
+            else if (j > hi) nums[k] = aux[i++];
+            else if (aux[i] < aux[j]) nums[k] = aux[i++];
+            else nums[k] = aux[j++];
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/323478349/
+```
+
+```java
+class Solution {
+    public int[] sortArray(int[] nums) {
+        List<Integer> list = Arrays.stream(nums).boxed().collect(Collectors.toList());
+        Collections.shuffle(list);
+        nums = list.stream().mapToInt(i -> i).toArray();
+        // 自底向上的归并排序算法
+        int n = nums.length;
+        int[] aux = new int[n];
+        for (int len = 1; len < n; len *= 2) {
+            for (int lo = 0; lo + len < n; lo += 2 * len) {
+                int mid = lo + len - 1;
+                int hi = Math.min(lo + 2 * len - 1, n - 1);
+                merge(nums, lo, mid, hi, aux);
+            }
+        }
+        return nums;
+    }
+
+    void merge(int[] nums, int lo, int mid, int hi, int[] aux) {
+        for (int k = lo; k <= hi; k++)
+            aux[k] = nums[k];
+
+        int i = lo, j = mid + 1;
+        for (int k = lo; k <= hi; k++) {
+            if (i > mid) nums[k] = aux[j++];
+            else if (j > hi) nums[k] = aux[i++];
+            else if (aux[i] < aux[j]) nums[k] = aux[i++];
+            else nums[k] = aux[j++];
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/323481991/
+```
+
+```java
+class Solution {
+    public int[] sortArray(int[] nums) {
+        List<Integer> list = Arrays.stream(nums).boxed().collect(Collectors.toList());
+        Collections.shuffle(list);
+        nums = list.stream().mapToInt(i -> i).toArray();
+        Deque<int[]> stack = new LinkedList();
+        stack.push(new int[]{0, nums.length - 1});
+        while (!stack.isEmpty()) {
+            int[] interval = stack.pop();
+            int lo = interval[0];
+            int hi = interval[1];
+            if (lo >= hi) {
+                continue;
+            }
+            int j = partition(nums, lo, hi);
+            stack.push(new int[]{j + 1, hi});
+            stack.push(new int[]{lo, j - 1});
+        }
+        return nums;
+    }
+
+    private int partition(int[] nums, int lo, int hi) {
+        int v = nums[lo];
+        int i = lo, j = hi + 1;
+        while (true) {
+            while (nums[++i] < v) {
+                if (i == hi) {
+                    break;
+                }
+            }
+            while (v < nums[--j]) {
+                if (j == lo) {
+                    break;
+                }
+            }
+            if (i >= j) {
+                break;
+            }
+            exch(nums, i, j);
+        }
+        exch(nums, lo, j);
+        return j;
+    }
+
+    private void exch(int[] nums, int i, int j) {
+        int swap = nums[i];
+        nums[i] = nums[j];
+        nums[j] = swap;
+    }
+}
+// https://leetcode.cn/submissions/detail/366421584/
 ```
 
 ## 921. 使括号有效的最少添加
@@ -8249,7 +9967,35 @@ class Solution {
 <https://leetcode.cn/problems/minimum-add-to-make-parentheses-valid/>
 
 ```java
-
+// 性质一 一个「合法」括号组合的左括号数量一定等于右括号数量
+// 性质二 对于一个「合法」的括号字符串组合 p，必然对于
+// 任何 0 <= i < len(p) 都有：子串 p[0..i] 中
+// 左括号的数量都大于或等于右括号的数量
+class Solution {
+    public int minAddToMakeValid(String s) {
+        int insertLeft = 0; // 已插入左括号的数量
+        int needRight = 0;  // 待插入右括号的数量
+        for (int i = 0; i < s.length(); ++i) {
+            char ch = s.charAt(i);
+            if (ch == '(') {
+                ++needRight;
+            }
+            if (ch == ')') {
+                --needRight;
+                // 性质二
+                if (needRight == -1) {
+                    // A).. -> A()..
+                    //『必须立即』在位置 i 前插入 1 个左括号
+                    // 否则，后续任何插入都不能使区间 [0..i] 的匹配有效
+                    ++insertLeft;
+                    needRight = 0;
+                }
+            }
+        }
+        return insertLeft + needRight;
+    }
+}
+// https://leetcode.cn/submissions/detail/374110551/
 ```
 
 ## 922. 按奇偶排序数组 II
@@ -8257,7 +10003,32 @@ class Solution {
 <https://leetcode.cn/problems/sort-array-by-parity-ii/>
 
 ```java
+class Solution {
+    public int[] sortArrayByParityII(int[] nums) {
+        int n = nums.length;
+        int i = 0, j = 1;
+        while (true) {
+            while (i <= n - 2 && nums[i] % 2 == 0) {
+                i += 2;
+            }
+            while (j <= n - 1 && nums[j] % 2 == 1) {
+                j += 2;
+            }
+            if (i > n - 2 || j > n - 1) {
+                break;
+            }
+            exch(nums, i, j);
+        }
+        return nums;
+    }
 
+    private void exch(int[] nums, int i, int j) {
+        int swap = nums[i];
+        nums[i] = nums[j];
+        nums[j] = swap;
+    }
+}
+// https://leetcode.cn/submissions/detail/363993070/
 ```
 
 ## 931. 下降路径最小和
@@ -8265,7 +10036,71 @@ class Solution {
 <https://leetcode.cn/problems/minimum-falling-path-sum/>
 
 ```java
+class Solution {
+    private int[][] memo;
 
+    public int minFallingPathSum(int[][] matrix) {
+        int n = matrix.length;
+        memo = new int[n][n];
+        for (int[] a : memo) {
+            Arrays.fill(a, Integer.MIN_VALUE);
+        }
+        int ans = Integer.MAX_VALUE;
+        for (int col = 0; col < n; ++col) {
+            ans = Math.min(ans, minFallingPathSum(matrix, n - 1, col));
+        }
+        return ans;
+    }
+
+    // 从 matrix[0][0..n-1] 到 matrix[row][col] 的最小下降路径和
+    private int minFallingPathSum(int[][] matrix, int row, int col) {
+        if (col < 0 || col >= matrix.length) {
+            return Integer.MAX_VALUE;
+        }
+        if (row == 0) {
+            return matrix[row][col];
+        }
+        if (memo[row][col] == Integer.MIN_VALUE) {
+            int sp1 = minFallingPathSum(matrix, row - 1, col - 1); // 左上
+            int sp2 = minFallingPathSum(matrix, row - 1, col);     // 正上
+            int sp3 = minFallingPathSum(matrix, row - 1, col + 1); // 右上
+            memo[row][col] = Math.min(Math.min(sp1, sp2), sp3) + matrix[row][col];
+        }
+        return memo[row][col];
+    }
+}
+// https://leetcode.cn/submissions/detail/375061507/
+```
+
+```java
+class Solution {
+    public int minFallingPathSum(int[][] matrix) {
+        int n = matrix.length;
+        int[][] dp = new int[n][n];
+        for (int col = 0; col < n; col++) {
+            dp[0][col] = matrix[0][col];
+        }
+
+        for (int row = 1; row < n; row++) {
+            for (int col = 0; col < n; col++) {
+                int result = dp[row - 1][col];
+                if (col - 1 >= 0) {
+                    result = Math.min(result, dp[row - 1][col - 1]);
+                }
+                if (col + 1 <= n - 1) {
+                    result = Math.min(result, dp[row - 1][col + 1]);
+                }
+                dp[row][col] = matrix[row][col] + result;
+            }
+        }
+        int ans = Integer.MAX_VALUE;
+        for (int col = 0; col < n; col++) {
+            ans = Math.min(ans, dp[n - 1][col]);
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/331703383/
 ```
 
 ## 986. 区间列表的交集
@@ -8273,7 +10108,35 @@ class Solution {
 <https://leetcode.cn/problems/interval-list-intersections/>
 
 ```java
-
+class Solution {
+    public int[][] intervalIntersection(int[][] firstList, int[][] secondList) {
+        List<int[]> list = new LinkedList();
+        int i = 0, j = 0;
+        while (i < firstList.length && j < secondList.length) {
+            int start1 = firstList[i][0], end1 = firstList[i][1];
+            int start2 = secondList[j][0], end2 = secondList[j][1];
+            if (end1 < start2) { // 不相交
+                ++i;
+            } else if (end2 < start1) { // 不相交
+                ++j;
+            } else { // 相交
+                list.add(new int[]{Math.max(start1, start2), Math.min(end1, end2)});
+                if (end1 < end2) {
+                    ++i;
+                } else {
+                    ++j;
+                }
+            }
+        }
+        int[][] ans = new int[list.size()][2];
+        int t = 0;
+        for (int[] interval : list) {
+            ans[t++] = interval;
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/358945983/
 ```
 
 ## 990. 等式方程的可满足性
@@ -8281,7 +10144,76 @@ class Solution {
 <https://leetcode.cn/problems/satisfiability-of-equality-equations/>
 
 ```java
+class UF {
+    private int[] parent;
+    private byte[] rank;
+    private int count;
 
+    public UF(int n) {
+        parent = new int[n];
+        rank = new byte[n];
+        for (int i = 0; i < n; ++i) {
+            parent[i] = i;
+        }
+        count = n;
+    }
+
+    public int find(int p) {
+        while (p != parent[p]) {
+            parent[p] = parent[parent[p]];
+            p = parent[p];
+        }
+        return p;
+    }
+
+    public void union(int p, int q) {
+        int rootP = find(p);
+        int rootQ = find(q);
+        if (rootP != rootQ) {
+            if (rank[rootP] < rank[rootQ]) {
+                parent[rootP] = rootQ;
+            } else if (rank[rootQ] < rank[rootP]) {
+                parent[rootQ] = rootP;
+            } else {
+                parent[rootP] = rootQ;
+                ++rank[rootQ];
+            }
+            --count;
+        }
+    }
+
+    public boolean connected(int p, int q) {
+        return find(p) == find(q);
+    }
+
+    public int count() {
+        return count;
+    }
+}
+
+class Solution {
+    public boolean equationsPossible(String[] equations) {
+        UF uf = new UF(26);
+        for (String s : equations) {
+            if (s.charAt(1) == '=') {
+                int p = s.charAt(0) - 'a';
+                int q = s.charAt(3) - 'a';
+                uf.union(p, q);
+            }
+        }
+        for (String s : equations) {
+            if (s.charAt(1) == '!') {
+                int p = s.charAt(0) - 'a';
+                int q = s.charAt(3) - 'a';
+                if (uf.connected(p, q)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
+// https://leetcode.cn/submissions/detail/374243262/
 ```
 
 ## 1011. 在 D 天内送达包裹的能力
@@ -8289,7 +10221,41 @@ class Solution {
 <https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/>
 
 ```java
+class Solution {
+    public int shipWithinDays(int[] weights, int days) {
+        int lo = 0, hi = 0;
+        for (int w : weights) {
+            lo = Math.max(lo, w);
+            hi += w;
+        }
+        int ans = lo;
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (canFinish(weights, mid, days)) {
+                ans = mid;
+                hi = mid - 1;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        return ans;
+    }
 
+    // 当船的运载能力为 capacity 时，是否能在 days 天内送完
+    private boolean canFinish(int[] weights, int capacity, int days) {
+        int minDays = 0;
+        int i = 0, n = weights.length;
+        while (i < n) {
+            int sum = 0;
+            while (i < n && sum + weights[i] <= capacity) {
+                sum += weights[i++];
+            }
+            ++minDays;
+        }
+        return minDays <= days;
+    }
+}
+// https://leetcode.cn/submissions/detail/368932059/
 ```
 
 ## 1020. 飞地的数量
@@ -8297,7 +10263,46 @@ class Solution {
 <https://leetcode.cn/problems/number-of-enclaves/>
 
 ```java
+class Solution {
+    private static final int LAND = 1;
+    private static final int WATER = 0;
 
+    public int numEnclaves(int[][] grid) {
+        int m = grid.length;
+        int n = grid[0].length;
+        // 淹没与左右边界的陆地相连的岛屿
+        for (int i = 0; i < m; ++i) {
+            floodFill(grid, i, 0);
+            floodFill(grid, i, n - 1);
+        }
+        // 淹没与上下边界的陆地相连的岛屿
+        for (int j = 0; j < n; ++j) {
+            floodFill(grid, 0, j);
+            floodFill(grid, m - 1, j);
+        }
+        int count = 0;
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (grid[i][j] == LAND) {
+                    ++count;
+                }
+            }
+        }
+        return count;
+    }
+
+    private void floodFill(int[][] grid, int i, int j) {
+        if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length || grid[i][j] == WATER) {
+            return;
+        }
+        grid[i][j] = WATER;
+        floodFill(grid, i, j + 1);
+        floodFill(grid, i, j - 1);
+        floodFill(grid, i + 1, j);
+        floodFill(grid, i - 1, j);
+    }
+}
+// https://leetcode.cn/submissions/detail/362786604/
 ```
 
 ## 1024. 视频拼接
@@ -8305,7 +10310,43 @@ class Solution {
 <https://leetcode.cn/problems/video-stitching/>
 
 ```java
-
+// 测试用例
+// [[0,1],[6,8],[0,2],[5,6],[0,4],[0,3],[6,7],[1,3],[4,7],[1,4],[2,5],[2,6],[3,4],[4,5],[5,7],[6,9]]
+// 9
+// 排序后
+// [[0,4],[0,3],[0,2],[0,1],[1,4],[1,3],[2,6],[2,5],[3,4],[4,7],[4,5],[5,7],[5,6],[6,9],[6,8],[6,7]]
+// 删除被覆盖区间后 [0,4],[2,6],[4,7],[6,9]
+// 虽然 [2,6],[4,7] 都与 [0,4] 相交，但是只取 end 最大的区间 [4,7]
+// 正确答案 [0,4],[4,7],[6,9]
+// 相似题目 1288. 删除被覆盖区间 https://leetcode.cn/problems/remove-covered-intervals/
+class Solution {
+    public int videoStitching(int[][] clips, int time) {
+        Arrays.sort(clips, (a, b) -> {
+            if (a[0] == b[0]) {
+                return b[1] - a[1];
+            }
+            return a[0] - b[0];
+        });
+        int maxEnd = 0;
+        int count = 0;
+        int i = 0, n = clips.length;
+        // 当 clips[i] 与 [0, maxEnd] 重叠（相交或被覆盖）时
+        while (i < n && clips[i][0] <= maxEnd) {
+            // 记录与 [0, maxEnd] 重叠的所有区间中最大的 end
+            int nextEnd = clips[i][1];
+            while (++i < n && clips[i][0] <= maxEnd) {
+                nextEnd = Math.max(nextEnd, clips[i][1]);
+            }
+            maxEnd = nextEnd;
+            ++count;
+            if (maxEnd >= time) {
+                return count;
+            }
+        }
+        return -1;
+    }
+}
+// https://leetcode.cn/submissions/detail/374218167/
 ```
 
 ## 1143. 最长公共子序列
@@ -8313,7 +10354,93 @@ class Solution {
 <https://leetcode.cn/problems/longest-common-subsequence/>
 
 ```java
+class Solution {
+    public int longestCommonSubsequence(String text1, String text2) {
+        int n1 = text1.length();
+        int n2 = text2.length();
+        // text1[0..i-1] = text1 的长度为 i 的前缀
+        // text2[0..j-1] = text2 的长度为 j 的前缀
+        // dp[i][j] = LCS(text1[0..i-1], text2[0..j-1]) 的长度
+        int[][] dp = new int[n1 + 1][n2 + 1];
+        for (int i = 1; i <= n1; ++i) {
+            for (int j = 1; j <= n2; ++j) {
+                // text1[i-1] = text2[j-1]
+                if (text1.charAt(i - 1) == text2.charAt(j - 1)) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                    // text1[i-1] != text2[j-1]
 
+                    // text1[i-1] 是公共字符，text2[j-1] 是公共字符
+                    // dp[i][j-1] = dp[i-1][j-1] + 1
+                    // dp[i-1][j] = dp[i-1][j-1] + 1
+                    // dp[i][j] = dp[i][j-1] = dp[i-1][j] = dp[i-1][j-1] + 1
+
+                    // text1[i-1] 是公共字符，text2[j-1] 不是公共字符
+                    // dp[i][j-1] = dp[i-1][j-1] + 1
+                    // dp[i-1][j] = dp[i-1][j-1]
+                    // dp[i][j-1] > dp[i-1][j]
+                    // dp[i][j] = dp[i][j-1]
+
+                    // text1[i-1] 不是公共字符，text2[j-1] 是公共字符
+                    // dp[i][j-1] = dp[i-1][j-1]
+                    // dp[i-1][j] = dp[i-1][j-1] + 1
+                    // dp[i][j-1] < dp[i-1][j]
+                    // dp[i][j] = dp[i-1][j]
+
+                    // text1[i-1] 不是公共字符，text2[j-1] 不是公共字符
+                    // dp[i][j] = dp[i][j-1] = dp[i-1][j] = dp[i-1][j-1]
+
+                    // if (dp[i][j - 1] > dp[i - 1][j]) {
+                    //     dp[i][j] = dp[i][j - 1];
+                    // } else if (dp[i][j - 1] < dp[i - 1][j]) {
+                    //     dp[i][j] = dp[i - 1][j];
+                    // } else if (dp[i][j - 1] > dp[i - 1][j - 1]) {
+                    //     dp[i][j] = dp[i - 1][j - 1] + 1;
+                    // } else {
+                    //     dp[i][j] = dp[i - 1][j - 1];
+                    // }
+                    dp[i][j] = Math.max(dp[i][j - 1], dp[i - 1][j]);
+                }
+            }
+        }
+        return dp[n1][n2];
+    }
+}
+// https://leetcode.cn/submissions/detail/374550792/
+```
+
+```java
+class Solution {
+    private int[][] memo;
+
+    public int longestCommonSubsequence(String text1, String text2) {
+        int n1 = text1.length();
+        int n2 = text2.length();
+        memo = new int[n1][n2];
+        for (int[] a : memo) {
+            Arrays.fill(a, -1);
+        }
+        return longestCommonSubsequence(text1, n1 - 1, text2, n2 - 1);
+    }
+
+    // LCS(text1[0..i], text2[0..j]) 的长度
+    private int longestCommonSubsequence(String text1, int i, String text2, int j) {
+        if (i < 0 || j < 0) {
+            return 0;
+        }
+        if (memo[i][j] == -1) {
+            if (text1.charAt(i) == text2.charAt(j)) {
+                memo[i][j] = longestCommonSubsequence(text1, i - 1, text2, j - 1) + 1;
+            } else {
+                int sp1 = longestCommonSubsequence(text1, i, text2, j - 1);
+                int sp2 = longestCommonSubsequence(text1, i - 1, text2, j);
+                memo[i][j] = Math.max(sp1, sp2);
+            }
+        }
+        return memo[i][j];
+    }
+}
+// https://leetcode.cn/submissions/detail/374555858/
 ```
 
 ## 1254. 统计封闭岛屿的数目
@@ -8321,7 +10448,148 @@ class Solution {
 <https://leetcode.cn/problems/number-of-closed-islands/>
 
 ```java
+class Solution {
+    private static final int LAND = 0;
+    private static final int WATER = 1;
 
+    public int closedIsland(int[][] grid) {
+        int m = grid.length;
+        int n = grid[0].length;
+        // 淹没与左右边界的陆地相连的岛屿
+        for (int i = 0; i < m; ++i) {
+            floodFill(grid, i, 0);
+            floodFill(grid, i, n - 1);
+        }
+        // 淹没与上下边界的陆地相连的岛屿
+        for (int j = 0; j < n; ++j) {
+            floodFill(grid, 0, j);
+            floodFill(grid, m - 1, j);
+        }
+        int count = 0;
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (grid[i][j] == LAND) {
+                    floodFill(grid, i, j);
+                    ++count;
+                }
+            }
+        }
+        return count;
+    }
+
+    private void floodFill(int[][] grid, int i, int j) {
+        if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length || grid[i][j] == WATER) {
+            return;
+        }
+        grid[i][j] = WATER;
+        floodFill(grid, i, j + 1);
+        floodFill(grid, i, j - 1);
+        floodFill(grid, i + 1, j);
+        floodFill(grid, i - 1, j);
+    }
+}
+// https://leetcode.cn/submissions/detail/362789819/
+```
+
+```java
+class Solution {
+    private static final int LAND = 0;
+    private static final int WATER = 1;
+
+    private class UF {
+        private int[] parent;
+        private byte[] rank;
+        private int count;
+
+        public UF(int n) {
+            count = n;
+            parent = new int[n];
+            rank = new byte[n];
+            for (int i = 0; i < n; i++) {
+                parent[i] = i;
+                rank[i] = 0;
+            }
+        }
+
+        public int find(int p) {
+            while (p != parent[p]) {
+                parent[p] = parent[parent[p]];
+                p = parent[p];
+            }
+            return p;
+        }
+
+        public void union(int p, int q) {
+            int rootP = find(p);
+            int rootQ = find(q);
+            if (rootP != rootQ) {
+                if (rank[rootP] < rank[rootQ]) {
+                    parent[rootP] = rootQ;
+                } else if (rank[rootP] > rank[rootQ]) {
+                    parent[rootQ] = rootP;
+                } else {
+                    parent[rootP] = rootQ;
+                    ++rank[rootQ];
+                }
+                --count;
+            }
+        }
+
+        public boolean connected(int p, int q) {
+            return find(p) == find(q);
+        }
+
+        public int count() {
+            return count;
+        }
+    }
+
+    public int closedIsland(int[][] grid) {
+        int m = grid.length;
+        int n = grid[0].length;
+        UF uf = new UF(m * n + 1);
+        int dummy = m * n;
+        // 左右两边的陆地与 dummy 相连
+        for (int i = 0; i < m; ++i) {
+            if (grid[i][0] == LAND) {
+                uf.union(dummy, i * n);
+            }
+            if (grid[i][n - 1] == LAND) {
+                uf.union(dummy, i * n + (n - 1));
+            }
+        }
+        // 上下两边的陆地与 dummy 相连
+        for (int j = 0; j < n; ++j) {
+            if (grid[0][j] == LAND) {
+                uf.union(dummy, j);
+            }
+            if (grid[m - 1][j] == LAND) {
+                uf.union(dummy, (m - 1) * n + j);
+            }
+        }
+        int water = 0;
+        int[][] directions = new int[][]{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (grid[i][j] == LAND) {
+                    for (int[] d : directions) {
+                        int x = i + d[0];
+                        int y = j + d[1];
+                        if (0 <= x && x < m && 0 <= y && y < n && grid[x][y] == grid[i][j]) {
+                            int p = i * n + j;
+                            int q = x * n + y;
+                            uf.union(p, q);
+                        }
+                    }
+                } else {
+                    ++water;
+                }
+            }
+        }
+        return uf.count() - water - 1;
+    }
+}
+// https://leetcode.cn/submissions/detail/360609706/
 ```
 
 ## 1288. 删除被覆盖区间
@@ -8329,7 +10597,29 @@ class Solution {
 <https://leetcode.cn/problems/remove-covered-intervals/>
 
 ```java
-
+class Solution {
+    public int removeCoveredIntervals(int[][] intervals) {
+        Arrays.sort(intervals, (a, b) -> {
+            if (a[0] == b[0]) {
+                return b[1] - a[1];
+            }
+            return a[0] - b[0];
+        });
+        int n = intervals.length;
+        int count = n;
+        int maxEnd = 0;
+        for (int i = 0; i < n; ++i) {
+            int end = intervals[i][1];
+            if (end <= maxEnd) {
+                --count;
+            } else {
+                maxEnd = end;
+            }
+        }
+        return count;
+    }
+}
+// https://leetcode.cn/submissions/detail/372387971/
 ```
 
 ## 1382. 将二叉搜索树变平衡
@@ -8337,7 +10627,43 @@ class Solution {
 <https://leetcode.cn/problems/balance-a-binary-search-tree/>
 
 ```java
+class Solution {
+    private List<Integer> inorder = new LinkedList();
 
+    public TreeNode balanceBST(TreeNode root) {
+        dfs(root);
+        int n = inorder.size();
+        int[] nums = new int[n];
+        int i = 0;
+        for (int x : inorder) {
+            nums[i++] = x;
+        }
+        return sortedArrayToBST(nums, 0, n - 1);
+    }
+
+    // 深度优先搜索，获取中序遍历结果 inorder
+    private void dfs(TreeNode root) {
+        if (root == null) {
+            return;
+        }
+        dfs(root.left);
+        inorder.add(root.val);
+        dfs(root.right);
+    }
+
+    // 将有序数组 nums[lo..hi] 转换为二叉搜索树
+    private TreeNode sortedArrayToBST(int[] nums, int lo, int hi) {
+        if (lo > hi) {
+            return null;
+        }
+        int mid = lo + (hi - lo) / 2;
+        TreeNode root = new TreeNode(nums[mid]);
+        root.left = sortedArrayToBST(nums, lo, mid - 1);
+        root.right = sortedArrayToBST(nums, mid + 1, hi);
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/365903001/
 ```
 
 ## 1514. 概率最大的路径
@@ -8345,7 +10671,141 @@ class Solution {
 <https://leetcode.cn/problems/path-with-maximum-probability/>
 
 ```java
+class DirectedEdge {
+    private final int v;
+    private final int w;
+    private final double weight;
 
+    public DirectedEdge(int v, int w, double weight) {
+        this.v = v;
+        this.w = w;
+        this.weight = weight;
+    }
+
+    public int from() {
+        return v;
+    }
+
+    public int to() {
+        return w;
+    }
+
+    public double weight() {
+        return weight;
+    }
+}
+
+class EdgeWeightedDigraph {
+    private final int V;
+    private int E;
+    private LinkedList<DirectedEdge>[] adj;
+
+    public EdgeWeightedDigraph(int V) {
+        this.V = V;
+        this.E = 0;
+        adj = (LinkedList<DirectedEdge>[]) new LinkedList[V];
+        for (int v = 0; v < V; ++v) {
+            adj[v] = new LinkedList<DirectedEdge>();
+        }
+    }
+
+    public int V() {
+        return V;
+    }
+
+    public int E() {
+        return E;
+    }
+
+    public void addEdge(DirectedEdge e) {
+        int v = e.from();
+        adj[v].add(e);
+        ++E;
+    }
+
+    public Iterable<DirectedEdge> adj(int v) {
+        return adj[v];
+    }
+}
+
+class LazyDijkstraLP {
+    private boolean[] marked;
+    private double[] distTo;
+    private DirectedEdge[] edgeTo;
+    private PriorityQueue<DirectedEdge> pq;
+
+    private class ByDistanceFromSource implements Comparator<DirectedEdge> {
+        public int compare(DirectedEdge e, DirectedEdge f) {
+            double dist1 = distToEdge(e);
+            double dist2 = distToEdge(f);
+            return Double.compare(dist2, dist1);
+        }
+    }
+
+    public LazyDijkstraLP(EdgeWeightedDigraph G, int s) {
+        int V = G.V();
+        marked = new boolean[V];
+        distTo = new double[V];
+        edgeTo = new DirectedEdge[V];
+        pq = new PriorityQueue<DirectedEdge>(new ByDistanceFromSource());
+        for (int v = 0; v < V; ++v) {
+            distTo[v] = Double.NEGATIVE_INFINITY;
+        }
+        distTo[s] = 1.0;
+        relax(G, s);
+        while (!pq.isEmpty()) {
+            DirectedEdge e = pq.poll();
+            int w = e.to();
+            if (!marked[w]) {
+                relax(G, w);
+            }
+        }
+    }
+
+    private void relax(EdgeWeightedDigraph G, int v) {
+        marked[v] = true;
+        for (DirectedEdge e : G.adj(v)) {
+            int w = e.to();
+            double d = distToEdge(e);
+            if (distTo[w] < d) {
+                distTo[w] = d;
+                edgeTo[w] = e;
+                pq.offer(e);
+            }
+        }
+    }
+
+    private double distToEdge(DirectedEdge e) {
+        return distTo[e.from()] * e.weight();
+    }
+
+    public boolean hasPathTo(int v) {
+        return marked[v];
+    }
+
+    public double distTo(int v) {
+        return distTo[v];
+    }
+}
+
+class Solution {
+    public double maxProbability(int n, int[][] edges, double[] succProb, int start, int end) {
+        EdgeWeightedDigraph graph = new EdgeWeightedDigraph(n);
+        for (int i = 0; i < edges.length; ++i) {
+            int v = edges[i][0];
+            int w = edges[i][1];
+            double weight = succProb[i];
+            graph.addEdge(new DirectedEdge(v, w, weight));
+            graph.addEdge(new DirectedEdge(w, v, weight));
+        }
+        LazyDijkstraLP lpt = new LazyDijkstraLP(graph, start);
+        if (lpt.hasPathTo(end)) {
+            return lpt.distTo(end);
+        }
+        return 0.0;
+    }
+}
+// https://leetcode.cn/submissions/detail/371973442/
 ```
 
 ## 1541. 平衡括号字符串的最少插入次数
@@ -8353,7 +10813,38 @@ class Solution {
 <https://leetcode.cn/problems/minimum-insertions-to-balance-a-parentheses-string/>
 
 ```java
-
+class Solution {
+    public int minInsertions(String s) {
+        int insertLeft = 0;  // 已插入左括号的数量
+        int insertRight = 0; // 已插入右括号的数量
+        int needRight = 0;   // 待插入右括号的数量
+        for (int i = 0; i < s.length(); ++i) {
+            char ch = s.charAt(i);
+            if (ch == '(') {
+                // A((B)(.. -> A((B))(..
+                if (needRight % 2 == 1) {
+                    //『必须立即』在位置 i 前插入 1 个右括号
+                    // 否则，后续任何插入都不能使区间 [0..i-1] 的匹配有效
+                    ++insertRight;
+                    --needRight;
+                }
+                needRight += 2;
+            }
+            if (ch == ')') {
+                --needRight;
+                // A).. -> A()..
+                if (needRight == -1) {
+                    //『必须立即』在位置 i 前插入 1 个左括号
+                    // 否则，后续任何插入都不能使区间 [0..i] 的匹配有效
+                    ++insertLeft;
+                    needRight = 1;
+                }
+            }
+        }
+        return insertLeft + insertRight + needRight;
+    }
+}
+// https://leetcode.cn/submissions/detail/374116635/
 ```
 
 ## 1584. 连接所有点的最小费用
@@ -8361,7 +10852,336 @@ class Solution {
 <https://leetcode.cn/problems/min-cost-to-connect-all-points/>
 
 ```java
+class Edge implements Comparable<Edge> {
+    private final int v;
+    private final int w;
+    private final double weight;
 
+    public Edge(int v, int w, double weight) {
+        this.v = v;
+        this.w = w;
+        this.weight = weight;
+    }
+
+    public double weight() {
+        return weight;
+    }
+
+    public int either() {
+        return v;
+    }
+
+    public int other(int vertex) {
+        if (vertex == v) {
+            return w;
+        }
+        return v;
+    }
+
+    public int compareTo(Edge that) {
+        return Double.compare(this.weight, that.weight);
+    }
+}
+
+class EdgeWeightedGraph {
+    private final int V;
+    private int E;
+    private LinkedList<Edge>[] adj;
+
+    public EdgeWeightedGraph(int V) {
+        this.V = V;
+        this.E = 0;
+        adj = (LinkedList<Edge>[]) new LinkedList[V];
+        for (int v = 0; v < V; ++v) {
+            adj[v] = new LinkedList<Edge>();
+        }
+    }
+
+    public int V() {
+        return V;
+    }
+
+    public int E() {
+        return E;
+    }
+
+    public void addEdge(Edge e) {
+        int v = e.either();
+        int w = e.other(v);
+        adj[v].add(e);
+        adj[w].add(e);
+        ++E;
+    }
+
+    public Iterable<Edge> adj(int v) {
+        return adj[v];
+    }
+
+    public Iterable<Edge> edges() {
+        LinkedList<Edge> list = new LinkedList();
+        for (int v = 0; v < V; ++v) {
+            for (Edge e : adj(v)) {
+                int w = e.other(v);
+                if (v < w) {
+                    list.add(e);
+                }
+            }
+        }
+        return list;
+    }
+}
+
+class LazyPrimMST {
+    private double weight;
+    private Queue<Edge> mst;
+    private boolean[] marked;
+    private PriorityQueue<Edge> pq;
+
+    public LazyPrimMST(EdgeWeightedGraph G) {
+        mst = new LinkedList<Edge>();
+        pq = new PriorityQueue<Edge>();
+        int V = G.V();
+        marked = new boolean[V];
+        for (int v = 0; v < V; ++v) {
+            if (!marked[v]) {
+                prim(G, v);
+            }
+        }
+    }
+
+    private void prim(EdgeWeightedGraph G, int s) {
+        scan(G, s);
+        while (!pq.isEmpty()) {
+            Edge e = pq.poll();
+            int v = e.either();
+            int w = e.other(v);
+            if (marked[v] && marked[w]) {
+                continue;
+            }
+            mst.add(e);
+            weight += e.weight();
+            if (!marked[v]) {
+                scan(G, v);
+            }
+            if (!marked[w]) {
+                scan(G, w);
+            }
+        }
+    }
+
+    private void scan(EdgeWeightedGraph G, int v) {
+        marked[v] = true;
+        for (Edge e : G.adj(v)) {
+            int w = e.other(v);
+            if (!marked[w]) {
+                pq.offer(e);
+            }
+        }
+    }
+
+    public Iterable<Edge> edges() {
+        return mst;
+    }
+
+    public double weight() {
+        return weight;
+    }
+}
+
+class Solution {
+    public int minCostConnectPoints(int[][] points) {
+        int V = points.length;
+        EdgeWeightedGraph graph = new EdgeWeightedGraph(V);
+        for (int v = 0; v < V; ++v) {
+            for (int w = v + 1; w < V; ++w) {
+                double weight = Math.abs(points[v][0] - points[w][0]) +
+                        Math.abs(points[v][1] - points[w][1]);
+                graph.addEdge(new Edge(v, w, weight));
+            }
+        }
+        LazyPrimMST mst = new LazyPrimMST(graph);
+        return (int) mst.weight();
+    }
+}
+// https://leetcode.cn/submissions/detail/371885804/
+```
+
+```java
+class Edge implements Comparable<Edge> {
+    private final int v;
+    private final int w;
+    private final double weight;
+
+    public Edge(int v, int w, double weight) {
+        this.v = v;
+        this.w = w;
+        this.weight = weight;
+    }
+
+    public double weight() {
+        return weight;
+    }
+
+    public int either() {
+        return v;
+    }
+
+    public int other(int vertex) {
+        if (vertex == v) {
+            return w;
+        }
+        return v;
+    }
+
+    public int compareTo(Edge that) {
+        return Double.compare(this.weight, that.weight);
+    }
+}
+
+class EdgeWeightedGraph {
+    private final int V;
+    private int E;
+    private LinkedList<Edge>[] adj;
+
+    public EdgeWeightedGraph(int V) {
+        this.V = V;
+        this.E = 0;
+        adj = (LinkedList<Edge>[]) new LinkedList[V];
+        for (int v = 0; v < V; ++v) {
+            adj[v] = new LinkedList<Edge>();
+        }
+    }
+
+    public int V() {
+        return V;
+    }
+
+    public int E() {
+        return E;
+    }
+
+    public void addEdge(Edge e) {
+        int v = e.either();
+        int w = e.other(v);
+        adj[v].add(e);
+        adj[w].add(e);
+        ++E;
+    }
+
+    public Iterable<Edge> adj(int v) {
+        return adj[v];
+    }
+
+    public Iterable<Edge> edges() {
+        LinkedList<Edge> list = new LinkedList();
+        for (int v = 0; v < V; ++v) {
+            for (Edge e : adj(v)) {
+                int w = e.other(v);
+                if (v < w) {
+                    list.add(e);
+                }
+            }
+        }
+        return list;
+    }
+}
+
+class UF {
+    private int[] parent;
+    private byte[] rank;
+    private int count;
+
+    public UF(int n) {
+        parent = new int[n];
+        rank = new byte[n];
+        for (int i = 0; i < n; ++i) {
+            parent[i] = i;
+            rank[i] = 0;
+        }
+        count = n;
+    }
+
+    public int find(int p) {
+        while (p != parent[p]) {
+            parent[p] = parent[parent[p]];
+            p = parent[p];
+        }
+        return p;
+    }
+
+    public void union(int p, int q) {
+        int rootP = find(p);
+        int rootQ = find(q);
+        if (rootP != rootQ) {
+            if (rank[rootP] < rank[rootQ]) {
+                parent[rootP] = rootQ;
+            } else if (rank[rootP] > rank[rootQ]) {
+                parent[rootQ] = rootP;
+            } else {
+                parent[rootP] = rootQ;
+                ++rank[rootQ];
+            }
+            --count;
+        }
+    }
+
+    public boolean connected(int p, int q) {
+        return find(p) == find(q);
+    }
+
+    public int count() {
+        return count;
+    }
+}
+
+class KruskalMST {
+    private double weight;
+    private Queue<Edge> mst = new LinkedList();
+
+    public KruskalMST(EdgeWeightedGraph G) {
+        Edge[] edges = new Edge[G.E()];
+        int t = 0;
+        for (Edge e : G.edges()) {
+            edges[t++] = e;
+        }
+        Arrays.sort(edges);
+        int V = G.V();
+        UF uf = new UF(V);
+        for (Edge e : edges) {
+            int v = e.either();
+            int w = e.other(v);
+            if (!uf.connected(v, w)) {
+                uf.union(v, w);
+                mst.add(e);
+                weight += e.weight();
+                if (mst.size() == V - 1) {
+                    break;
+                }
+            }
+        }
+    }
+
+    public double weight() {
+        return weight;
+    }
+}
+
+class Solution {
+    public int minCostConnectPoints(int[][] points) {
+        int V = points.length;
+        EdgeWeightedGraph graph = new EdgeWeightedGraph(V);
+        for (int v = 0; v < V; ++v) {
+            for (int w = v + 1; w < V; ++w) {
+                double weight = Math.abs(points[v][0] - points[w][0]) +
+                        Math.abs(points[v][1] - points[w][1]);
+                graph.addEdge(new Edge(v, w, weight));
+            }
+        }
+        KruskalMST mst = new KruskalMST(graph);
+        return (int) mst.weight();
+    }
+}
+// https://leetcode.cn/submissions/detail/371885645/
 ```
 
 ## 1631. 最小体力消耗路径
@@ -8369,7 +11189,141 @@ class Solution {
 <https://leetcode.cn/problems/path-with-minimum-effort/>
 
 ```java
+class DirectedEdge {
+    private final int v;
+    private final int w;
+    private final double weight;
 
+    public DirectedEdge(int v, int w, double weight) {
+        this.v = v;
+        this.w = w;
+        this.weight = weight;
+    }
+
+    public int from() {
+        return v;
+    }
+
+    public int to() {
+        return w;
+    }
+
+    public double weight() {
+        return weight;
+    }
+}
+
+class EdgeWeightedDigraph {
+    private final int V;
+    private int E;
+    private LinkedList<DirectedEdge>[] adj;
+
+    public EdgeWeightedDigraph(int V) {
+        this.V = V;
+        this.E = 0;
+        adj = (LinkedList<DirectedEdge>[]) new LinkedList[V];
+        for (int v = 0; v < V; ++v) {
+            adj[v] = new LinkedList<DirectedEdge>();
+        }
+    }
+
+    public int V() {
+        return V;
+    }
+
+    public int E() {
+        return E;
+    }
+
+    public void addEdge(DirectedEdge e) {
+        int v = e.from();
+        adj[v].add(e);
+        ++E;
+    }
+
+    public Iterable<DirectedEdge> adj(int v) {
+        return adj[v];
+    }
+}
+
+class LazyDijkstraSP {
+    private boolean[] marked;
+    private double[] distTo;
+    private DirectedEdge[] edgeTo;
+    private PriorityQueue<DirectedEdge> pq;
+
+    private class ByDistanceFromSource implements Comparator<DirectedEdge> {
+        public int compare(DirectedEdge e, DirectedEdge f) {
+            // 核心代码
+            double dist1 = Math.max(distTo[e.from()], e.weight());
+            double dist2 = Math.max(distTo[f.from()], f.weight());
+            return Double.compare(dist1, dist2);
+        }
+    }
+
+    public LazyDijkstraSP(EdgeWeightedDigraph G, int s) {
+        int V = G.V();
+        marked = new boolean[V];
+        distTo = new double[V];
+        edgeTo = new DirectedEdge[V];
+        pq = new PriorityQueue<DirectedEdge>(new ByDistanceFromSource());
+        for (int v = 0; v < V; ++v) {
+            distTo[v] = Double.POSITIVE_INFINITY;
+        }
+        distTo[s] = 0.0;
+        relax(G, s);
+        while (!pq.isEmpty()) {
+            DirectedEdge e = pq.poll();
+            int w = e.to();
+            if (!marked[w]) {
+                relax(G, w);
+            }
+        }
+    }
+
+    private void relax(EdgeWeightedDigraph G, int v) {
+        marked[v] = true;
+        for (DirectedEdge e : G.adj(v)) {
+            int w = e.to();
+            // 核心代码
+            if (distTo[w] > Math.max(distTo[v], e.weight())) {
+                distTo[w] = Math.max(distTo[v], e.weight());
+                edgeTo[w] = e;
+                pq.offer(e);
+            }
+        }
+    }
+
+    public double distTo(int v) {
+        return distTo[v];
+    }
+}
+
+class Solution {
+    public int minimumEffortPath(int[][] heights) {
+        int m = heights.length;
+        int n = heights[0].length;
+        EdgeWeightedDigraph graph = new EdgeWeightedDigraph(m * n);
+        int[][] directions = new int[][]{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                for (int[] d : directions) {
+                    int x = i + d[0];
+                    int y = j + d[1];
+                    if (x >= 0 && x <= m - 1 && y >= 0 && y <= n - 1) {
+                        int v = i * n + j;
+                        int w = x * n + y;
+                        double weight = Math.abs(heights[i][j] - heights[x][y]);
+                        graph.addEdge(new DirectedEdge(v, w, weight));
+                    }
+                }
+            }
+        }
+        LazyDijkstraSP spt = new LazyDijkstraSP(graph, 0);
+        return (int) spt.distTo((m - 1) * n + n - 1);
+    }
+}
+// https://leetcode.cn/submissions/detail/371889869/
 ```
 
 ## 1905. 统计子岛屿
@@ -8377,7 +11331,44 @@ class Solution {
 <https://leetcode.cn/problems/count-sub-islands/>
 
 ```java
+class Solution {
+    private static final int LAND = 1;
+    private static final int WATER = 0;
 
+    public int countSubIslands(int[][] grid1, int[][] grid2) {
+        int m = grid2.length, n = grid2[0].length;
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                // 淹没『非子岛屿』
+                if (grid2[i][j] == LAND && grid1[i][j] == WATER) {
+                    floodFill(grid2, i, j);
+                }
+            }
+        }
+        int count = 0;
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (grid2[i][j] == LAND) {
+                    floodFill(grid2, i, j);
+                    ++count;
+                }
+            }
+        }
+        return count;
+    }
+
+    private void floodFill(int[][] grid, int i, int j) {
+        if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length || grid[i][j] == WATER) {
+            return;
+        }
+        grid[i][j] = WATER;
+        floodFill(grid, i, j + 1);
+        floodFill(grid, i, j - 1);
+        floodFill(grid, i + 1, j);
+        floodFill(grid, i - 1, j);
+    }
+}
+// https://leetcode.cn/submissions/detail/362777848/
 ```
 
 ## CtCI 02.02. 返回倒数第 K 个节点
@@ -8385,5 +11376,18 @@ class Solution {
 <https://leetcode-cn.com/problems/kth-node-from-end-of-list-lcci/>
 
 ```java
-
+class Solution {
+    public int kthToLast(ListNode head, int k) {
+        ListNode slow = head, fast = head;
+        for (int i = 1; i <= k; ++i) {
+            fast = fast.next;
+        }
+        while (fast != null) {
+            slow = slow.next;
+            fast = fast.next;
+        }
+        return slow.val;
+    }
+}
+// https://leetcode.cn/submissions/detail/369387091/
 ```
