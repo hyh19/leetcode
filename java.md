@@ -5640,7 +5640,85 @@ class Solution {
 <https://leetcode-cn.com/problems/reverse-linked-list/>
 
 ```java
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        ListNode reverseHead = null;
+        while (head != null) {
+            ListNode next = head.next;
+            head.next = reverseHead;
+            reverseHead = head;
+            head = next;
+        }
+        return reverseHead;
+    }
+}
+// https://leetcode.cn/submissions/detail/366016493/
+```
 
+```java
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        ListNode nextHead = head.next;
+        head.next = null;
+        ListNode reverseHead = reverseList(nextHead);
+        nextHead.next = head;
+        return reverseHead;
+    }
+}
+// https://leetcode.cn/submissions/detail/367690337/
+```
+
+```java
+class Solution {
+    private ListNode ptr;
+
+    public ListNode reverseList(ListNode head) {
+        ListNode dummyHead = new ListNode();
+        ptr = dummyHead;
+        dfs(head);
+        return dummyHead.next;
+    }
+
+    private void dfs(ListNode head) {
+        if (head == null) {
+            return;
+        }
+        ListNode next = head.next;
+        head.next = null;
+        dfs(next);
+        ptr.next = head;
+        ptr = ptr.next;
+    }
+}
+// https://leetcode.cn/submissions/detail/367685090/
+```
+
+```java
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        Deque<ListNode> stack = new LinkedList();
+        while (head != null) {
+            ListNode next = head.next;
+            head.next = null;
+            stack.push(head);
+            head = next;
+        }
+        head = stack.pop();
+        ListNode ptr = head;
+        while (!stack.isEmpty()) {
+            ptr.next = stack.pop();
+            ptr = ptr.next;
+        }
+        return head;
+    }
+}
+// https://leetcode.cn/submissions/detail/367691458/
 ```
 
 ## 207. 课程表
@@ -5648,7 +5726,50 @@ class Solution {
 <https://leetcode.cn/problems/course-schedule/>
 
 ```java
+class Solution {
+    private boolean[] marked;
+    private boolean[] onStack;
+    private boolean hasCycle;
 
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        marked = new boolean[numCourses];
+        onStack = new boolean[numCourses];
+
+        List<Integer>[] graph = new LinkedList[numCourses];
+        for (int v = 0; v < numCourses; v++) {
+            graph[v] = new LinkedList();
+        }
+
+        for (int[] p : prerequisites) {
+            int v = p[1];
+            int w = p[0];
+            graph[v].add(w);
+        }
+
+        for (int v = 0; v < numCourses; v++) {
+            if (!marked[v]) {
+                dfs(graph, v);
+            }
+        }
+        return !hasCycle;
+    }
+
+    private void dfs(List<Integer>[] graph, int v) {
+        onStack[v] = true;
+        marked[v] = true;
+        for (int w : graph[v]) {
+            if (hasCycle) return;
+            if (!marked[w]) {
+                dfs(graph, w);
+            } else if (onStack[w]) {
+                hasCycle = true;
+                return;
+            }
+        }
+        onStack[v] = false;
+    }
+}
+// https://leetcode.cn/submissions/detail/326210480/
 ```
 
 ## 210. 课程表 II
@@ -5656,7 +5777,54 @@ class Solution {
 <https://leetcode.cn/problems/course-schedule-ii/>
 
 ```java
+class Solution {
+    private boolean[] marked;
+    private boolean[] onStack;
+    private boolean hasCycle;
+    private Deque<Integer> reversePostOrder;
 
+    public int[] findOrder(int numCourses, int[][] prerequisites) {
+        marked = new boolean[numCourses];
+        onStack = new boolean[numCourses];
+        reversePostOrder = new LinkedList();
+
+        List<Integer>[] graph = new LinkedList[numCourses];
+        for (int v = 0; v < numCourses; v++) {
+            graph[v] = new LinkedList();
+        }
+
+        for (int[] p : prerequisites) {
+            int v = p[1];
+            int w = p[0];
+            graph[v].add(w);
+        }
+
+        for (int v = 0; v < numCourses; v++) {
+            if (!marked[v]) {
+                dfs(graph, v);
+            }
+        }
+
+        return (hasCycle ? new int[]{} : reversePostOrder.stream().mapToInt(i -> i).toArray());
+    }
+
+    private void dfs(List<Integer>[] graph, int v) {
+        onStack[v] = true;
+        marked[v] = true;
+        for (int w : graph[v]) {
+            if (hasCycle) return;
+            if (!marked[w]) {
+                dfs(graph, w);
+            } else if (onStack[w]) {
+                hasCycle = true;
+                return;
+            }
+        }
+        reversePostOrder.push(v);
+        onStack[v] = false;
+    }
+}
+// https://leetcode.cn/submissions/detail/326216092/
 ```
 
 ## 213. 打家劫舍 II
@@ -5664,7 +5832,45 @@ class Solution {
 <https://leetcode.cn/problems/house-robber-ii/>
 
 ```java
+class Solution {
+    public int rob(int[] nums) {
+        int n = nums.length;
+        if (n == 0) {
+            return 0;
+        }
+        if (n == 1) {
+            return nums[0];
+        }
+        return Math.max(subseqSum(nums, 0, n - 2), subseqSum(nums, 1, n - 1));
+    }
 
+    // max({sum(subseq) | subseq 是子数组 nums[lo..hi] 的不连续子序列})
+    private int subseqSum(int[] nums, int lo, int hi) {
+        int n = hi - lo + 1;
+        if (n == 0) {
+            return 0;
+        }
+        if (n == 1) {
+            return nums[lo];
+        }
+        if (n == 2) {
+            return Math.max(nums[lo], nums[lo + 1]);
+        }
+        // dp[i] = max({sum(subseq) | subseq 是子数组 nums[lo..lo+i] 的不连续子序列})
+        int[] dp = new int[n];
+        dp[0] = nums[lo];
+        dp[1] = Math.max(nums[lo], nums[lo + 1]);
+        for (int i = 2; i < n; ++i) {
+            // 包含 nums[lo+i]
+            int sp1 = dp[i - 2] + nums[lo + i];
+            // 不包含 nums[lo+i]
+            int sp2 = dp[i - 1];
+            dp[i] = Math.max(sp1, sp2);
+        }
+        return dp[n - 1];
+    }
+}
+// https://leetcode.cn/submissions/detail/374748775/
 ```
 
 ## 215. 数组中的第 K 个最大元素
@@ -5672,7 +5878,77 @@ class Solution {
 <https://leetcode.cn/problems/kth-largest-element-in-an-array/>
 
 ```java
+class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        return select(nums, nums.length - k);
+    }
 
+    // 返回数组 nums 从小到大排在第 rank 位的元素，排位从 0 开始计算，
+    // 相当于有 rank 个元素小于该元素。
+    private int select(int[] nums, int rank) {
+        int lo = 0, hi = nums.length - 1;
+        while (lo <= hi) {
+            int j = partition(nums, lo, hi);
+            if (rank < j) {
+                hi = j - 1;
+            } else if (j < rank) {
+                lo = j + 1;
+            } else {
+                return nums[j];
+            }
+        }
+        return Integer.MIN_VALUE;
+    }
+
+    private int partition(int[] nums, int lo, int hi) {
+        if (lo == hi) {
+            return lo;
+        }
+        int v = nums[lo];
+        int i = lo, j = hi + 1;
+        while (true) {
+            while (nums[++i] < v) {
+                if (i == hi) {
+                    break;
+                }
+            }
+            while (nums[--j] > v) {
+                if (j == lo) {
+                    break;
+                }
+            }
+            if (i >= j) {
+                break;
+            }
+            exch(nums, i, j);
+        }
+        exch(nums, lo, j);
+        return j;
+    }
+
+    private void exch(int[] nums, int i, int j) {
+        int swap = nums[i];
+        nums[i] = nums[j];
+        nums[j] = swap;
+    }
+}
+// https://leetcode.cn/submissions/detail/367995685/
+```
+
+```java
+class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        PriorityQueue<Integer> maxPQ = new PriorityQueue(Collections.reverseOrder());
+        for (int x : nums) {
+            maxPQ.offer(x);
+        }
+        for (int i = 1; i <= k - 1; ++i) {
+            maxPQ.poll();
+        }
+        return maxPQ.peek();
+    }
+}
+// https://leetcode.cn/submissions/detail/366039238/
 ```
 
 ## 216. 组合总和 III
@@ -5680,7 +5956,79 @@ class Solution {
 <https://leetcode.cn/problems/combination-sum-iii/>
 
 ```java
+class Solution {
+    private int k, n;
+    private int pathSum = 0;
+    private List<Integer> path = new LinkedList(); // 取 [1..9] 为元素
+    private List<List<Integer>> ans = new LinkedList();
 
+    public List<List<Integer>> combinationSum3(int k, int n) {
+        this.k = k;
+        this.n = n;
+        backtrack(0);
+        return ans;
+    }
+
+    // edge = 取 [1..9] 为值
+    private void backtrack(int edge) {
+        if (path.size() == k && pathSum == n) {
+            ans.add(new LinkedList(path));
+        } else if (path.size() < k && pathSum < n) {
+            // 避免重复，从 edge + 1 开始选择
+            // 例如 [1->2] 和 [2->1] 是重复的
+            while (++edge <= 9) {
+                if (pathSum + edge <= n) {
+                    pathSum += edge;
+                    path.add(edge);
+                    backtrack(edge);
+                    path.remove(path.size() - 1);
+                    pathSum -= edge;
+                }
+            }
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/373531038/
+```
+
+```java
+class Solution {
+    private int k, n;
+    private int pathSum = 0;
+    private List<Integer> path = new LinkedList(); // 取 [1..9] 为元素
+    private List<List<Integer>> ans = new LinkedList();
+
+    public List<List<Integer>> combinationSum3(int k, int n) {
+        this.k = k;
+        this.n = n;
+        dfs(0);
+        return ans;
+    }
+
+    private void dfs(int vertex) {
+        if (vertex > 0) {
+            pathSum += vertex;
+            path.add(vertex);
+        }
+        if (path.size() == k && pathSum == n) {
+            ans.add(new LinkedList(path));
+        } else if (path.size() < k && pathSum < n) {
+            // 避免重复，从 vertex + 1 开始选择
+            // 例如 [1->2] 和 [2->1] 是重复的
+            int v = vertex;
+            while (++v <= 9) {
+                if (pathSum + v <= n) {
+                    dfs(v);
+                }
+            }
+        }
+        if (vertex > 0) {
+            path.remove(path.size() - 1);
+            pathSum -= vertex;
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/373529166/
 ```
 
 ## 222. 完全二叉树的节点个数
@@ -5688,7 +6036,59 @@ class Solution {
 <https://leetcode.cn/problems/count-complete-tree-nodes/>
 
 ```java
+class Solution {
+    public int countNodes(TreeNode root) {
+        if (root == null) return 0;
 
+        int leftHeight = 0;
+        TreeNode ptr = root.left;
+        while (ptr != null) {
+            leftHeight++;
+            ptr = ptr.left;
+        }
+
+        int rightHeight = 0;
+        ptr = root.right;
+        while (ptr != null) {
+            rightHeight++;
+            ptr = ptr.right;
+        }
+
+        if (leftHeight == rightHeight) return (int) Math.pow(2, leftHeight + 1) - 1;
+
+        return 1 + countNodes(root.left) + countNodes(root.right);
+    }
+}
+// https://leetcode.cn/submissions/detail/324438003/
+```
+
+```java
+class Solution {
+    public int countNodes(TreeNode root) {
+        if (root == null) return 0;
+        return 1 + countNodes(root.left) + countNodes(root.right);
+    }
+}
+// https://leetcode.cn/submissions/detail/324427210/
+```
+
+```java
+class Solution {
+    private int count = 0;
+
+    public int countNodes(TreeNode root) {
+        traverse(root);
+        return count;
+    }
+
+    private void traverse(TreeNode root) {
+        if (root == null) return;
+        count++;
+        traverse(root.left);
+        traverse(root.right);
+    }
+}
+// https://leetcode.cn/submissions/detail/324428257/
 ```
 
 ## 225. 用队列实现栈
@@ -5696,7 +6096,33 @@ class Solution {
 <https://leetcode.cn/problems/implement-stack-using-queues/>
 
 ```java
+class MyStack {
+    private Queue<Integer> queue = new LinkedList();
 
+    public MyStack() {
+
+    }
+
+    public void push(int x) {
+        queue.offer(x);
+        for (int i = 1; i < queue.size(); ++i) {
+            queue.offer(pop());
+        }
+    }
+
+    public int pop() {
+        return queue.poll();
+    }
+
+    public int top() {
+        return queue.peek();
+    }
+
+    public boolean empty() {
+        return queue.isEmpty();
+    }
+}
+// https://leetcode.cn/submissions/detail/364629726/
 ```
 
 ## 226. 翻转二叉树
@@ -5704,7 +6130,33 @@ class Solution {
 <https://leetcode.cn/problems/invert-binary-tree/>
 
 ```java
+class Solution {
+    public TreeNode invertTree(TreeNode root) {
+        if (root == null) return null;
+        TreeNode left = invertTree(root.left);
+        TreeNode right = invertTree(root.right);
+        root.right = left;
+        root.left = right;
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/317421010/
+```
 
+```java
+class Solution {
+    public TreeNode invertTree(TreeNode root) {
+        if (root == null) return null;
+        TreeNode left = root.left;
+        TreeNode right = root.right;
+        root.left = right;
+        root.right = left;
+        invertTree(root.left);
+        invertTree(root.right);
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/343384224/
 ```
 
 ## 230. 二叉搜索树中第 K 小的元素
@@ -5712,7 +6164,65 @@ class Solution {
 <https://leetcode.cn/problems/kth-smallest-element-in-a-bst/>
 
 ```java
+class Solution {
+    private Map<TreeNode, Integer> memo = new HashMap();
 
+    public int kthSmallest(TreeNode root, int k) {
+        return select(root, k - 1);
+    }
+
+    private int select(TreeNode root, int rank) {
+        if (root == null) {
+            return -1;
+        }
+        int leftSize = size(root.left);
+        if (rank < leftSize) {
+            return select(root.left, rank);
+        }
+        if (leftSize < rank) {
+            return select(root.right, rank - leftSize - 1);
+        }
+        return root.val;
+    }
+
+    private int size(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        if (memo.containsKey(root)) {
+            return memo.get(root);
+        }
+        int res = 1 + size(root.left) + size(root.right);
+        memo.put(root, res);
+        return res;
+    }
+}
+// https://leetcode.cn/submissions/detail/368939131/
+```
+
+```java
+class Solution {
+    int ans = 0;
+    int rank = 0;
+
+    public int kthSmallest(TreeNode root, int k) {
+        traverse(root, k);
+        return ans;
+    }
+
+    void traverse(TreeNode root, int k) {
+        if (root == null) {
+            return;
+        }
+        traverse(root.left, k);
+        if (++rank == k) {
+            ans = root.val;
+            return;
+        }
+        traverse(root.right, k);
+    }
+}
+// https://leetcode.cn/submissions/detail/322638349/
 ```
 
 ## 232. 用栈实现队列
@@ -5720,7 +6230,48 @@ class Solution {
 <https://leetcode.cn/problems/implement-queue-using-stacks/>
 
 ```java
+/**
+ * ------------------| |--------------------
+ * pop <- Left Stack | | Right Stack <- push
+ * ------------------| |--------------------
+ */
+class MyQueue {
+    private Stack<Integer> left = new Stack();
+    private Stack<Integer> right = new Stack();
 
+    public MyQueue() {
+
+    }
+
+    public void push(int x) {
+        right.push(x);
+    }
+
+    public int pop() {
+        if (left.isEmpty()) {
+            move();
+        }
+        return left.pop();
+    }
+
+    public int peek() {
+        if (left.isEmpty()) {
+            move();
+        }
+        return left.peek();
+    }
+
+    public boolean empty() {
+        return left.isEmpty() && right.isEmpty();
+    }
+
+    private void move() {
+        while (!right.isEmpty()) {
+            left.push(right.pop());
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/364380437/
 ```
 
 ## 234. 回文链表
@@ -5728,7 +6279,92 @@ class Solution {
 <https://leetcode.cn/problems/palindrome-linked-list/>
 
 ```java
+class Solution {
+    public boolean isPalindrome(ListNode head) {
+        // 寻找链表的中点（偶数个节点时选择左侧），即前半部分链表的尾节点
+        ListNode mid = head, ptr = head;
+        while (ptr.next != null && ptr.next.next != null) {
+            mid = mid.next;
+            ptr = ptr.next.next;
+        }
+        // 翻转后半部分链表
+        ListNode reverseHead = reverseList(mid.next);
+        mid.next = null;
+        // 判断是否回文链表
+        ListNode left = head;
+        ListNode right = reverseHead;
+        while (right != null) {
+            if (left.val != right.val) {
+                return false;
+            }
+            left = left.next;
+            right = right.next;
+        }
+        // 还原链表
+        mid.next = reverseList(reverseHead);
+        return true;
+    }
 
+    private ListNode reverseList(ListNode head) {
+        ListNode reverseHead = null;
+        while (head != null) {
+            ListNode next = head.next;
+            head.next = reverseHead;
+            reverseHead = head;
+            head = next;
+        }
+        return reverseHead;
+    }
+}
+// https://leetcode.cn/submissions/detail/356156224/
+```
+
+```java
+class Solution {
+    private boolean ans = true;
+    private ListNode ptr = null;
+
+    public boolean isPalindrome(ListNode head) {
+        ptr = head;
+        dfs(head);
+        return ans;
+    }
+
+    private void dfs(ListNode head) {
+        if (head == null) {
+            return;
+        }
+        dfs(head.next);
+        if (head.val != ptr.val) {
+            ans = false;
+        }
+        ptr = ptr.next;
+    }
+}
+// https://leetcode.cn/submissions/detail/366670737/
+```
+
+```java
+class Solution {
+    public boolean isPalindrome(ListNode head) {
+        Deque<ListNode> stack = new LinkedList<ListNode>();
+        ListNode ptr = head;
+        while (ptr != null) {
+            stack.push(ptr);
+            ptr = ptr.next;
+        }
+        ptr = head;
+        while (!stack.isEmpty()) {
+            ListNode x = stack.pop();
+            if (ptr.val != x.val) {
+                return false;
+            }
+            ptr = ptr.next;
+        }
+        return true;
+    }
+}
+// https://leetcode.cn/submissions/detail/354860775/
 ```
 
 ## 235. 二叉搜索树的最近公共祖先
@@ -5736,7 +6372,25 @@ class Solution {
 <https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/>
 
 ```java
-
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        // 保证 p < q
+        if (p.val > q.val) {
+            return lowestCommonAncestor(root, q, p);
+        }
+        if (p.val <= root.val && root.val <= q.val) {
+            return root;
+        }
+        if (q.val < root.val) {
+            return lowestCommonAncestor(root.left, p, q);
+        }
+        if (root.val < p.val) {
+            return lowestCommonAncestor(root.right, p, q);
+        }
+        return null;
+    }
+}
+// https://leetcode.cn/submissions/detail/368926052/
 ```
 
 ## 236. 二叉树的最近公共祖先
@@ -5744,7 +6398,69 @@ class Solution {
 <https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/>
 
 ```java
+class Solution {
+    private TreeNode lca;
 
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        find(root, p, q);
+        return lca;
+    }
+
+    // 在子树中查找节点 p 或 q，递归过程中确定『最近公共祖先』
+    private boolean find(TreeNode root, TreeNode p, TreeNode q) {
+        if (root == null) {
+            return false;
+        }
+        if (root == p || root == q) {
+            // 如果 lca(p,q) = p 或 q，则此处的 lca = root 是最终答案
+            lca = root;
+            return true;
+        }
+        boolean left = find(root.left, p, q);
+        boolean right = find(root.right, p, q);
+        // 否则返回到某祖先节点处的 lca = root 才是最终答案
+        if (left && right) {
+            lca = root;
+        }
+        return left || right;
+    }
+}
+// https://leetcode.cn/submissions/detail/356180045/
+```
+
+```java
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        Map<TreeNode, TreeNode> parent = new HashMap();
+        dfs(root, parent);
+        Set<TreeNode> visited = new HashSet();
+        while (p != null) {
+            visited.add(p);
+            p = parent.get(p);
+        }
+        while (q != null) {
+            if (visited.contains(q)) {
+                return q;
+            }
+            q = parent.get(q);
+        }
+        return root;
+    }
+
+    private void dfs(TreeNode root, Map<TreeNode, TreeNode> parent) {
+        TreeNode left = root.left;
+        if (left != null) {
+            parent.put(left, root);
+            dfs(left, parent);
+        }
+        TreeNode right = root.right;
+        if (right != null) {
+            parent.put(right, root);
+            dfs(right, parent);
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/355579963/
 ```
 
 ## 237. 删除链表中的节点
@@ -5760,7 +6476,35 @@ class Solution {
 <https://leetcode.cn/problems/sliding-window-maximum/>
 
 ```java
-
+class Solution {
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        List<Integer> list = new LinkedList();
+        Deque<Integer> queue = new LinkedList();
+        for (int i = 0; i < nums.length; ++i) {
+            // nums[i] = 进入窗口的数字
+            int x = nums[i];
+            while (!queue.isEmpty() && queue.getLast() < x) {
+                queue.removeLast();
+            }
+            queue.addLast(x);
+            if (i < k - 1) {
+                continue;
+            }
+            // nums[i-k] = 退出窗口的数字
+            if (i >= k && nums[i - k] == queue.getFirst()) {
+                queue.removeFirst();
+            }
+            list.add(queue.getFirst());
+        }
+        int[] ans = new int[list.size()];
+        int i = 0;
+        for (int x : list) {
+            ans[i++] = x;
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/374206350/
 ```
 
 ## 253. 会议室 II
@@ -5768,7 +6512,33 @@ class Solution {
 <https://leetcode.cn/problems/meeting-rooms-ii/>
 
 ```java
-
+class Solution {
+    public int minMeetingRooms(int[][] intervals) {
+        int n = intervals.length;
+        int[] begin = new int[n];
+        int[] end = new int[n];
+        for (int i = 0; i < n; i++) {
+            begin[i] = intervals[i][0];
+            end[i] = intervals[i][1];
+        }
+        Arrays.sort(begin);
+        Arrays.sort(end);
+        int count = 0, ans = 0;
+        int i = 0, j = 0;
+        while (i < n && j < n) {
+            if (begin[i] < end[j]) {
+                count++;
+                i++;
+            } else {
+                count--;
+                j++;
+            }
+            ans = Math.max(ans, count);
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/333874098/
 ```
 
 ## 283. 移动零
@@ -5776,7 +6546,29 @@ class Solution {
 <https://leetcode-cn.com/problems/move-zeroes/>
 
 ```java
+class Solution {
+    public void moveZeroes(int[] nums) {
+        // [0..i-1] != 0
+        // [i..j-1] == 0
+        // [j..n-1] Scanning
+        int i = 0, j = 0, n = nums.length;
+        while (j < n) {
+            while (j < n && nums[j] == 0) {
+                ++j;
+            }
+            if (j < n) {
+                exch(nums, i++, j++);
+            }
+        }
+    }
 
+    private void exch(int[] nums, int i, int j) {
+        int swap = nums[i];
+        nums[i] = nums[j];
+        nums[j] = swap;
+    }
+}
+// https://leetcode.cn/submissions/detail/369384859/
 ```
 
 ## 297. 二叉树的序列化与反序列化
@@ -5784,7 +6576,81 @@ class Solution {
 <https://leetcode.cn/problems/serialize-and-deserialize-binary-tree/>
 
 ```java
+public class Codec {
+    // Encodes a tree to a single string.
+    public String serialize(TreeNode root) {
+        if (root == null) {
+            return "#";
+        }
+        String left = serialize(root.left);
+        String right = serialize(root.right);
+        return String.valueOf(root.val) + "," + left + "," + right;
+    }
 
+    // Decodes your encoded data to tree.
+    public TreeNode deserialize(String data) {
+        Deque<String> queue = new LinkedList();
+        for (String s : data.split(",")) {
+            queue.addLast(s);
+        }
+        return buildTree(queue);
+    }
+
+    private TreeNode buildTree(Deque<String> queue) {
+        String s = queue.removeFirst();
+        if (s.equals("#")) {
+            return null;
+        }
+        TreeNode root = new TreeNode(Integer.parseInt(s));
+        root.left = buildTree(queue);
+        root.right = buildTree(queue);
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/368744798/
+```
+
+```java
+public class Codec {
+    private StringBuilder sb = new StringBuilder();
+
+    // Encodes a tree to a single string.
+    public String serialize(TreeNode root) {
+        dfs(root);
+        return sb.toString();
+    }
+
+    private void dfs(TreeNode root) {
+        if (root == null) {
+            sb.append("#").append(",");
+            return;
+        }
+        sb.append(String.valueOf(root.val)).append(",");
+        dfs(root.left);
+        dfs(root.right);
+    }
+
+    // Decodes your encoded data to tree.
+    public TreeNode deserialize(String data) {
+        Deque<String> queue = new LinkedList();
+        for (String s : data.split(",")) {
+            queue.addLast(s);
+        }
+        return buildTree(queue);
+    }
+
+    private TreeNode buildTree(Deque<String> queue) {
+        String s = queue.removeFirst();
+        if (s.equals("#")) {
+            return null;
+        }
+        TreeNode root = new TreeNode(Integer.parseInt(s));
+        root.left = buildTree(queue);
+        root.right = buildTree(queue);
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/368746345/
 ```
 
 ## 300. 最长递增子序列
@@ -5792,7 +6658,58 @@ class Solution {
 <https://leetcode.cn/problems/longest-increasing-subsequence/>
 
 ```java
+class Solution {
+    public int lengthOfLIS(int[] nums) {
+        int ans = 1;
+        int n = nums.length;
+        // dp[i] = 以 nums[i] 结尾的最长递增子序列的长度
+        int[] dp = new int[n];
+        dp[0] = 1;
+        for (int i = 1; i < n; ++i) {
+            int res = 1;
+            for (int j = i - 1; j >= 0; --j) {
+                if (nums[j] < nums[i]) {
+                    res = Math.max(res, dp[j] + 1);
+                }
+            }
+            dp[i] = res;
+            ans = Math.max(ans, dp[i]);
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/366680503/
+```
 
+```java
+class Solution {
+    public int lengthOfLIS(int[] nums) {
+        int n = nums.length;
+        int[] memo = new int[n];
+        int ans = 1;
+        for (int i = 0; i < n; ++i) {
+            ans = Math.max(ans, dp(nums, i, memo));
+        }
+        return ans;
+    }
+
+    // 以 nums[i] 结尾的最长递增子序列的长度
+    private int dp(int[] nums, int i, int[] memo) {
+        if (memo[i] != 0) {
+            return memo[i];
+        }
+        int res = 1;
+        for (int j = i - 1; j >= 0; --j) {
+            int sp = dp(nums, j, memo);
+            if (nums[j] < nums[i]) {
+                res = Math.max(res, sp + 1);
+            }
+        }
+        memo[i] = res;
+        return res;
+    }
+}
+// https://leetcode.cn/submissions/detail/355566636/
 ```
 
 ## 303. 区域和检索 - 数组不可变
@@ -5800,7 +6717,26 @@ class Solution {
 <https://leetcode.cn/problems/range-sum-query-immutable/>
 
 ```java
+class NumArray {
+    private int[] sum;
 
+    public NumArray(int[] nums) {
+        int n = nums.length;
+        sum = new int[n];
+        sum[0] = nums[0];
+        for (int i = 1; i < n; ++i) {
+            sum[i] = sum[i - 1] + nums[i];
+        }
+    }
+
+    public int sumRange(int left, int right) {
+        if (left == 0) {
+            return sum[right];
+        }
+        return sum[right] - sum[left - 1];
+    }
+}
+// https://leetcode.cn/submissions/detail/369386410/
 ```
 
 ## 309. 最佳买卖股票时机含冷冻期
@@ -5808,7 +6744,30 @@ class Solution {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/>
 
 ```java
-
+class Solution {
+    public int maxProfit(int[] prices) {
+        int n = prices.length;
+        if (n <= 1) {
+            return 0;
+        }
+        // dp[i][0] = 第 i 天，空仓状态下的最大利润
+        // dp[i][1] = 第 i 天，持仓状态下的最大利润
+        int[][] dp = new int[n][2];
+        dp[0][0] = 0;
+        dp[0][1] = -prices[0];
+        dp[1][0] = Math.max(dp[0][0], dp[0][1] + prices[1]);
+        dp[1][1] = Math.max(dp[0][0] - prices[1], dp[0][1]);
+        for (int i = 2; i < n; ++i) {
+            // dp[i - 1][0]             >= dp[i - 2][0] >= p[i - 2][0] - prices[i]
+            // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+            // => dp[i][0] >= dp[i][1]
+            dp[i][0] = Math.max(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+            dp[i][1] = Math.max(dp[i - 2][0] - prices[i], dp[i - 1][1]);
+        }
+        return dp[n - 1][0];
+    }
+}
+// https://leetcode.cn/submissions/detail/365505572/
 ```
 
 ## 315. 计算右侧小于当前元素的个数
@@ -5816,7 +6775,79 @@ class Solution {
 <https://leetcode.cn/problems/count-of-smaller-numbers-after-self/>
 
 ```java
+class Solution {
+    private int[] counts;
 
+    private class Pair implements Comparable<Pair> {
+        public int val;
+        public int idx;
+
+        public Pair(int val, int idx) {
+            this.val = val;
+            this.idx = idx;
+        }
+
+        public int compareTo(Pair that) {
+            return this.val - that.val;
+        }
+    }
+
+    public List<Integer> countSmaller(int[] nums) {
+        int n = nums.length;
+        counts = new int[n];
+        Comparable[] a = new Pair[n];
+        for (int i = 0; i < n; ++i) {
+            a[i] = new Pair(nums[i], i);
+        }
+        sort(a);
+        List<Integer> list = new LinkedList();
+        for (int x : counts) {
+            list.add(x);
+        }
+        return list;
+    }
+
+    private void sort(Comparable[] a) {
+        int n = a.length;
+        Comparable[] aux = new Pair[n];
+        sort(a, 0, n - 1, aux);
+    }
+
+    private void sort(Comparable[] a, int lo, int hi, Comparable[] aux) {
+        if (lo >= hi) {
+            return;
+        }
+        int mid = lo + (hi - lo) / 2;
+        sort(a, lo, mid, aux);
+        sort(a, mid + 1, hi, aux);
+        merge(a, lo, mid, hi, aux);
+    }
+
+    private void merge(Comparable[] a, int lo, int mid, int hi, Comparable[] aux) {
+        for (int k = lo; k <= hi; ++k) {
+            aux[k] = a[k];
+        }
+        int i = lo, j = mid + 1;
+        for (int k = lo; k <= hi; ++k) {
+            if (i > mid || (j <= hi && less(aux[j], aux[i]))) {
+                a[k] = aux[j++];
+            } else {
+                Pair p = (Pair) aux[i];
+                // aux[mid+1..j) < aux[i]
+                counts[p.idx] += (j - mid - 1);
+                a[k] = aux[i++];
+            }
+        }
+    }
+
+    private boolean less(Comparable v, Comparable w) {
+        if (v == w) {
+            return false;
+        }
+        return v.compareTo(w) < 0;
+    }
+}
+// https://leetcode.cn/submissions/detail/366616178/
 ```
 
 ## 322. 零钱兑换
@@ -5824,7 +6855,107 @@ class Solution {
 <https://leetcode.cn/problems/coin-change/>
 
 ```java
+class Solution {
+    public int coinChange(int[] coins, int amount) {
+        // dp[i] = 凑成总金额 i 所需的最少的硬币个数
+        int[] dp = new int[amount + 1];
+        dp[0] = 0;
+        for (int i = 1; i <= amount; ++i) {
+            int res = Integer.MAX_VALUE;
+            // c       = 选择放入的硬币
+            // i-c     = 剩余总金额
+            // dp[i-c] = 凑成剩余总金额所需的最少的硬币个数
+            for (int c : coins) {
+                int x = i - c;
+                if (x >= 0 && dp[x] != -1) {
+                    res = Math.min(res, dp[x] + 1);
+                }
+            }
+            dp[i] = (res == Integer.MAX_VALUE ? -1 : res);
+        }
+        return dp[amount];
+    }
+}
+// https://leetcode.cn/submissions/detail/372575252/
+```
 
+```java
+class Solution {
+    HashMap<Integer, Integer> memo = new HashMap<>();
+
+    public int coinChange(int[] coins, int amount) {
+        if (amount == 0) return 0;
+        if (amount < 0) return -1;
+
+        if (memo.get(amount) != null) {
+            return memo.get(amount);
+        }
+
+        int result = Integer.MAX_VALUE;
+        for (int c : coins) {
+            int sp = coinChange(coins, amount - c);
+            if (sp >= 0) {
+                result = Math.min(result, sp + 1);
+            }
+        }
+
+        if (result == Integer.MAX_VALUE) {
+            result = -1;
+        }
+        memo.put(amount, result);
+
+        return result;
+    }
+}
+// https://leetcode.cn/submissions/detail/329261401/
+```
+
+```java
+class Solution {
+    public int coinChange(int[] coins, int amount) {
+        int n = coins.length;
+        // dp[i][j] = 使用硬币 coins[0..i-1] 凑成总金额 j 所需的最少的硬币个数
+        int[][] dp = new int[n + 1][amount + 1];
+        // 总金额为 0
+        for (int i = 1; i <= n; ++i) {
+            dp[i][0] = 0;
+        }
+        // 硬币数为 0
+        for (int j = 1; j <= amount; ++j) {
+            dp[0][j] = -1;
+        }
+        dp[0][0] = 0;
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= amount; ++j) {
+                int x = coins[i - 1];
+                if (j < x) {
+                    // 不包含硬币 x
+                    dp[i][j] = dp[i - 1][j];
+                } else {
+                    int sp1 = dp[i - 1][j]; // 包含    0 个硬币 x
+                    int sp2 = dp[i][j - x]; // 包含 >= 1 个硬币 x
+                    int res = Integer.MAX_VALUE;
+                    if (sp1 != -1) {
+                        res = Math.min(res, sp1);
+                    }
+                    if (sp2 != -1) {
+                        res = Math.min(res, sp2 + 1);
+                    }
+                    dp[i][j] = (res == Integer.MAX_VALUE ? -1 : res);
+                    // 注意
+                    // dp[i][j - x] = 包含 >= 1 个硬币 x
+                    // dp[i-1][j-x] = 包含    1 个硬币 x
+                    // 举例 amount = 79, coins = [1, 2, 5]
+                    // dp[2][79] = 包含    0 个硬币 5，79 = 0 x 5 + 79，剩余 79 只能从 [1, 2] 凑
+                    // dp[2][74] = 包含    1 个硬币 5，79 = 1 x 5 + 74，剩余 74 只能从 [1, 2] 凑
+                    // dp[3][74] = 包含 >= 1 个硬币 5，79 = 1 x 5 + 74，剩余 74 可以从 [1, 2, 5] 凑
+                }
+            }
+        }
+        return dp[n][amount];
+    }
+}
+// https://leetcode.cn/submissions/detail/372573476/
 ```
 
 ## 337. 打家劫舍 III
@@ -5832,7 +6963,54 @@ class Solution {
 <https://leetcode.cn/problems/house-robber-iii/>
 
 ```java
+class Solution {
+    private Map<TreeNode, Integer> memo = new HashMap();
 
+    // 在二叉树 root，能盗取的最高金额
+    public int rob(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        if (!memo.containsKey(root)) {
+            // 不偷 root
+            int sp1 = rob(root.left) + rob(root.right);
+            // 偷 root
+            int sp2 = root.val;
+            if (root.left != null) {
+                sp2 += rob(root.left.left) + rob(root.left.right);
+            }
+            if (root.right != null) {
+                sp2 += rob(root.right.left) + rob(root.right.right);
+            }
+            memo.put(root, Math.max(sp1, sp2));
+        }
+        return memo.get(root);
+    }
+}
+// https://leetcode.cn/submissions/detail/374762287/
+```
+
+```java
+class Solution {
+    public int rob(TreeNode root) {
+        int[] ans = dp(root);
+        return Math.max(ans[0], ans[1]);
+    }
+
+    // 定义
+    // a[0] 不抢 root 的最高金额
+    // a[1] 抢 root 的最高金额
+    private int[] dp(TreeNode root) {
+        if (root == null) return new int[]{0, 0};
+        int[] left = dp(root.left);
+        int[] right = dp(root.right);
+        int rob = root.val + left[0] + right[0];
+        int notRob = Math.max(left[0], left[1]) +
+                Math.max(right[0], right[1]);
+        return new int[]{notRob, rob};
+    }
+}
+// https://leetcode.cn/submissions/detail/332286652/
 ```
 
 ## 344. 反转字符串
@@ -5840,7 +7018,21 @@ class Solution {
 <https://leetcode.cn/problems/reverse-string/>
 
 ```java
+class Solution {
+    public void reverseString(char[] s) {
+        int left = 0, right = s.length - 1;
+        while (left < right) {
+            exch(s, left++, right--);
+        }
+    }
 
+    void exch(char[] a, int i, int j) {
+        char temp = a[i];
+        a[i] = a[j];
+        a[j] = temp;
+    }
+}
+// https://leetcode.cn/submissions/detail/321504650/
 ```
 
 ## 354. 俄罗斯套娃信封问题
@@ -5848,7 +7040,81 @@ class Solution {
 <https://leetcode.cn/problems/russian-doll-envelopes/>
 
 ```java
+class Solution {
+    public int maxEnvelopes(int[][] envelopes) {
+        Arrays.sort(envelopes, (a, b) -> (a[0] == b[0] ? a[1] - b[1] : a[0] - b[0]));
+        int n = envelopes.length;
+        int[] dp = new int[n];
+        dp[0] = 1;
+        for (int i = 1; i < n; i++) {
+            int result = 1;
+            for (int j = i - 1; j >= 0; j--) {
+                if (greater(envelopes, i, j)) {
+                    result = Math.max(result, dp[j] + 1);
+                }
+            }
+            dp[i] = result;
+        }
+        int ans = 1;
+        for (int i = 0; i < n; i++) {
+            ans = Math.max(ans, dp[i]);
+        }
+        return ans;
+    }
 
+    private boolean greater(int[][] envelopes, int i, int j) {
+        return envelopes[i][0] > envelopes[j][0] &&
+                envelopes[i][1] > envelopes[j][1];
+    }
+}
+// https://leetcode.cn/submissions/detail/330571443/
+```
+
+```java
+class Solution {
+    private int[] memo;
+
+    public int maxEnvelopes(int[][] envelopes) {
+        Arrays.sort(envelopes, (a, b) -> (a[0] == b[0] ? a[1] - b[1] : a[0] - b[0]));
+        int n = envelopes.length;
+        memo = new int[n];
+        Arrays.fill(memo, Integer.MIN_VALUE);
+        dp(envelopes, n - 1);
+        int ans = 1;
+        for (int i = 0; i < n; i++) {
+            ans = Math.max(ans, memo[i]);
+        }
+        return ans;
+    }
+
+    private int dp(int[][] envelopes, int i) {
+        if (memo[i] != Integer.MIN_VALUE) {
+            return memo[i];
+        }
+
+        if (i == 0) {
+            memo[0] = 1;
+            return 1;
+        }
+
+        int result = 1;
+        for (int j = i - 1; j >= 0; j--) {
+            int temp = dp(envelopes, j);
+            if (greater(envelopes, i, j)) {
+                result = Math.max(result, temp + 1);
+            }
+        }
+        memo[i] = result;
+
+        return result;
+    }
+
+    private boolean greater(int[][] envelopes, int i, int j) {
+        return envelopes[i][0] > envelopes[j][0] &&
+                envelopes[i][1] > envelopes[j][1];
+    }
+}
+// https://leetcode.cn/submissions/detail/330569441/
 ```
 
 ## 394. 字符串解码
@@ -5856,7 +7122,72 @@ class Solution {
 <https://leetcode.cn/problems/decode-string/>
 
 ```java
+class Solution {
+    public String decodeString(String s) {
+        Deque<String> stack = new LinkedList();
+        StringBuilder sb = new StringBuilder();
+        int len = s.length();
+        int i = 0;
+        while (i < len) {
+            // Digits
+            while (i < len && Character.isDigit(s.charAt(i))) {
+                sb.append(s.charAt(i));
+                ++i;
+            }
+            if (sb.length() > 0) {
+                stack.push(getStringAndClear(sb));
+            }
+            // [
+            while (i < len && s.charAt(i) == '[') {
+                stack.push("[");
+                ++i;
+            }
+            // Letters
+            while (i < len && Character.isLetter(s.charAt(i))) {
+                sb.append(s.charAt(i));
+                ++i;
+            }
+            if (sb.length() > 0) {
+                stack.push(getStringAndClear(sb));
+            }
+            // ]
+            while (i < len && s.charAt(i) == ']') {
+                while (!stack.isEmpty()) {
+                    String str = stack.pop();
+                    if (str.equals("[")) {
+                        break;
+                    } else {
+                        sb.insert(0, str);
+                    }
+                }
+                String letters = getStringAndClear(sb);
+                String digits = stack.pop();
+                String rep = repeatedString(letters, Integer.parseInt(digits));
+                stack.push(rep);
+                ++i;
+            }
+        }
+        while (!stack.isEmpty()) {
+            sb.insert(0, stack.pop());
+        }
+        return sb.toString();
+    }
 
+    private String getStringAndClear(StringBuilder sb) {
+        String str = sb.toString();
+        sb.setLength(0);
+        return str;
+    }
+
+    private String repeatedString(String s, int k) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i <= k; ++i) {
+            sb.append(s);
+        }
+        return sb.toString();
+    }
+}
+// https://leetcode.cn/submissions/detail/363359587/
 ```
 
 ## 416. 分割等和子集
@@ -5864,7 +7195,104 @@ class Solution {
 <https://leetcode.cn/problems/partition-equal-subset-sum/>
 
 ```java
+class Solution {
+    public boolean canPartition(int[] nums) {
+        int sum = 0;
+        for (int x : nums) {
+            sum += x;
+        }
+        if (sum % 2 == 1) {
+            return false;
+        }
+        return hasSubsetSum(nums, sum / 2);
+    }
 
+    // 数组 nums 是否存在和为 sum 的子集
+    private boolean hasSubsetSum(int[] nums, int sum) {
+        int n = nums.length;
+        // dp[i][j] = 子数组 nums[0..i-1] 是否存在和为 j 的子集
+        boolean[][] dp = new boolean[n + 1][sum + 1];
+        // 和为 0
+        for (int i = 1; i <= n; ++i) {
+            dp[i][0] = true;
+        }
+        // 空数组
+        for (int j = 1; j <= sum; ++j) {
+            dp[0][j] = false;
+        }
+        // 空集的和为 0，空集是任何数组的子集，包括空数组
+        dp[0][0] = true;
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= sum; ++j) {
+                int x = nums[i - 1];
+                if (j >= x) {
+                    // 不包含 x
+                    // 当 i = 1 时，dp[i - 1][j] = dp[0][j]
+                    // 因为空数组没有子集的和为 j >= 1
+                    // 所以定义 dp[0][j] = false (j >= 1)
+                    boolean sp1 = dp[i - 1][j];
+                    // 包含 x
+                    // 当 i >= 1, j = x 时，dp[i - 1][j - x] = dp[i - 1][0]
+                    // 因为存在子集 {x} 的和为 j，
+                    // 所以定义 dp[i][0] = true (i >= 0)
+                    boolean sp2 = dp[i - 1][j - x];
+                    dp[i][j] = sp1 || sp2;
+                } else {
+                    dp[i][j] = dp[i - 1][j];
+                }
+            }
+        }
+        return dp[n][sum];
+    }
+}
+// https://leetcode.cn/submissions/detail/373549699/
+```
+
+```java
+class Solution {
+    private Map<String, Boolean> memo = new HashMap();
+
+    public boolean canPartition(int[] nums) {
+        int sum = 0;
+        for (int x : nums) {
+            sum += x;
+        }
+        if (sum % 2 == 1) {
+            return false;
+        }
+        return hasSubsetSum(nums, sum / 2);
+    }
+
+    // 数组 nums 是否存在和为 sum 的子集
+    private boolean hasSubsetSum(int[] nums, int sum) {
+        return hasSubsetSum(nums, nums.length - 1, sum);
+    }
+
+    // 子数组 nums[0..i] 是否存在和为 sum 的子集
+    private boolean hasSubsetSum(int[] nums, int i, int sum) {
+        if (i < 0) {
+            return false;
+        }
+        String key = i + "," + sum;
+        if (!memo.containsKey(key)) {
+            boolean res;
+            int x = nums[i];
+            if (sum > x) {
+                // 不包含 x || 包含 x
+                res = hasSubsetSum(nums, i - 1, sum) || hasSubsetSum(nums, i - 1, sum - x);
+            } else if (sum < x) {
+                // 不包含 x
+                res = hasSubsetSum(nums, i - 1, sum);
+            } else {
+                // 存在子集 {x} 的和为 sum
+                res = true;
+            }
+            memo.put(key, res);
+        }
+        return memo.get(key);
+    }
+}
+// https://leetcode.cn/submissions/detail/375135459/
 ```
 
 ## 435. 无重叠区间
@@ -5872,7 +7300,37 @@ class Solution {
 <https://leetcode.cn/problems/non-overlapping-intervals/>
 
 ```java
+class Solution {
+    public int eraseOverlapIntervals(int[][] intervals) {
+        return intervals.length - maxNonOverlappingIntervals(intervals);
+    }
 
+    // 区间数组 intervals 无重叠区间的最大数量
+    private int maxNonOverlappingIntervals(int[][] intervals) {
+        Arrays.sort(intervals, (a, b) -> {
+            if (a[1] < b[1]) {
+                return -1;
+            } else if (a[1] > b[1]) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+        int count = 0;
+        int minEnd = Integer.MIN_VALUE;
+        for (int i = 0; i < intervals.length; ++i) {
+            int start = intervals[i][0];
+            int end = intervals[i][1];
+            if (start < minEnd) {
+                continue;
+            }
+            ++count;
+            minEnd = end;
+        }
+        return count;
+    }
+}
+// https://leetcode.cn/submissions/detail/375480990/
 ```
 
 ## 438. 找到字符串中所有字母异位词
@@ -5880,7 +7338,45 @@ class Solution {
 <https://leetcode.cn/problems/find-all-anagrams-in-a-string/>
 
 ```java
-
+class Solution {
+    public List<Integer> findAnagrams(String s, String p) {
+        Map<Character, Integer> need = new HashMap();
+        for (char c : p.toCharArray()) {
+            need.put(c, need.getOrDefault(c, 0) + 1);
+        }
+        Map<Character, Integer> window = new HashMap();
+        List<Integer> ans = new LinkedList();
+        int valid = 0;
+        // s[left..right) = Window Substring
+        // s[right..n-1]  = Scanning
+        int left = 0, right = 0;
+        while (right < s.length()) {
+            char c = s.charAt(right++);
+            if (need.containsKey(c)) {
+                window.put(c, window.getOrDefault(c, 0) + 1);
+                if (window.get(c).equals(need.get(c))) {
+                    ++valid;
+                }
+            }
+            if (valid == need.size()) {
+                while (left < right - p.length()) {
+                    char d = s.charAt(left++);
+                    if (need.containsKey(d)) {
+                        if (window.get(d).equals(need.get(d))) {
+                            --valid;
+                        }
+                        window.put(d, window.get(d) - 1);
+                    }
+                }
+            }
+            if (valid == need.size()) {
+                ans.add(left);
+            }
+        }
+        return ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/365642439/
 ```
 
 ## 445. 两数相加 II
@@ -5888,7 +7384,78 @@ class Solution {
 <https://leetcode.cn/problems/add-two-numbers-ii/>
 
 ```java
+class Solution {
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        l1 = reverseList(l1);
+        l2 = reverseList(l2);
+        ListNode dummyHead = new ListNode();
+        ListNode ptr = dummyHead;
+        int carry = 0;
+        while (l1 != null || l2 != null || carry > 0) {
+            int sum = carry;
+            if (l1 != null) {
+                sum += l1.val;
+                l1 = l1.next;
+            }
+            if (l2 != null) {
+                sum += l2.val;
+                l2 = l2.next;
+            }
+            ptr.next = new ListNode(sum % 10);
+            ptr = ptr.next;
+            carry = sum / 10;
+        }
+        return reverseList(dummyHead.next);
+    }
 
+    private ListNode reverseList(ListNode head) {
+        ListNode reverseHead = null;
+        while (head != null) {
+            ListNode next = head.next;
+            head.next = reverseHead;
+            reverseHead = head;
+            head = next;
+        }
+        return reverseHead;
+    }
+}
+// https://leetcode.cn/submissions/detail/356164460/
+```
+
+```java
+class Solution {
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        Deque<ListNode> stack1 = new LinkedList();
+        Deque<ListNode> stack2 = new LinkedList();
+        while (l1 != null || l2 != null) {
+            if (l1 != null) {
+                stack1.push(l1);
+                l1 = l1.next;
+            }
+            if (l2 != null) {
+                stack2.push(l2);
+                l2 = l2.next;
+            }
+        }
+        ListNode first = null;
+        int carry = 0;
+        while (!stack1.isEmpty() || !stack2.isEmpty() || carry > 0) {
+            int sum = carry;
+            if (!stack1.isEmpty()) {
+                sum += stack1.pop().val;
+            }
+            if (!stack2.isEmpty()) {
+                sum += stack2.pop().val;
+            }
+            ListNode oldfirst = first;
+            first = new ListNode(sum % 10);
+            first.next = oldfirst;
+            carry = sum / 10;
+        }
+        return first;
+    }
+}
+// https://leetcode.cn/submissions/detail/361134130/
 ```
 
 ## 450. 删除二叉搜索树中的节点
@@ -5896,7 +7463,46 @@ class Solution {
 <https://leetcode.cn/problems/delete-node-in-a-bst/>
 
 ```java
+class Solution {
+    public TreeNode deleteNode(TreeNode root, int key) {
+        if (root == null) {
+            return null;
+        }
+        if (key < root.val) {
+            root.left = deleteNode(root.left, key);
+        } else if (key > root.val) {
+            root.right = deleteNode(root.right, key);
+        } else {
+            if (root.left == null) {
+                return root.right;
+            }
+            if (root.right == null) {
+                return root.left;
+            }
+            TreeNode x = root;
+            root = findMin(x.right);
+            root.right = deleteMin(x.right);
+            root.left = x.left;
+        }
+        return root;
+    }
 
+    private TreeNode findMin(TreeNode root) {
+        if (root.left == null) {
+            return root;
+        }
+        return findMin(root.left);
+    }
+
+    private TreeNode deleteMin(TreeNode root) {
+        if (root.left == null) {
+            return root.right;
+        }
+        root.left = deleteMin(root.left);
+        return root;
+    }
+}
+// https://leetcode.cn/submissions/detail/368699895/
 ```
 
 ## 452. 用最少数量的箭引爆气球
@@ -5904,7 +7510,38 @@ class Solution {
 <https://leetcode.cn/problems/minimum-number-of-arrows-to-burst-balloons/>
 
 ```java
+class Solution {
+    public int findMinArrowShots(int[][] points) {
+        return maxNonOverlappingIntervals(points).size();
+    }
 
+    private List<int[]> maxNonOverlappingIntervals(int[][] intervals) {
+        Arrays.sort(intervals, new Comparator<int[]>() {
+            public int compare(int[] a, int[] b) {
+                if (a[1] > b[1]) {
+                    return 1;
+                } else if (a[1] < b[1]) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+        List<int[]> list = new LinkedList();
+        list.add(intervals[0]);
+        int minEnd = intervals[0][1];
+        for (int i = 1; i < intervals.length; ++i) {
+            int start = intervals[i][0];
+            int end = intervals[i][1];
+            if (start > minEnd) {
+                list.add(intervals[i]);
+                minEnd = end;
+            }
+        }
+        return list;
+    }
+}
+// https://leetcode.cn/submissions/detail/364702555/
 ```
 
 ## 460. LFU 缓存
@@ -5912,7 +7549,246 @@ class Solution {
 <https://leetcode.cn/problems/lfu-cache/>
 
 ```java
+class Node {
+    public int key, val, freq;
+    public Node prev, next;
 
+    public Node(int key, int val, int freq) {
+        this.key = key;
+        this.val = val;
+        this.freq = freq;
+    }
+}
+
+class DoublyLinkedList {
+    private Node first, last;
+    private int n;
+
+    public DoublyLinkedList() {
+        first = null;
+        last = null;
+        n = 0;
+    }
+
+    public void addLast(Node x) {
+        if (n == 0) {
+            first = x;
+            last = x;
+        } else {
+            last.next = x;
+            x.prev = last;
+            last = x;
+        }
+        ++n;
+    }
+
+    public Node removeFirst() {
+        Node oldFirst = first;
+        if (n == 1) {
+            first = null;
+            last = null;
+        } else {
+            first = first.next;
+            first.prev = null;
+            oldFirst.next = null;
+        }
+        --n;
+        return oldFirst;
+    }
+
+    public Node removeLast() {
+        Node oldLast = last;
+        if (n == 1) {
+            first = null;
+            last = null;
+        } else {
+            last = last.prev;
+            last.next = null;
+            oldLast.prev = null;
+        }
+        --n;
+        return oldLast;
+    }
+
+    public void remove(Node x) {
+        if (x == first) {
+            removeFirst();
+        } else if (x == last) {
+            removeLast();
+        } else {
+            x.prev.next = x.next;
+            x.next.prev = x.prev;
+            x.prev = null;
+            x.next = null;
+            --n;
+        }
+    }
+
+    public boolean empty() {
+        return first == null;
+    }
+}
+
+class LFUCache {
+    private final int capacity;
+    private final Map<Integer, Node> keyToNode = new HashMap();
+    private final Map<Integer, DoublyLinkedList> freqToList = new HashMap();
+    private int minFreq = 0;
+
+    public LFUCache(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public int get(int key) {
+        if (contains(key)) {
+            return touchCache(key, Integer.MIN_VALUE);
+        }
+        return -1;
+    }
+
+    public void put(int key, int value) {
+        if (capacity > 0) {
+            if (contains(key)) {
+                touchCache(key, value);
+            } else {
+                if (full()) {
+                    removeCache();
+                }
+                addCache(key, value);
+            }
+        }
+    }
+
+    private boolean contains(int key) {
+        return keyToNode.containsKey(key);
+    }
+
+    private boolean full() {
+        return keyToNode.size() == capacity;
+    }
+
+    private void addCache(int key, int val) {
+        Node x = new Node(key, val, 1);
+        keyToNode.put(key, x);
+        freqToList.putIfAbsent(1, new DoublyLinkedList());
+        freqToList.get(1).addLast(x);
+        minFreq = 1;
+    }
+
+    private void removeCache() {
+        DoublyLinkedList list = freqToList.get(minFreq);
+        keyToNode.remove(list.removeFirst().key);
+        if (list.empty()) {
+            freqToList.remove(minFreq);
+        }
+    }
+
+    private int touchCache(int key, int val) {
+        Node x = keyToNode.get(key);
+        if (val != Integer.MIN_VALUE) {
+            x.val = val;
+        }
+        int oldFreq = x.freq;
+        int newFreq = oldFreq + 1;
+        x.freq = newFreq;
+        DoublyLinkedList oldList = freqToList.get(oldFreq);
+        oldList.remove(x);
+        if (oldList.empty()) {
+            freqToList.remove(oldFreq);
+            if (minFreq == oldFreq) {
+                minFreq = newFreq;
+            }
+        }
+        freqToList.putIfAbsent(newFreq, new DoublyLinkedList());
+        DoublyLinkedList newList = freqToList.get(newFreq);
+        newList.addLast(x);
+        return x.val;
+    }
+}
+// https://leetcode.cn/submissions/detail/365101727/
+```
+
+```java
+class LFUCache {
+    private final int capacity;
+    private final Map<Integer, Integer> keyToVal = new HashMap();
+    private final Map<Integer, Integer> keyToFreq = new HashMap();
+    private final Map<Integer, LinkedHashSet<Integer>> freqToKeyList = new HashMap();
+    private int minFreq = 0;
+
+    public LFUCache(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public int get(int key) {
+        if (contains(key)) {
+            return touchCache(key, Integer.MIN_VALUE);
+        }
+        return -1;
+    }
+
+    public void put(int key, int value) {
+        if (capacity > 0) {
+            if (contains(key)) {
+                touchCache(key, value);
+            } else {
+                if (full()) {
+                    removeCache();
+                }
+                addCache(key, value);
+            }
+        }
+    }
+
+    private boolean contains(int key) {
+        return keyToVal.containsKey(key);
+    }
+
+    private boolean full() {
+        return keyToVal.size() == capacity;
+    }
+
+    private void addCache(int key, int val) {
+        keyToVal.put(key, val);
+        keyToFreq.put(key, 1);
+        freqToKeyList.putIfAbsent(1, new LinkedHashSet<Integer>());
+        freqToKeyList.get(1).add(key);
+        minFreq = 1;
+    }
+
+    private void removeCache() {
+        LinkedHashSet<Integer> list = freqToKeyList.get(minFreq);
+        int key = list.iterator().next();
+        keyToVal.remove(key);
+        keyToFreq.remove(key);
+        list.remove(key);
+        if (list.isEmpty()) {
+            freqToKeyList.remove(minFreq);
+        }
+    }
+
+    private int touchCache(int key, int val) {
+        if (val != Integer.MIN_VALUE) {
+            keyToVal.put(key, val);
+        }
+        int oldFreq = keyToFreq.get(key);
+        int newFreq = oldFreq + 1;
+        keyToFreq.put(key, newFreq);
+        LinkedHashSet<Integer> oldList = freqToKeyList.get(oldFreq);
+        oldList.remove(key);
+        if (oldList.isEmpty()) {
+            freqToKeyList.remove(oldFreq);
+            if (minFreq == oldFreq) {
+                minFreq = newFreq;
+            }
+        }
+        freqToKeyList.putIfAbsent(newFreq, new LinkedHashSet<Integer>());
+        LinkedHashSet<Integer> newList = freqToKeyList.get(newFreq);
+        newList.add(key);
+        return keyToVal.get(key);
+    }
+}
+// https://leetcode.cn/submissions/detail/365102836/
 ```
 
 ## 493. 翻转对
@@ -5920,7 +7796,71 @@ class Solution {
 <https://leetcode.cn/problems/reverse-pairs/>
 
 ```java
+class Solution {
+    private int ans = 0;
 
+    public int reversePairs(int[] nums) {
+        sort(nums);
+        return ans;
+    }
+
+    private void sort(int[] nums) {
+        int n = nums.length;
+        int[] aux = new int[n];
+        sort(nums, 0, n - 1, aux);
+    }
+
+    private void sort(int[] nums, int lo, int hi, int[] aux) {
+        if (lo >= hi) {
+            return;
+        }
+        int mid = lo + (hi - lo) / 2;
+        sort(nums, lo, mid, aux);
+        sort(nums, mid + 1, hi, aux);
+        merge(nums, lo, mid, hi, aux);
+    }
+
+    private void merge(int[] nums, int lo, int mid, int hi, int[] aux) {
+        for (int k = lo; k <= hi; ++k) {
+            aux[k] = nums[k];
+        }
+        ans += countReversePairs(nums, lo, mid, hi);
+        int i = lo, j = mid + 1;
+        for (int k = lo; k <= hi; ++k) {
+            if (i > mid || (j <= hi && aux[j] < aux[i])) {
+                nums[k] = aux[j++];
+            } else {
+                nums[k] = aux[i++];
+            }
+        }
+    }
+
+    private int countReversePairs(int[] nums, int lo, int mid, int hi) {
+        int res = 0;
+        //     nums[i]      > 2*nums[j]
+        // (1) nums[i]      > 2*nums[mid+1..j]
+        // (2) nums[i..mid] > 2*nums[j]
+        //
+        //     nums[i]     <= 2*nums[j]
+        // (1) nums[i]     <= 2*nums[j..hi]
+        // (2) nums[lo..i] <= 2*nums[j]
+        int i = lo, j = mid + 1;
+        while (i <= mid && j <= hi) {
+            if (isReversePair(nums, i, j)) {
+                res += (mid - i + 1);
+                ++j;
+            } else {
+                ++i;
+            }
+        }
+        return res;
+    }
+
+    private boolean isReversePair(int[] nums, int i, int j) {
+        return i < j && (long) nums[i] > (long) 2 * nums[j];
+    }
+}
+// https://leetcode.cn/submissions/detail/366616958/
 ```
 
 ## 494. 目标和
@@ -5928,7 +7868,102 @@ class Solution {
 <https://leetcode.cn/problems/target-sum/>
 
 ```java
+class Solution {
+    private Map<String, Integer> memo = new HashMap();
 
+    public int findTargetSumWays(int[] nums, int target) {
+        int sum = 0;
+        for (int x : nums) {
+            sum += x;
+        }
+        if (Math.abs(target) > sum) {
+            return 0;
+        }
+        return findTargetSumWays(nums, 0, target);
+    }
+
+    // 子数组 nums[i..n-1] 目标和为 target 的不同表达式的数目
+    private int findTargetSumWays(int[] nums, int i, int target) {
+        if (i == nums.length) {
+            return target == 0 ? 1 : 0;
+        }
+        String key = i + "," + target;
+        if (!memo.containsKey(key)) {
+            int x = nums[i];
+            // x 前添加 + 号
+            // sum(nums[i+1..n-1]) = target - x
+            int sp1 = findTargetSumWays(nums, i + 1, target - x);
+            // x 前添加 - 号
+            // sum(nums[i+1..n-1]) = target + x
+            int sp2 = findTargetSumWays(nums, i + 1, target + x);
+            memo.put(key, sp1 + sp2);
+        }
+        return memo.get(key);
+    }
+}
+// https://leetcode.cn/submissions/detail/373566984/
+```
+
+```java
+class Solution {
+    int findTargetSumWays(int[] nums, int target) {
+        // sum(A) - sum(B) = target
+        // sum(A) = target + sum(B)
+        // sum(A) + sum(A) = target + sum(B) + sum(A)
+        // 2 * sum(A) = target + sum(nums)
+        // sum(A) = (target + sum(nums)) / 2
+        // 问题转化为：数组 nums 中存在几个子集 A
+        // 使得 A 中元素的和为 (target + sum(nums)) / 2
+        int sum = 0;
+        for (int x : nums) {
+            sum += x;
+        }
+        if (Math.abs(target) > sum || (sum + target) % 2 == 1) {
+            return 0;
+        }
+        return numSubsetSum(nums, (sum + target) / 2);
+    }
+
+    // 数组 nums 和为 sum 的子集的数目，其中 nums[i] >= 0, sum >= 0
+    int numSubsetSum(int[] nums, int sum) {
+        int n = nums.length;
+        // dp[i][j] = 子数组 nums[0..i-1] 和为 j 的子集的数目
+        int[][] dp = new int[n + 1][sum + 1];
+        // 空数组
+        for (int j = 1; j <= sum; ++j) {
+            dp[0][j] = 0;
+        }
+        // 空集的和为 0，空集是任何数组的子集，包括空数组
+        dp[0][0] = 1;
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 0; j <= sum; ++j) {
+                int x = nums[i - 1];
+                if (j >= x) {
+                    // 不包含 x
+                    // 当 i = 1, j >= 1 时，dp[i - 1][j] = dp[0][j]
+                    // 因为空数组没有子集的和为 j
+                    // 所以定义 dp[0][j] = 0 (j >= 1)
+                    int sp1 = dp[i - 1][j];
+                    // 包含 x
+                    // 当 i = 1, j = x 时，dp[i - 1][j - x] = dp[0][0]
+                    // 因为存在子集 {x} 的和为 j，
+                    // 所以定义 dp[0][0] = 1
+                    // 注意：当 i > 1, j = x 时，dp[i - 1][j - x] = dp[i - 1][0]
+                    // 此时，不一定只有 dp[i][0] = 1 (i > 0)
+                    // 测试用例
+                    // [0,0,0,0,0,0,0,0,1]
+                    // 1
+                    int sp2 = dp[i - 1][j - x];
+                    dp[i][j] = sp1 + sp2;
+                } else {
+                    dp[i][j] = dp[i - 1][j];
+                }
+            }
+        }
+        return dp[n][sum];
+    }
+}
+// https://leetcode.cn/submissions/detail/373566688/
 ```
 
 ## 496. 下一个更大元素 I
@@ -5936,7 +7971,37 @@ class Solution {
 <https://leetcode.cn/problems/next-greater-element-i/>
 
 ```java
+class Solution {
+    public int[] nextGreaterElement(int[] nums1, int[] nums2) {
+        int[] greater = nextGreaterElement(nums2);
+        Map<Integer, Integer> valToGreater = new HashMap();
+        for (int i = 0; i < nums2.length; ++i) {
+            valToGreater.put(nums2[i], greater[i]);
+        }
+        int n1 = nums1.length;
+        int[] ans = new int[n1];
+        for (int i = 0; i < n1; ++i) {
+            ans[i] = valToGreater.get(nums1[i]);
+        }
+        return ans;
+    }
 
+    private int[] nextGreaterElement(int[] nums) {
+        int n = nums.length;
+        int[] res = new int[n];
+        Deque<Integer> stack = new LinkedList();
+        for (int i = n - 1; i >= 0; --i) {
+            int x = nums[i];
+            while (!stack.isEmpty() && stack.peek() < x) {
+                stack.pop();
+            }
+            res[i] = stack.isEmpty() ? -1 : stack.peek();
+            stack.push(x);
+        }
+        return res;
+    }
+}
+// https://leetcode.cn/submissions/detail/374122931/
 ```
 
 ## 503. 下一个更大元素 II
