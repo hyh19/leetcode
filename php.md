@@ -5650,7 +5650,106 @@ class Solution
 <https://leetcode.cn/problems/count-of-smaller-numbers-after-self/>
 
 ```php
+<?php
 
+class Pair
+{
+    private int $val;
+    private int $idx;
+
+    public function __construct(int $val, int $idx)
+    {
+        $this->val = $val;
+        $this->idx = $idx;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVal(): int
+    {
+        return $this->val;
+    }
+
+    /**
+     * @return int
+     */
+    public function getIdx(): int
+    {
+        return $this->idx;
+    }
+}
+
+class Solution
+{
+    private array $counts;
+
+    /**
+     * @param int[] $nums
+     * @return int[]
+     */
+    function countSmaller(array $nums): array
+    {
+        $pairs = [];
+        foreach ($nums as $idx => $val) {
+            $pairs[] = new Pair($val, $idx);
+        }
+        $this->counts = array_fill(0, count($nums), 0);
+        $this->sort($pairs);
+        return $this->counts;
+    }
+
+    /**
+     * @param Pair[] $pairs
+     * @param int|null $lo
+     * @param int|null $hi
+     * @return void
+     */
+    private function sort(array &$pairs, int $lo = null, int $hi = null): void
+    {
+        if (isset($lo, $hi)) {
+            // 子问题
+            if ($lo >= $hi) {
+                return;
+            }
+            $mid = $lo + floor(($hi - $lo) / 2);
+            $this->sort($pairs, $lo, $mid);
+            $this->sort($pairs, $mid + 1, $hi);
+            $this->merge($pairs, $lo, $mid, $hi);
+        } else {
+            // 原问题
+            $this->sort($pairs, 0, count($pairs) - 1);
+        }
+    }
+
+    /**
+     * @param Pair[] $pairs
+     * @param int $lo
+     * @param int $mid
+     * @param int $hi
+     * @return void
+     */
+    private function merge(array &$pairs, int $lo, int $mid, int $hi): void
+    {
+        $aux = [];
+        for ($k = $lo; $k <= $hi; ++$k) {
+            $aux[$k] = $pairs[$k];
+        }
+        $i = $lo;
+        $j = $mid + 1;
+        for ($k = $lo; $k <= $hi; ++$k) {
+            if ($i > $mid || ($j <= $hi && $aux[$j]->getVal() < $aux[$i]->getVal())) {
+                $pairs[$k] = $aux[$j++];
+            } else {
+                $p = $aux[$i];
+                // aux[mid+1..j) < aux[i]
+                $this->counts[$p->getIdx()] += ($j - $mid - 1);
+                $pairs[$k] = $aux[$i++];
+            }
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/384068749/
 ```
 
 ## 322. 零钱兑换
@@ -5658,7 +5757,37 @@ class Solution
 <https://leetcode.cn/problems/coin-change/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param int[] $coins
+     * @param int $amount
+     * @return int
+     */
+    function coinChange(array $coins, int $amount): int
+    {
+        // dp[i] = 凑成总金额 i 所需的最少的硬币个数
+        $dp = array_fill(0, $amount + 1, -1);
+        $dp[0] = 0;
+        for ($i = 1; $i <= $amount; ++$i) {
+            $res = PHP_INT_MAX;
+            // c       = 选择放入的硬币
+            // i-c     = 剩余总金额
+            // dp[i-c] = 凑成剩余总金额所需的最少的硬币个数
+            foreach ($coins as $c) {
+                $x = $i - $c;
+                if ($x >= 0 && $dp[$x] !== -1) {
+                    $res = min($res, $dp[$x] + 1);
+                }
+            }
+            $dp[$i] = ($res === PHP_INT_MAX ? -1 : $res);
+        }
+        return $dp[$amount];
+    }
+}
+// https://leetcode.cn/submissions/detail/383632830/
 ```
 
 ## 337. 打家劫舍 III
@@ -5666,7 +5795,43 @@ class Solution
 <https://leetcode.cn/problems/house-robber-iii/>
 
 ```php
+<?php
 
+class Solution
+{
+    private SplObjectStorage $memo;
+
+    public function __construct()
+    {
+        $this->memo = new SplObjectStorage();
+    }
+
+    /**
+     * @param TreeNode|null $root
+     * @return int
+     */
+    function rob(?TreeNode $root): int
+    {
+        if ($root === null) {
+            return 0;
+        }
+        if (!$this->memo->contains($root)) {
+            // 不偷 root
+            $sp1 = $this->rob($root->left) + $this->rob($root->right);
+            // 偷 root
+            $sp2 = $root->val;
+            if ($root->left != null) {
+                $sp2 += $this->rob($root->left->left) + $this->rob($root->left->right);
+            }
+            if ($root->right != null) {
+                $sp2 += $this->rob($root->right->left) + $this->rob($root->right->right);
+            }
+            $this->memo[$root] = max($sp1, $sp2);
+        }
+        return $this->memo[$root];
+    }
+}
+// https://leetcode.cn/submissions/detail/383628399/
 ```
 
 ## 344. 反转字符串
@@ -5674,7 +5839,26 @@ class Solution
 <https://leetcode.cn/problems/reverse-string/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param string[] $s
+     * @return void
+     */
+    function reverseString(array &$s): void
+    {
+        $i = 0;
+        $j = count($s) - 1;
+        while ($i < $j) {
+            [$s[$i], $s[$j]] = [$s[$j], $s[$i]];
+            ++$i;
+            --$j;
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/383270613/
 ```
 
 ## 354. 俄罗斯套娃信封问题
@@ -5690,7 +5874,61 @@ class Solution
 <https://leetcode.cn/problems/decode-string/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param string $s
+     * @return string
+     */
+    function decodeString(string $s): string
+    {
+        $stack = new SplStack();
+        $n = strlen($s);
+        $i = 0;
+        while ($i < $n) {
+            $digits = "";
+            while ($i < $n && ctype_digit($s[$i])) {
+                $digits .= $s[$i++];
+            }
+            if (strlen($digits) > 0) {
+                $stack->push($digits);
+            }
+            while ($i < $n && $s[$i] === '[') {
+                $stack->push("[");
+                ++$i;
+            }
+            $letters = "";
+            while ($i < $n && ctype_alpha($s[$i])) {
+                $letters .= $s[$i++];
+            }
+            if (strlen($letters) > 0) {
+                $stack->push($letters);
+            }
+            while ($i < $n && $s[$i] === ']') {
+                $letters = "";
+                while (!$stack->isEmpty()) {
+                    $str = $stack->pop();
+                    if ($str === "[") {
+                        break;
+                    }
+                    $letters = $str . $letters;
+                }
+                $digits = $stack->pop();
+                $rep = str_repeat($letters, intval($digits));
+                $stack->push($rep);
+                ++$i;
+            }
+        }
+        $ans = "";
+        while (!$stack->isEmpty()) {
+            $ans = $stack->pop() . $ans;
+        }
+        return $ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/383295936/
 ```
 
 ## 416. 分割等和子集
@@ -5698,7 +5936,71 @@ class Solution
 <https://leetcode.cn/problems/partition-equal-subset-sum/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param int[] $nums
+     * @return bool
+     */
+    function canPartition(array $nums): bool
+    {
+        $sum = array_sum($nums);
+        if ($sum % 2 === 1) {
+            return false;
+        }
+        return $this->hasSubsetSum($nums, $sum / 2);
+    }
+
+    // 数组 $nums 是否存在和为 $sum 的子集
+
+    /**
+     * 数组 nums 是否存在和为 sum 的子集
+     *
+     * @param int[] $nums
+     * @param int $sum
+     * @return bool
+     */
+    private function hasSubsetSum(array $nums, int $sum): bool
+    {
+        $n = count($nums);
+        // dp[i][j] = 子数组 nums[0..i-1] 是否存在和为 j 的子集
+        $dp = [];
+        // 和为 0
+        for ($i = 1; $i <= $n; ++$i) {
+            $dp[$i][0] = true;
+        }
+        // 空数组
+        for ($j = 1; $j <= $sum; ++$j) {
+            $dp[0][$j] = false;
+        }
+        // 空集的和为 0，空集是任何数组的子集，包括空数组
+        $dp[0][0] = true;
+        for ($i = 1; $i <= $n; ++$i) {
+            for ($j = 1; $j <= $sum; ++$j) {
+                $x = $nums[$i - 1];
+                if ($j >= $x) {
+                    // 不包含 x
+                    // 当 i = 1 时，dp[i - 1][j] = dp[0][j]
+                    // 因为空数组没有子集的和为 j >= 1
+                    // 所以定义 dp[0][j] = false (j >= 1)
+                    $sp1 = $dp[$i - 1][$j];
+                    // 包含 x
+                    // 当 i >= 1, j = x 时，dp[i - 1][j - x] = dp[i - 1][0]
+                    // 因为存在子集 {x} 的和为 j，
+                    // 所以定义 dp[i][0] = true (i >= 0)
+                    $sp2 = $dp[$i - 1][$j - $x];
+                    $dp[$i][$j] = $sp1 || $sp2;
+                } else {
+                    $dp[$i][$j] = $dp[$i - 1][$j];
+                }
+            }
+        }
+        return $dp[$n][$sum];
+    }
+}
+// https://leetcode.cn/submissions/detail/383745305/
 ```
 
 ## 435. 无重叠区间
@@ -5706,7 +6008,42 @@ class Solution
 <https://leetcode.cn/problems/non-overlapping-intervals/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param int[][] $intervals
+     * @return int
+     */
+    function eraseOverlapIntervals(array $intervals): int
+    {
+        return count($intervals) - $this->maxNonOverlappingIntervals($intervals);
+    }
+
+    /**
+     * 返回区间数组 intervals 中无重叠区间的最大数量
+     *
+     * @param int[][] $intervals
+     * @return int
+     */
+    private function maxNonOverlappingIntervals(array $intervals): int
+    {
+        usort($intervals, fn($a, $b) => $a[1] - $b[1]);
+        $count = 0;
+        $minEnd = PHP_INT_MIN;
+        for ($i = 0; $i < count($intervals); ++$i) {
+            [$start, $end] = $intervals[$i];
+            if ($start < $minEnd) {
+                continue;
+            }
+            ++$count;
+            $minEnd = $end;
+        }
+        return $count;
+    }
+}
+// https://leetcode.cn/submissions/detail/383519654/
 ```
 
 ## 438. 找到字符串中所有字母异位词
@@ -5714,7 +6051,56 @@ class Solution
 <https://leetcode.cn/problems/find-all-anagrams-in-a-string/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param string $s
+     * @param string $p
+     * @return int[]
+     */
+    function findAnagrams(string $s, string $p): array
+    {
+        $need = [];
+        for ($i = 0; $i < strlen($p); ++$i) {
+            $ch = $p[$i];
+            $need[$ch] = ($need[$ch] ?? 0) + 1;
+        }
+        $win = [];
+        $ans = [];;
+        $valid = 0;
+        // s[left..right) = Window Substring
+        // s[right..n-1]  = Scanning
+        $left = 0;
+        $right = 0;
+        while ($right < strlen($s)) {
+            $add = $s[$right++];
+            if (array_key_exists($add, $need)) {
+                $win[$add] = ($win[$add] ?? 0) + 1;
+                if ($win[$add] === $need[$add]) {
+                    ++$valid;
+                }
+            }
+            if ($valid === count($need)) {
+                while ($left < $right - strlen($p)) {
+                    $del = $s[$left++];
+                    if (array_key_exists($del, $need)) {
+                        if ($win[$del] === $need[$del]) {
+                            --$valid;
+                        }
+                        --$win[$del];
+                    }
+                }
+            }
+            if ($valid === count($need)) {
+                $ans[] = $left;
+            }
+        }
+        return $ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/383383114/
 ```
 
 ## 445. 两数相加 II
@@ -5722,7 +6108,59 @@ class Solution
 <https://leetcode.cn/problems/add-two-numbers-ii/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param ListNode $l1
+     * @param ListNode $l2
+     * @return ListNode
+     */
+    function addTwoNumbers(ListNode $l1, ListNode $l2): ListNode
+    {
+        $l1 = $this->reverseList($l1);
+        $l2 = $this->reverseList($l2);
+        $dummyHead = new ListNode();
+        $ptr = $dummyHead;
+        $carry = 0;
+        while ($l1 !== null || $l2 !== null || $carry > 0) {
+            $sum = $carry;
+            if ($l1 !== null) {
+                $sum += $l1->val;
+                $l1 = $l1->next;
+            }
+            if ($l2 !== null) {
+                $sum += $l2->val;
+                $l2 = $l2->next;
+            }
+            $ptr->next = new ListNode($sum % 10);
+            $ptr = $ptr->next;
+            $carry = floor($sum / 10);
+        }
+        // 还原链表
+        $this->reverseList($l1);
+        $this->reverseList($l2);
+        return $this->reverseList($dummyHead->next);
+    }
+
+    /**
+     * @param ListNode|null $head
+     * @return ListNode|null
+     */
+    function reverseList(?ListNode $head): ?ListNode
+    {
+        $reverseHead = null;
+        while ($head !== null) {
+            $nextHead = $head->next;
+            $head->next = $reverseHead;
+            $reverseHead = $head;
+            $head = $nextHead;
+        }
+        return $reverseHead;
+    }
+}
+// https://leetcode.cn/submissions/detail/382719142/
 ```
 
 ## 450. 删除二叉搜索树中的节点
@@ -5730,7 +6168,65 @@ class Solution
 <https://leetcode.cn/problems/delete-node-in-a-bst/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param TreeNode|null $root
+     * @param int $key
+     * @return TreeNode|null
+     */
+    function deleteNode(?TreeNode $root, int $key): ?TreeNode
+    {
+        if ($root === null) {
+            return null;
+        }
+        if ($key < $root->val) {
+            $root->left = $this->deleteNode($root->left, $key);
+        } else if ($root->val < $key) {
+            $root->right = $this->deleteNode($root->right, $key);
+        } else {
+            if ($root->left === null) {
+                return $root->right;
+            }
+            if ($root->right === null) {
+                return $root->left;
+            }
+            $t = $root;
+            $root = $this->findMin($t->right);
+            $root->right = $this->deleteMin($t->right);
+            $root->left = $t->left;
+        }
+        return $root;
+    }
+
+    /**
+     * @param TreeNode $root
+     * @return TreeNode
+     */
+    function findMin(TreeNode $root): TreeNode
+    {
+        if ($root->left === null) {
+            return $root;
+        }
+        return $this->findMin($root->left);
+    }
+
+    /**
+     * @param TreeNode $root
+     * @return TreeNode|null
+     */
+    function deleteMin(TreeNode $root): ?TreeNode
+    {
+        if ($root->left === null) {
+            return $root->right;
+        }
+        $root->left = $this->deleteMin($root->left);
+        return $root;
+    }
+}
+// https://leetcode.cn/submissions/detail/383162592/
 ```
 
 ## 452. 用最少数量的箭引爆气球
@@ -5738,7 +6234,42 @@ class Solution
 <https://leetcode.cn/problems/minimum-number-of-arrows-to-burst-balloons/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param int[][] $points
+     * @return int
+     */
+    function findMinArrowShots(array $points): int
+    {
+        return $this->maxNonOverlappingIntervals($points);
+    }
+
+    /**
+     * 返回区间数组 intervals 中无重叠区间的最大数量
+     *
+     * @param int[][] $intervals
+     * @return int
+     */
+    private function maxNonOverlappingIntervals(array $intervals): int
+    {
+        usort($intervals, fn($a, $b) => $a[1] - $b[1]);
+        $count = 0;
+        $minEnd = PHP_INT_MIN;
+        for ($i = 0; $i < count($intervals); ++$i) {
+            [$start, $end] = $intervals[$i];
+            if ($start <= $minEnd) {
+                continue;
+            }
+            ++$count;
+            $minEnd = $end;
+        }
+        return $count;
+    }
+}
+// https://leetcode.cn/submissions/detail/383519087/
 ```
 
 ## 460. LFU 缓存
@@ -5746,7 +6277,238 @@ class Solution
 <https://leetcode.cn/problems/lfu-cache/>
 
 ```php
+<?php
 
+class Node
+{
+    public int $key;
+    public int $val;
+    public int $freq;
+    public ?Node $prev;
+    public ?Node $next;
+
+    /**
+     * @param int $key
+     * @param int $val
+     * @param int $freq
+     * @param Node|null $prev
+     * @param Node|null $next
+     */
+    public function __construct(int $key, int $val, int $freq, Node $prev = null, Node $next = null)
+    {
+        $this->key = $key;
+        $this->val = $val;
+        $this->freq = $freq;
+        $this->prev = $prev;
+        $this->next = $next;
+    }
+}
+
+class DoublyLinkedList
+{
+    private ?Node $first = null;
+    private ?Node $last = null;
+    private int $n = 0;
+
+    /**
+     * @param Node $x
+     * @return void
+     */
+    public function addLast(Node $x): void
+    {
+        if ($this->n === 0) {
+            $this->first = $x;
+            $this->last = $x;
+        } else {
+            $this->last->next = $x;
+            $x->prev = $this->last;
+            $this->last = $x;
+        }
+        ++$this->n;
+    }
+
+    /**
+     * @return Node
+     */
+    public function removeFirst(): Node
+    {
+        $oldFirst = $this->first;
+        if ($this->n === 1) {
+            $this->first = null;
+            $this->last = null;
+        } else {
+            $this->first = $this->first->next;
+            $this->first->prev = null;
+            $oldFirst->next = null;
+        }
+        --$this->n;
+        return $oldFirst;
+    }
+
+    /**
+     * @return Node
+     */
+    public function removeLast(): Node
+    {
+        $oldLast = $this->last;
+        if ($this->n === 1) {
+            $this->first = null;
+            $this->last = null;
+        } else {
+            $this->last = $this->last->prev;
+            $this->last->next = null;
+            $oldLast->prev = null;
+        }
+        --$this->n;
+        return $oldLast;
+    }
+
+    /**
+     * @param Node $x
+     * @return void
+     */
+    public function remove(Node $x): void
+    {
+        if ($x === $this->first) {
+            $this->removeFirst();
+        } else if ($x === $this->last) {
+            $this->removeLast();
+        } else {
+            $x->prev->next = $x->next;
+            $x->next->prev = $x->prev;
+            $x->prev = null;
+            $x->next = null;
+            --$this->n;
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function empty(): bool
+    {
+        return is_null($this->first);
+    }
+}
+
+class LFUCache
+{
+    private int $capacity;
+    private array $keyToNode = [];
+    private array $freqToList = [];
+    private int $minFreq = 0;
+
+    /**
+     * @param int $capacity
+     */
+    function __construct(int $capacity)
+    {
+        $this->capacity = $capacity;
+    }
+
+    /**
+     * @param int $key
+     * @return int
+     */
+    function get(int $key): int
+    {
+        if ($this->contains($key)) {
+            return $this->touchCache($key);
+        }
+        return -1;
+    }
+
+    /**
+     * @param int $key
+     * @param int $value
+     * @return void
+     */
+    function put(int $key, int $value): void
+    {
+        if ($this->capacity > 0) {
+            if ($this->contains($key)) {
+                $this->touchCache($key, $value);
+            } else {
+                if ($this->full()) {
+                    $this->removeCache();
+                }
+                $this->addCache($key, $value);
+            }
+        }
+    }
+
+    /**
+     * @param int $key
+     * @return bool
+     */
+    private function contains(int $key): bool
+    {
+        return array_key_exists($key, $this->keyToNode);
+    }
+
+    /**
+     * @return bool
+     */
+    private function full(): bool
+    {
+        return count($this->keyToNode) === $this->capacity;
+    }
+
+    /**
+     * @param int $key
+     * @param int $val
+     * @return void
+     */
+    private function addCache(int $key, int $val): void
+    {
+        $x = new Node($key, $val, 1);
+        $this->keyToNode[$key] = $x;
+        $this->freqToList[1] = $this->freqToList[1] ?? new DoublyLinkedList();
+        $this->freqToList[1]->addLast($x);
+        $this->minFreq = 1;
+    }
+
+    /**
+     * @return void
+     */
+    private function removeCache(): void
+    {
+        $list = $this->freqToList[$this->minFreq];
+        unset($this->keyToNode[$list->removeFirst()->key]);
+        if ($list->empty()) {
+            unset($this->freqToList[$this->minFreq]);
+        }
+    }
+
+    /**
+     * @param int $key
+     * @param int|null $val
+     * @return int
+     */
+    private function touchCache(int $key, int $val = null): int
+    {
+        $x = $this->keyToNode[$key];
+        if (isset($val)) {
+            $x->val = $val;
+        }
+        $oldFreq = $x->freq;
+        $newFreq = $oldFreq + 1;
+        $x->freq = $newFreq;
+        $oldList = $this->freqToList[$oldFreq];
+        $oldList->remove($x);
+        if ($oldList->empty()) {
+            unset($this->freqToList[$oldFreq]);
+            if ($this->minFreq === $oldFreq) {
+                $this->minFreq = $newFreq;
+            }
+        }
+        $this->freqToList[$newFreq] = $this->freqToList[$newFreq] ?? new DoublyLinkedList();
+        $newList = $this->freqToList[$newFreq];
+        $newList->addLast($x);
+        return $x->val;
+    }
+}
+// https://leetcode.cn/submissions/detail/384087732/
 ```
 
 ## 493. 翻转对
@@ -5754,7 +6516,112 @@ class Solution
 <https://leetcode.cn/problems/reverse-pairs/>
 
 ```php
+<?php
 
+class Solution
+{
+    private int $ans = 0;
+
+    /**
+     * @param int[] $nums
+     * @return int
+     */
+    function reversePairs(array $nums): int
+    {
+        $this->sort($nums);
+        return $this->ans;
+    }
+
+    /**
+     * @param int[] $nums
+     * @param int|null $lo
+     * @param int|null $hi
+     * @return void
+     */
+    private function sort(array &$nums, int $lo = null, int $hi = null): void
+    {
+        if (isset($lo, $hi)) {
+            // 子问题
+            if ($lo >= $hi) {
+                return;
+            }
+            $mid = $lo + floor(($hi - $lo) / 2);
+            $this->sort($nums, $lo, $mid);
+            $this->sort($nums, $mid + 1, $hi);
+            $this->merge($nums, $lo, $mid, $hi);
+        } else {
+            // 原问题
+            $this->sort($nums, 0, count($nums) - 1);
+        }
+    }
+
+    /**
+     * @param int[] $nums
+     * @param int $lo
+     * @param int $mid
+     * @param int $hi
+     * @return void
+     */
+    private function merge(array &$nums, int $lo, int $mid, int $hi): void
+    {
+        $aux = [];
+        for ($k = $lo; $k <= $hi; ++$k) {
+            $aux[$k] = $nums[$k];
+        }
+        $this->ans += $this->countReversePairs($nums, $lo, $mid, $hi);
+        $i = $lo;
+        $j = $mid + 1;
+        for ($k = $lo; $k <= $hi; ++$k) {
+            if ($i > $mid || ($j <= $hi && $aux[$j] < $aux[$i])) {
+                $nums[$k] = $aux[$j++];
+            } else {
+                $nums[$k] = $aux[$i++];
+            }
+        }
+    }
+
+    /**
+     * @param int[] $nums
+     * @param int $lo
+     * @param int $mid
+     * @param int $hi
+     * @return int
+     */
+    private function countReversePairs(array $nums, int $lo, int $mid, int $hi): int
+    {
+        $res = 0;
+        //     nums[i]      > 2*nums[j]
+        // (1) nums[i]      > 2*nums[mid+1..j]
+        // (2) nums[i..mid] > 2*nums[j]
+        //
+        //     nums[i]     <= 2*nums[j]
+        // (1) nums[i]     <= 2*nums[j..hi]
+        // (2) nums[lo..i] <= 2*nums[j]
+        $i = $lo;
+        $j = $mid + 1;
+        while ($i <= $mid && $j <= $hi) {
+            if ($this->isReversePair($nums, $i, $j)) {
+                $res += ($mid - $i + 1);
+                ++$j;
+            } else {
+                ++$i;
+            }
+        }
+        return $res;
+    }
+
+    /**
+     * @param int[] $nums
+     * @param int $i
+     * @param int $j
+     * @return bool
+     */
+    private function isReversePair(array $nums, int $i, int $j): bool
+    {
+        return $i < $j && $nums[$i] > 2 * $nums[$j];
+    }
+}
+// https://leetcode.cn/submissions/detail/384051474/
 ```
 
 ## 494. 目标和
@@ -5762,7 +6629,46 @@ class Solution
 <https://leetcode.cn/problems/target-sum/>
 
 ```php
+<?php
 
+class Solution
+{
+    private array $memo = [];
+
+    /**
+     * @param int[] $nums
+     * @param int $target
+     * @param int|null $i
+     * @return int
+     */
+    function findTargetSumWays(array $nums, int $target, int $i = null): int
+    {
+        // 原问题
+        if (is_null($i)) {
+            $sum = array_sum($nums);
+            if (abs($target) > $sum) {
+                return 0;
+            }
+            return $this->findTargetSumWays($nums, $target, count($nums) - 1);
+        }
+        // 子问题：返回子数组 nums[0..i] 中目标和为 target 的不同表达式的数目
+        if ($i < 0) {
+            return $target === 0 ? 1 : 0;
+        }
+        if (is_null($this->memo[$target][$i])) {
+            $x = $nums[$i];
+            // x 前添加 + 号
+            // sum(nums[0..i-1]) = target - x
+            $sp1 = $this->findTargetSumWays($nums, $target - $x, $i - 1);
+            // x 前添加 - 号
+            // sum(nums[0..i-1]) = target + x
+            $sp2 = $this->findTargetSumWays($nums, $target + $x, $i - 1);
+            $this->memo[$target][$i] = $sp1 + $sp2;
+        }
+        return $this->memo[$target][$i];
+    }
+}
+// https://leetcode.cn/submissions/detail/383715566/
 ```
 
 ## 496. 下一个更大元素 I
@@ -5770,7 +6676,42 @@ class Solution
 <https://leetcode.cn/problems/next-greater-element-i/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param int[] $nums1
+     * @param int[] $nums2
+     * @return int[]
+     */
+    function nextGreaterElement(array $nums1, array $nums2): array
+    {
+        $greater = $this->nextGreaterElementSP($nums2);
+        $valToGreater = array_combine($nums2, $greater);
+        return array_map(fn($val) => $valToGreater[$val], $nums1);
+    }
+
+    /**
+     * @param int[] $nums
+     * @return int[]
+     */
+    private function nextGreaterElementSP(array $nums): array
+    {
+        $res = [...$nums];
+        $minMonoStack = new SplStack();
+        for ($i = count($nums) - 1; $i >= 0; --$i) {
+            $x = $nums[$i];
+            while (!$minMonoStack->isEmpty() && $minMonoStack->top() < $x) {
+                $minMonoStack->pop();
+            }
+            $res[$i] = $minMonoStack->isEmpty() ? -1 : $minMonoStack->top();
+            $minMonoStack->push($x);
+        }
+        return $res;
+    }
+}
+// https://leetcode.cn/submissions/detail/383544689/
 ```
 
 ## 503. 下一个更大元素 II
@@ -5778,7 +6719,32 @@ class Solution
 <https://leetcode.cn/problems/next-greater-element-ii/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param int[] $nums
+     * @return int[]
+     */
+    function nextGreaterElements(array $nums): array
+    {
+        $ans = [...$nums];
+        $minMonoStack = new SplStack();
+        $n = count($nums);
+        for ($i = 2 * $n - 1; $i >= 0; --$i) {
+            $k = $i % $n;
+            $x = $nums[$k];
+            while (!$minMonoStack->isEmpty() && $minMonoStack->top() <= $x) {
+                $minMonoStack->pop();
+            }
+            $ans[$k] = $minMonoStack->isEmpty() ? -1 : $minMonoStack->top();
+            $minMonoStack->push($x);
+        }
+        return $ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/383545351/
 ```
 
 ## 509. 斐波那契数
@@ -5786,7 +6752,32 @@ class Solution
 <https://leetcode.cn/problems/fibonacci-number/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param int $n
+     * @return int
+     */
+    function fib(int $n): int
+    {
+        if ($n === 0) {
+            return 0;
+        }
+        if ($n === 1) {
+            return 1;
+        }
+        $dp = [];
+        $dp[0] = 0;
+        $dp[1] = 1;
+        for ($i = 2; $i <= $n; ++$i) {
+            $dp[$i] = $dp[$i - 1] + $dp[$i - 2];
+        }
+        return $dp[$n];
+    }
+}
+// https://leetcode.cn/submissions/detail/383631649/
 ```
 
 ## 516. 最长回文子序列
@@ -5794,7 +6785,45 @@ class Solution
 <https://leetcode.cn/problems/longest-palindromic-subsequence/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param string $s
+     * @return int
+     */
+    function longestPalindromeSubseq(string $s): int
+    {
+        $n = strlen($s);
+        // dp[i][j] = 子串 s[i..j] 的最长回文子序列的长度
+        $dp = [];
+        // 遍历对角线
+        for ($i = 0; $i < $n; ++$i) {
+            $dp[$i][$i] = 1;
+        }
+        // 遍历上三角形
+        for ($i = $n - 2; $i >= 0; --$i) {
+            for ($j = $i + 1; $j < $n; ++$j) {
+                if ($s[$i] === $s[$j]) {
+                    // s[i][i+1..j-1][j]
+                    // s   [i+1..j-1]
+                    $dp[$i][$j] = $dp[$i + 1][$j - 1] + 2;
+                } else {
+                    // s[i..j-1][j]
+                    // s[i..j-1]
+                    $sp1 = $dp[$i][$j - 1];
+                    // s[i][i+1..j]
+                    // s   [i+1..j]
+                    $sp2 = $dp[$i + 1][$j];
+                    $dp[$i][$j] = max($sp1, $sp2);
+                }
+            }
+        }
+        return $dp[0][$n - 1];
+    }
+}
+// https://leetcode.cn/submissions/detail/383555315/
 ```
 
 ## 518. 零钱兑换 II
@@ -5802,7 +6831,46 @@ class Solution
 <https://leetcode.cn/problems/coin-change-2/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param int $amount
+     * @param int[] $coins
+     * @return int
+     */
+    function change(int $amount, array $coins): int
+    {
+        $n = count($coins);
+        // dp[i][j] = 使用硬币 coins[0..i-1] 凑成总金额 j 的组合数
+        $dp = [];
+        // 总金额为 0
+        for ($i = 1; $i <= $n; ++$i) {
+            $dp[$i][0] = 1;
+        }
+        // 硬币数为 0
+        for ($j = 1; $j <= $amount; ++$j) {
+            $dp[0][$j] = 0;
+        }
+        $dp[0][0] = 1;
+        for ($i = 1; $i <= $n; ++$i) {
+            for ($j = 1; $j <= $amount; ++$j) {
+                $x = $coins[$i - 1];
+                if ($j < $x) {
+                    // 不包含硬币 x
+                    $dp[$i][$j] = $dp[$i - 1][$j];
+                } else {
+                    $sp1 = $dp[$i - 1][$j];  // 包含    0 个硬币 x
+                    $sp2 = $dp[$i][$j - $x]; // 包含 >= 1 个硬币 x
+                    $dp[$i][$j] = $sp1 + $sp2;
+                }
+            }
+        }
+        return $dp[$n][$amount];
+    }
+}
+// https://leetcode.cn/submissions/detail/383633662/
 ```
 
 ## 538. 把二叉搜索树转换为累加树
@@ -5810,7 +6878,38 @@ class Solution
 <https://leetcode.cn/problems/convert-bst-to-greater-tree/>
 
 ```php
+<?php
 
+class Solution
+{
+    private int $sum = 0;
+
+    /**
+     * @param TreeNode|null $root
+     * @return TreeNode|null
+     */
+    function convertBST(?TreeNode $root): ?TreeNode
+    {
+        $this->dfs($root);
+        return $root;
+    }
+
+    /**
+     * @param TreeNode|null $root
+     * @return void
+     */
+    private function dfs(?TreeNode $root): void
+    {
+        if ($root === null) {
+            return;
+        }
+        $this->dfs($root->right);
+        $this->sum += $root->val;
+        $root->val = $this->sum;
+        $this->dfs($root->left);
+    }
+}
+// https://leetcode.cn/submissions/detail/383157253/
 ```
 
 ## 543. 二叉树的直径
@@ -5818,7 +6917,38 @@ class Solution
 <https://leetcode.cn/problems/diameter-of-binary-tree/>
 
 ```php
+<?php
 
+class Solution
+{
+    private int $ans = 0;
+
+    /**
+     * @param TreeNode|null $root
+     * @return int
+     */
+    function diameterOfBinaryTree(?TreeNode $root): int
+    {
+        $this->maxDepth($root);
+        return $this->ans;
+    }
+
+    /**
+     * @param TreeNode|null $root
+     * @return int
+     */
+    function maxDepth(?TreeNode $root): int
+    {
+        if ($root === null) {
+            return 0;
+        }
+        $left = $this->maxDepth($root->left);
+        $right = $this->maxDepth($root->right);
+        $this->ans = max($this->ans, $left + $right);
+        return 1 + max($left, $right);
+    }
+}
+// https://leetcode.cn/submissions/detail/382914266/
 ```
 
 ## 567. 字符串的排列
@@ -5826,7 +6956,55 @@ class Solution
 <https://leetcode.cn/problems/permutation-in-string/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param string $s1
+     * @param string $s2
+     * @return bool
+     */
+    function checkInclusion(string $s1, string $s2): bool
+    {
+        $need = [];
+        for ($i = 0; $i < strlen($s1); ++$i) {
+            $ch = $s1[$i];
+            $need[$ch] = ($need[$ch] ?? 0) + 1;
+        }
+        $win = [];
+        $valid = 0;
+        // s[left..right) = Window Substring
+        // s[right..n-1]  = Scanning
+        $left = 0;
+        $right = 0;
+        while ($right < strlen($s2)) {
+            $add = $s2[$right++];
+            if (array_key_exists($add, $need)) {
+                $win[$add] = ($win[$add] ?? 0) + 1;
+                if ($win[$add] === $need[$add]) {
+                    ++$valid;
+                }
+            }
+            if ($valid === count($need)) {
+                while ($left < $right - strlen($s1)) {
+                    $del = $s2[$left++];
+                    if (array_key_exists($del, $need)) {
+                        if ($win[$del] === $need[$del]) {
+                            --$valid;
+                        }
+                        --$win[$del];
+                    }
+                }
+            }
+            if ($valid === count($need)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+// https://leetcode.cn/submissions/detail/383383960/
 ```
 
 ## 583. 两个字符串的删除操作
@@ -5834,7 +7012,66 @@ class Solution
 <https://leetcode.cn/problems/delete-operation-for-two-strings/>
 
 ```php
+<?php
 
+class Solution
+{
+    private array $memo = [];
+
+    /**
+     * @param string $s1
+     * @param string $s2
+     * @param int|null $i
+     * @param int|null $j
+     * @return int|null
+     */
+    function minDistance(string $s1, string $s2, int $i = null, int $j = null): ?int
+    {
+        // 原问题
+        if (is_null($i) && is_null($j)) {
+            return $this->minDistance($s1, $s2, strlen($s1) - 1, strlen($s2) - 1);
+        }
+        // 子问题：子串 s1[0..i] s2[0..j] 的最小删除步数
+        if (!is_null($i) && !is_null($j)) {
+            // 删除 s2[0..j]
+            // s1""
+            // s2[0..j]
+            if ($i < 0) {
+                return $j + 1;
+            }
+            // 删除 s1[0..i]
+            // s1[0..i]
+            // s2""
+            if ($j < 0) {
+                return $i + 1;
+            }
+            if (is_null($this->memo[$i][$j])) {
+                if ($s1[$i] === $s2[$j]) {
+                    // s1[0..i-1][i]
+                    // s2[0..j-1][j]
+                    $this->memo[$i][$j] = $this->minDistance($s1, $s2, $i - 1, $j - 1);
+                } else {
+                    // 删除 s1[i] s2[j]
+                    // s1[0..i-1][i]
+                    // s2[0..j-1][j]
+                    $sp1 = $this->minDistance($s1, $s2, $i - 1, $j - 1) + 2;
+                    // 删除 s2[j]
+                    // s1[0..i]
+                    // s2[0..j-1][j]
+                    $sp2 = $this->minDistance($s1, $s2, $i, $j - 1) + 1;
+                    // 删除 s1[i]
+                    // s1[0..i-1][i]
+                    // s2[0..j]
+                    $sp3 = $this->minDistance($s1, $s2, $i - 1, $j) + 1;
+                    $this->memo[$i][$j] = min($sp1, $sp2, $sp3);
+                }
+            }
+            return $this->memo[$i][$j];
+        }
+        return null;
+    }
+}
+// https://leetcode.cn/submissions/detail/383617598/
 ```
 
 ## 617. 合并二叉树
@@ -5842,7 +7079,30 @@ class Solution
 <https://leetcode.cn/problems/merge-two-binary-trees/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param TreeNode|null $root1
+     * @param TreeNode|null $root2
+     * @return TreeNode|null
+     */
+    function mergeTrees(?TreeNode $root1, ?TreeNode $root2): ?TreeNode
+    {
+        if ($root1 === null) {
+            return $root2;
+        }
+        if ($root2 === null) {
+            return $root1;
+        }
+        $mRoot = new TreeNode($root1->val + $root2->val);
+        $mRoot->left = $this->mergeTrees($root1->left, $root2->left);
+        $mRoot->right = $this->mergeTrees($root1->right, $root2->right);
+        return $mRoot;
+    }
+}
+// https://leetcode.cn/submissions/detail/383095768/
 ```
 
 ## 652. 寻找重复的子树
@@ -5850,7 +7110,45 @@ class Solution
 <https://leetcode.cn/problems/find-duplicate-subtrees/>
 
 ```php
+<?php
 
+class Solution
+{
+    private array $ans = [];
+    private array $counter = [];
+
+    /**
+     * @param TreeNode $root
+     * @return TreeNode[]
+     */
+    function findDuplicateSubtrees(TreeNode $root): array
+    {
+        $this->postorder($root);
+        return $this->ans;
+    }
+
+    /**
+     * @param TreeNode|null $root
+     * @return string
+     */
+    private function postorder(?TreeNode $root): string
+    {
+        if ($root === null) {
+            return "#";
+        }
+        $left = $this->postorder($root->left);
+        $right = $this->postorder($root->right);
+        $res = $left . "," . $right . "," . $root->val;
+        if (!array_key_exists($res, $this->counter)) {
+            $this->counter[$res] = 0;
+        }
+        if (++$this->counter[$res] == 2) {
+            $this->ans[] = $root;
+        }
+        return $res;
+    }
+}
+// https://leetcode.cn/submissions/detail/382911604/
 ```
 
 ## 654. 最大二叉树
@@ -5858,7 +7156,37 @@ class Solution
 <https://leetcode.cn/problems/maximum-binary-tree/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param int[] $nums
+     * @param int|null $lo
+     * @param int|null $hi
+     * @return TreeNode|null
+     */
+    function constructMaximumBinaryTree(array $nums, int $lo = null, int $hi = null): ?TreeNode
+    {
+        if (is_null($lo) && is_null($hi)) {
+            return $this->constructMaximumBinaryTree($nums, 0, count($nums) - 1);
+        }
+        if ($lo > $hi) {
+            return null;
+        }
+        $max = $lo;
+        for ($i = $lo + 1; $i <= $hi; ++$i) {
+            if ($nums[$i] > $nums[$max]) {
+                $max = $i;
+            }
+        }
+        $root = new TreeNode($nums[$max]);
+        $root->left = $this->constructMaximumBinaryTree($nums, $lo, $max - 1);
+        $root->right = $this->constructMaximumBinaryTree($nums, $max + 1, $hi);
+        return $root;
+    }
+}
+// https://leetcode.cn/submissions/detail/382993820/
 ```
 
 ## 695. 岛屿的最大面积
@@ -5866,7 +7194,55 @@ class Solution
 <https://leetcode.cn/problems/max-area-of-island/>
 
 ```php
+<?php
 
+class Solution
+{
+    const LAND = 1;
+    const WATER = 0;
+    private int $area = 0;
+
+    /**
+     * @param int[][] $grid
+     * @return int
+     */
+    function maxAreaOfIsland(array $grid): int
+    {
+        $ans = 0;
+        for ($i = 0; $i < count($grid); ++$i) {
+            for ($j = 0; $j < count($grid[0]); ++$j) {
+                if ($grid[$i][$j] === self::LAND) {
+                    $this->area = 0;
+                    $this->floodFill($grid, $i, $j);
+                    $ans = max($ans, $this->area);
+                }
+            }
+        }
+        return $ans;
+    }
+
+    /**
+     * @param int[][] $grid
+     * @param int $i
+     * @param int $j
+     * @return void
+     */
+    private function floodFill(array &$grid, int $i, int $j): void
+    {
+        if ($i < 0 || $i >= count($grid) ||
+            $j < 0 || $j >= count($grid[0]) ||
+            $grid[$i][$j] === self::WATER) {
+            return;
+        }
+        ++$this->area;
+        $grid[$i][$j] = self::WATER;
+        $this->floodFill($grid, $i, $j + 1);
+        $this->floodFill($grid, $i, $j - 1);
+        $this->floodFill($grid, $i + 1, $j);
+        $this->floodFill($grid, $i - 1, $j);
+    }
+}
+// https://leetcode.cn/submissions/detail/383800399/
 ```
 
 ## 698. 划分为 K 个相等的子集
@@ -5874,7 +7250,94 @@ class Solution
 <https://leetcode.cn/problems/partition-to-k-equal-sum-subsets/>
 
 ```php
+<?php
 
+class Solution
+{
+    private int $target;
+    private array $pathSums;
+    private int $used = 0;
+    private array $memo = [];
+
+    /**
+     * @param int[] $nums
+     * @param int $k
+     * @return bool
+     */
+    function canPartitionKSubsets(array $nums, int $k): bool
+    {
+        $n = count($nums);
+        if ($k > $n) {
+            return false;
+        }
+        $sum = array_sum($nums);
+        if ($sum % $k != 0) {
+            return false;
+        }
+        $this->target = $sum / $k;
+        $this->pathSums = array_fill(0, $k, 0);
+        return $this->backtrack($nums, $k, 0, -1);
+    }
+
+    /**
+     * 遍历『决策森林』的 k 棵『决策树』
+     * 一棵『决策树』的『路径』代表一个『等和子集』
+     * tree = 第几棵『决策树』，取 [0..k-1] 为值
+     * edge =『决策树』的『边』，取数组 nums 的索引为值
+     * pathSums[tree] = 第几棵『决策树』的『路径和』
+     *
+     * @param int[] $nums
+     * @param int $k
+     * @param int $tree
+     * @param int $edge
+     * @return bool
+     */
+    private function backtrack(array $nums, int $k, int $tree, int $edge): bool
+    {
+        $res = false;
+        if ($tree === $k) {
+            $res = true;
+        } else if ($this->pathSums[$tree] === $this->target) {
+            // 通过缓存，对同一个『森林』，优化『树』的遍历，避免『路径+路径』重复
+            // 例如 [1->2->3] 和 [4->5->6] 分别是两条『路径』
+            // 如果 A.[1->2->3] -> B.[4->5->6] -> C.[] 是不行的
+            // 那么 A.[4->5->6] -> B.[1->2->3] -> C.[] 也是不行的
+            // 因为 C 的可选『边』是一样的
+            if (!array_key_exists($this->used, $this->memo)) {
+                // 遍历下一棵『决策树』
+                $res = $this->backtrack($nums, $k, $tree + 1, -1);
+                $this->memo[$this->used] = $res;
+            }
+            $res = $this->memo[$this->used];
+        } else {
+            // 通过去重，对同一棵树，优化『边』的遍历，避免『边+边』重复
+            // 例如 1 和 2 分别是两条『边』，[1->2] 和 [2->1] 是重复的
+            while (++$edge < count($nums)) {
+                // 检查第 edge 位是否为 1
+                // 即 nums[edge] 是否已经被其他『树』使用
+                if ((($this->used >> $edge) & 1) === 1) {
+                    continue;
+                }
+                $x = $nums[$edge];
+                if ($this->pathSums[$tree] + $x > $this->target) {
+                    continue;
+                }
+                $this->pathSums[$tree] += $x;
+                //『或』运算，将第 edge 位修改为 1
+                $this->used |= (1 << $edge);
+                $res = $this->backtrack($nums, $k, $tree, $edge);
+                if ($res) {
+                    break;
+                }
+                $this->pathSums[$tree] -= $x;
+                //『异或』运算，将第 edge 位恢复为 0
+                $this->used ^= (1 << $edge);
+            }
+        }
+        return $res;
+    }
+}
+// https://leetcode.cn/submissions/detail/384178574/
 ```
 
 ## 700. 二叉搜索树中的搜索
@@ -5882,7 +7345,30 @@ class Solution
 <https://leetcode.cn/problems/search-in-a-binary-search-tree/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param TreeNode|null $root
+     * @param Integer $val
+     * @return TreeNode|null
+     */
+    function searchBST(?TreeNode $root, int $val): ?TreeNode
+    {
+        if ($root === null) {
+            return null;
+        }
+        if ($val < $root->val) {
+            return $this->searchBST($root->left, $val);
+        }
+        if ($val > $root->val) {
+            return $this->searchBST($root->right, $val);
+        }
+        return $root;
+    }
+}
+// https://leetcode.cn/submissions/detail/383098409/
 ```
 
 ## 701. 二叉搜索树中的插入操作
@@ -5890,7 +7376,30 @@ class Solution
 <https://leetcode.cn/problems/insert-into-a-binary-search-tree/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param TreeNode|null $root
+     * @param int $val
+     * @return TreeNode
+     */
+    function insertIntoBST(?TreeNode $root, int $val): TreeNode
+    {
+        if ($root === null) {
+            return new TreeNode($val);
+        }
+        if ($val < $root->val) {
+            $root->left = $this->insertIntoBST($root->left, $val);
+        }
+        if ($val > $root->val) {
+            $root->right = $this->insertIntoBST($root->right, $val);
+        }
+        return $root;
+    }
+}
+// https://leetcode.cn/submissions/detail/383156011/
 ```
 
 ## 704. 二分查找
@@ -5898,7 +7407,33 @@ class Solution
 <https://leetcode.cn/problems/binary-search/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param Integer[] $nums
+     * @param Integer $target
+     * @return Integer
+     */
+    function search(array $nums, int $target): int
+    {
+        $lo = 0;
+        $hi = count($nums) - 1;
+        while ($lo <= $hi) {
+            $mid = $lo + floor(($hi - $lo) / 2);
+            if ($target < $nums[$mid]) {
+                $hi = $mid - 1;
+            } else if ($nums[$mid] < $target) {
+                $lo = $mid + 1;
+            } else {
+                return $mid;
+            }
+        }
+        return -1;
+    }
+}
+// https://leetcode.cn/submissions/detail/382829511/
 ```
 
 ## 712. 两个字符串的最小 ASCII 删除和
@@ -5906,7 +7441,88 @@ class Solution
 <https://leetcode.cn/problems/minimum-ascii-delete-sum-for-two-strings/>
 
 ```php
+<?php
 
+class Solution
+{
+    private array $memo = [];
+    private ?array $sum1 = null;
+    private ?array $sum2 = null;
+
+    /**
+     * @param string $s1
+     * @param string $s2
+     * @param int|null $i
+     * @param int|null $j
+     * @return int|null
+     */
+    function minimumDeleteSum(string $s1, string $s2, int $i = null, int $j = null): ?int
+    {
+        // 原问题
+        if (is_null($i) && is_null($j)) {
+            $this->sum1 = $this->prefixSum($s1);
+            $this->sum2 = $this->prefixSum($s2);
+            return $this->minimumDeleteSum($s1, $s2, strlen($s1) - 1, strlen($s2) - 1);
+        }
+        // 子问题：子串 s1[0..i] s2[0..j] 的最小 ASCII 删除和
+        if (!is_null($i) && !is_null($j)) {
+            if ($i < 0 && $j < 0) {
+                return 0;
+            }
+            // 删除 s2[0..j]
+            // s1""
+            // s2[0..j]
+            if ($i < 0) {
+                return $this->sum2[$j];
+            }
+            // 删除 s1[0..i]
+            // s1[0..i]
+            // s2""
+            if ($j < 0) {
+                return $this->sum1[$i];
+            }
+            if (is_null($this->memo[$i][$j])) {
+                if ($s1[$i] === $s2[$j]) {
+                    // s1[0..i-1][i]
+                    // s2[0..j-1][j]
+                    $this->memo[$i][$j] = $this->minimumDeleteSum($s1, $s2, $i - 1, $j - 1);
+                } else {
+                    // 删除 s1[i] s2[j]
+                    // s1[0..i-1][i]
+                    // s2[0..j-1][j]
+                    $sp1 = $this->minimumDeleteSum($s1, $s2, $i - 1, $j - 1) + ord($s1[$i]) + ord($s2[$j]);
+                    // 删除 s2[j]
+                    // s1[0..i]
+                    // s2[0..j-1][j]
+                    $sp2 = $this->minimumDeleteSum($s1, $s2, $i, $j - 1) + ord($s2[$j]);
+                    // 删除 s1[i]
+                    // s1[0..i-1][i]
+                    // s2[0..j]
+                    $sp3 = $this->minimumDeleteSum($s1, $s2, $i - 1, $j) + ord($s1[$i]);
+                    $this->memo[$i][$j] = min($sp1, $sp2, $sp3);
+                }
+            }
+            return $this->memo[$i][$j];
+        }
+        return null;
+    }
+
+    /**
+     * @param string $s
+     * @return array
+     */
+    private function prefixSum(string $s): array
+    {
+        $n = strlen($s);
+        $sum = array_fill(0, $n, 0);
+        $sum[0] = ord($s[0]);
+        for ($i = 1; $i < $n; ++$i) {
+            $sum[$i] = $sum[$i - 1] + ord($s[$i]);
+        }
+        return $sum;
+    }
+}
+// https://leetcode.cn/submissions/detail/383622422/
 ```
 
 ## 714. 买卖股票的最佳时机含手续费
@@ -5914,7 +7530,34 @@ class Solution
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param int[] $prices
+     * @param int $fee
+     * @return int
+     */
+    function maxProfit(array $prices, int $fee): int
+    {
+        $n = count($prices);
+        // dp[i][0] = 第 i 天，空仓状态下的最大利润
+        // dp[i][1] = 第 i 天，持仓状态下的最大利润
+        $dp = [];
+        $dp[0][0] = 0;
+        $dp[0][1] = -$prices[0] - $fee;
+        for ($i = 1; $i < $n; ++$i) {
+            // dp[i - 1][0]             >= dp[i - 1][0] - prices[i] - fee
+            // dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+            // => dp[i][0] >= dp[i][1]
+            $dp[$i][0] = max($dp[$i - 1][0], $dp[$i - 1][1] + $prices[$i]);
+            $dp[$i][1] = max($dp[$i - 1][0] - $prices[$i] - $fee, $dp[$i - 1][1]);
+        }
+        return $dp[$n - 1][0];
+    }
+}
+// https://leetcode.cn/submissions/detail/383635493/
 ```
 
 ## 739. 每日温度
@@ -5922,7 +7565,31 @@ class Solution
 <https://leetcode.cn/problems/daily-temperatures/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param int[] $temperatures
+     * @return int[]
+     */
+    function dailyTemperatures(array $temperatures): array
+    {
+        $n = count($temperatures);
+        $ans = array_fill(0, $n, 0);
+        $minMonoStack = new SplStack();
+        for ($i = $n - 1; $i >= 0; --$i) {
+            while (!$minMonoStack->isEmpty()
+                && $temperatures[$minMonoStack->top()] <= $temperatures[$i]) {
+                $minMonoStack->pop();
+            }
+            $ans[$i] = $minMonoStack->isEmpty() ? 0 : $minMonoStack->top() - $i;
+            $minMonoStack->push($i);
+        }
+        return $ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/383549122/
 ```
 
 ## 743. 网络延迟时间
@@ -5930,7 +7597,170 @@ class Solution
 <https://leetcode.cn/problems/network-delay-time/>
 
 ```php
+<?php
 
+class DirectedEdge
+{
+    private int $v;
+    private int $w;
+    private int $weight;
+
+    public function __construct(int $v, int $w, int $weight)
+    {
+        $this->v = $v;
+        $this->w = $w;
+        $this->weight = $weight;
+    }
+
+    /**
+     * @return int
+     */
+    public function getWeight(): int
+    {
+        return $this->weight;
+    }
+
+    /**
+     * @return int
+     */
+    public function from(): int
+    {
+        return $this->v;
+    }
+
+    /**
+     * @return int
+     */
+    public function to(): int
+    {
+        return $this->w;
+    }
+}
+
+class EdgeWeightedDigraph
+{
+    private int $V;
+    private int $E;
+    private array $adj;
+
+    public function __construct(int $V)
+    {
+        $this->V = $V;
+        $this->E = 0;
+        $this->adj = array_fill(0, $V, []);
+    }
+
+    /**
+     * @return int
+     */
+    public function getV(): int
+    {
+        return $this->V;
+    }
+
+    /**
+     * @param DirectedEdge $e
+     * @return void
+     */
+    public function addEdge(DirectedEdge $e): void
+    {
+        $v = $e->from();
+        $this->adj[$v][] = $e;
+        ++$this->E;
+    }
+
+    /**
+     * @param int $v
+     * @return DirectedEdge[]
+     */
+    public function adj(int $v): array
+    {
+        return $this->adj[$v];
+    }
+}
+
+class MinPQ extends SplPriorityQueue
+{
+    public function compare(mixed $priority1, mixed $priority2): int
+    {
+        return $priority2 - $priority1;
+    }
+}
+
+class LazyDijkstraSP
+{
+    private array $marked;
+    private array $distTo;
+    private MinPQ $pq;
+
+    public function __construct(EdgeWeightedDigraph $G, int $s)
+    {
+        $V = $G->getV();
+        $this->marked = array_fill(0, $V, false);
+        $this->distTo = array_fill(0, $V, PHP_INT_MAX);
+        $this->distTo[$s] = 0;
+        $this->pq = new MinPQ();
+        $this->relax($G, $s);
+        while (!$this->pq->isEmpty()) {
+            $e = $this->pq->extract();
+            $w = $e->to();
+            if (!$this->marked[$w]) {
+                $this->relax($G, $w);
+            }
+        }
+    }
+
+    /**
+     * @param EdgeWeightedDigraph $G
+     * @param int $v
+     * @return void
+     */
+    private function relax(EdgeWeightedDigraph $G, int $v): void
+    {
+        $this->marked[$v] = true;
+        foreach ($G->adj($v) as $e) {
+            $w = $e->to();
+            $dist = $this->distTo[$v] + $e->getWeight();
+            if ($this->distTo[$w] > $dist) {
+                $this->distTo[$w] = $dist;
+                $this->pq->insert($e, $dist);
+            }
+        }
+    }
+
+    /**
+     * @param int $v
+     * @return int
+     */
+    public function distTo(int $v): int
+    {
+        return $this->distTo[$v];
+    }
+}
+
+class Solution
+{
+    /**
+     * @param int[][] $times
+     * @param int $n
+     * @param int $k
+     * @return int
+     */
+    function networkDelayTime(array $times, int $n, int $k): int
+    {
+        $graph = new EdgeWeightedDigraph($n);
+        foreach ($times as $t) {
+            $graph->addEdge(new DirectedEdge($t[0] - 1, $t[1] - 1, $t[2]));
+        }
+        $spt = new LazyDijkstraSP($graph, $k - 1);
+        $maxTime = 0;
+        for ($v = 0; $v < $n; ++$v) {
+            $maxTime = max($maxTime, $spt->distTo($v));
+        }
+        return $maxTime < PHP_INT_MAX ? $maxTime : -1;
+    }
+}
+// https://leetcode.cn/submissions/detail/384161991/
 ```
 
 ## 752. 打开转盘锁
@@ -5938,7 +7768,84 @@ class Solution
 <https://leetcode.cn/problems/open-the-lock/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param string[] $deadends
+     * @param string $target
+     * @return int
+     */
+    function openLock(array $deadends, string $target): int
+    {
+        $visitedSet = [];
+        foreach ($deadends as $val) {
+            $visitedSet[$val] = null;
+        }
+        $queue = new SplQueue();
+        $source = "0000";
+        if (!array_key_exists($source, $visitedSet)) {
+            $queue->enqueue($source);
+            $visitedSet[$source] = null;
+        }
+        $count = 0;
+        while (!$queue->isEmpty()) {
+            $size = $queue->count();
+            for ($i = 0; $i < $size; ++$i) {
+                $s = $queue->dequeue();
+                if ($s === $target) {
+                    return $count;
+                }
+                for ($j = 0; $j < 4; ++$j) {
+                    $plus = $this->plusOne($s, $j);
+                    if (!array_key_exists($plus, $visitedSet)) {
+                        $queue->enqueue($plus);
+                        $visitedSet[$plus] = null;
+                    }
+                    $minus = $this->minusOne($s, $j);
+                    if (!array_key_exists($minus, $visitedSet)) {
+                        $queue->enqueue($minus);
+                        $visitedSet[$minus] = null;
+                    }
+                }
+            }
+            ++$count;
+        }
+        return -1;
+    }
+
+    /**
+     * @param string $s
+     * @param int $j
+     * @return string
+     */
+    private function plusOne(string $s, int $j): string
+    {
+        $ch = $s[$j];
+        $replace = '0';
+        if ($ch !== '9') {
+            $replace = chr(ord($ch) + 1);
+        }
+        return substr_replace($s, $replace, $j, 1);
+    }
+
+    /**
+     * @param string $s
+     * @param int $j
+     * @return string
+     */
+    private function minusOne(string $s, int $j): string
+    {
+        $ch = $s[$j];
+        $replace = '9';
+        if ($ch !== '0') {
+            $replace = chr(ord($ch) - 1);
+        }
+        return substr_replace($s, $replace, $j, 1);
+    }
+}
+// https://leetcode.cn/submissions/detail/383231280/
 ```
 
 ## 785. 判断二分图
@@ -5946,7 +7853,56 @@ class Solution
 <https://leetcode.cn/problems/is-graph-bipartite/>
 
 ```php
+<?php
 
+class Solution
+{
+    private bool $bipartite = true;
+    private array $marked;
+    private array $color;
+
+    /**
+     * @param int[][] $graph
+     * @return bool
+     */
+    function isBipartite(array $graph): bool
+    {
+        $n = count($graph);
+        $this->marked = array_fill(0, $n, false);
+        $this->color = array_fill(0, $n, false);
+        for ($v = 0; $v < $n; ++$v) {
+            if (!$this->marked[$v]) {
+                $this->dfs($graph, $v);
+                if (!$this->bipartite) {
+                    break;
+                }
+            }
+        }
+        return $this->bipartite;
+    }
+
+    /**
+     * @param int[][] $graph
+     * @param int $v
+     * @return void
+     */
+    private function dfs(array $graph, int $v): void
+    {
+        $this->marked[$v] = true;
+        foreach ($graph[$v] as $w) {
+            if (!$this->bipartite) {
+                return;
+            }
+            if (!$this->marked[$w]) {
+                $this->color[$w] = !$this->color[$v];
+                $this->dfs($graph, $w);
+            } else if ($this->color[$w] === $this->color[$v]) {
+                $this->bipartite = false;
+            }
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/384107700/
 ```
 
 ## 797. 所有可能的路径
@@ -5954,7 +7910,44 @@ class Solution
 <https://leetcode.cn/problems/all-paths-from-source-to-target/>
 
 ```php
+<?php
 
+class Solution
+{
+    private array $ans = [];
+    private array $path = [];
+    private int $target;
+
+    /**
+     * @param int[][] $graph
+     * @return int[][]
+     */
+    function allPathsSourceTarget(array $graph): array
+    {
+        $this->target = count($graph) - 1;
+        $this->dfs($graph, 0);
+        return $this->ans;
+    }
+
+    /**
+     * @param int[][] $graph
+     * @param int $v
+     * @return void
+     */
+    private function dfs(array $graph, int $v): void
+    {
+        $this->path[] = $v;
+        if ($v === $this->target) {
+            $this->ans[] = [...$this->path];
+        } else {
+            foreach ($graph[$v] as $w) {
+                $this->dfs($graph, $w);
+            }
+        }
+        array_pop($this->path);
+    }
+}
+// https://leetcode.cn/submissions/detail/384180287/
 ```
 
 ## 846. 一手顺子
@@ -5962,7 +7955,44 @@ class Solution
 <https://leetcode.cn/problems/hand-of-straights/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param Integer[] $hand
+     * @param Integer $groupSize
+     * @return Boolean
+     */
+    function isNStraightHand(array $hand, int $groupSize): bool
+    {
+        if (count($hand) % $groupSize !== 0) {
+            return false;
+        }
+        sort($hand);
+        $counter = [];
+        foreach ($hand as $card) {
+            if (!array_key_exists($card, $counter)) {
+                $counter[$card] = 0;
+            }
+            ++$counter[$card];
+        }
+        foreach ($hand as $card) {
+            if ($counter[$card] > 0) {
+                for ($i = 0; $i < $groupSize; ++$i) {
+                    $need = $card + $i;
+                    $count = $counter[$need];
+                    if (!array_key_exists($need, $counter) || $count === 0) {
+                        return false;
+                    }
+                    --$counter[$need];
+                }
+            }
+        }
+        return true;
+    }
+}
+// https://leetcode.cn/submissions/detail/382827357/
 ```
 
 ## 875. 爱吃香蕉的珂珂
@@ -5970,7 +8000,50 @@ class Solution
 <https://leetcode.cn/problems/koko-eating-bananas/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param Integer[] $piles
+     * @param Integer $h
+     * @return Integer
+     */
+    function minEatingSpeed(array $piles, int $h): int
+    {
+        $lo = 1;
+        $hi = max($piles);
+        $ans = $lo;
+        while ($lo <= $hi) {
+            $mid = $lo + floor(($hi - $lo) / 2);
+            if ($this->canFinish($piles, $h, $mid)) {
+                $ans = $mid;
+                $hi = $mid - 1;
+            } else {
+                $lo = $mid + 1;
+            }
+        }
+        return $ans;
+    }
+
+    /**
+     * 当吃香蕉的速度为 k 时，是否能在 h 小时内吃完
+     *
+     * @param Integer[] $piles
+     * @param Integer $h
+     * @param Integer $k
+     * @return Boolean
+     */
+    function canFinish(array $piles, int $h, int $k): bool
+    {
+        $hours = 0;
+        foreach ($piles as $p) {
+            $hours += ceil($p / $k);
+        }
+        return $hours <= $h;
+    }
+}
+// https://leetcode.cn/submissions/detail/382876933/
 ```
 
 ## 876. 链表的中间结点
@@ -5978,7 +8051,26 @@ class Solution
 <https://leetcode-cn.com/problems/middle-of-the-linked-list/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param ListNode $head
+     * @return ListNode
+     */
+    function middleNode(ListNode $head): ListNode
+    {
+        $slow = $head;
+        $fast = $head;
+        while ($fast !== null && $fast->next !== null) {
+            $slow = $slow->next;
+            $fast = $fast->next->next;
+        }
+        return $slow;
+    }
+}
+// https://leetcode.cn/submissions/detail/382534338/
 ```
 
 ## 886. 可能的二分法
@@ -5986,7 +8078,73 @@ class Solution
 <https://leetcode.cn/problems/possible-bipartition/>
 
 ```php
+<?php
 
+class Solution
+{
+    private bool $bipartite = true;
+    private array $marked;
+    private array $color;
+
+    /**
+     * @param int $n
+     * @param int[][] $dislikes
+     * @return bool
+     */
+    function possibleBipartition(int $n, array $dislikes): bool
+    {
+        $graph = [];
+        foreach ($dislikes as $d) {
+            $v = $d[0] - 1;
+            $w = $d[1] - 1;
+            $graph[$v][] = $w;
+            $graph[$w][] = $v;
+        }
+        return $this->isBipartite($graph);
+    }
+
+    /**
+     * @param int[][] $graph
+     * @return bool
+     */
+    private function isBipartite(array $graph): bool
+    {
+        $n = count($graph);
+        $this->marked = array_fill(0, $n, false);
+        $this->color = array_fill(0, $n, false);
+        for ($v = 0; $v < $n; ++$v) {
+            if (!$this->marked[$v]) {
+                $this->dfs($graph, $v);
+                if (!$this->bipartite) {
+                    break;
+                }
+            }
+        }
+        return $this->bipartite;
+    }
+
+    /**
+     * @param int[][] $graph
+     * @param int $v
+     * @return void
+     */
+    private function dfs(array $graph, int $v): void
+    {
+        $this->marked[$v] = true;
+        foreach ($graph[$v] as $w) {
+            if (!$this->bipartite) {
+                return;
+            }
+            if (!$this->marked[$w]) {
+                $this->color[$w] = !$this->color[$v];
+                $this->dfs($graph, $w);
+            } else if ($this->color[$w] === $this->color[$v]) {
+                $this->bipartite = false;
+            }
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/384108225/
 ```
 
 ## 889. 根据前序和后序遍历构造二叉树
@@ -5994,7 +8152,46 @@ class Solution
 <https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/>
 
 ```php
+<?php
 
+class Solution
+{
+    private ?array $postorderMap = null;
+
+    /**
+     * @param int[] $preorder
+     * @param int[] $postorder
+     * @param int|null $preStart
+     * @param int|null $preEnd
+     * @param int|null $postStart
+     * @param int|null $postEnd
+     * @return TreeNode|null
+     */
+    function constructFromPrePost(array $preorder, array $postorder,
+                                  int   $preStart = null, int $preEnd = null,
+                                  int   $postStart = null, int $postEnd = null): ?TreeNode
+    {
+        if (is_null($preStart) && is_null($preEnd) &&
+            is_null($postStart) && is_null($postEnd)) {
+            $this->postorderMap = array_combine(array_values($postorder), array_keys($postorder));
+            return $this->constructFromPrePost($preorder, $postorder, 0, count($preorder) - 1, 0, count($postorder) - 1);
+        }
+        if ($preStart > $preEnd) {
+            return null;
+        }
+        $rootVal = $preorder[$preStart];
+        $root = new TreeNode($rootVal);
+        if ($preStart < $preEnd) {
+            $leftRootVal = $preorder[$preStart + 1];
+            $postLeftRoot = $this->postorderMap[$leftRootVal];
+            $leftSize = $postLeftRoot - $postStart + 1;
+            $root->left = $this->constructFromPrePost($preorder, $postorder, $preStart + 1, $preStart + $leftSize, $postStart, $postLeftRoot);
+            $root->right = $this->constructFromPrePost($preorder, $postorder, $preStart + $leftSize + 1, $preEnd, $postLeftRoot + 1, $postEnd - 1);
+        }
+        return $root;
+    }
+}
+// https://leetcode.cn/submissions/detail/383063183/
 ```
 
 ## 905. 按奇偶排序数组
@@ -6002,7 +8199,34 @@ class Solution
 <https://leetcode.cn/problems/sort-array-by-parity/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param Integer[] $nums
+     * @return Integer[]
+     */
+    function sortArrayByParity(array $nums): array
+    {
+        // nums[0..i-1]     Even
+        // nums[i..j]       Scanning
+        // nums[j+1..n - 1] Odd
+        $i = 0;
+        $j = count($nums) - 1;
+        while ($i < $j) {
+            while ($i < $j && $nums[$i] % 2 === 0) {
+                ++$i;
+            }
+            while ($i < $j && $nums[$j] % 2 === 1) {
+                --$j;
+            }
+            [$nums[$i], $nums[$j]] = [$nums[$j], $nums[$i]];
+        }
+        return $nums;
+    }
+}
+// https://leetcode.cn/submissions/detail/382529447/
 ```
 
 ## 912. 排序数组
@@ -6010,7 +8234,80 @@ class Solution
 <https://leetcode.cn/problems/sort-an-array/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param int[] $nums
+     * @return int[]
+     */
+    function sortArray(array $nums): array
+    {
+        shuffle($nums);
+        $this->sort($nums, 0, count($nums) - 1);
+        return $nums;
+    }
+
+    /**
+     * @param int[] $nums
+     * @param int $lo
+     * @param int $hi
+     * @return void
+     */
+    private function sort(array &$nums, int $lo, int $hi): void
+    {
+        if ($lo >= $hi) {
+            return;
+        }
+        $j = $this->partition($nums, $lo, $hi);
+        $this->sort($nums, $lo, $j - 1);
+        $this->sort($nums, $j + 1, $hi);
+    }
+
+    /**
+     * @param int[] $nums
+     * @param int $lo
+     * @param int $hi
+     * @return int
+     */
+    private function partition(array &$nums, int $lo, int $hi): int
+    {
+        $v = $nums[$lo];
+        $i = $lo;
+        $j = $hi + 1;
+        while (true) {
+            while ($nums[++$i] < $v) {
+                if ($i === $hi) {
+                    break;
+                }
+            }
+            while ($v < $nums[--$j]) {
+                if ($j === $lo) {
+                    break;
+                }
+            }
+            if ($i >= $j) {
+                break;
+            }
+            $this->swap($nums, $i, $j);
+        }
+        $this->swap($nums, $lo, $j);
+        return $j;
+    }
+
+    /**
+     * @param int[] $nums
+     * @param int $i
+     * @param int $j
+     * @return void
+     */
+    private function swap(array &$nums, int $i, int $j): void
+    {
+        [$nums[$i], $nums[$j]] = [$nums[$j], $nums[$i]];
+    }
+}
+// https://leetcode.cn/submissions/detail/382887513/
 ```
 
 ## 921. 使括号有效的最少添加
@@ -6018,7 +8315,43 @@ class Solution
 <https://leetcode.cn/problems/minimum-add-to-make-parentheses-valid/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param string $s
+     * @return int
+     */
+    function minAddToMakeValid(string $s): int
+    {
+        // 性质一 一个「合法」括号组合的左括号数量一定等于右括号数量
+        // 性质二 对于一个「合法」的括号字符串组合 p，必然对于
+        // 任何 0 <= i < len(p) 都有：子串 p[0..i] 中
+        // 左括号的数量都大于或等于右括号的数量
+        $insertLeft = 0; // 已插入左括号的数量
+        $needRight = 0;  // 待插入右括号的数量
+        for ($i = 0; $i < strlen($s); ++$i) {
+            $ch = $s[$i];
+            if ($ch === '(') {
+                ++$needRight;
+            }
+            if ($ch === ')') {
+                --$needRight;
+                // 性质二
+                if ($needRight === -1) {
+                    // A).. -> A()..
+                    //『必须立即』在位置 i 前插入 1 个左括号
+                    // 否则，后续任何插入都不能使区间 [0..i] 的匹配有效
+                    ++$insertLeft;
+                    $needRight = 0;
+                }
+            }
+        }
+        return $insertLeft + $needRight;
+    }
+}
+// https://leetcode.cn/submissions/detail/383290249/
 ```
 
 ## 922. 按奇偶排序数组 II
@@ -6026,7 +8359,35 @@ class Solution
 <https://leetcode.cn/problems/sort-array-by-parity-ii/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param Integer[] $nums
+     * @return Integer[]
+     */
+    function sortArrayByParityII(array $nums): array
+    {
+        $n = count($nums);
+        $i = 0;
+        $j = 1;
+        while (true) {
+            while ($i <= $n - 2 && $nums[$i] % 2 === 0) {
+                $i += 2;
+            }
+            while ($j <= $n - 1 && $nums[$j] % 2 === 1) {
+                $j += 2;
+            }
+            if ($i > $n - 2 || $j > $n - 1) {
+                break;
+            }
+            [$nums[$i], $nums[$j]] = [$nums[$j], $nums[$i]];
+        }
+        return $nums;
+    }
+}
+// https://leetcode.cn/submissions/detail/382531000/
 ```
 
 ## 931. 下降路径最小和
@@ -6034,7 +8395,49 @@ class Solution
 <https://leetcode.cn/problems/minimum-falling-path-sum/>
 
 ```php
+<?php
 
+class Solution
+{
+    private array $memo = [];
+
+    /**
+     * @param int[][] $matrix
+     * @param int|null $row
+     * @param int|null $col
+     * @return int|null
+     */
+    function minFallingPathSum(array $matrix, int $row = null, int $col = null): ?int
+    {
+        $n = count($matrix);
+        // 原问题
+        if (is_null($row) && is_null($col)) {
+            $ans = PHP_INT_MAX;
+            for ($col = 0; $col < $n; ++$col) {
+                $ans = min($ans, $this->minFallingPathSum($matrix, $n - 1, $col));
+            }
+            return $ans;
+        }
+        // 子问题：从 matrix[0][0..n-1] 到 matrix[row][col] 的最小下降路径和
+        if (!is_null($row) && !is_null($col)) {
+            if ($col < 0 || $col >= $n) {
+                return PHP_INT_MAX;
+            }
+            if ($row === 0) {
+                return $matrix[$row][$col];
+            }
+            if (is_null($this->memo[$row][$col])) {
+                $sp1 = $this->minFallingPathSum($matrix, $row - 1, $col - 1);
+                $sp2 = $this->minFallingPathSum($matrix, $row - 1, $col);
+                $sp3 = $this->minFallingPathSum($matrix, $row - 1, $col + 1);
+                $this->memo[$row][$col] = min($sp1, $sp2, $sp3) + $matrix[$row][$col];
+            }
+            return $this->memo[$row][$col];
+        }
+        return null;
+    }
+}
+// https://leetcode.cn/submissions/detail/383638394/
 ```
 
 ## 986. 区间列表的交集
@@ -6042,7 +8445,40 @@ class Solution
 <https://leetcode.cn/problems/interval-list-intersections/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param int[][] $firstList
+     * @param int[][] $secondList
+     * @return int[][]
+     */
+    function intervalIntersection(array $firstList, array $secondList): array
+    {
+        $ans = [];
+        $i = 0;
+        $j = 0;
+        while ($i < count($firstList) && $j < count($secondList)) {
+            [$start1, $end1] = $firstList[$i];
+            [$start2, $end2] = $secondList[$j];
+            if ($end1 < $start2) { // 不相交
+                ++$i;
+            } else if ($end2 < $start1) { // 不相交
+                ++$j;
+            } else { // 相交
+                $ans[] = [max($start1, $start2), min($end1, $end2)];
+                if ($end1 < $end2) {
+                    ++$i;
+                } else {
+                    ++$j;
+                }
+            }
+        }
+        return $ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/383507716/
 ```
 
 ## 990. 等式方程的可满足性
@@ -6050,7 +8486,109 @@ class Solution
 <https://leetcode.cn/problems/satisfiability-of-equality-equations/>
 
 ```php
+<?php
 
+class UF
+{
+    private array $parent;
+    private array $rank;
+    private int $count;
+
+    /**
+     * @param int $n
+     */
+    public function __construct(int $n)
+    {
+        $this->parent = range(0, $n - 1);
+        $this->rank = array_fill(0, $n, 0);
+        $this->count = $n;
+    }
+
+    /**
+     * @param int $p
+     * @return int
+     */
+    public function find(int $p): int
+    {
+        while ($p != $this->parent[$p]) {
+            $this->parent[$p] = $this->parent[$this->parent[$p]];
+            $p = $this->parent[$p];
+        }
+        return $p;
+    }
+
+    /**
+     * @param int $p
+     * @param int $q
+     * @return void
+     */
+    public function union(int $p, int $q): void
+    {
+        $rootP = $this->find($p);
+        $rootQ = $this->find($q);
+        if ($rootP !== $rootQ) {
+            if ($this->rank[$rootP] < $this->rank[$rootQ]) {
+                $this->parent[$rootP] = $rootQ;
+            } else if ($this->rank[$rootQ] < $this->rank[$rootP]) {
+                $this->parent[$rootQ] = $rootP;
+            } else {
+                $this->parent[$rootP] = $rootQ;
+                ++$this->rank[$rootQ];
+            }
+            --$this->count;
+        }
+    }
+
+    /**
+     * @param int $p
+     * @param int $q
+     * @return bool
+     */
+    public function connected(int $p, int $q): bool
+    {
+        return $this->find($p) === $this->find($q);
+    }
+
+    /**
+     * @return int
+     */
+    public function getCount(): int
+    {
+        return $this->count;
+    }
+}
+
+class Solution
+{
+    const a = 97;
+
+    /**
+     * @param string[] $equations
+     * @return bool
+     */
+    function equationsPossible(array $equations): bool
+    {
+        $uf = new UF(26);
+        foreach ($equations as $s) {
+            if ($s[1] === '=') {
+                $p = ord($s[0]) - self::a;
+                $q = ord($s[3]) - self::a;
+                $uf->union($p, $q);
+            }
+        }
+        foreach ($equations as $s) {
+            if ($s[1] === '!') {
+                $p = ord($s[0]) - self::a;
+                $q = ord($s[3]) - self::a;
+                if ($uf->connected($p, $q)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
+// https://leetcode.cn/submissions/detail/383887921/
 ```
 
 ## 1011. 在 D 天内送达包裹的能力
@@ -6058,7 +8596,56 @@ class Solution
 <https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param Integer[] $weights
+     * @param Integer $days
+     * @return Integer
+     */
+    function shipWithinDays(array $weights, int $days): int
+    {
+        $lo = max($weights);
+        $hi = array_sum($weights);
+        $ans = $lo;
+        while ($lo <= $hi) {
+            $mid = $lo + floor(($hi - $lo) / 2);
+            if ($this->canFinish($weights, $days, $mid)) {
+                $ans = $mid;
+                $hi = $mid - 1;
+            } else {
+                $lo = $mid + 1;
+            }
+        }
+        return $ans;
+    }
+
+    /**
+     * 当船的运载能力为 capacity 时，是否能在 days 天内送完
+     *
+     * @param Integer[] $weights
+     * @param Integer $days
+     * @param Integer $capacity
+     * @return Boolean
+     */
+    function canFinish(array $weights, int $days, int $capacity): bool
+    {
+        $n = count($weights);
+        $minDays = 0;
+        $i = 0;
+        while ($i < $n) {
+            $sum = 0;
+            while ($i < $n && $sum + $weights[$i] <= $capacity) {
+                $sum += $weights[$i++];
+            }
+            ++$minDays;
+        }
+        return $minDays <= $days;
+    }
+}
+// https://leetcode.cn/submissions/detail/382876084/
 ```
 
 ## 1020. 飞地的数量
@@ -6066,7 +8653,64 @@ class Solution
 <https://leetcode.cn/problems/number-of-enclaves/>
 
 ```php
+<?php
 
+class Solution
+{
+    const LAND = 1;
+    const WATER = 0;
+
+    /**
+     * @param int[][] $grid
+     * @return int
+     */
+    function numEnclaves(array $grid): int
+    {
+        $m = count($grid);
+        $n = count($grid[0]);
+        // 淹没与左右边界的陆地相连的岛屿
+        for ($i = 0; $i < $m; ++$i) {
+            $this->floodFill($grid, $i, 0);
+            $this->floodFill($grid, $i, $n - 1);
+        }
+        // 淹没与上下边界的陆地相连的岛屿
+        for ($j = 0; $j < $n; ++$j) {
+            $this->floodFill($grid, 0, $j);
+            $this->floodFill($grid, $m - 1, $j);
+        }
+        $ans = 0;
+        for ($i = 0; $i < $m; ++$i) {
+            for ($j = 0; $j < $n; ++$j) {
+                if ($grid[$i][$j] === self::LAND) {
+                    ++$ans;
+                }
+            }
+        }
+        return $ans;
+    }
+
+    /**
+     * @param int[][] $grid
+     * @param int $i
+     * @param int $j
+     * @return void
+     */
+    private function floodFill(array &$grid, int $i, int $j): void
+    {
+        if ($i < 0 || $i >= count($grid) ||
+            $j < 0 || $j >= count($grid[0]) ||
+            $grid[$i][$j] === self::WATER) {
+            return;
+        }
+
+        $grid[$i][$j] = self::WATER;
+        $this->floodFill($grid, $i, $j + 1);
+        $this->floodFill($grid, $i, $j - 1);
+        $this->floodFill($grid, $i + 1, $j);
+        $this->floodFill($grid, $i - 1, $j);
+    }
+}
+// https://leetcode.cn/submissions/detail/383802105/
 ```
 
 ## 1024. 视频拼接
@@ -6074,7 +8718,39 @@ class Solution
 <https://leetcode.cn/problems/video-stitching/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param int[][] $clips
+     * @param int $time
+     * @return int
+     */
+    function videoStitching(array $clips, int $time): int
+    {
+        usort($clips, fn($a, $b) => $a[0] === $b[0] ? $b[1] - $a[1] : $a[0] - $b[0]);
+        $n = count($clips);
+        $maxEnd = 0;
+        $count = 0;
+        $i = 0;
+        // 当 clips[i] 与 [0, maxEnd] 重叠（相交或被覆盖）时
+        while ($i < $n && $clips[$i][0] <= $maxEnd) {
+            // 记录与 [0, maxEnd] 重叠的所有区间中最大的 end
+            $nextEnd = $clips[$i][1];
+            while (++$i < $n && $clips[$i][0] <= $maxEnd) {
+                $nextEnd = max($nextEnd, $clips[$i][1]);
+            }
+            ++$count;
+            $maxEnd = $nextEnd;
+            if ($maxEnd >= $time) {
+                return $count;
+            }
+        }
+        return -1;
+    }
+}
+// https://leetcode.cn/submissions/detail/383515449/
 ```
 
 ## 1143. 最长公共子序列
@@ -6082,7 +8758,36 @@ class Solution
 <https://leetcode.cn/problems/longest-common-subsequence/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param string $text1
+     * @param string $text2
+     * @return int
+     */
+    function longestCommonSubsequence(string $text1, string $text2): int
+    {
+        $n1 = strlen($text1);
+        $n2 = strlen($text2);
+        // text1[0..i-1] = text1 的长度为 i 的前缀
+        // text2[0..j-1] = text2 的长度为 j 的前缀
+        // dp[i][j] = LCS(text1[0..i-1], text2[0..j-1]) 的长度
+        $dp = array_fill(0, $n1 + 1, array_fill(0, $n2 + 1, 0));
+        for ($i = 1; $i <= $n1; ++$i) {
+            for ($j = 1; $j <= $n2; ++$j) {
+                if ($text1[$i - 1] === $text2[$j - 1]) {
+                    $dp[$i][$j] = $dp[$i - 1][$j - 1] + 1;
+                } else {
+                    $dp[$i][$j] = max($dp[$i][$j - 1], $dp[$i - 1][$j]);
+                }
+            }
+        }
+        return $dp[$n1][$n2];
+    }
+}
+// https://leetcode.cn/submissions/detail/383557372/
 ```
 
 ## 1254. 统计封闭岛屿的数目
@@ -6090,7 +8795,64 @@ class Solution
 <https://leetcode.cn/problems/number-of-closed-islands/>
 
 ```php
+<?php
 
+class Solution
+{
+    const LAND = 0;
+    const WATER = 1;
+
+    /**
+     * @param int[][] $grid
+     * @return int
+     */
+    function closedIsland(array $grid): int
+    {
+        $m = count($grid);
+        $n = count($grid[0]);
+        // 淹没与左右边界的陆地相连的岛屿
+        for ($i = 0; $i < $m; ++$i) {
+            $this->floodFill($grid, $i, 0);
+            $this->floodFill($grid, $i, $n - 1);
+        }
+        // 淹没与上下边界的陆地相连的岛屿
+        for ($j = 0; $j < $n; ++$j) {
+            $this->floodFill($grid, 0, $j);
+            $this->floodFill($grid, $m - 1, $j);
+        }
+        $ans = 0;
+        for ($i = 0; $i < $m; ++$i) {
+            for ($j = 0; $j < $n; ++$j) {
+                if ($grid[$i][$j] === self::LAND) {
+                    $this->floodFill($grid, $i, $j);
+                    ++$ans;
+                }
+            }
+        }
+        return $ans;
+    }
+
+    /**
+     * @param int[][] $grid
+     * @param int $i
+     * @param int $j
+     * @return void
+     */
+    private function floodFill(array &$grid, int $i, int $j): void
+    {
+        if ($i < 0 || $i >= count($grid) ||
+            $j < 0 || $j >= count($grid[0]) ||
+            $grid[$i][$j] === self::WATER) {
+            return;
+        }
+        $grid[$i][$j] = self::WATER;
+        $this->floodFill($grid, $i, $j + 1);
+        $this->floodFill($grid, $i, $j - 1);
+        $this->floodFill($grid, $i + 1, $j);
+        $this->floodFill($grid, $i - 1, $j);
+    }
+}
+// https://leetcode.cn/submissions/detail/383802460/
 ```
 
 ## 1288. 删除被覆盖区间
@@ -6098,7 +8860,32 @@ class Solution
 <https://leetcode.cn/problems/remove-covered-intervals/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param int[][] $intervals
+     * @return int
+     */
+    function removeCoveredIntervals(array $intervals): int
+    {
+        usort($intervals, fn($a, $b) => $a[0] === $b[0] ? $b[1] - $a[1] : $a[0] - $b[0]);
+        $n = count($intervals);
+        $count = $n;
+        $maxEnd = 0;
+        for ($i = 0; $i < $n; ++$i) {
+            $end = $intervals[$i][1];
+            if ($end <= $maxEnd) {
+                --$count;
+            } else {
+                $maxEnd = $end;
+            }
+        }
+        return $count;
+    }
+}
+// https://leetcode.cn/submissions/detail/383513683/
 ```
 
 ## 1382. 将二叉搜索树变平衡
@@ -6106,7 +8893,62 @@ class Solution
 <https://leetcode.cn/problems/balance-a-binary-search-tree/>
 
 ```php
+<?php
 
+class Solution
+{
+    private array $nums = [];
+
+    /**
+     * @param TreeNode $root
+     * @return TreeNode
+     */
+    function balanceBST(TreeNode $root): TreeNode
+    {
+        $this->dfs($root);
+        return $this->sortedArrayToBST($this->nums);
+    }
+
+    /**
+     * 深度优先搜索，获取中序遍历结果
+     *
+     * @param TreeNode|null $root
+     * @return void
+     */
+    private function dfs(?TreeNode $root): void
+    {
+        if ($root === null) {
+            return;
+        }
+        $this->dfs($root->left);
+        $this->nums[] = $root->val;
+        $this->dfs($root->right);
+    }
+
+    /**
+     * 将有序数组 nums[lo..hi] 转换为二叉搜索树
+     *
+     * @param int[] $nums
+     * @param int|null $lo
+     * @param int|null $hi
+     * @return TreeNode|null
+     */
+    private function sortedArrayToBST(array $nums, int $lo = null, int $hi = null): ?TreeNode
+    {
+        if (is_null($lo) && is_null($hi)) {
+            return $this->sortedArrayToBST($nums, 0, count($nums) - 1);
+        }
+        if ($lo > $hi) {
+            return null;
+        }
+        $mid = $lo + floor(($hi - $lo) / 2);
+        $root = new TreeNode($nums[$mid]);
+        $root->left = $this->sortedArrayToBST($nums, $lo, $mid - 1);
+        $root->right = $this->sortedArrayToBST($nums, $mid + 1, $hi);
+        return $root;
+    }
+}
+// https://leetcode.cn/submissions/detail/383041616/
 ```
 
 ## 1514. 概率最大的路径
@@ -6114,7 +8956,176 @@ class Solution
 <https://leetcode.cn/problems/path-with-maximum-probability/>
 
 ```php
+<?php
 
+class DirectedEdge
+{
+    private int $v;
+    private int $w;
+    private float $weight;
+
+    public function __construct(int $v, int $w, float $weight)
+    {
+        $this->v = $v;
+        $this->w = $w;
+        $this->weight = $weight;
+    }
+
+    /**
+     * @return float
+     */
+    public function getWeight(): float
+    {
+        return $this->weight;
+    }
+
+    /**
+     * @return int
+     */
+    public function from(): int
+    {
+        return $this->v;
+    }
+
+    /**
+     * @return int
+     */
+    public function to(): int
+    {
+        return $this->w;
+    }
+}
+
+class EdgeWeightedDigraph
+{
+    private int $V;
+    private int $E;
+    private array $adj;
+
+    public function __construct(int $V)
+    {
+        $this->V = $V;
+        $this->E = 0;
+        $this->adj = array_fill(0, $V, []);
+    }
+
+    /**
+     * @return int
+     */
+    public function getV(): int
+    {
+        return $this->V;
+    }
+
+    /**
+     * @param DirectedEdge $e
+     * @return void
+     */
+    public function addEdge(DirectedEdge $e): void
+    {
+        $v = $e->from();
+        $this->adj[$v][] = $e;
+        ++$this->E;
+    }
+
+    /**
+     * @param int $v
+     * @return DirectedEdge[]
+     */
+    public function adj(int $v): array
+    {
+        return $this->adj[$v];
+    }
+}
+
+class LazyDijkstraLP
+{
+    private array $marked;
+    private array $distTo;
+    private SplPriorityQueue $maxPQ;
+
+    public function __construct(EdgeWeightedDigraph $G, int $s)
+    {
+        $V = $G->getV();
+        $this->marked = array_fill(0, $V, false);
+        $this->distTo = array_fill(0, $V, PHP_FLOAT_MIN);
+        $this->distTo[$s] = 1.0;
+        $this->maxPQ = new SplPriorityQueue();
+        $this->relax($G, $s);
+        while (!$this->maxPQ->isEmpty()) {
+            $e = $this->maxPQ->extract();
+            $w = $e->to();
+            if (!$this->marked[$w]) {
+                $this->relax($G, $w);
+            }
+        }
+    }
+
+    /**
+     * @param EdgeWeightedDigraph $G
+     * @param int $v
+     * @return void
+     */
+    private function relax(EdgeWeightedDigraph $G, int $v): void
+    {
+        $this->marked[$v] = true;
+        foreach ($G->adj($v) as $e) {
+            $w = $e->to();
+            $dist = $this->distTo[$e->from()] * $e->getWeight();
+            if ($this->distTo[$w] < $dist) {
+                $this->distTo[$w] = $dist;
+                $this->maxPQ->insert($e, $dist);
+            }
+        }
+    }
+
+    /**
+     * @param int $v
+     * @return bool
+     */
+    public function hasPathTo(int $v): bool
+    {
+        return $this->marked[$v];
+    }
+
+    /**
+     * @param int $v
+     * @return float
+     */
+    public function distTo(int $v): float
+    {
+        return $this->distTo[$v];
+    }
+}
+
+class Solution
+{
+    /**
+     * @param int $n
+     * @param int[][] $edges
+     * @param float[] $succProb
+     * @param int $start
+     * @param int $end
+     * @return float
+     */
+    function maxProbability(int $n, array $edges, array $succProb, int $start, int $end): float
+    {
+        $graph = new EdgeWeightedDigraph($n);
+        for ($i = 0; $i < count($edges); ++$i) {
+            $v = $edges[$i][0];
+            $w = $edges[$i][1];
+            $weight = $succProb[$i];
+            $graph->addEdge(new DirectedEdge($v, $w, $weight));
+            $graph->addEdge(new DirectedEdge($w, $v, $weight));
+        }
+        $lpt = new LazyDijkstraLP($graph, $start);
+        if ($lpt->hasPathTo($end)) {
+            return $lpt->distTo($end);
+        }
+        return 0.0;
+    }
+}
+// https://leetcode.cn/submissions/detail/384172591/
 ```
 
 ## 1541. 平衡括号字符串的最少插入次数
@@ -6122,7 +9133,46 @@ class Solution
 <https://leetcode.cn/problems/minimum-insertions-to-balance-a-parentheses-string/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param string $s
+     * @return int
+     */
+    function minInsertions(string $s): int
+    {
+        $insertLeft = 0;  // 已插入左括号的数量
+        $insertRight = 0; // 已插入右括号的数量
+        $needRight = 0;   // 待插入右括号的数量
+        for ($i = 0; $i < strlen($s); ++$i) {
+            $ch = $s[$i];
+            if ($ch === '(') {
+                // A((B)(.. -> A((B))(..
+                if ($needRight % 2 === 1) {
+                    //『必须立即』在位置 i 前插入 1 个右括号
+                    // 否则，后续任何插入都不能使区间 [0..i-1] 的匹配有效
+                    ++$insertRight;
+                    --$needRight;
+                }
+                $needRight += 2;
+            }
+            if ($ch === ')') {
+                --$needRight;
+                // A).. -> A()..
+                if ($needRight === -1) {
+                    //『必须立即』在位置 i 前插入 1 个左括号
+                    // 否则，后续任何插入都不能使区间 [0..i] 的匹配有效
+                    ++$insertLeft;
+                    $needRight = 1;
+                }
+            }
+        }
+        return $insertLeft + $insertRight + $needRight;
+    }
+}
+// https://leetcode.cn/submissions/detail/383291505/
 ```
 
 ## 1584. 连接所有点的最小费用
@@ -6130,7 +9180,191 @@ class Solution
 <https://leetcode.cn/problems/min-cost-to-connect-all-points/>
 
 ```php
+<?php
 
+class Edge
+{
+    private int $v;
+    private int $w;
+    private int $weight;
+
+    public function __construct(int $v, int $w, int $weight)
+    {
+        $this->v = $v;
+        $this->w = $w;
+        $this->weight = $weight;
+    }
+
+    /**
+     * @return int
+     */
+    public function getWeight(): int
+    {
+        return $this->weight;
+    }
+
+    /**
+     * @return int
+     */
+    public function either(): int
+    {
+        return $this->v;
+    }
+
+    /**
+     * @param int $vertex
+     * @return int
+     */
+    public function other(int $vertex): int
+    {
+        if ($vertex === $this->v) {
+            return $this->w;
+        }
+        return $this->v;
+    }
+}
+
+class EdgeWeightedGraph
+{
+    private int $V;
+    private int $E;
+    private array $adj;
+
+    public function __construct(int $V)
+    {
+        $this->V = $V;
+        $this->E = 0;
+        $this->adj = array_fill(0, $V, []);
+    }
+
+    /**
+     * @return int
+     */
+    public function getV(): int
+    {
+        return $this->V;
+    }
+
+    /**
+     * @param Edge $e
+     * @return void
+     */
+    public function addEdge(Edge $e): void
+    {
+        $v = $e->either();
+        $w = $e->other($v);
+        $this->adj[$v][] = $e;
+        $this->adj[$w][] = $e;
+        ++$this->E;
+    }
+
+    /**
+     * @param int $v
+     * @return Edge[]
+     */
+    public function adj(int $v): array
+    {
+        return $this->adj[$v];
+    }
+}
+
+class MinPQ extends SplPriorityQueue
+{
+    public function compare(mixed $priority1, mixed $priority2): int
+    {
+        return $priority2 - $priority1;
+    }
+}
+
+class LazyPrimMST
+{
+    private int $weight = 0;
+    private array $marked;
+    private MinPQ $pq;
+
+    public function __construct(EdgeWeightedGraph $G)
+    {
+        $V = $G->getV();
+        $this->marked = array_fill(0, $V, false);
+        $this->pq = new MinPQ();
+        for ($v = 0; $v < $V; ++$v) {
+            if (!$this->marked[$v]) {
+                $this->prim($G, $v);
+            }
+        }
+    }
+
+    /**
+     * @return int
+     */
+    public function getWeight(): int
+    {
+        return $this->weight;
+    }
+
+    /**
+     * @param EdgeWeightedGraph $G
+     * @param int $s
+     * @return void
+     */
+    private function prim(EdgeWeightedGraph $G, int $s): void
+    {
+        $this->scan($G, $s);
+        while (!$this->pq->isEmpty()) {
+            $e = $this->pq->extract();
+            $v = $e->either();
+            $w = $e->other($v);
+            if ($this->marked[$v] && $this->marked[$w]) {
+                continue;
+            }
+            $this->weight += $e->getWeight();
+            if (!$this->marked[$v]) {
+                $this->scan($G, $v);
+            }
+            if (!$this->marked[$w]) {
+                $this->scan($G, $w);
+            }
+        }
+    }
+
+    /**
+     * @param EdgeWeightedGraph $G
+     * @param int $v
+     * @return void
+     */
+    private function scan(EdgeWeightedGraph $G, int $v): void
+    {
+        $this->marked[$v] = true;
+        foreach ($G->adj($v) as $e) {
+            $w = $e->other($v);
+            if (!$this->marked[$w]) {
+                $this->pq->insert($e, $e->getWeight());
+            }
+        }
+    }
+}
+
+class Solution
+{
+    /**
+     * @param int[][] $points
+     * @return int
+     */
+    function minCostConnectPoints(array $points): int
+    {
+        $n = count($points);
+        $graph = new EdgeWeightedGraph($n);
+        for ($v = 0; $v < $n; ++$v) {
+            for ($w = $v + 1; $w < $n; ++$w) {
+                $weight = abs($points[$v][0] - $points[$w][0]) + abs($points[$v][1] - $points[$w][1]);
+                $graph->addEdge(new Edge($v, $w, $weight));
+            }
+        }
+        $mst = new LazyPrimMST($graph);
+        return $mst->getWeight();
+    }
+}
+// https://leetcode.cn/submissions/detail/384155876/
 ```
 
 ## 1631. 最小体力消耗路径
@@ -6138,7 +9372,178 @@ class Solution
 <https://leetcode.cn/problems/path-with-minimum-effort/>
 
 ```php
+<?php
 
+class DirectedEdge
+{
+    private int $v;
+    private int $w;
+    private int $weight;
+
+    public function __construct(int $v, int $w, int $weight)
+    {
+        $this->v = $v;
+        $this->w = $w;
+        $this->weight = $weight;
+    }
+
+    /**
+     * @return int
+     */
+    public function getWeight(): int
+    {
+        return $this->weight;
+    }
+
+    /**
+     * @return int
+     */
+    public function from(): int
+    {
+        return $this->v;
+    }
+
+    /**
+     * @return int
+     */
+    public function to(): int
+    {
+        return $this->w;
+    }
+}
+
+class EdgeWeightedDigraph
+{
+    private int $V;
+    private int $E;
+    private array $adj;
+
+    public function __construct(int $V)
+    {
+        $this->V = $V;
+        $this->E = 0;
+        $this->adj = array_fill(0, $V, []);
+    }
+
+    /**
+     * @return int
+     */
+    public function getV(): int
+    {
+        return $this->V;
+    }
+
+    /**
+     * @param DirectedEdge $e
+     * @return void
+     */
+    public function addEdge(DirectedEdge $e): void
+    {
+        $v = $e->from();
+        $this->adj[$v][] = $e;
+        ++$this->E;
+    }
+
+    /**
+     * @param int $v
+     * @return DirectedEdge[]
+     */
+    public function adj(int $v): array
+    {
+        return $this->adj[$v];
+    }
+}
+
+class MinPQ extends SplPriorityQueue
+{
+    public function compare(mixed $priority1, mixed $priority2): int
+    {
+        return $priority2 - $priority1;
+    }
+}
+
+class LazyDijkstraSP
+{
+    private array $marked;
+    private array $distTo;
+    private MinPQ $pq;
+
+    public function __construct(EdgeWeightedDigraph $G, int $s)
+    {
+        $V = $G->getV();
+        $this->marked = array_fill(0, $V, false);
+        $this->distTo = array_fill(0, $V, PHP_INT_MAX);
+        $this->distTo[$s] = 0;
+        $this->pq = new MinPQ();
+        $this->relax($G, $s);
+        while (!$this->pq->isEmpty()) {
+            $e = $this->pq->extract();
+            $w = $e->to();
+            if (!$this->marked[$w]) {
+                $this->relax($G, $w);
+            }
+        }
+    }
+
+    /**
+     * @param EdgeWeightedDigraph $G
+     * @param int $v
+     * @return void
+     */
+    private function relax(EdgeWeightedDigraph $G, int $v): void
+    {
+        $this->marked[$v] = true;
+        foreach ($G->adj($v) as $e) {
+            $w = $e->to();
+            $dist = max($this->distTo[$v], $e->getWeight());
+            if ($this->distTo[$w] > $dist) {
+                $this->distTo[$w] = $dist;
+                $this->pq->insert($e, $dist);
+            }
+        }
+    }
+
+    /**
+     * @param int $v
+     * @return int
+     */
+    public function distTo(int $v): int
+    {
+        return $this->distTo[$v];
+    }
+}
+
+class Solution
+{
+    /**
+     * @param int[][] $heights
+     * @return int
+     */
+    function minimumEffortPath(array $heights): int
+    {
+        $m = count($heights);
+        $n = count($heights[0]);
+        $graph = new EdgeWeightedDigraph($m * $n);
+        $directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+        for ($i = 0; $i < $m; ++$i) {
+            for ($j = 0; $j < $n; ++$j) {
+                foreach ($directions as $d) {
+                    $x = $i + $d[0];
+                    $y = $j + $d[1];
+                    if ($x >= 0 && $x <= $m - 1 && $y >= 0 && $y <= $n - 1) {
+                        $v = $i * $n + $j;
+                        $w = $x * $n + $y;
+                        $weight = abs($heights[$i][$j] - $heights[$x][$y]);
+                        $graph->addEdge(new DirectedEdge($v, $w, $weight));
+                    }
+                }
+            }
+        }
+        $spt = new LazyDijkstraSP($graph, 0);
+        return $spt->distTo(($m - 1) * $n + $n - 1);
+    }
+}
+// https://leetcode.cn/submissions/detail/384164638/
 ```
 
 ## 1905. 统计子岛屿
@@ -6146,7 +9551,63 @@ class Solution
 <https://leetcode.cn/problems/count-sub-islands/>
 
 ```php
+<?php
 
+class Solution
+{
+    const LAND = 1;
+    const WATER = 0;
+
+    /**
+     * @param int[][] $grid1
+     * @param int[][] $grid2
+     * @return int
+     */
+    function countSubIslands(array $grid1, array $grid2): int
+    {
+        $m = count($grid2);
+        $n = count($grid2[0]);
+        for ($i = 0; $i < $m; ++$i) {
+            for ($j = 0; $j < $n; ++$j) {
+                // 淹没『非子岛屿』
+                if ($grid2[$i][$j] === self::LAND && $grid1[$i][$j] === self::WATER) {
+                    $this->floodFill($grid2, $i, $j);
+                }
+            }
+        }
+        $ans = 0;
+        for ($i = 0; $i < $m; ++$i) {
+            for ($j = 0; $j < $n; ++$j) {
+                if ($grid2[$i][$j] === self::LAND) {
+                    $this->floodFill($grid2, $i, $j);
+                    ++$ans;
+                }
+            }
+        }
+        return $ans;
+    }
+
+    /**
+     * @param int[][] $grid
+     * @param int $i
+     * @param int $j
+     * @return void
+     */
+    private function floodFill(array &$grid, int $i, int $j): void
+    {
+        if ($i < 0 || $i >= count($grid) ||
+            $j < 0 || $j >= count($grid[0]) ||
+            $grid[$i][$j] === self::WATER) {
+            return;
+        }
+        $grid[$i][$j] = self::WATER;
+        $this->floodFill($grid, $i, $j + 1);
+        $this->floodFill($grid, $i, $j - 1);
+        $this->floodFill($grid, $i + 1, $j);
+        $this->floodFill($grid, $i - 1, $j);
+    }
+}
+// https://leetcode.cn/submissions/detail/383803436/
 ```
 
 ## CtCI 02.02. 返回倒数第 K 个节点
@@ -6154,5 +9615,28 @@ class Solution
 <https://leetcode-cn.com/problems/kth-node-from-end-of-list-lcci/>
 
 ```php
+<?php
 
+class Solution
+{
+    /**
+     * @param ListNode $head
+     * @param Integer $k
+     * @return Integer
+     */
+    function kthToLast(ListNode $head, int $k): int
+    {
+        $slow = $head;
+        $fast = $head;
+        for ($i = 1; $i <= $k; ++$i) {
+            $fast = $fast->next;
+        }
+        while ($fast != null) {
+            $slow = $slow->next;
+            $fast = $fast->next;
+        }
+        return $slow->val;
+    }
+}
+// https://leetcode.cn/submissions/detail/382535768/
 ```
