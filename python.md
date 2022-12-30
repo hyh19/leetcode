@@ -4515,7 +4515,16 @@ class Solution:
 <https://leetcode.cn/problems/search-in-a-binary-search-tree/>
 
 ```py
-
+class Solution:
+    def searchBST(self, root: Optional[TreeNode], val: int) -> Optional[TreeNode]:
+        if root is None:
+            return None
+        if val < root.val:
+            return self.searchBST(root.left, val)
+        if val > root.val:
+            return self.searchBST(root.right, val)
+        return root
+# https://leetcode.cn/submissions/detail/380133429/
 ```
 
 ## 701. 二叉搜索树中的插入操作
@@ -4523,7 +4532,16 @@ class Solution:
 <https://leetcode.cn/problems/insert-into-a-binary-search-tree/>
 
 ```py
-
+class Solution:
+    def insertIntoBST(self, root: Optional[TreeNode], val: int) -> Optional[TreeNode]:
+        if root is None:
+            return TreeNode(val)
+        if val < root.val:
+            root.left = self.insertIntoBST(root.left, val)
+        if val > root.val:
+            root.right = self.insertIntoBST(root.right, val)
+        return root
+# https://leetcode.cn/submissions/detail/380135492/
 ```
 
 ## 704. 二分查找
@@ -4531,7 +4549,19 @@ class Solution:
 <https://leetcode.cn/problems/binary-search/>
 
 ```py
-
+class Solution:
+    def search(self, nums: List[int], target: int) -> int:
+        lo, hi = 0, len(nums) - 1
+        while lo <= hi:
+            mid = lo + (hi - lo) // 2
+            if target < nums[mid]:
+                hi = mid - 1
+            elif nums[mid] < target:
+                lo = mid + 1
+            else:
+                return mid
+        return -1
+# https://leetcode.cn/submissions/detail/380214333/
 ```
 
 ## 712. 两个字符串的最小 ASCII 删除和
@@ -4539,7 +4569,60 @@ class Solution:
 <https://leetcode.cn/problems/minimum-ascii-delete-sum-for-two-strings/>
 
 ```py
+class Solution:
+    def __init__(self):
+        self.memo = {}
+        self.sum1 = None
+        self.sum2 = None
 
+    def minimumDeleteSum(self, s1: str, s2: str) -> int:
+        self.sum1 = self.prefixSum(s1)
+        self.sum2 = self.prefixSum(s2)
+        return self._minDistance(s1, len(s1) - 1, s2, len(s2) - 1)
+
+    # 子串 s1[0..i] s2[0..j] 的最小 ASCII 删除和
+    def _minDistance(self, s1: str, i: int, s2: str, j: int) -> int:
+        if i < 0 and j < 0:
+            return 0
+        # 删除 s2[0..j]
+        # s1""
+        # s2[0..j]
+        if i < 0:
+            return self.sum2[j]
+        # 删除 s1[0..i]
+        # s1[0..i]
+        # s2""
+        if j < 0:
+            return self.sum1[i]
+        if (i, j) not in self.memo:
+            if s1[i] == s2[j]:
+                # s1[0..i-1][i]
+                # s2[0..j-1][j]
+                self.memo[(i, j)] = self._minDistance(s1, i - 1, s2, j - 1)
+            else:
+                # 删除 s1[i] s2[j]
+                # s1[0..i-1][i]
+                # s2[0..j-1][j]
+                sp1 = self._minDistance(s1, i - 1, s2, j - 1) + ord(s1[i]) + ord(s2[j])
+                # 删除 s2[j]
+                # s1[0..i]
+                # s2[0..j-1][j]
+                sp2 = self._minDistance(s1, i, s2, j - 1) + ord(s2[j])
+                # 删除 s1[i]
+                # s1[0..i-1][i]
+                # s2[0..j]
+                sp3 = self._minDistance(s1, i - 1, s2, j) + ord(s1[i])
+                self.memo[(i, j)] = min(sp1, sp2, sp3)
+        return self.memo[(i, j)]
+
+    def prefixSum(self, s: str) -> List[int]:
+        n = len(s)
+        sum = [0] * n
+        sum[0] = ord(s[0])
+        for i in range(1, n):
+            sum[i] = sum[i - 1] + ord(s[i])
+        return sum
+# https://leetcode.cn/submissions/detail/379340876/
 ```
 
 ## 714. 买卖股票的最佳时机含手续费
@@ -4547,7 +4630,22 @@ class Solution:
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/>
 
 ```py
-
+class Solution:
+    def maxProfit(self, prices: List[int], fee: int) -> int:
+        n = len(prices)
+        # dp[i][0] = 第 i 天，空仓状态下的最大利润
+        # dp[i][1] = 第 i 天，持仓状态下的最大利润
+        dp = [[0] * 2 for _ in range(n)]
+        dp[0][0] = 0
+        dp[0][1] = -prices[0] - fee
+        for i in range(1, n):
+            # dp[i - 1][0]             >= dp[i - 1][0] - prices[i] - fee
+            # dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+            # => dp[i][0] >= dp[i][1]
+            dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices[i])
+            dp[i][1] = max(dp[i - 1][0] - prices[i] - fee, dp[i - 1][1])
+        return dp[n - 1][0]
+# https://leetcode.cn/submissions/detail/379365426/
 ```
 
 ## 739. 每日温度
@@ -4555,7 +4653,18 @@ class Solution:
 <https://leetcode.cn/problems/daily-temperatures/>
 
 ```py
-
+class Solution:
+    def dailyTemperatures(self, temperatures: List[int]) -> List[int]:
+        n = len(temperatures)
+        ans = [0] * n
+        minMonoStack = []
+        for i in range(-1, -n - 1, -1):
+            while len(minMonoStack) > 0 and temperatures[minMonoStack[-1]] <= temperatures[i]:
+                minMonoStack.pop()
+            ans[i] = 0 if len(minMonoStack) == 0 else minMonoStack[-1] - i
+            minMonoStack.append(i)
+        return ans
+# https://leetcode.cn/submissions/detail/379193993/
 ```
 
 ## 743. 网络延迟时间
@@ -4563,7 +4672,79 @@ class Solution:
 <https://leetcode.cn/problems/network-delay-time/>
 
 ```py
+class DirectedEdge:
+    def __init__(self, v: int, w: int, weight: int):
+        self.__v = v
+        self.__w = w
+        self.__weight = weight
 
+    def weight(self) -> int:
+        return self.__weight
+
+    def fromm(self) -> int:
+        return self.__v
+
+    def to(self) -> int:
+        return self.__w
+
+
+class EdgeWeightedDigraph:
+    def __init__(self, V: int):
+        self.__V = V
+        self.__E = 0
+        self.__adj = [[] for _ in range(V)]
+
+    def V(self) -> int:
+        return self.__V
+
+    def E(self) -> int:
+        return self.__E
+
+    def addEdge(self, e: DirectedEdge):
+        self.__adj[e.fromm()].append(e)
+        self.__E += 1
+
+    def adj(self, v: int) -> List[DirectedEdge]:
+        return self.__adj[v]
+
+
+class LazyDijkstraSP:
+    def __init__(self, G: EdgeWeightedDigraph, s: int):
+        self.__marked = [False] * G.V()
+        self.__distTo = [math.inf] * G.V()
+        self.__pq = []
+        setattr(DirectedEdge, '__lt__',
+                lambda e, f: self.__distTo[e.fromm()] + e.weight() < self.__distTo[f.fromm()] + f.weight())
+        self.__distTo[s] = 0
+        self.__relax(G, s)
+        while len(self.__pq) > 0:
+            e = heapq.heappop(self.__pq)
+            self.__relax(G, e.to())
+
+    def __relax(self, G: EdgeWeightedDigraph, v: int) -> None:
+        self.__marked[v] = True
+        for e in G.adj(v):
+            w = e.to()
+            if self.__distTo[w] > self.__distTo[v] + e.weight():
+                self.__distTo[w] = self.__distTo[v] + e.weight()
+                heapq.heappush(self.__pq, e)
+
+    def distTo(self, v: int) -> int:
+        return self.__distTo[v]
+
+
+class Solution:
+    def networkDelayTime(self, times: List[List[int]], n: int, k: int) -> int:
+        graph = EdgeWeightedDigraph(n)
+        for t in times:
+            e = DirectedEdge(t[0] - 1, t[1] - 1, t[2])
+            graph.addEdge(e)
+        spt = LazyDijkstraSP(graph, k - 1)
+        maxTime = 0
+        for v in range(n):
+            maxTime = max(maxTime, spt.distTo(v))
+        return maxTime if maxTime < math.inf else -1
+# https://leetcode.cn/submissions/detail/380575332/
 ```
 
 ## 752. 打开转盘锁
@@ -4571,7 +4752,52 @@ class Solution:
 <https://leetcode.cn/problems/open-the-lock/>
 
 ```py
+class Solution:
+    ZERO = ord('0')
+    NINE = ord('9')
 
+    def openLock(self, deadends: List[str], target: str) -> int:
+        marked = set(deadends)
+        q = deque()
+        source = '0000'
+        if source not in marked:
+            marked.add(source)
+            q.append(source)
+        count = 0
+        while len(q) > 0:
+            n = len(q)
+            for _ in range(n):
+                s = q.popleft()
+                if s == target:
+                    return count
+                for j in range(4):
+                    plus = self.plusOne(s, j)
+                    if plus not in marked:
+                        marked.add(plus)
+                        q.append(plus)
+                    minus = self.minusOne(s, j)
+                    if minus not in marked:
+                        marked.add(minus)
+                        q.append(minus)
+            count += 1
+        return -1
+
+    def plusOne(self, s: str, j: int) -> str:
+        a = bytearray(s, encoding='utf-8')
+        if a[j] == Solution.NINE:
+            a[j] = Solution.ZERO
+        else:
+            a[j] += 1
+        return a.decode(encoding='utf-8')
+
+    def minusOne(self, s: str, j: int) -> str:
+        a = bytearray(s, encoding='utf-8')
+        if a[j] == Solution.ZERO:
+            a[j] = Solution.NINE
+        else:
+            a[j] -= 1
+        return a.decode(encoding='utf-8')
+# https://leetcode.cn/submissions/detail/380089249/
 ```
 
 ## 785. 判断二分图
@@ -4579,7 +4805,33 @@ class Solution:
 <https://leetcode.cn/problems/is-graph-bipartite/>
 
 ```py
+class Solution:
+    def __init__(self):
+        self.marked = None
+        self.color = None
+        self.bipartite = True
 
+    def isBipartite(self, graph: List[List[int]]) -> bool:
+        n = len(graph)
+        self.marked = [False] * n
+        self.color = [False] * n
+        for v in range(n):
+            if not self.marked[v]:
+                self.dfs(graph, v)
+                if not self.bipartite:
+                    break
+        return self.bipartite
+
+    def dfs(self, graph: List[List[int]], v: int) -> None:
+        self.marked[v] = True
+        for w in graph[v]:
+            if not self.marked[w]:
+                self.color[w] = not self.color[v]
+                self.dfs(graph, w)
+            elif self.color[w] == self.color[v]:
+                self.bipartite = False
+                return
+# https://leetcode.cn/submissions/detail/380401902/
 ```
 
 ## 797. 所有可能的路径
@@ -4587,7 +4839,24 @@ class Solution:
 <https://leetcode.cn/problems/all-paths-from-source-to-target/>
 
 ```py
+class Solution:
+    def __init__(self):
+        self.path = []
+        self.ans = []
 
+    def allPathsSourceTarget(self, graph: List[List[int]]) -> List[List[int]]:
+        self.dfs(graph, 0)
+        return self.ans
+
+    def dfs(self, graph: List[List[int]], v: int) -> None:
+        self.path.append(v)
+        if v == len(graph) - 1:
+            self.ans.append(self.path.copy())
+        else:
+            for w in graph[v]:
+                self.dfs(graph, w)
+        self.path.pop()
+# https://leetcode.cn/submissions/detail/380585184/
 ```
 
 ## 846. 一手顺子
@@ -4595,7 +4864,40 @@ class Solution:
 <https://leetcode.cn/problems/hand-of-straights/>
 
 ```py
+class Solution:
+    def isNStraightHand(self, hand: List[int], groupSize: int) -> bool:
+        if len(hand) % groupSize != 0:
+            return False
+        heapq.heapify(hand)
+        counter = Counter(hand)
+        while len(hand) > 0:
+            x = heapq.heappop(hand)
+            if counter[x] > 0:
+                for y in range(x, x + groupSize):
+                    if counter[y] == 0:
+                        return False
+                    counter[y] -= 1
+        return True
+# https://leetcode.cn/submissions/detail/380180673/
+```
 
+```py
+class Solution:
+    def isNStraightHand(self, hand: List[int], groupSize: int) -> bool:
+        if len(hand) % groupSize != 0:
+            return False
+        hand.sort()
+        counter = Counter()
+        for x in hand:
+            counter[x] += 1
+        for x in hand:
+            if counter[x] > 0:
+                for y in range(x, x + groupSize):
+                    if counter[y] == 0:
+                        return False
+                    counter[y] -= 1
+        return True
+# https://leetcode.cn/submissions/detail/380178356/
 ```
 
 ## 875. 爱吃香蕉的珂珂
@@ -4603,7 +4905,26 @@ class Solution:
 <https://leetcode.cn/problems/koko-eating-bananas/>
 
 ```py
+class Solution:
+    def minEatingSpeed(self, piles: List[int], h: int) -> int:
+        lo, hi = 1, max(piles)
+        ans = lo
+        while lo <= hi:
+            mid = lo + (hi - lo) // 2
+            if self.canFinish(piles, h, mid):
+                ans = mid
+                hi = mid - 1
+            else:
+                lo = mid + 1
+        return ans
 
+    # 当吃香蕉的速度为 k 时，是否能在 h 小时内吃完
+    def canFinish(self, piles: List[int], h: int, k: int) -> bool:
+        hours = 0
+        for p in piles:
+            hours += math.ceil(p / k)
+        return hours <= h
+# https://leetcode.cn/submissions/detail/380292403/
 ```
 
 ## 876. 链表的中间结点
@@ -4611,7 +4932,15 @@ class Solution:
 <https://leetcode-cn.com/problems/middle-of-the-linked-list/>
 
 ```py
-
+class Solution:
+    def middleNode(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        slow = head
+        fast = head
+        while fast is not None and fast.next is not None:
+            slow = slow.next
+            fast = fast.next.next
+        return slow
+# https://leetcode.cn/submissions/detail/378712078/
 ```
 
 ## 886. 可能的二分法
@@ -4619,7 +4948,42 @@ class Solution:
 <https://leetcode.cn/problems/possible-bipartition/>
 
 ```py
+class Solution:
+    def __init__(self):
+        self.marked = None
+        self.color = None
+        self.bipartite = True
 
+    def possibleBipartition(self, n: int, dislikes: List[List[int]]) -> bool:
+        graph = [[] for _ in range(n)]
+        for d in dislikes:
+            v = d[0] - 1
+            w = d[1] - 1
+            graph[v].append(w)
+            graph[w].append(v)
+        return self.isBipartite(graph)
+
+    def isBipartite(self, graph: List[List[int]]) -> bool:
+        n = len(graph)
+        self.marked = [False] * n
+        self.color = [False] * n
+        for v in range(n):
+            if not self.marked[v]:
+                self.dfs(graph, v)
+                if not self.bipartite:
+                    break
+        return self.bipartite
+
+    def dfs(self, graph: List[List[int]], v: int) -> None:
+        self.marked[v] = True
+        for w in graph[v]:
+            if not self.marked[w]:
+                self.color[w] = not self.color[v]
+                self.dfs(graph, w)
+            elif self.color[w] == self.color[v]:
+                self.bipartite = False
+                return
+# https://leetcode.cn/submissions/detail/380403190/
 ```
 
 ## 889. 根据前序和后序遍历构造二叉树
@@ -4627,7 +4991,32 @@ class Solution:
 <https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/>
 
 ```py
+class Solution:
+    def __init__(self):
+        self.valToIndex = {}
 
+    def constructFromPrePost(self, preorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+        for i in range(len(postorder)):
+            self.valToIndex[postorder[i]] = i
+        return self._constructFromPrePost(preorder, 0, len(preorder) - 1, postorder, 0, len(postorder) - 1)
+
+    def _constructFromPrePost(self, preorder: List[int], preStart: int, preEnd: int, postorder: List[int],
+                              postStart: int,
+                              postEnd: int) -> Optional[TreeNode]:
+        if preStart > preEnd:
+            return None
+        rootVal = preorder[preStart]
+        root = TreeNode(rootVal)
+        if preStart < preEnd:
+            leftRootVal = preorder[preStart + 1]
+            index = self.valToIndex[leftRootVal]
+            leftSize = index - postStart + 1
+            root.left = self._constructFromPrePost(preorder, preStart + 1, preStart + leftSize, postorder, postStart,
+                                                   index)
+            root.right = self._constructFromPrePost(preorder, preStart + leftSize + 1, preEnd, postorder, index + 1,
+                                                    postEnd - 1)
+        return root
+# https://leetcode.cn/submissions/detail/380027837/
 ```
 
 ## 905. 按奇偶排序数组
@@ -4635,7 +5024,21 @@ class Solution:
 <https://leetcode.cn/problems/sort-array-by-parity/>
 
 ```py
-
+class Solution:
+    def sortArrayByParity(self, nums: List[int]) -> List[int]:
+        # nums[0..i-1]     Even
+        # nums[i..j]       Scanning
+        # nums[j+1..n - 1] Odd
+        i = 0
+        j = len(nums) - 1
+        while i < j:
+            while i < j and nums[i] % 2 == 0:
+                i += 1
+            while i < j and nums[j] % 2 == 1:
+                j -= 1
+            nums[i], nums[j] = nums[j], nums[i]
+        return nums
+# https://leetcode.cn/submissions/detail/378703512/
 ```
 
 ## 912. 排序数组
@@ -4643,7 +5046,39 @@ class Solution:
 <https://leetcode.cn/problems/sort-an-array/>
 
 ```py
+class Solution:
+    def sortArray(self, nums: List[int]) -> List[int]:
+        random.shuffle(nums)
+        self.quickSort(nums, 0, len(nums) - 1)
+        return nums
 
+    def quickSort(self, nums: List[int], lo: int, hi: int) -> None:
+        if lo >= hi:
+            return
+        j = self.partition(nums, lo, hi)
+        self.quickSort(nums, lo, j - 1)
+        self.quickSort(nums, j + 1, hi)
+
+    def partition(self, nums: List[int], lo: int, hi: int) -> int:
+        v = nums[lo]
+        i, j = lo, hi + 1
+        while True:
+            i += 1
+            while nums[i] < v:
+                if i == hi:
+                    break
+                i += 1
+            j -= 1
+            while nums[j] > v:
+                if j == lo:
+                    break
+                j -= 1
+            if i >= j:
+                break
+            nums[i], nums[j] = nums[j], nums[i]
+        nums[lo], nums[j] = nums[j], nums[lo]
+        return j
+# https://leetcode.cn/submissions/detail/380342510/
 ```
 
 ## 921. 使括号有效的最少添加
@@ -4651,7 +5086,28 @@ class Solution:
 <https://leetcode.cn/problems/minimum-add-to-make-parentheses-valid/>
 
 ```py
-
+# 性质一 一个「合法」括号组合的左括号数量一定等于右括号数量
+# 性质二 对于一个「合法」的括号字符串组合 p，必然对于
+# 任何 0 <= i < len(p) 都有：子串 p[0..i] 中
+# 左括号的数量都大于或等于右括号的数量
+class Solution:
+    def minAddToMakeValid(self, s: str) -> int:
+        insertLeft = 0  # 已插入左括号的数量
+        needRight = 0  # 待插入右括号的数量
+        for ch in s:
+            if ch == '(':
+                needRight += 1
+            elif ch == ')':
+                needRight -= 1
+                # 性质二
+                if needRight == -1:
+                    # A).. -> A()..
+                    # 『必须立即』在位置 i 前插入 1 个左括号
+                    # 否则，后续任何插入都不能使区间 [0..i] 的匹配有效
+                    insertLeft += 1
+                    needRight = 0
+        return insertLeft + needRight
+# https://leetcode.cn/submissions/detail/378936860/
 ```
 
 ## 922. 按奇偶排序数组 II
@@ -4659,7 +5115,21 @@ class Solution:
 <https://leetcode.cn/problems/sort-array-by-parity-ii/>
 
 ```py
-
+class Solution:
+    def sortArrayByParityII(self, nums: List[int]) -> List[int]:
+        n = len(nums)
+        i = 0
+        j = 1
+        while True:
+            while i <= n - 2 and nums[i] % 2 == 0:
+                i += 2
+            while j <= n - 1 and nums[j] % 2 == 1:
+                j += 2
+            if i > n - 2 or j > n - 1:
+                break
+            nums[i], nums[j] = nums[j], nums[i]
+        return nums
+# https://leetcode.cn/submissions/detail/378706602/
 ```
 
 ## 931. 下降路径最小和
@@ -4667,7 +5137,31 @@ class Solution:
 <https://leetcode.cn/problems/minimum-falling-path-sum/>
 
 ```py
+class Solution:
+    def __init__(self):
+        self.memo = {}
 
+    def minFallingPathSum(self, matrix: List[List[int]]) -> int:
+        n = len(matrix)
+        ans = math.inf
+        for col in range(n):
+            ans = min(ans, self._minFallingPathSum(matrix, n - 1, col))
+        return ans
+
+    # 从 matrix[0][0..n-1] 到 matrix[row][col] 的最小下降路径和
+    def _minFallingPathSum(self, matrix: List[List[int]], row: int, col: int) -> int:
+        if col < 0 or col >= len(matrix[0]):
+            return math.inf
+        if row == 0:
+            return matrix[row][col]
+        key = (row, col)
+        if key not in self.memo:
+            sp1 = self._minFallingPathSum(matrix, row - 1, col - 1)
+            sp2 = self._minFallingPathSum(matrix, row - 1, col)
+            sp3 = self._minFallingPathSum(matrix, row - 1, col + 1)
+            self.memo[key] = min(sp1, sp2, sp3) + matrix[row][col]
+        return self.memo[key]
+# https://leetcode.cn/submissions/detail/379624642/
 ```
 
 ## 986. 区间列表的交集
@@ -4675,7 +5169,28 @@ class Solution:
 <https://leetcode.cn/problems/interval-list-intersections/>
 
 ```py
-
+class Solution:
+    def intervalIntersection(self, firstList: List[List[int]], secondList: List[List[int]]) -> List[List[int]]:
+        ans = []
+        i = j = 0
+        while i < len(firstList) and j < len(secondList):
+            start1, end1 = firstList[i]
+            start2, end2 = secondList[j]
+            if end1 < start2:
+                # 不相交
+                i += 1
+            elif end2 < start1:
+                # 不相交
+                j += 1
+            else:
+                # 相交
+                ans.append([max(start1, start2), min(end1, end2)])
+                if end1 < end2:
+                    i += 1
+                else:
+                    j += 1
+        return ans
+# https://leetcode.cn/submissions/detail/379029957/
 ```
 
 ## 990. 等式方程的可满足性
@@ -4683,7 +5198,51 @@ class Solution:
 <https://leetcode.cn/problems/satisfiability-of-equality-equations/>
 
 ```py
+class UF:
+    def __init__(self, n: int):
+        self.parent = [i for i in range(n)]
+        self.rank = [0] * n
+        self.count = n
 
+    def find(self, p: int) -> int:
+        while p != self.parent[p]:
+            self.parent[p] = self.parent[self.parent[p]]
+            p = self.parent[p]
+        return p
+
+    def union(self, p: int, q: int) -> None:
+        rootP = self.find(p)
+        rootQ = self.find(q)
+        if rootP != rootQ:
+            if self.rank[rootP] < self.rank[rootQ]:
+                self.parent[rootP] = rootQ
+            elif self.rank[rootQ] < self.rank[rootP]:
+                self.parent[rootQ] = rootP
+            else:
+                self.parent[rootP] = rootQ
+                self.rank[rootQ] += 1
+            self.count -= 1
+
+    def connected(self, p: int, q: int) -> bool:
+        return self.find(p) == self.find(q)
+
+
+class Solution:
+    def equationsPossible(self, equations: List[str]) -> bool:
+        uf = UF(26)
+        for e in equations:
+            if e[1] == '=':
+                p = ord(e[0]) - ord('a')
+                q = ord(e[3]) - ord('a')
+                uf.union(p, q)
+        for e in equations:
+            if e[1] == '!':
+                p = ord(e[0]) - ord('a')
+                q = ord(e[3]) - ord('a')
+                if uf.connected(p, q):
+                    return False
+        return True
+# https://leetcode.cn/submissions/detail/380399201/
 ```
 
 ## 1011. 在 D 天内送达包裹的能力
@@ -4691,7 +5250,31 @@ class Solution:
 <https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/>
 
 ```py
+class Solution:
+    def shipWithinDays(self, weights: List[int], days: int) -> int:
+        lo, hi = max(weights), sum(weights)
+        ans = lo
+        while lo <= hi:
+            mid = lo + (hi - lo) // 2
+            if self.canFinish(weights, days, mid):
+                ans = mid
+                hi = mid - 1
+            else:
+                lo = mid + 1
+        return ans
 
+    # 当船的运载能力为 capacity 时，是否能在 days 天内送完
+    def canFinish(self, weights: List[int], days: int, capacity: int) -> bool:
+        minDays = 0
+        i, n = 0, len(weights)
+        while i < n:
+            total = 0
+            while i < n and total + weights[i] <= capacity:
+                total += weights[i]
+                i += 1
+            minDays += 1
+        return minDays <= days
+# https://leetcode.cn/submissions/detail/380294837/
 ```
 
 ## 1020. 飞地的数量
@@ -4699,7 +5282,37 @@ class Solution:
 <https://leetcode.cn/problems/number-of-enclaves/>
 
 ```py
+class Solution:
+    LAND = 1
+    WATER = 0
 
+    def numEnclaves(self, grid: List[List[int]]) -> int:
+        m = len(grid)
+        n = len(grid[0])
+        # 淹没与左右边界的陆地相连的岛屿
+        for row in range(m):
+            self.floodFill(grid, row, 0)
+            self.floodFill(grid, row, n - 1)
+        # 淹没与上下边界的陆地相连的岛屿
+        for col in range(n):
+            self.floodFill(grid, 0, col)
+            self.floodFill(grid, m - 1, col)
+        count = 0
+        for row in range(m):
+            for col in range(n):
+                if grid[row][col] == Solution.LAND:
+                    count += 1
+        return count
+
+    def floodFill(self, grid: List[List[int]], row: int, col: int) -> None:
+        if row < 0 or row >= len(grid) or col < 0 or col >= len(grid[0]) or grid[row][col] == Solution.WATER:
+            return
+        grid[row][col] = Solution.WATER
+        self.floodFill(grid, row - 1, col)
+        self.floodFill(grid, row + 1, col)
+        self.floodFill(grid, row, col - 1)
+        self.floodFill(grid, row, col + 1)
+# https://leetcode.cn/submissions/detail/380254982/
 ```
 
 ## 1024. 视频拼接
@@ -4707,7 +5320,35 @@ class Solution:
 <https://leetcode.cn/problems/video-stitching/>
 
 ```py
-
+# 测试用例
+# [[0,1],[6,8],[0,2],[5,6],[0,4],[0,3],[6,7],[1,3],[4,7],[1,4],[2,5],[2,6],[3,4],[4,5],[5,7],[6,9]]
+# 9
+# 排序后
+# [[0,4],[0,3],[0,2],[0,1],[1,4],[1,3],[2,6],[2,5],[3,4],[4,7],[4,5],[5,7],[5,6],[6,9],[6,8],[6,7]]
+# 删除被覆盖区间后 [0,4],[2,6],[4,7],[6,9]
+# 虽然 [2,6],[4,7] 都与 [0,4] 相交，但是只取 end 最大的区间 [4,7]
+# 正确答案 [0,4],[4,7],[6,9]
+# 相似题目 1288. 删除被覆盖区间 https://leetcode.cn/problems/remove-covered-intervals/
+class Solution:
+    def videoStitching(self, clips: List[List[int]], time: int) -> int:
+        clips.sort(key=lambda clip: (clip[0], -clip[1]))
+        count = 0
+        maxEnd = 0
+        i = 0
+        n = len(clips)
+        # 当 clips[i] 与 [0, maxEnd] 重叠（相交或被覆盖）时
+        while i < n and clips[i][0] <= maxEnd:
+            # 记录与 [0, maxEnd] 重叠的所有区间中最大的 end
+            nextEnd = 0
+            while i < n and clips[i][0] <= maxEnd:
+                nextEnd = max(nextEnd, clips[i][1])
+                i += 1
+            count += 1
+            maxEnd = nextEnd
+            if maxEnd >= time:
+                return count
+        return -1
+# https://leetcode.cn/submissions/detail/379139601/
 ```
 
 ## 1143. 最长公共子序列
@@ -4715,7 +5356,22 @@ class Solution:
 <https://leetcode.cn/problems/longest-common-subsequence/>
 
 ```py
-
+class Solution:
+    def longestCommonSubsequence(self, text1: str, text2: str) -> int:
+        n1 = len(text1)
+        n2 = len(text2)
+        # text1[0..i-1] = text1 的长度为 i 的前缀
+        # text2[0..j-1] = text2 的长度为 j 的前缀
+        # dp[i][j] = LCS(text1[0..i-1], text2[0..j-1]) 的长度
+        dp = [[0] * (n2 + 1) for _ in range(n1 + 1)]
+        for i in range(1, n1 + 1):
+            for j in range(1, n2 + 1):
+                if text1[i - 1] == text2[j - 1]:
+                    dp[i][j] = dp[i - 1][j - 1] + 1
+                else:
+                    dp[i][j] = max(dp[i][j - 1], dp[i - 1][j])
+        return dp[n1][n2]
+# https://leetcode.cn/submissions/detail/379244153/
 ```
 
 ## 1254. 统计封闭岛屿的数目
@@ -4723,7 +5379,38 @@ class Solution:
 <https://leetcode.cn/problems/number-of-closed-islands/>
 
 ```py
+class Solution:
+    LAND = 0
+    WATER = 1
 
+    def closedIsland(self, grid: List[List[int]]) -> int:
+        m = len(grid)
+        n = len(grid[0])
+        # 淹没与左右边界的陆地相连的岛屿
+        for row in range(m):
+            self.floodFill(grid, row, 0)
+            self.floodFill(grid, row, n - 1)
+        # 淹没与上下边界的陆地相连的岛屿
+        for col in range(n):
+            self.floodFill(grid, 0, col)
+            self.floodFill(grid, m - 1, col)
+        count = 0
+        for row in range(m):
+            for col in range(n):
+                if grid[row][col] == Solution.LAND:
+                    self.floodFill(grid, row, col)
+                    count += 1
+        return count
+
+    def floodFill(self, grid: List[List[int]], row: int, col: int) -> None:
+        if row < 0 or row >= len(grid) or col < 0 or col >= len(grid[0]) or grid[row][col] == Solution.WATER:
+            return
+        grid[row][col] = Solution.WATER
+        self.floodFill(grid, row - 1, col)
+        self.floodFill(grid, row + 1, col)
+        self.floodFill(grid, row, col - 1)
+        self.floodFill(grid, row, col + 1)
+# https://leetcode.cn/submissions/detail/380254008/
 ```
 
 ## 1288. 删除被覆盖区间
@@ -4731,7 +5418,19 @@ class Solution:
 <https://leetcode.cn/problems/remove-covered-intervals/>
 
 ```py
-
+class Solution:
+    def removeCoveredIntervals(self, intervals: List[List[int]]) -> int:
+        intervals.sort(key=lambda interval: (interval[0], -interval[1]))
+        count = len(intervals)
+        maxEnd = 0
+        for interval in intervals:
+            end = interval[1]
+            if end <= maxEnd:
+                count -= 1
+            else:
+                maxEnd = end
+        return count
+# https://leetcode.cn/submissions/detail/379136870/
 ```
 
 ## 1382. 将二叉搜索树变平衡
@@ -4739,7 +5438,32 @@ class Solution:
 <https://leetcode.cn/problems/balance-a-binary-search-tree/>
 
 ```py
+class Solution:
+    def __init__(self):
+        self.nums = []
 
+    def balanceBST(self, root: TreeNode) -> TreeNode:
+        self.dfs(root)
+        return self._sortedArrayToBST(self.nums, 0, len(self.nums) - 1)
+
+    # 深度优先搜索，获取中序遍历结果
+    def dfs(self, root: Optional[TreeNode]) -> None:
+        if root is None:
+            return
+        self.dfs(root.left)
+        self.nums.append(root.val)
+        self.dfs(root.right)
+
+    # 将有序子数组 nums[lo..hi] 转换为二叉搜索树
+    def _sortedArrayToBST(self, nums: List[int], lo: int, hi: int) -> Optional[TreeNode]:
+        if lo > hi:
+            return None
+        mid = lo + (hi - lo) // 2
+        root = TreeNode(nums[mid])
+        root.left = self._sortedArrayToBST(nums, lo, mid - 1)
+        root.right = self._sortedArrayToBST(nums, mid + 1, hi)
+        return root
+# https://leetcode.cn/submissions/detail/380044521/
 ```
 
 ## 1514. 概率最大的路径
@@ -4747,7 +5471,88 @@ class Solution:
 <https://leetcode.cn/problems/path-with-maximum-probability/>
 
 ```py
+class DirectedEdge:
+    def __init__(self, v: int, w: int, weight: float):
+        self.__v = v
+        self.__w = w
+        self.__weight = weight
 
+    def weight(self) -> float:
+        return self.__weight
+
+    def fromm(self) -> int:
+        return self.__v
+
+    def to(self) -> int:
+        return self.__w
+
+
+class EdgeWeightedDigraph:
+    def __init__(self, V: int):
+        self.__V = V
+        self.__E = 0
+        self.__adj = [[] for _ in range(V)]
+
+    def V(self) -> int:
+        return self.__V
+
+    def E(self) -> int:
+        return self.__E
+
+    def addEdge(self, e: DirectedEdge):
+        self.__adj[e.fromm()].append(e)
+        self.__E += 1
+
+    def adj(self, v: int) -> List[DirectedEdge]:
+        return self.__adj[v]
+
+
+class LazyDijkstraLP:
+    def __init__(self, G: EdgeWeightedDigraph, s: int):
+        self.__marked = [False] * G.V()
+        self.__distTo = [-math.inf] * G.V()
+        self.__pq = []
+        setattr(DirectedEdge, '__lt__',
+                lambda e, f: self.__distToEdge(e) > self.__distToEdge(f))
+        self.__distTo[s] = 1.0
+        self.__relax(G, s)
+        while len(self.__pq) > 0:
+            e = heapq.heappop(self.__pq)
+            self.__relax(G, e.to())
+
+    def __relax(self, G: EdgeWeightedDigraph, v: int) -> None:
+        self.__marked[v] = True
+        for e in G.adj(v):
+            w = e.to()
+            d = self.__distToEdge(e)
+            if self.__distTo[w] < d:
+                self.__distTo[w] = d
+                heapq.heappush(self.__pq, e)
+
+    def __distToEdge(self, e: DirectedEdge) -> float:
+        return self.__distTo[e.fromm()] * e.weight()
+
+    def hasPathTo(self, v: int) -> bool:
+        return self.__marked[v]
+
+    def distTo(self, v: int) -> float:
+        return self.__distTo[v]
+
+
+class Solution:
+    def maxProbability(self, n: int, edges: List[List[int]], succProb: List[float], start: int, end: int) -> float:
+        graph = EdgeWeightedDigraph(n)
+        for i in range(len(edges)):
+            v = edges[i][0]
+            w = edges[i][1]
+            weight = succProb[i]
+            graph.addEdge(DirectedEdge(v, w, weight))
+            graph.addEdge(DirectedEdge(w, v, weight))
+        lpt = LazyDijkstraLP(graph, start)
+        if lpt.hasPathTo(end):
+            return lpt.distTo(end)
+        return 0.0
+# https://leetcode.cn/submissions/detail/380580360/
 ```
 
 ## 1541. 平衡括号字符串的最少插入次数
@@ -4755,7 +5560,30 @@ class Solution:
 <https://leetcode.cn/problems/minimum-insertions-to-balance-a-parentheses-string/>
 
 ```py
-
+class Solution:
+    def minInsertions(self, s: str) -> int:
+        insertLeft = 0  # 已插入左括号的数量
+        insertRight = 0  # 已插入右括号的数量
+        needRight = 0  # 待插入右括号的数量
+        for ch in s:
+            if ch == '(':
+                # A((B)(.. -> A((B))(..
+                if needRight % 2 == 1:
+                    # 『必须立即』在位置 i 前插入 1 个右括号
+                    # 否则，后续任何插入都不能使区间 [0..i-1] 的匹配有效
+                    insertRight += 1
+                    needRight -= 1
+                needRight += 2
+            elif ch == ')':
+                needRight -= 1
+                # A).. -> A()..
+                if needRight == -1:
+                    # 『必须立即』在位置 i 前插入 1 个左括号
+                    # 否则，后续任何插入都不能使区间 [0..i] 的匹配有效
+                    insertLeft += 1
+                    needRight = 1
+        return insertLeft + insertRight + needRight
+# https://leetcode.cn/submissions/detail/378937875/
 ```
 
 ## 1584. 连接所有点的最小费用
@@ -4763,7 +5591,97 @@ class Solution:
 <https://leetcode.cn/problems/min-cost-to-connect-all-points/>
 
 ```py
+@total_ordering
+class Edge:
+    def __init__(self, v: int, w: int, weight: int):
+        self.__v = v
+        self.__w = w
+        self.__weight = weight
 
+    def weight(self) -> int:
+        return self.__weight
+
+    def either(self) -> int:
+        return self.__v
+
+    def other(self, vertex: int) -> int:
+        return self.__w if vertex == self.__v else self.__v
+
+    def __lt__(self, other):
+        return self.__weight < other.__weight
+
+    def __eq__(self, other):
+        return self.__weight == other.__weight
+
+
+class EdgeWeightedGraph:
+    def __init__(self, V: int):
+        self.__V = V
+        self.__E = 0
+        self.__adj = [[] for _ in range(V)]
+
+    def V(self) -> int:
+        return self.__V
+
+    def E(self) -> int:
+        return self.__E
+
+    def addEdge(self, e: Edge):
+        v = e.either()
+        w = e.other(v)
+        self.__adj[v].append(e)
+        self.__adj[w].append(e)
+        self.__E += 1
+
+    def adj(self, v: int) -> List[Edge]:
+        return self.__adj[v]
+
+
+class LazyPrimMST:
+    def __init__(self, G: EdgeWeightedGraph):
+        self.__weight = 0
+        self.__marked = [False] * G.V()
+        self.__pq = []
+        for v in range(G.V()):
+            if not self.__marked[v]:
+                self.__prim(G, v)
+
+    def __prim(self, G: EdgeWeightedGraph, s: int) -> None:
+        self.__scan(G, s)
+        while len(self.__pq) > 0:
+            e = heapq.heappop(self.__pq)
+            v = e.either()
+            w = e.other(v)
+            if self.__marked[v] and self.__marked[w]:
+                continue
+            self.__weight += e.weight()
+            if not self.__marked[v]:
+                self.__scan(G, v)
+            if not self.__marked[w]:
+                self.__scan(G, w)
+
+    def __scan(self, G: EdgeWeightedGraph, v: int) -> None:
+        self.__marked[v] = True
+        for e in G.adj(v):
+            w = e.other(v)
+            if not self.__marked[w]:
+                heapq.heappush(self.__pq, e)
+
+    def weight(self) -> int:
+        return self.__weight
+
+
+class Solution:
+    def minCostConnectPoints(self, points: List[List[int]]) -> int:
+        n = len(points)
+        graph = EdgeWeightedGraph(n)
+        for v in range(n):
+            for w in range(v + 1, n):
+                weight = abs(points[v][0] - points[w][0]) + abs(points[v][1] - points[w][1])
+                graph.addEdge(Edge(v, w, weight))
+        mst = LazyPrimMST(graph)
+        return mst.weight()
+# https://leetcode.cn/submissions/detail/380602875/
 ```
 
 ## 1631. 最小体力消耗路径
@@ -4771,7 +5689,86 @@ class Solution:
 <https://leetcode.cn/problems/path-with-minimum-effort/>
 
 ```py
+class DirectedEdge:
+    def __init__(self, v: int, w: int, weight: int):
+        self.__v = v
+        self.__w = w
+        self.__weight = weight
 
+    def weight(self) -> int:
+        return self.__weight
+
+    def fromm(self) -> int:
+        return self.__v
+
+    def to(self) -> int:
+        return self.__w
+
+
+class EdgeWeightedDigraph:
+    def __init__(self, V: int):
+        self.__V = V
+        self.__E = 0
+        self.__adj = [[] for _ in range(V)]
+
+    def V(self) -> int:
+        return self.__V
+
+    def E(self) -> int:
+        return self.__E
+
+    def addEdge(self, e: DirectedEdge):
+        self.__adj[e.fromm()].append(e)
+        self.__E += 1
+
+    def adj(self, v: int) -> List[DirectedEdge]:
+        return self.__adj[v]
+
+
+class LazyDijkstraSP:
+    def __init__(self, G: EdgeWeightedDigraph, s: int):
+        self.__marked = [False] * G.V()
+        self.__distTo = [math.inf] * G.V()
+        self.__pq = []
+        setattr(DirectedEdge, '__lt__',
+                lambda e, f: max(self.__distTo[e.fromm()], e.weight()) < max(self.__distTo[f.fromm()], f.weight()))
+        self.__distTo[s] = 0
+        self.__relax(G, s)
+        while len(self.__pq) > 0:
+            e = heapq.heappop(self.__pq)
+            self.__relax(G, e.to())
+
+    def __relax(self, G: EdgeWeightedDigraph, v: int) -> None:
+        self.__marked[v] = True
+        for e in G.adj(v):
+            w = e.to()
+            if self.__distTo[w] > max(self.__distTo[v], e.weight()):
+                self.__distTo[w] = max(self.__distTo[v], e.weight())
+                heapq.heappush(self.__pq, e)
+
+    def distTo(self, v: int) -> int:
+        return self.__distTo[v]
+
+
+class Solution:
+    def minimumEffortPath(self, heights: List[List[int]]) -> int:
+        m = len(heights)
+        n = len(heights[0])
+        graph = EdgeWeightedDigraph(m * n)
+        directions = ((0, 1), (0, -1), (1, 0), (-1, 0))
+        for i in range(m):
+            for j in range(n):
+                for d in directions:
+                    x = i + d[0]
+                    y = j + d[1]
+                    if 0 <= x <= m - 1 and 0 <= y <= n - 1:
+                        v = i * n + j
+                        w = x * n + y
+                        weight = abs(heights[i][j] - heights[x][y])
+                        graph.addEdge(DirectedEdge(v, w, weight))
+        spt = LazyDijkstraSP(graph, 0)
+        return spt.distTo((m - 1) * n + n - 1)
+# https://leetcode.cn/submissions/detail/380573776/
 ```
 
 ## 1905. 统计子岛屿
@@ -4779,7 +5776,35 @@ class Solution:
 <https://leetcode.cn/problems/count-sub-islands/>
 
 ```py
+class Solution:
+    LAND = 1
+    WATER = 0
 
+    def countSubIslands(self, grid1: List[List[int]], grid2: List[List[int]]) -> int:
+        m = len(grid2)
+        n = len(grid2[0])
+        for row in range(m):
+            for col in range(n):
+                if grid2[row][col] == Solution.LAND and grid1[row][col] == Solution.WATER:
+                    # 淹没『非子岛屿』
+                    self.floodFill(grid2, row, col)
+        count = 0
+        for row in range(m):
+            for col in range(n):
+                if grid2[row][col] == Solution.LAND:
+                    self.floodFill(grid2, row, col)
+                    count += 1
+        return count
+
+    def floodFill(self, grid: List[List[int]], row: int, col: int) -> None:
+        if row < 0 or row >= len(grid) or col < 0 or col >= len(grid[0]) or grid[row][col] == Solution.WATER:
+            return
+        grid[row][col] = Solution.WATER
+        self.floodFill(grid, row - 1, col)
+        self.floodFill(grid, row + 1, col)
+        self.floodFill(grid, row, col - 1)
+        self.floodFill(grid, row, col + 1)
+# https://leetcode.cn/submissions/detail/380256907/
 ```
 
 ## CtCI 02.02. 返回倒数第 K 个节点
@@ -4787,5 +5812,15 @@ class Solution:
 <https://leetcode-cn.com/problems/kth-node-from-end-of-list-lcci/>
 
 ```py
-
+class Solution:
+    def kthToLast(self, head: ListNode, k: int) -> int:
+        slow = head
+        fast = head
+        for i in range(k):
+            fast = fast.next
+        while fast is not None:
+            slow = slow.next
+            fast = fast.next
+        return slow.val
+# https://leetcode.cn/submissions/detail/378714127/
 ```
