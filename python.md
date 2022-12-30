@@ -3300,7 +3300,22 @@ class Solution:
 <https://leetcode-cn.com/problems/move-zeroes/>
 
 ```python
-
+class Solution:
+    def moveZeroes(self, nums: List[int]) -> None:
+        # nums[0..i-1] != 0
+        # nums[i..j-1] == 0
+        # nums[j..n-1] Scanning
+        i = 0
+        j = 0
+        n = len(nums)
+        while j < n:
+            while j < n and nums[j] == 0:
+                j += 1
+            if j < n:
+                nums[i], nums[j] = nums[j], nums[i]
+                i += 1
+                j += 1
+# https://leetcode.cn/submissions/detail/378656262/
 ```
 
 ## 297. 二叉树的序列化与反序列化
@@ -3308,7 +3323,26 @@ class Solution:
 <https://leetcode.cn/problems/serialize-and-deserialize-binary-tree/>
 
 ```python
+class Codec:
+    def serialize(self, root):
+        if root is None:
+            return '#'
+        left = self.serialize(root.left)
+        right = self.serialize(root.right)
+        return str(root.val) + ',' + left + ',' + right
 
+    def deserialize(self, data):
+        return self.buildTree(deque(data.split(',')))
+
+    def buildTree(self, queue):
+        val = queue.popleft()
+        if val == '#':
+            return None
+        root = TreeNode(val)
+        root.left = self.buildTree(queue)
+        root.right = self.buildTree(queue)
+        return root
+# https://leetcode.cn/submissions/detail/380039350/
 ```
 
 ## 300. 最长递增子序列
@@ -3316,7 +3350,19 @@ class Solution:
 <https://leetcode.cn/problems/longest-increasing-subsequence/>
 
 ```python
-
+class Solution:
+    def lengthOfLIS(self, nums: List[int]) -> int:
+        n = len(nums)
+        # dp[i] = max({length(subseq) | subseq 是以 nums[i] 结尾的严格递增子序列})
+        dp = [1] * n
+        ans = 0
+        for i in range(n):
+            for j in range(i):
+                if nums[j] < nums[i]:
+                    dp[i] = max(dp[i], dp[j] + 1)
+            ans = max(ans, dp[i])
+        return ans
+# https://leetcode.cn/submissions/detail/379235099/
 ```
 
 ## 303. 区域和检索 - 数组不可变
@@ -3324,7 +3370,19 @@ class Solution:
 <https://leetcode.cn/problems/range-sum-query-immutable/>
 
 ```python
+class NumArray:
+    def __init__(self, nums: List[int]):
+        n = len(nums)
+        self.sums = [0] * n
+        self.sums[0] = nums[0]
+        for i in range(1, n):
+            self.sums[i] = self.sums[i - 1] + nums[i]
 
+    def sumRange(self, left: int, right: int) -> int:
+        if left == 0:
+            return self.sums[right]
+        return self.sums[right] - self.sums[left - 1]
+# https://leetcode.cn/submissions/detail/380205940/
 ```
 
 ## 309. 最佳买卖股票时机含冷冻期
@@ -3332,7 +3390,26 @@ class Solution:
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/>
 
 ```python
-
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        n = len(prices)
+        if n <= 1:
+            return 0
+        # dp[i][0] = 第 i 天，空仓状态下的最大利润
+        # dp[i][1] = 第 i 天，持仓状态下的最大利润
+        dp = [[0] * 2 for _ in range(n)]
+        dp[0][0] = 0
+        dp[0][1] = -prices[0]
+        dp[1][0] = max(dp[0][0], dp[0][1] + prices[1])
+        dp[1][1] = max(dp[0][0] - prices[1], dp[0][1])
+        for i in range(2, n):
+            # dp[i - 1][0]             >= dp[i - 2][0] >= p[i - 2][0] - prices[i]
+            # dp[i - 1][1] + prices[i] >= dp[i - 1][1]
+            # => dp[i][0] >= dp[i][1]
+            dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+            dp[i][1] = max(dp[i - 2][0] - prices[i], dp[i - 1][1]);
+        return dp[n - 1][0]
+# https://leetcode.cn/submissions/detail/379364431/
 ```
 
 ## 315. 计算右侧小于当前元素的个数
@@ -3340,7 +3417,53 @@ class Solution:
 <https://leetcode.cn/problems/count-of-smaller-numbers-after-self/>
 
 ```python
+@total_ordering
+class Pair:
+    def __init__(self, val: int, idx: int):
+        self.val = val
+        self.idx = idx
 
+    def __lt__(self, other):
+        return self.val < other.val
+
+    def __eq__(self, other):
+        return self.val == other.val
+
+
+class Solution:
+    def __init__(self):
+        self.counts = None
+
+    def countSmaller(self, nums: List[int]) -> List[int]:
+        n = len(nums)
+        self.counts = [0] * n
+        pairs = [Pair(nums[i], i) for i in range(n)]
+        aux = pairs.copy()
+        self.sort(pairs, 0, n - 1, aux)
+        return self.counts
+
+    def sort(self, pairs: List[Pair], lo: int, hi: int, aux: List[Pair]) -> None:
+        if lo >= hi:
+            return
+        mid = lo + (hi - lo) // 2
+        self.sort(pairs, lo, mid, aux)
+        self.sort(pairs, mid + 1, hi, aux)
+        self.merge(pairs, lo, mid, hi, aux)
+
+    def merge(self, pairs: List[Pair], lo: int, mid: int, hi: int, aux: List[Pair]) -> None:
+        for k in range(lo, hi + 1):
+            aux[k] = pairs[k]
+        i, j = lo, mid + 1
+        for k in range(lo, hi + 1):
+            if i > mid or (j <= hi and aux[j] < aux[i]):
+                pairs[k] = aux[j]
+                j += 1
+            else:
+                # aux[mid+1..j) < aux[i]
+                self.counts[aux[i].idx] += (j - mid - 1)
+                pairs[k] = aux[i]
+                i += 1
+# https://leetcode.cn/submissions/detail/380602127/
 ```
 
 ## 322. 零钱兑换
@@ -3348,7 +3471,23 @@ class Solution:
 <https://leetcode.cn/problems/coin-change/>
 
 ```python
-
+class Solution:
+    def coinChange(self, coins: List[int], amount: int) -> int:
+        # dp[i] = 凑成总金额 i 所需的最少的硬币个数
+        dp = [-1] * (amount + 1)
+        dp[0] = 0
+        for i in range(1, amount + 1):
+            res = math.inf
+            # c       = 选择放入的硬币
+            # i-c     = 剩余总金额
+            # dp[i-c] = 凑成剩余总金额所需的最少的硬币个数
+            for c in coins:
+                x = i - c
+                if x >= 0 and dp[x] != -1:
+                    res = min(res, dp[x] + 1)
+            dp[i] = -1 if res == math.inf else res
+        return dp[amount]
+# https://leetcode.cn/submissions/detail/379487504/
 ```
 
 ## 337. 打家劫舍 III
@@ -3356,7 +3495,21 @@ class Solution:
 <https://leetcode.cn/problems/house-robber-iii/>
 
 ```python
-
+class Solution:
+    @cache
+    def rob(self, root: Optional[TreeNode]) -> int:
+        if root is None:
+            return 0
+        # 偷 root
+        sp1 = root.val
+        if root.left is not None:
+            sp1 += self.rob(root.left.left) + self.rob(root.left.right)
+        if root.right is not None:
+            sp1 += self.rob(root.right.left) + self.rob(root.right.right)
+        # 不偷 root
+        sp2 = self.rob(root.left) + self.rob(root.right)
+        return max(sp1, sp2)
+# https://leetcode.cn/submissions/detail/379356114/
 ```
 
 ## 344. 反转字符串
@@ -3364,7 +3517,15 @@ class Solution:
 <https://leetcode.cn/problems/reverse-string/>
 
 ```python
-
+class Solution:
+    def reverseString(self, s: List[str]) -> None:
+        i = 0
+        j = len(s) - 1
+        while i < j:
+            s[i], s[j] = s[j], s[i]
+            i += 1
+            j -= 1
+# https://leetcode.cn/submissions/detail/378885728/
 ```
 
 ## 354. 俄罗斯套娃信封问题
@@ -3380,7 +3541,44 @@ class Solution:
 <https://leetcode.cn/problems/decode-string/>
 
 ```python
-
+class Solution:
+    def decodeString(self, s: str) -> str:
+        stack = []
+        n = len(s)
+        i = 0
+        while i < n:
+            # Digits
+            digits = ''
+            while i < n and s[i].isdigit():
+                digits += s[i]
+                i += 1
+            if len(digits) > 0:
+                stack.append(digits)
+            # [
+            while i < n and s[i] == '[':
+                stack.append('[')
+                i += 1
+            # Letters
+            letters = ''
+            while i < n and s[i].isalpha():
+                letters += s[i]
+                i += 1
+            if len(letters) > 0:
+                stack.append(letters)
+            # ]
+            while i < n and s[i] == ']':
+                letters = ''
+                while len(stack) > 0:
+                    ch = stack.pop()
+                    if ch == '[':
+                        break
+                    letters = ch + letters
+                digits = stack.pop()
+                repeated = letters * int(digits)
+                stack.append(repeated)
+                i += 1
+        return ''.join(stack)
+# https://leetcode.cn/submissions/detail/378949673/
 ```
 
 ## 416. 分割等和子集
@@ -3388,7 +3586,46 @@ class Solution:
 <https://leetcode.cn/problems/partition-equal-subset-sum/>
 
 ```python
+class Solution:
+    def canPartition(self, nums: List[int]) -> bool:
+        s = sum(nums)
+        if s % 2 == 1:
+            return False
+        return self.hasSubsetSum(nums, s // 2)
 
+    # 数组 nums 是否存在和为 target 的子集
+    def hasSubsetSum(self, nums: List[int], target: int) -> bool:
+        n = len(nums)
+        # dp[i][j] = 子数组 nums[0..i-1] 是否存在和为 j 的子集
+        dp = [[False] * (target + 1) for _ in range(n + 1)]
+        # 和为 0
+        for i in range(1, n + 1):
+            dp[i][0] = True
+        # 空数组
+        for j in range(1, target + 1):
+            dp[0][j] = False
+        # 空集的和为 0，空集是任何数组的子集，包括空数组
+        dp[0][0] = True
+        for i in range(1, n + 1):
+            for j in range(1, target + 1):
+                x = nums[i - 1]
+                if j >= x:
+                    # 包含 x
+                    # 当 i >= 1, j = x 时，dp[i - 1][j - x] = dp[i - 1][0]
+                    # 因为存在子集 {x} 的和为 j，
+                    # 所以定义 dp[i][0] = true (i >= 0)
+                    sp1 = dp[i - 1][j - x]
+                    # 不包含 x
+                    # 当 i = 1 时，dp[i - 1][j] = dp[0][j]
+                    # 因为空数组没有子集的和为 j >= 1
+                    # 所以定义 dp[0][j] = false (j >= 1)
+                    sp2 = dp[i - 1][j]
+                    dp[i][j] = sp1 or sp2
+                else:
+                    # 不包含 x
+                    dp[i][j] = dp[i - 1][j]
+        return dp[n][target]
+# https://leetcode.cn/submissions/detail/379614657/
 ```
 
 ## 435. 无重叠区间
@@ -3396,7 +3633,23 @@ class Solution:
 <https://leetcode.cn/problems/non-overlapping-intervals/>
 
 ```python
+class Solution:
+    def eraseOverlapIntervals(self, intervals: List[List[int]]) -> int:
+        return len(intervals) - self.maxNonOverlappingIntervals(intervals)
 
+    # 区间数组 intervals 无重叠区间的最大数量
+    def maxNonOverlappingIntervals(self, intervals: List[List[int]]) -> int:
+        intervals.sort(key=lambda interval: interval[1])
+        count = 0
+        minEnd = -math.inf
+        for interval in intervals:
+            start, end = interval
+            if start < minEnd:
+                continue
+            count += 1
+            minEnd = end
+        return count
+# https://leetcode.cn/submissions/detail/379141067/
 ```
 
 ## 438. 找到字符串中所有字母异位词
@@ -3404,7 +3657,38 @@ class Solution:
 <https://leetcode.cn/problems/find-all-anagrams-in-a-string/>
 
 ```python
-
+class Solution:
+    def findAnagrams(self, s: str, p: str) -> List[int]:
+        need = {}
+        for c in p:
+            need.setdefault(c, 0)
+            need[c] += 1
+        window = {}
+        ans = []
+        valid = 0
+        # s[left..right) = Window Substring
+        # s[right..n-1]  = Scanning
+        left = right = 0
+        while right < len(s):
+            c = s[right]
+            right += 1
+            if c in need:
+                window.setdefault(c, 0)
+                window[c] += 1
+                if window[c] == need[c]:
+                    valid += 1
+            if valid == len(need):
+                while left < right - len(p):
+                    d = s[left]
+                    left += 1
+                    if d in need:
+                        if window[d] == need[d]:
+                            valid -= 1
+                        window[d] -= 1
+                if valid == len(need):
+                    ans.append(left)
+        return ans
+# https://leetcode.cn/submissions/detail/379020999/
 ```
 
 ## 445. 两数相加 II
@@ -3412,7 +3696,38 @@ class Solution:
 <https://leetcode.cn/problems/add-two-numbers-ii/>
 
 ```python
+class Solution:
+    def addTwoNumbers(self, l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:
+        # 翻转链表
+        l1 = self.reverseList(l1)
+        l2 = self.reverseList(l2)
+        ptr = dummyHead = ListNode()
+        carry = 0
+        while (l1 is not None) or (l2 is not None) or carry > 0:
+            sum = carry
+            if l1 is not None:
+                sum += l1.val
+                l1 = l1.next
+            if l2 is not None:
+                sum += l2.val
+                l2 = l2.next
+            ptr.next = ListNode(sum % 10)
+            ptr = ptr.next
+            carry = sum // 10
+        # 还原链表
+        self.reverseList(l1)
+        self.reverseList(l2)
+        return self.reverseList(dummyHead.next)
 
+    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        reverseHead = None
+        while head is not None:
+            x = head.next
+            head.next = reverseHead
+            reverseHead = head
+            head = x
+        return reverseHead
+# https://leetcode.cn/submissions/detail/378905700/
 ```
 
 ## 450. 删除二叉搜索树中的节点
@@ -3420,7 +3735,36 @@ class Solution:
 <https://leetcode.cn/problems/delete-node-in-a-bst/>
 
 ```python
+class Solution:
+    def deleteNode(self, root: Optional[TreeNode], key: int) -> Optional[TreeNode]:
+        if root is None:
+            return None
+        if key < root.val:
+            root.left = self.deleteNode(root.left, key)
+        elif key > root.val:
+            root.right = self.deleteNode(root.right, key)
+        else:
+            if root.left is None:
+                return root.right
+            if root.right is None:
+                return root.left
+            x = root
+            root = self.findMin(x.right)
+            root.right = self.deleteMin(x.right)
+            root.left = x.left
+        return root
 
+    def findMin(self, root: TreeNode) -> TreeNode:
+        if root.left is None:
+            return root
+        return self.findMin(root.left)
+
+    def deleteMin(self, root: TreeNode) -> Optional[TreeNode]:
+        if root.left is None:
+            return root.right
+        root.left = self.deleteMin(root.left)
+        return root
+# https://leetcode.cn/submissions/detail/380144048/
 ```
 
 ## 452. 用最少数量的箭引爆气球
@@ -3428,7 +3772,23 @@ class Solution:
 <https://leetcode.cn/problems/minimum-number-of-arrows-to-burst-balloons/>
 
 ```python
+class Solution:
+    def findMinArrowShots(self, points: List[List[int]]) -> int:
+        return self.maxNonOverlappingIntervals(points)
 
+    # 区间数组 intervals 无重叠区间的最大数量
+    def maxNonOverlappingIntervals(self, intervals: List[List[int]]) -> int:
+        intervals.sort(key=lambda interval: interval[1])
+        count = 0
+        minEnd = -math.inf
+        for interval in intervals:
+            start, end = interval
+            if start <= minEnd:
+                continue
+            count += 1
+            minEnd = end
+        return count
+# https://leetcode.cn/submissions/detail/379141744/
 ```
 
 ## 460. LFU 缓存
@@ -3436,7 +3796,130 @@ class Solution:
 <https://leetcode.cn/problems/lfu-cache/>
 
 ```python
+class Node:
+    def __init__(self, key: int, val: int, freq: int):
+        self.key = key
+        self.val = val
+        self.freq = freq
+        self.prev = None
+        self.next = None
 
+
+class DoublyLinkedList:
+    def __init__(self):
+        self.__first = None
+        self.__last = None
+        self.__n = 0
+
+    def addLast(self, x: Node) -> None:
+        if self.__n == 0:
+            self.__first = x
+            self.__last = x
+            self.__n = 1
+        else:
+            self.__last.next = x
+            x.prev = self.__last
+            self.__last = x
+            self.__n += 1
+
+    def removeFirst(self) -> Node:
+        oldFirst = self.__first
+        if self.__n == 1:
+            self.__first = None
+            self.__last = None
+            self.__n = 0
+        else:
+            self.__first = self.__first.next
+            self.__first.prev = None
+            oldFirst.next = None
+            self.__n -= 1
+        return oldFirst
+
+    def removeLast(self) -> Node:
+        oldLast = self.__last
+        if self.__n == 1:
+            self.__first = None
+            self.__last = None
+            self.__n = 0
+        else:
+            self.__last = self.__last.prev
+            self.__last.next = None
+            oldLast.prev = None
+            self.__n -= 1
+        return oldLast
+
+    def remove(self, x: Node) -> None:
+        if x is self.__first:
+            self.removeFirst()
+        elif x is self.__last:
+            self.removeLast()
+        else:
+            x.prev.next = x.next
+            x.next.prev = x.prev
+            x.prev = None
+            x.next = None
+            self.__n -= 1
+
+    def empty(self) -> bool:
+        return self.__n == 0
+
+
+class LFUCache:
+    def __init__(self, capacity: int):
+        self.__capacity = capacity
+        self.__minFreq = 0
+        self.__keyToNode = {}
+        self.__freqToList = defaultdict(DoublyLinkedList)
+
+    def get(self, key: int) -> int:
+        if self.__contains(key):
+            return self.__touchCache(key, None)
+        return -1
+
+    def put(self, key: int, value: int) -> None:
+        if self.__capacity > 0:
+            if self.__contains(key):
+                self.__touchCache(key, value)
+            else:
+                if self.__full():
+                    self.__removeCache()
+                self.__addCache(key, value)
+
+    def __contains(self, key: int) -> bool:
+        return key in self.__keyToNode
+
+    def __full(self) -> bool:
+        return len(self.__keyToNode) == self.__capacity
+
+    def __addCache(self, key: int, val: int) -> None:
+        x = Node(key, val, 1)
+        self.__keyToNode[key] = x
+        self.__freqToList[1].addLast(x)
+        self.__minFreq = 1
+
+    def __removeCache(self) -> None:
+        theList = self.__freqToList[self.__minFreq]
+        self.__keyToNode.pop(theList.removeFirst().key)
+        if theList.empty():
+            self.__freqToList.pop(self.__minFreq)
+
+    def __touchCache(self, key: int, val: Optional[int]) -> int:
+        x = self.__keyToNode[key]
+        if val is not None:
+            x.val = val
+        oldFreq = x.freq
+        newFreq = oldFreq + 1
+        x.freq = newFreq
+        oldList = self.__freqToList[oldFreq]
+        oldList.remove(x)
+        if oldList.empty():
+            self.__freqToList.pop(oldFreq)
+            if self.__minFreq == oldFreq:
+                self.__minFreq = newFreq
+        newList = self.__freqToList[newFreq]
+        newList.addLast(x)
+        return x.val
+# https://leetcode.cn/submissions/detail/380511332/
 ```
 
 ## 493. 翻转对
@@ -3444,7 +3927,57 @@ class Solution:
 <https://leetcode.cn/problems/reverse-pairs/>
 
 ```python
+class Solution:
+    def __init__(self):
+        self.ans = 0
 
+    def reversePairs(self, nums: List[int]) -> int:
+        aux = nums.copy()
+        self.sort(nums, 0, len(nums) - 1, aux)
+        return self.ans
+
+    def sort(self, nums: List[int], lo: int, hi: int, aux: List[int]) -> None:
+        if lo >= hi:
+            return
+        mid = lo + (hi - lo) // 2
+        self.sort(nums, lo, mid, aux)
+        self.sort(nums, mid + 1, hi, aux)
+        self.merge(nums, lo, mid, hi, aux)
+
+    def merge(self, nums: List[int], lo: int, mid: int, hi: int, aux: List[int]) -> None:
+        for k in range(lo, hi + 1):
+            aux[k] = nums[k]
+        self.ans += self.countReversePairs(nums, lo, mid, hi)
+        i, j = lo, mid + 1
+        for k in range(lo, hi + 1):
+            if i > mid or (j <= hi and aux[j] < aux[i]):
+                nums[k] = aux[j]
+                j += 1
+            else:
+                nums[k] = aux[i]
+                i += 1
+
+    def countReversePairs(self, nums: List[int], lo: int, mid: int, hi: int) -> int:
+        res = 0
+        #     nums[i]      > 2*nums[j]
+        # (1) nums[i]      > 2*nums[mid+1..j]
+        # (2) nums[i..mid] > 2*nums[j]
+        #
+        #     nums[i]     <= 2*nums[j]
+        # (1) nums[i]     <= 2*nums[j..hi]
+        # (2) nums[lo..i] <= 2*nums[j]
+        i, j = lo, mid + 1
+        while i <= mid and j <= hi:
+            if self.isReversePair(nums, i, j):
+                res += (mid - i + 1)
+                j += 1
+            else:
+                i += 1
+        return res
+
+    def isReversePair(self, nums: List[int], i: int, j: int) -> bool:
+        return i < j and nums[i] > 2 * nums[j]
+# https://leetcode.cn/submissions/detail/380596187/
 ```
 
 ## 494. 目标和
@@ -3452,7 +3985,31 @@ class Solution:
 <https://leetcode.cn/problems/target-sum/>
 
 ```python
+class Solution:
+    def __init__(self):
+        self.memo = {}
 
+    def findTargetSumWays(self, nums: List[int], target: int) -> int:
+        if abs(target) > sum(nums):
+            return 0
+        return self._findTargetSumWays(nums, len(nums) - 1, target)
+
+    # 子数组 nums[0..i] 目标和为 target 的不同表达式的数目
+    def _findTargetSumWays(self, nums: List[int], i: int, target: int) -> int:
+        if i < 0:
+            return 1 if target == 0 else 0
+        key = (i, target)
+        if key not in self.memo:
+            x = nums[i]
+            # x 前添加 + 号
+            # sum(nums[0..i-1]) = target - x
+            sp1 = self._findTargetSumWays(nums, i - 1, target - x)
+            # x 前添加 - 号
+            # sum(nums[0..i-1]) = target + x
+            sp2 = self._findTargetSumWays(nums, i - 1, target + x)
+            self.memo[key] = sp1 + sp2
+        return self.memo[key]
+# https://leetcode.cn/submissions/detail/379526024/
 ```
 
 ## 496. 下一个更大元素 I
@@ -3460,7 +4017,26 @@ class Solution:
 <https://leetcode.cn/problems/next-greater-element-i/>
 
 ```python
+class Solution:
+    def nextGreaterElement(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        greater = self._nextGreaterElement(nums2)
+        valToGreater = {}
+        for i, v in enumerate(nums2):
+            valToGreater[v] = greater[i]
+        return [valToGreater[v] for v in nums1]
 
+    def _nextGreaterElement(self, nums: List[int]) -> List[int]:
+        n = len(nums)
+        res = [-1] * n
+        minMonoStack = []
+        for i in range(-1, - n - 1, -1):
+            v = nums[i]
+            while len(minMonoStack) > 0 and minMonoStack[-1] < v:
+                minMonoStack.pop()
+            res[i] = -1 if len(minMonoStack) == 0 else minMonoStack[-1]
+            minMonoStack.append(v)
+        return res
+# https://leetcode.cn/submissions/detail/379215888/
 ```
 
 ## 503. 下一个更大元素 II
@@ -3468,7 +4044,20 @@ class Solution:
 <https://leetcode.cn/problems/next-greater-element-ii/>
 
 ```python
-
+class Solution:
+    def nextGreaterElements(self, nums: List[int]) -> List[int]:
+        n = len(nums)
+        ans = [-1] * n
+        minMonoStack = []
+        for i in range(2 * n - 1, -1, -1):
+            j = i % n
+            v = nums[j]
+            while len(minMonoStack) > 0 and minMonoStack[-1] <= v:
+                minMonoStack.pop()
+            ans[j] = -1 if len(minMonoStack) == 0 else minMonoStack[-1]
+            minMonoStack.append(v)
+        return ans
+# https://leetcode.cn/submissions/detail/379217114/
 ```
 
 ## 509. 斐波那契数
@@ -3476,7 +4065,19 @@ class Solution:
 <https://leetcode.cn/problems/fibonacci-number/>
 
 ```python
-
+class Solution:
+    def fib(self, n: int) -> int:
+        if n == 0:
+            return 0
+        if n == 1:
+            return 1
+        dp = [0] * (n + 1)
+        dp[0] = 0
+        dp[1] = 1
+        for i in range(2, n + 1):
+            dp[i] = dp[i - 1] + dp[i - 2]
+        return dp[n]
+# https://leetcode.cn/submissions/detail/380215990/
 ```
 
 ## 516. 最长回文子序列
@@ -3484,7 +4085,31 @@ class Solution:
 <https://leetcode.cn/problems/longest-palindromic-subsequence/>
 
 ```python
-
+class Solution:
+    def longestPalindromeSubseq(self, s: str) -> int:
+        n = len(s)
+        # dp[i][j] = 子串 s[i..j] 的最长回文子序列的长度
+        dp = [[0] * n for _ in range(n)]
+        # 遍历对角线
+        for i in range(n):
+            dp[i][i] = 1
+        # 遍历上三角形
+        for i in range(n - 2, -1, -1):
+            for j in range(i + 1, n):
+                if s[i] == s[j]:
+                    # s[i][i+1..j-1][j]
+                    # s   [i+1..j-1]
+                    dp[i][j] = dp[i + 1][j - 1] + 2
+                else:
+                    # s[i..j-1][j]
+                    # s[i..j-1]
+                    sp1 = dp[i][j - 1]
+                    # s[i][i+1..j]
+                    # s   [i+1..j]
+                    sp2 = dp[i + 1][j]
+                    dp[i][j] = max(sp1, sp2)
+        return dp[0][n - 1]
+# https://leetcode.cn/submissions/detail/379242302/
 ```
 
 ## 518. 零钱兑换 II
@@ -3492,7 +4117,37 @@ class Solution:
 <https://leetcode.cn/problems/coin-change-2/>
 
 ```python
-
+class Solution:
+    def change(self, amount: int, coins: List[int]) -> int:
+        n = len(coins)
+        # dp[i][j] = 使用硬币 coins[0..i-1] 凑成总金额 j 的组合数
+        dp = [[0] * (amount + 1) for _ in range(n + 1)]
+        # 总金额为 0
+        for i in range(1, n + 1):
+            dp[i][0] = 1
+        # 硬币数为 0
+        for j in range(1, amount + 1):
+            dp[0][j] = 0
+        dp[0][0] = 1
+        for i in range(1, n + 1):
+            for j in range(1, amount + 1):
+                x = coins[i - 1]
+                if j >= x:
+                    sp1 = dp[i - 1][j]  # 包含    0 个硬币 x
+                    sp2 = dp[i][j - x]  # 包含 >= 1 个硬币 x
+                    dp[i][j] = sp1 + sp2
+                    # 注意
+                    # dp[i][j - x] = 包含 >= 1 个硬币 x
+                    # dp[i-1][j-x] = 包含    1 个硬币 x
+                    # 举例 amount = 79, coins = [1, 2, 5]
+                    # dp[2][79] = 包含    0 个硬币 5，79 = 0 x 5 + 79，剩余 79 只能从 [1, 2] 凑
+                    # dp[2][74] = 包含    1 个硬币 5，79 = 1 x 5 + 74，剩余 74 只能从 [1, 2] 凑
+                    # dp[3][74] = 包含 >= 1 个硬币 5，79 = 1 x 5 + 74，剩余 74 可以从 [1, 2, 5] 凑
+                else:
+                    # 不包含硬币 x
+                    dp[i][j] = dp[i - 1][j]
+        return dp[n][amount]
+# https://leetcode.cn/submissions/detail/379489135/
 ```
 
 ## 538. 把二叉搜索树转换为累加树
@@ -3500,7 +4155,22 @@ class Solution:
 <https://leetcode.cn/problems/convert-bst-to-greater-tree/>
 
 ```python
+class Solution:
+    def __init__(self):
+        self.sum = 0
 
+    def convertBST(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        self.dfs(root)
+        return root
+
+    def dfs(self, root: Optional[TreeNode]) -> None:
+        if root is None:
+            return
+        self.dfs(root.right)
+        self.sum += root.val
+        root.val = self.sum
+        self.dfs(root.left)
+# https://leetcode.cn/submissions/detail/380137290/
 ```
 
 ## 543. 二叉树的直径
@@ -3508,7 +4178,26 @@ class Solution:
 <https://leetcode.cn/problems/diameter-of-binary-tree/>
 
 ```python
+# rootLP = 穿过根节点的最长路径（左右子树的最大深度之和）
+# rootLP(root) = maxDepth(root.left) + maxDepth(root.right)
+# diameter = 所有子树的 rootLP 的最大值
+# diameter(root) = max({rootLP(subtree) | subtree 是 root 的任意子树})
+class Solution:
+    def __init__(self):
+        self.ans = 0
 
+    def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
+        self.maxDepth(root)
+        return self.ans
+
+    def maxDepth(self, root: Optional[TreeNode]) -> int:
+        if root is None:
+            return 0
+        left = self.maxDepth(root.left)
+        right = self.maxDepth(root.right)
+        self.ans = max(self.ans, left + right)
+        return 1 + max(left, right)
+# https://leetcode.cn/submissions/detail/380119502/
 ```
 
 ## 567. 字符串的排列
@@ -3516,7 +4205,37 @@ class Solution:
 <https://leetcode.cn/problems/permutation-in-string/>
 
 ```python
-
+class Solution:
+    def checkInclusion(self, s1: str, s2: str) -> bool:
+        need = {}
+        for c in s1:
+            need.setdefault(c, 0)
+            need[c] += 1
+        window = {}
+        valid = 0
+        # s[left..right) = Window Substring
+        # s[right..n-1]  = Scanning
+        left = right = 0
+        while right < len(s2):
+            c = s2[right]
+            right += 1
+            if c in need:
+                window.setdefault(c, 0)
+                window[c] += 1
+                if window[c] == need[c]:
+                    valid += 1
+            if valid == len(need):
+                while left < right - len(s1):
+                    d = s2[left]
+                    left += 1
+                    if d in need:
+                        if window[d] == need[d]:
+                            valid -= 1
+                        window[d] -= 1
+                if valid == len(need):
+                    return True
+        return False
+# https://leetcode.cn/submissions/detail/379022373/
 ```
 
 ## 583. 两个字符串的删除操作
@@ -3524,7 +4243,46 @@ class Solution:
 <https://leetcode.cn/problems/delete-operation-for-two-strings/>
 
 ```python
+class Solution:
+    def __init__(self):
+        self.memo = {}
 
+    def minDistance(self, s1: str, s2: str) -> int:
+        return self._minDistance(s1, len(s1) - 1, s2, len(s2) - 1)
+
+    # 子串 s1[0..i] s2[0..j] 的最小删除步数
+    def _minDistance(self, s1: str, i: int, s2: str, j: int) -> int:
+        # 删除 s2[0..j]
+        # s1""
+        # s2[0..j]
+        if i < 0:
+            return j + 1
+        # 删除 s1[0..i]
+        # s1[0..i]
+        # s2""
+        if j < 0:
+            return i + 1
+        if (i, j) not in self.memo:
+            if s1[i] == s2[j]:
+                # s1[0..i-1][i]
+                # s2[0..j-1][j]
+                self.memo[(i, j)] = self._minDistance(s1, i - 1, s2, j - 1)
+            else:
+                # 删除 s1[i] s2[j]
+                # s1[0..i-1][i]
+                # s2[0..j-1][j]
+                sp1 = self._minDistance(s1, i - 1, s2, j - 1) + 2
+                # 删除 s2[j]
+                # s1[0..i]
+                # s2[0..j-1][j]
+                sp2 = self._minDistance(s1, i, s2, j - 1) + 1
+                # 删除 s1[i]
+                # s1[0..i-1][i]
+                # s2[0..j]
+                sp3 = self._minDistance(s1, i - 1, s2, j) + 1
+                self.memo[(i, j)] = min(sp1, sp2, sp3)
+        return self.memo[(i, j)]
+# https://leetcode.cn/submissions/detail/379341290/
 ```
 
 ## 617. 合并二叉树
@@ -3532,7 +4290,17 @@ class Solution:
 <https://leetcode.cn/problems/merge-two-binary-trees/>
 
 ```python
-
+class Solution:
+    def mergeTrees(self, root1: Optional[TreeNode], root2: Optional[TreeNode]) -> Optional[TreeNode]:
+        if root1 is None:
+            return root2
+        if root2 is None:
+            return root1
+        mRoot = TreeNode(root1.val + root2.val)
+        mRoot.left = self.mergeTrees(root1.left, root2.left)
+        mRoot.right = self.mergeTrees(root1.right, root2.right)
+        return mRoot
+# https://leetcode.cn/submissions/detail/380125448/
 ```
 
 ## 652. 寻找重复的子树
@@ -3540,7 +4308,26 @@ class Solution:
 <https://leetcode.cn/problems/find-duplicate-subtrees/>
 
 ```python
+class Solution:
+    def __init__(self):
+        self.ans = []
+        self.counter = Counter()
 
+    def findDuplicateSubtrees(self, root: Optional[TreeNode]) -> List[Optional[TreeNode]]:
+        self.postorder(root)
+        return self.ans
+
+    def postorder(self, root: Optional[TreeNode]) -> str:
+        if root is None:
+            return '#'
+        left = self.postorder(root.left)
+        right = self.postorder(root.right)
+        res = left + ',' + right + ',' + str(root.val)
+        self.counter[res] += 1
+        if self.counter[res] == 2:
+            self.ans.append(root)
+        return res
+# https://leetcode.cn/submissions/detail/379980974/
 ```
 
 ## 654. 最大二叉树
@@ -3548,7 +4335,22 @@ class Solution:
 <https://leetcode.cn/problems/maximum-binary-tree/>
 
 ```python
+class Solution:
+    def constructMaximumBinaryTree(self, nums: List[int]) -> Optional[TreeNode]:
+        return self._constructMaximumBinaryTree(nums, 0, len(nums) - 1)
 
+    def _constructMaximumBinaryTree(self, nums: List[int], lo: int, hi: int) -> Optional[TreeNode]:
+        if lo > hi:
+            return None
+        maxIndex = lo
+        for i in range(lo + 1, hi + 1):
+            if nums[i] > nums[maxIndex]:
+                maxIndex = i
+        root = TreeNode(nums[maxIndex])
+        root.left = self._constructMaximumBinaryTree(nums, lo, maxIndex - 1)
+        root.right = self._constructMaximumBinaryTree(nums, maxIndex + 1, hi)
+        return root
+# https://leetcode.cn/submissions/detail/379991812/
 ```
 
 ## 695. 岛屿的最大面积
@@ -3556,7 +4358,33 @@ class Solution:
 <https://leetcode.cn/problems/max-area-of-island/>
 
 ```python
+class Solution:
+    LAND = 1
+    WATER = 0
 
+    def __init__(self):
+        self.area = 0
+
+    def maxAreaOfIsland(self, grid: List[List[int]]) -> int:
+        ans = 0
+        for row in range(len(grid)):
+            for col in range(len(grid[0])):
+                if grid[row][col] == Solution.LAND:
+                    self.area = 0
+                    self.floodFill(grid, row, col)
+                    ans = max(ans, self.area)
+        return ans
+
+    def floodFill(self, grid: List[List[int]], row: int, col: int) -> None:
+        if row < 0 or row >= len(grid) or col < 0 or col >= len(grid[0]) or grid[row][col] == Solution.WATER:
+            return
+        self.area += 1
+        grid[row][col] = Solution.WATER
+        self.floodFill(grid, row - 1, col)
+        self.floodFill(grid, row + 1, col)
+        self.floodFill(grid, row, col - 1)
+        self.floodFill(grid, row, col + 1)
+# https://leetcode.cn/submissions/detail/380250845/
 ```
 
 ## 698. 划分为 K 个相等的子集
@@ -3564,7 +4392,122 @@ class Solution:
 <https://leetcode.cn/problems/partition-to-k-equal-sum-subsets/>
 
 ```python
+class Solution:
+    def __init__(self):
+        self.nums = None
+        self.k = None
+        self.target = None
+        self.pathSums = None
+        self.used = 0
+        self.memo = {}
 
+    def canPartitionKSubsets(self, nums: List[int], k: int) -> bool:
+        s = sum(nums)
+        if s % k != 0:
+            return False
+        self.nums = nums
+        self.k = k
+        self.target = s // k
+        self.pathSums = [0] * k
+        return self.backtrack(0, -1)
+
+    # 遍历『决策森林』的 k 棵『决策树』
+    # 一棵『决策树』的『路径』代表一个『等和子集』
+    # tree = 第几棵『决策树』，取 [0..k-1] 为值
+    # edge =『决策树』的『边』，取数组 nums 的索引为值
+    # pathSums[tree] = 第几棵『决策树』的『路径和』
+    def backtrack(self, tree: int, edge: int) -> bool:
+        res = False
+        if tree == self.k:
+            res = True
+        elif self.pathSums[tree] == self.target:
+            # 通过缓存，对同一个『森林』，优化『树』的遍历，避免『路径+路径』重复
+            # 例如 [1->2->3] 和 [4->5->6] 分别是两条『路径』
+            # 如果 A.[1->2->3] -> B.[4->5->6] -> C.[] 是不行的
+            # 那么 A.[4->5->6] -> B.[1->2->3] -> C.[] 也是不行的
+            # 因为 C 的可选『边』是一样的
+            if self.used not in self.memo:
+                self.memo[self.used] = self.backtrack(tree + 1, -1)
+            res = self.memo[self.used]
+        else:
+            # 通过去重，对同一棵树，优化『边』的遍历，避免『边+边』重复
+            # 例如 1 和 2 分别是两条『边』，[1->2] 和 [2->1] 是重复的
+            for e in range(edge + 1, len(self.nums)):
+                # 检查第 e 位是否为 1，即 nums[e] 是否已经被其他『树』使用
+                if (self.used >> e) & 1 == 1:
+                    continue
+                x = self.nums[e]
+                if self.pathSums[tree] + x > self.target:
+                    continue
+                self.pathSums[tree] += x
+                self.used |= (1 << e)  # 『或』运算，将第 e 位修改为 1
+                res = self.backtrack(tree, e)
+                if res:
+                    break
+                self.pathSums[tree] -= x
+                self.used ^= (1 << e)  # 『异或』运算，将第 e 位恢复为 0
+        return res
+# https://leetcode.cn/submissions/detail/379813608/
+```
+
+```python
+class Solution:
+    def __init__(self):
+        self.nums = None
+        self.k = None
+        self.target = None
+        self.pathSums = None
+        self.memo = {}
+        self.used = bytearray(b'0000000000000000')
+
+    def canPartitionKSubsets(self, nums: List[int], k: int) -> bool:
+        s = sum(nums)
+        if s % k != 0:
+            return False
+        self.nums = nums
+        self.k = k
+        self.target = s // k
+        self.pathSums = [0] * k
+        return self.backtrack(0, -1)
+
+    # 遍历『决策森林』的 k 棵『决策树』
+    # 一棵『决策树』的『路径』代表一个『等和子集』
+    # tree = 第几棵『决策树』，取 [0..k-1] 为值
+    # edge =『决策树』的『边』，取数组 nums 的索引为值
+    # pathSums[tree] = 第几棵『决策树』的『路径和』
+    def backtrack(self, tree: int, edge: int) -> bool:
+        res = False
+        if tree == self.k:
+            res = True
+        elif self.pathSums[tree] == self.target:
+            # 通过缓存，对同一个『森林』，优化『树』的遍历，避免『路径+路径』重复
+            # 例如 [1->2->3] 和 [4->5->6] 分别是两条『路径』
+            # 如果 A.[1->2->3] -> B.[4->5->6] -> C.[] 是不行的
+            # 那么 A.[4->5->6] -> B.[1->2->3] -> C.[] 也是不行的
+            # 因为 C 的可选『边』是一样的
+            key = self.used.decode()
+            if key not in self.memo:
+                self.memo[key] = self.backtrack(tree + 1, -1)
+            res = self.memo[key]
+        else:
+            # 通过去重，对同一棵树，优化『边』的遍历，避免『边+边』重复
+            # 例如 1 和 2 分别是两条『边』，[1->2] 和 [2->1] 是重复的
+            for e in range(edge + 1, len(self.nums)):
+                # 检查第 e 位是否为 1，即 nums[e] 是否已经被其他『树』使用
+                if self.used[e] == ord('1'):
+                    continue
+                x = self.nums[e]
+                if self.pathSums[tree] + x > self.target:
+                    continue
+                self.pathSums[tree] += x
+                self.used[e] = ord('1')
+                res = self.backtrack(tree, e)
+                if res:
+                    break
+                self.pathSums[tree] -= x
+                self.used[e] = ord('0')
+        return res
+# https://leetcode.cn/submissions/detail/379824409/
 ```
 
 ## 700. 二叉搜索树中的搜索
