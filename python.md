@@ -2469,7 +2469,18 @@ class LRUCache:
 <https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/>
 
 ```python
-
+class Solution:
+    def findMin(self, nums: List[int]) -> int:
+        lo = 0
+        hi = len(nums) - 1
+        while lo < hi:
+            mid = lo + (hi - lo) // 2
+            if nums[mid] < nums[hi]:
+                hi = mid
+            else:
+                lo = mid + 1
+        return nums[lo]
+# https://leetcode.cn/submissions/detail/378926511/
 ```
 
 ## 155. 最小栈
@@ -2477,7 +2488,23 @@ class LRUCache:
 <https://leetcode.cn/problems/min-stack/>
 
 ```python
+class MinStack:
+    def __init__(self):
+        self.stack = []
 
+    def push(self, val: int) -> None:
+        minval = val if len(self.stack) == 0 else min(self.getMin(), val)
+        self.stack.append((val, minval))
+
+    def pop(self) -> None:
+        self.stack.pop()
+
+    def top(self) -> int:
+        return self.stack[-1][0]
+
+    def getMin(self) -> int:
+        return self.stack[-1][1]
+# https://leetcode.cn/submissions/detail/380067650/
 ```
 
 ## 160. 相交链表
@@ -2485,7 +2512,15 @@ class LRUCache:
 <https://leetcode-cn.com/problems/intersection-of-two-linked-lists/>
 
 ```python
-
+class Solution:
+    def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> Optional[ListNode]:
+        ptrA = headA
+        ptrB = headB
+        while ptrA is not ptrB:
+            ptrA = headB if ptrA is None else ptrA.next
+            ptrB = headA if ptrB is None else ptrB.next
+        return ptrA
+# https://leetcode.cn/submissions/detail/378717241/
 ```
 
 ## 165. 比较版本号
@@ -2493,7 +2528,66 @@ class LRUCache:
 <https://leetcode.cn/problems/compare-version-numbers/>
 
 ```python
+class Solution:
+    DOT = ord('.')
+    ZERO = ord('0')
 
+    def compareVersion(self, version1: str, version2: str) -> int:
+        bytes1 = version1.encode()
+        bytes2 = version2.encode()
+        n1 = len(bytes1)
+        n2 = len(bytes2)
+        i, j = 0, 0
+        while i < n1 or j < n2:
+            r1 = 0
+            while i < n1:
+                ch = bytes1[i]
+                i += 1
+                if ch == Solution.DOT:
+                    break
+                r1 = r1 * 10 + ch - Solution.ZERO
+            r2 = 0
+            while j < n2:
+                ch = bytes2[j]
+                j += 1
+                if ch == Solution.DOT:
+                    break
+                r2 = r2 * 10 + ch - Solution.ZERO
+            if r1 > r2:
+                return 1
+            if r1 < r2:
+                return -1
+        return 0
+# https://leetcode.cn/submissions/detail/380189352/
+```
+
+```python
+class Solution:
+    def compareVersion(self, version1: str, version2: str) -> int:
+        n1 = len(version1)
+        n2 = len(version2)
+        i, j = 0, 0
+        while i < n1 or j < n2:
+            r1 = 0
+            while i < n1:
+                ch = version1[i]
+                i += 1
+                if ch == '.':
+                    break
+                r1 = r1 * 10 + ord(ch) - ord('0')
+            r2 = 0
+            while j < n2:
+                ch = version2[j]
+                j += 1
+                if ch == '.':
+                    break
+                r2 = r2 * 10 + ord(ch) - ord('0')
+            if r1 > r2:
+                return 1
+            if r1 < r2:
+                return -1
+        return 0
+# https://leetcode.cn/submissions/detail/380189826/
 ```
 
 ## 167. 两数之和 II - 输入有序数组
@@ -2501,7 +2595,20 @@ class LRUCache:
 <https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/>
 
 ```python
-
+class Solution:
+    def twoSum(self, numbers: List[int], target: int) -> List[int]:
+        i = 0
+        j = len(numbers) - 1
+        while i < j:
+            sum = numbers[i] + numbers[j]
+            if sum < target:
+                i += 1
+            elif sum > target:
+                j -= 1
+            else:
+                return [i + 1, j + 1]
+        return [-1, -1]
+# https://leetcode.cn/submissions/detail/378698010/
 ```
 
 ## 169. 多数元素
@@ -2509,7 +2616,21 @@ class LRUCache:
 <https://leetcode.cn/problems/majority-element/>
 
 ```python
-
+class Solution:
+    def majorityElement(self, nums: List[int]) -> int:
+        candidate = math.inf
+        count = 0
+        for x in nums:
+            if count == 0:
+                candidate = x
+                count = 1
+            else:
+                if x == candidate:
+                    count += 1
+                else:
+                    count -= 1
+        return candidate
+# https://leetcode.cn/submissions/detail/380182891/
 ```
 
 ## 179. 最大数
@@ -2517,7 +2638,23 @@ class LRUCache:
 <https://leetcode.cn/problems/largest-number/>
 
 ```python
+class Solution:
+    def largestNumber(self, nums: List[int]) -> str:
+        strs = [str(x) for x in nums]
 
+        def cmp(s1, s2):
+            a = s1 + s2
+            b = s2 + s1
+            if a > b:
+                return -1
+            if a < b:
+                return 1
+            return 0
+
+        strs.sort(key=functools.cmp_to_key(cmp))
+        ans = ''.join(strs)
+        return '0' if ans[0] == '0' else ans
+# https://leetcode.cn/submissions/detail/380213463/
 ```
 
 ## 188. 买卖股票的最佳时机 IV
@@ -2525,7 +2662,32 @@ class LRUCache:
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/>
 
 ```python
-
+class Solution:
+    def maxProfit(self, k: int, prices: List[int]) -> int:
+        n = len(prices)
+        if k <= 0 or n <= 1:
+            return 0
+        # dp[t][i][0] = 交易次数限制为 t 时，第 i 天，空仓状态下的最大利润
+        # dp[t][i][1] = 交易次数限制为 t 时，第 i 天，持仓状态下的最大利润
+        dp = [[[0] * 2 for _ in range(n)] for _ in range(k + 1)]
+        # 交易次数限制为 0 时
+        # 填写第 0 个 n x 2 矩阵
+        for i in range(n):
+            dp[0][i][0] = 0
+            dp[0][i][1] = -math.inf
+        # 交易次数限制为 [1..k] 时
+        # 填写第 t 个 n x 2 矩阵
+        for t in range(1, k + 1):
+            dp[t][0][0] = 0
+            dp[t][0][1] = -prices[0]
+            for i in range(1, n):
+                # dp[t][i - 1][0]             >= dp[t - 1][i - 1][0] - prices[i]
+                # dp[t][i - 1][1] + prices[i] >= dp[t][i - 1][1]
+                # => dp[t][i][0] >= dp[t][i][1]
+                dp[t][i][0] = max(dp[t][i - 1][0], dp[t][i - 1][1] + prices[i])
+                dp[t][i][1] = max(dp[t - 1][i - 1][0] - prices[i], dp[t][i - 1][1])
+        return dp[k][n - 1][0]
+# https://leetcode.cn/submissions/detail/379362384/
 ```
 
 ## 189. 轮转数组
@@ -2533,7 +2695,20 @@ class LRUCache:
 <https://leetcode.cn/problems/rotate-array/>
 
 ```python
+class Solution:
+    def rotate(self, nums: List[int], k: int) -> None:
+        n = len(nums)
+        k %= n
+        self.reverse(nums, 0, n - 1)
+        self.reverse(nums, 0, k - 1)
+        self.reverse(nums, k, n - 1)
 
+    def reverse(self, nums: List[int], lo: int, hi: int) -> None:
+        while lo < hi:
+            nums[lo], nums[hi] = nums[hi], nums[lo]
+            lo += 1
+            hi -= 1
+# https://leetcode.cn/submissions/detail/378924954/
 ```
 
 ## 198. 打家劫舍
@@ -2541,7 +2716,29 @@ class LRUCache:
 <https://leetcode.cn/problems/house-robber/>
 
 ```python
+class Solution:
+    def rob(self, nums: List[int]) -> int:
+        return self.subseqSum(nums)
 
+    # max({sum(subseq) | subseq 是数组 nums 的不连续子序列})
+    def subseqSum(self, nums: List[int]) -> int:
+        n = len(nums)
+        if n == 0:
+            return 0
+        if n == 1:
+            return nums[0]
+        # dp[i] = max({sum(subseq) | subseq 是子数组 nums[0..i] 的不连续子序列})
+        dp = [0] * n
+        dp[0] = nums[0]
+        dp[1] = max(nums[0], nums[1])
+        for i in range(2, n):
+            # 包含 nums[i]
+            sp1 = dp[i - 2] + nums[i]
+            # 不包含 nums[i]
+            sp2 = dp[i - 1]
+            dp[i] = max(sp1, sp2)
+        return dp[n - 1]
+# https://leetcode.cn/submissions/detail/379343781/
 ```
 
 ## 199. 二叉树的右视图
@@ -2549,7 +2746,25 @@ class LRUCache:
 <https://leetcode.cn/problems/binary-tree-right-side-view/>
 
 ```python
-
+class Solution:
+    def rightSideView(self, root: Optional[TreeNode]) -> List[int]:
+        ans = []
+        q = deque()
+        if root is not None:
+            q.append(root)
+        while len(q) > 0:
+            ans.append(q[-1].val)
+            n = len(q)
+            for i in range(n):
+                x = q.popleft()
+                left = x.left
+                if left is not None:
+                    q.append(left)
+                right = x.right
+                if right is not None:
+                    q.append(right)
+        return ans
+# https://leetcode.cn/submissions/detail/379990630/
 ```
 
 ## 200. 岛屿数量
@@ -2557,7 +2772,28 @@ class LRUCache:
 <https://leetcode.cn/problems/number-of-islands/>
 
 ```python
+class Solution:
+    LAND = '1'
+    WATER = '0'
 
+    def numIslands(self, grid: List[List[str]]) -> int:
+        count = 0
+        for row in range(len(grid)):
+            for col in range(len(grid[0])):
+                if grid[row][col] == Solution.LAND:
+                    self.floodFill(grid, row, col)
+                    count += 1
+        return count
+
+    def floodFill(self, grid: List[List[str]], row: int, col: int) -> None:
+        if row < 0 or row >= len(grid) or col < 0 or col >= len(grid[0]) or grid[row][col] == Solution.WATER:
+            return
+        grid[row][col] = Solution.WATER
+        self.floodFill(grid, row - 1, col)
+        self.floodFill(grid, row + 1, col)
+        self.floodFill(grid, row, col - 1)
+        self.floodFill(grid, row, col + 1)
+# https://leetcode.cn/submissions/detail/380248973/
 ```
 
 ## 203. 移除链表元素
