@@ -4844,7 +4844,21 @@ class LRUCache {
 <https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/>
 
 ```java
-
+class Solution {
+    public int findMin(int[] nums) {
+        int lo = 0, hi = nums.length - 1;
+        while (lo < hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (nums[mid] < nums[hi]) {
+                hi = mid;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        return nums[lo];
+    }
+}
+// https://leetcode.cn/submissions/detail/348419979/
 ```
 
 ## 155. 最小栈
@@ -4852,7 +4866,98 @@ class LRUCache {
 <https://leetcode.cn/problems/min-stack/>
 
 ```java
+class MinStack {
+    private Deque<int[]> stack = new LinkedList();
 
+    public MinStack() {
+
+    }
+
+    public void push(int val) {
+        int min = (stack.isEmpty() ? val : Math.min(getMin(), val));
+        stack.push(new int[]{val, min});
+    }
+
+    public void pop() {
+        stack.pop();
+    }
+
+    public int top() {
+        return stack.peek()[0];
+    }
+
+    public int getMin() {
+        return stack.peek()[1];
+    }
+}
+// https://leetcode.cn/submissions/detail/364641398/
+```
+
+```java
+class MinStack {
+    private Deque<Integer> stack1 = new LinkedList<Integer>();
+    private Deque<Integer> stack2 = new LinkedList<Integer>();
+
+    public MinStack() {
+
+    }
+
+    public void push(int val) {
+        stack1.push(val);
+        if (stack2.isEmpty() || getMin() >= val) {
+            stack2.push(val);
+        }
+    }
+
+    public void pop() {
+        if (stack1.pop() == getMin()) {
+            stack2.pop();
+        }
+    }
+
+    public int top() {
+        return stack1.peek();
+    }
+
+    public int getMin() {
+        return stack2.peek();
+    }
+}
+// https://leetcode.cn/submissions/detail/349250298/
+```
+
+```java
+class MinStack {
+    private int min = Integer.MAX_VALUE;
+    private Deque<Integer> stack = new LinkedList<Integer>();
+
+    public MinStack() {
+
+    }
+
+    public void push(int val) {
+        if (getMin() >= val) {
+            stack.push(min);
+            min = val;
+        }
+        stack.push(val);
+    }
+
+    public void pop() {
+        if (stack.pop() == min) {
+            min = stack.pop();
+        }
+    }
+
+    public int top() {
+        return stack.peek();
+    }
+
+    public int getMin() {
+        return min;
+    }
+}
+// https://leetcode.cn/submissions/detail/349249224/
 ```
 
 ## 160. 相交链表
@@ -4860,7 +4965,38 @@ class LRUCache {
 <https://leetcode-cn.com/problems/intersection-of-two-linked-lists/>
 
 ```java
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        ListNode ptrA = headA;
+        ListNode ptrB = headB;
+        while (ptrA != ptrB) {
+            ptrA = (ptrA == null ? headB : ptrA.next);
+            ptrB = (ptrB == null ? headA : ptrB.next);
+        }
+        return ptrA;
+    }
+}
+// https://leetcode.cn/submissions/detail/366014060/
+```
 
+```java
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        Set<ListNode> set = new HashSet<>();
+        ListNode ptr = headA;
+        while (ptr != null) {
+            set.add(ptr);
+            ptr = ptr.next;
+        }
+        ptr = headB;
+        while (ptr != null) {
+            if (set.contains(ptr)) return ptr;
+            ptr = ptr.next;
+        }
+        return null;
+    }
+}
+// https://leetcode.cn/submissions/detail/340617028/
 ```
 
 ## 165. 比较版本号
@@ -4868,7 +5004,109 @@ class LRUCache {
 <https://leetcode.cn/problems/compare-version-numbers/>
 
 ```java
+class Solution {
+    public int compareVersion(String version1, String version2) {
+        int len1 = version1.length(), len2 = version2.length();
+        int i = 0, j = 0;
+        while (i < len1 || j < len2) {
+            int r1 = 0;
+            while (i < len1) {
+                char c = version1.charAt(i++);
+                if (c == '.') {
+                    break;
+                }
+                r1 = r1 * 10 + (c - '0');
+            }
+            int r2 = 0;
+            while (j < len2) {
+                char c = version2.charAt(j++);
+                if (c == '.') {
+                    break;
+                }
+                r2 = r2 * 10 + (c - '0');
+            }
+            if (r1 > r2) {
+                return 1;
+            }
+            if (r1 < r2) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+}
+// https://leetcode.cn/submissions/detail/363320402/
+```
 
+```java
+class Solution {
+    public int compareVersion(String version1, String version2) {
+        int len1 = version1.length(), len2 = version2.length();
+        int i = 0, j = 0;
+        StringBuilder sb1 = new StringBuilder();
+        StringBuilder sb2 = new StringBuilder();
+        while (i < len1 || j < len2) {
+            sb1.setLength(0);
+            sb1.append('0');
+            while (i < len1) {
+                char c = version1.charAt(i++);
+                if (c == '.') {
+                    break;
+                }
+                sb1.append(c);
+            }
+            sb2.setLength(0);
+            sb2.append('0');
+            while (j < len2) {
+                char c = version2.charAt(j++);
+                if (c == '.') {
+                    break;
+                }
+                sb2.append(c);
+            }
+            int r1 = Integer.parseInt(sb1.toString());
+            int r2 = Integer.parseInt(sb2.toString());
+            if (r1 > r2) {
+                return 1;
+            }
+            if (r1 < r2) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+}
+// https://leetcode.cn/submissions/detail/363323985/
+```
+
+```java
+class Solution {
+    public int compareVersion(String version1, String version2) {
+        String[] revisions1 = version1.split("\\.");
+        String[] revisions2 = version2.split("\\.");
+        int n1 = revisions1.length, n2 = revisions2.length;
+        int i = 0;
+        while (i < n1 || i < n2) {
+            int r1 = 0;
+            if (i < n1) {
+                r1 = Integer.parseInt(revisions1[i]);
+            }
+            int r2 = 0;
+            if (i < n2) {
+                r2 = Integer.parseInt(revisions2[i]);
+            }
+            ++i;
+            if (r1 > r2) {
+                return 1;
+            }
+            if (r1 < r2) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+}
+// https://leetcode.cn/submissions/detail/368047262/
 ```
 
 ## 167. 两数之和 II - 输入有序数组
@@ -4876,7 +5114,24 @@ class LRUCache {
 <https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/>
 
 ```java
-
+class Solution {
+    public int[] twoSum(int[] numbers, int target) {
+        int left = 0;
+        int right = numbers.length - 1;
+        while (left < right) {
+            int sum = numbers[left] + numbers[right];
+            if (sum > target) {
+                right--;
+            } else if (sum < target) {
+                left++;
+            } else {
+                return new int[]{left + 1, right + 1};
+            }
+        }
+        return new int[]{-1, -1};
+    }
+}
+// https://leetcode.cn/submissions/detail/341136281/
 ```
 
 ## 169. 多数元素
@@ -4884,7 +5139,78 @@ class LRUCache {
 <https://leetcode.cn/problems/majority-element/>
 
 ```java
+class Solution {
+    public int majorityElement(int[] nums) {
+        int candidate = Integer.MIN_VALUE;
+        int count = 0;
+        for (int x : nums) {
+            if (count == 0) {
+                candidate = x;
+                count = 1;
+            } else {
+                if (x == candidate) {
+                    ++count;
+                } else {
+                    --count;
+                }
+            }
+        }
+        return candidate;
+    }
+}
+// https://leetcode.cn/submissions/detail/364344693/
+```
 
+```java
+class Solution {
+    public int majorityElement(int[] nums) {
+        Map<Integer, Integer> times = new HashMap();
+        int half = nums.length / 2;
+        for (int num : nums) {
+            int t = times.getOrDefault(num, 0) + 1;
+            if (t > half) {
+                return num;
+            }
+            times.put(num, t);
+        }
+        return Integer.MIN_VALUE;
+    }
+}
+// https://leetcode.cn/submissions/detail/358158495/
+```
+
+```java
+class Solution {
+    public int majorityElement(int[] nums) {
+        Arrays.sort(nums);
+        return nums[nums.length / 2];
+    }
+}
+// https://leetcode.cn/submissions/detail/349720053/
+```
+
+```java
+class Solution {
+    public int majorityElement(int[] nums) {
+        Arrays.sort(nums);
+        int n = nums.length;
+        int half = n / 2;
+        int i = 0;
+        while (i < n) {
+            int v = nums[i];
+            int j = i + 1;
+            while (j < n && nums[j] == v) {
+                ++j;
+            }
+            if (j - i > half) {
+                return v;
+            }
+            i = j;
+        }
+        return Integer.MIN_VALUE;
+    }
+}
+// https://leetcode.cn/submissions/detail/358166250/
 ```
 
 ## 179. 最大数
@@ -4892,7 +5218,23 @@ class LRUCache {
 <https://leetcode.cn/problems/largest-number/>
 
 ```java
-
+class Solution {
+    public String largestNumber(int[] nums) {
+        int n = nums.length;
+        String[] strs = new String[n];
+        for (int i = 0; i < n; ++i) {
+            strs[i] = Integer.toString(nums[i]);
+        }
+        Arrays.sort(strs, (s1, s2) -> (s2 + s1).compareTo(s1 + s2));
+        StringBuilder sb = new StringBuilder();
+        for (String s : strs) {
+            sb.append(s);
+        }
+        String ans = sb.toString();
+        return ans.charAt(0) == '0' ? "0" : ans;
+    }
+}
+// https://leetcode.cn/submissions/detail/349008072/
 ```
 
 ## 188. 买卖股票的最佳时机 IV
@@ -4900,7 +5242,38 @@ class LRUCache {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/>
 
 ```java
-
+class Solution {
+    public int maxProfit(int k, int[] prices) {
+        int n = prices.length;
+        if (k <= 0 || n <= 1) {
+            return 0;
+        }
+        // dp[t][i][0] = 交易次数限制为 t 时，第 i 天，空仓状态下的最大利润
+        // dp[t][i][1] = 交易次数限制为 t 时，第 i 天，持仓状态下的最大利润
+        int[][][] dp = new int[k + 1][n][2];
+        // 交易次数限制为 0 时
+        // 填写第 0 个 n x 2 矩阵
+        for (int i = 0; i < n; ++i) {
+            dp[0][i][0] = 0;
+            dp[0][i][1] = Integer.MIN_VALUE;
+        }
+        // 交易次数限制为 [1..k] 时
+        for (int t = 1; t <= k; ++t) {
+            // 填写第 t 个 n x 2 矩阵
+            dp[t][0][0] = 0;
+            dp[t][0][1] = -prices[0];
+            for (int i = 1; i < n; ++i) {
+                // dp[t][i - 1][0]             >= dp[t - 1][i - 1][0] - prices[i]
+                // dp[t][i - 1][1] + prices[i] >= dp[t][i - 1][1]
+                // => dp[t][i][0] >= dp[t][i][1]
+                dp[t][i][0] = Math.max(dp[t][i - 1][0], dp[t][i - 1][1] + prices[i]);
+                dp[t][i][1] = Math.max(dp[t - 1][i - 1][0] - prices[i], dp[t][i - 1][1]);
+            }
+        }
+        return dp[k][n - 1][0];
+    }
+}
+// https://leetcode.cn/submissions/detail/365507888/
 ```
 
 ## 189. 轮转数组
@@ -4908,7 +5281,47 @@ class LRUCache {
 <https://leetcode.cn/problems/rotate-array/>
 
 ```java
+class Solution {
+    public void rotate(int[] nums, int k) {
+        int n = nums.length;
+        k %= n;
+        if (k > 0) {
+            reverse(nums, 0, n - 1);
+            reverse(nums, 0, k - 1);
+            reverse(nums, k, n - 1);
+        }
+    }
 
+    private void reverse(int[] nums, int lo, int hi) {
+        while (lo < hi) {
+            exch(nums, lo++, hi--);
+        }
+    }
+
+    private void exch(int[] nums, int i, int j) {
+        int swap = nums[i];
+        nums[i] = nums[j];
+        nums[j] = swap;
+    }
+}
+// https://leetcode.cn/submissions/detail/364370375/
+```
+
+```java
+class Solution {
+    public void rotate(int[] nums, int k) {
+        int n = nums.length;
+        k %= n;
+        if (k > 0) {
+            int[] aux = new int[n];
+            for (int i = 0; i < n; i++) {
+                aux[(i + k) % n] = nums[i];
+            }
+            System.arraycopy(aux, 0, nums, 0, n);
+        }
+    }
+}
+// https://leetcode.cn/submissions/detail/364371721/
 ```
 
 ## 198. 打家劫舍
@@ -4916,7 +5329,80 @@ class LRUCache {
 <https://leetcode.cn/problems/house-robber/>
 
 ```java
+class Solution {
+    public int rob(int[] nums) {
+        return subseqSum(nums);
+    }
 
+    // max({sum(subseq) | subseq 是数组 nums 的不连续子序列})
+    private int subseqSum(int[] nums) {
+        int n = nums.length;
+        if (n == 0) {
+            return 0;
+        }
+        if (n == 1) {
+            return nums[0];
+        }
+        if (n == 2) {
+            return Math.max(nums[0], nums[1]);
+        }
+        // dp[i] = max({sum(subseq) | subseq 是子数组 nums[0..i] 的不连续子序列})
+        int[] dp = new int[n];
+        dp[0] = nums[0];
+        dp[1] = Math.max(nums[0], nums[1]);
+        for (int i = 2; i < n; ++i) {
+            // 包含 nums[i]
+            int sp1 = dp[i - 2] + nums[i];
+            // 不包含 nums[i]
+            int sp2 = dp[i - 1];
+            dp[i] = Math.max(sp1, sp2);
+        }
+        return dp[n - 1];
+    }
+}
+// https://leetcode.cn/submissions/detail/374740861/
+```
+
+```java
+class Solution {
+    private int[] memo;
+    private int ans;
+
+    public int rob(int[] nums) {
+        int n = nums.length;
+        memo = new int[n];
+        for (int i = 0; i < n; i++) {
+            memo[i] = -1;
+        }
+        ans = Integer.MIN_VALUE;
+        for (int i = 0; i < n; i++) {
+            dp(nums, i);
+        }
+        return ans;
+    }
+
+    private int dp(int[] nums, int i) {
+        if (memo[i] > -1) return memo[i];
+        if (i == 0) {
+            memo[0] = nums[0];
+            ans = Math.max(ans, memo[0]);
+            return memo[0];
+        }
+        if (i == 1) {
+            memo[1] = nums[1];
+            ans = Math.max(ans, memo[1]);
+            return memo[1];
+        }
+        int sp = Integer.MIN_VALUE;
+        for (int j = i - 2; j >= 0; j--) {
+            sp = Math.max(sp, dp(nums, j));
+        }
+        memo[i] = nums[i] + sp;
+        ans = Math.max(ans, memo[i]);
+        return memo[i];
+    }
+}
+// https://leetcode.cn/submissions/detail/331861729/
 ```
 
 ## 199. 二叉树的右视图
@@ -4924,7 +5410,105 @@ class LRUCache {
 <https://leetcode.cn/problems/binary-tree-right-side-view/>
 
 ```java
+class Solution {
+    public List<Integer> rightSideView(TreeNode root) {
+        List<Integer> list = new LinkedList();
+        Deque<TreeNode> queue = new LinkedList();
+        if (root != null) {
+            queue.addLast(root);
+        }
+        while (!queue.isEmpty()) {
+            list.add(queue.getLast().val);
+            int sz = queue.size();
+            for (int i = 0; i < sz; ++i) {
+                TreeNode x = queue.removeFirst();
+                TreeNode left = x.left;
+                if (left != null) {
+                    queue.addLast(left);
+                }
+                TreeNode right = x.right;
+                if (right != null) {
+                    queue.addLast(right);
+                }
+            }
+        }
+        return list;
+    }
+}
+// https://leetcode.cn/submissions/detail/364462814/
+```
 
+```java
+class Solution {
+    public List<Integer> rightSideView(TreeNode root) {
+        List<Integer> list = new LinkedList();
+        Queue<TreeNode> queue = new LinkedList();
+        if (root != null) {
+            queue.offer(root);
+        }
+        while (!queue.isEmpty()) {
+            list.add(queue.peek().val);
+            int sz = queue.size();
+            for (int i = 0; i < sz; ++i) {
+                TreeNode x = queue.poll();
+                if (x.right != null) {
+                    queue.offer(x.right);
+                }
+                if (x.left != null) {
+                    queue.offer(x.left);
+                }
+            }
+        }
+        return list;
+    }
+}
+// https://leetcode.cn/submissions/detail/350423916/
+```
+
+```java
+class Solution {
+    public List<Integer> rightSideView(TreeNode root) {
+        Map<Integer, Integer> map = new HashMap();
+        dfs(root, 0, map);
+        List<Integer> list = new LinkedList();
+        for (int i = 0; i < map.size(); ++i) {
+            list.add(map.get(i));
+        }
+        return list;
+    }
+
+    private void dfs(TreeNode root, int depth, Map<Integer, Integer> map) {
+        if (root == null) {
+            return;
+        }
+        map.put(depth, root.val);
+        dfs(root.left, depth + 1, map);
+        dfs(root.right, depth + 1, map);
+    }
+}
+// https://leetcode.cn/submissions/detail/350410018/
+```
+
+```java
+class Solution {
+    public List<Integer> rightSideView(TreeNode root) {
+        List<Integer> list = new LinkedList();
+        dfs(root, 0, list);
+        return list;
+    }
+
+    private void dfs(TreeNode root, int depth, List<Integer> list) {
+        if (root == null) {
+            return;
+        }
+        if (list.size() == depth) {
+            list.add(root.val);
+        }
+        dfs(root.right, depth + 1, list);
+        dfs(root.left, depth + 1, list);
+    }
+}
+// https://leetcode.cn/submissions/detail/350413845/
 ```
 
 ## 200. 岛屿数量
@@ -4932,7 +5516,115 @@ class LRUCache {
 <https://leetcode.cn/problems/number-of-islands/>
 
 ```java
+class Solution {
+    private static final char LAND = '1';
+    private static final char WATER = '0';
 
+    public int numIslands(char[][] grid) {
+        int count = 0;
+        for (int i = 0; i < grid.length; ++i) {
+            for (int j = 0; j < grid[0].length; ++j) {
+                if (grid[i][j] == LAND) {
+                    floodFill(grid, i, j);
+                    ++count;
+                }
+            }
+        }
+        return count;
+    }
+
+    private void floodFill(char[][] grid, int i, int j) {
+        if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length || grid[i][j] == WATER) {
+            return;
+        }
+        grid[i][j] = WATER;
+        floodFill(grid, i, j + 1);
+        floodFill(grid, i, j - 1);
+        floodFill(grid, i + 1, j);
+        floodFill(grid, i - 1, j);
+    }
+}
+// https://leetcode.cn/submissions/detail/362787749/
+```
+
+```java
+class Solution {
+    private class UF {
+        private int[] parent;
+        private byte[] rank;
+        private int count;
+
+        public UF(int n) {
+            count = n;
+            parent = new int[n];
+            rank = new byte[n];
+            for (int i = 0; i < n; i++) {
+                parent[i] = i;
+                rank[i] = 0;
+            }
+        }
+
+        public int find(int p) {
+            while (p != parent[p]) {
+                parent[p] = parent[parent[p]];
+                p = parent[p];
+            }
+            return p;
+        }
+
+        public void union(int p, int q) {
+            int rootP = find(p);
+            int rootQ = find(q);
+            if (rootP != rootQ) {
+                if (rank[rootP] < rank[rootQ]) {
+                    parent[rootP] = rootQ;
+                } else if (rank[rootP] > rank[rootQ]) {
+                    parent[rootQ] = rootP;
+                } else {
+                    parent[rootP] = rootQ;
+                    ++rank[rootQ];
+                }
+                --count;
+            }
+        }
+
+        public boolean connected(int p, int q) {
+            return find(p) == find(q);
+        }
+
+        public int count() {
+            return count;
+        }
+    }
+
+    public int numIslands(char[][] grid) {
+        int m = grid.length, n = grid[0].length;
+        UF uf = new UF(m * n);
+        int zero = 0;
+        int[][] directions = new int[][]{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (grid[i][j] == '1') {
+                    for (int[] d : directions) {
+                        int x = i + d[0];
+                        int y = j + d[1];
+                        if (0 <= x && x <= m - 1 && 0 <= y && y <= n - 1) {
+                            if (grid[x][y] == '1') {
+                                int p = i * n + j;
+                                int q = x * n + y;
+                                uf.union(p, q);
+                            }
+                        }
+                    }
+                } else {
+                    ++zero;
+                }
+            }
+        }
+        return uf.count() - zero;
+    }
+}
+// https://leetcode.cn/submissions/detail/358193444/
 ```
 
 ## 203. 移除链表元素
