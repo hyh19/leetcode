@@ -354,7 +354,23 @@ class Solution {
 <https://leetcode.cn/problems/reverse-integer/>
 
 ```dart
-// TODO
+class Solution {
+  int reverse(int x) {
+    final Int32MaxValue = (1 << 31);
+    final sign = (x > 0 ? 1 : -1);
+    var rev = 0;
+    x = x.abs();
+    while (x != 0) {
+      if (rev > Int32MaxValue / 10) {
+        return 0;
+      }
+      rev = rev * 10 + x % 10;
+      x = x ~/ 10;
+    }
+    return rev * sign;
+  }
+}
+// https://leetcode.cn/submissions/detail/392129255/
 ```
 
 ## 11. 盛最多水的容器
