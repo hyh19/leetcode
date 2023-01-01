@@ -186,10 +186,9 @@
  * @param {number} target
  * @return {number[]}
  */
- var twoSum = function (nums, target) {
-    const n = nums.length;
+const twoSum = function (nums, target) {
     const valToIndex = new Map()
-    for (let i = 0; i < n; ++i) {
+    for (let i = 0; i < nums.length; ++i) {
         const x = nums[i];
         const need = target - x;
         if (valToIndex.has(need)) {
@@ -199,7 +198,7 @@
     }
     return [];
 };
-// https://leetcode.cn/submissions/detail/380705413/
+// https://leetcode.cn/submissions/detail/392337313/
 ```
 
 ## 2. 两数相加
