@@ -888,11 +888,11 @@ const reverseList = function (head) {
  * @param {number} val
  * @return {number}
  */
- var removeElement = function (nums, val) {
+const removeElement = function (nums, val) {
     // nums[0..i-1]   != val
     // nums[i..j]     Scanning
     // nums[j+1..n-1] == val
-    let i = 0, j = nums.length - 1
+    let i = 0, j = nums.length - 1;
     while (i <= j) {
         while (i <= j && nums[i] !== val) {
             ++i;
@@ -901,12 +901,12 @@ const reverseList = function (head) {
             --j;
         }
         if (i <= j) {
-            nums[i++] = nums[j--]
+            nums[i++] = nums[j--];
         }
     }
     return i;
 };
-// https://leetcode.cn/submissions/detail/380798088/
+// https://leetcode.cn/submissions/detail/392346470/
 ```
 
 ## 28. 实现 strStr()
