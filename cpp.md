@@ -183,7 +183,7 @@
 ```cpp
 class Solution {
 public:
-    vector<int> twoSum(vector<int> &nums, int target) {
+    vector<int> twoSum(const vector<int> &nums, int target) {
         unordered_map<int, int> valToIndex;
         for (int i = 0; i < nums.size(); ++i) {
             int x = nums[i];
@@ -196,7 +196,7 @@ public:
         return {-1, -1};
     }
 };
-// https://leetcode.cn/submissions/detail/366686076/
+// https://leetcode.cn/submissions/detail/392320997/
 ```
 
 ## 2. 两数相加
