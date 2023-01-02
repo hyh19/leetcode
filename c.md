@@ -226,7 +226,7 @@ int *twoSum(const int *nums, int numsSize, int target, int *returnSize) {
 <https://leetcode-cn.com/problems/add-two-numbers/>
 
 ```c
-struct ListNode *addTwoNumbers(struct ListNode *l1, struct ListNode *l2) {
+struct ListNode *addTwoNumbers(const struct ListNode *l1, const struct ListNode *l2) {
     struct ListNode *dummyHead = malloc(sizeof(struct ListNode));
     dummyHead->val = -1;
     dummyHead->next = NULL;
@@ -253,7 +253,7 @@ struct ListNode *addTwoNumbers(struct ListNode *l1, struct ListNode *l2) {
     free(dummyHead);
     return head;
 }
-// https://leetcode.cn/submissions/detail/391145173/
+// https://leetcode.cn/submissions/detail/392362961/
 ```
 
 ## 3. 无重复字符的最长子串
