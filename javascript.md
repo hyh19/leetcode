@@ -211,7 +211,7 @@ const twoSum = function (nums, target) {
  * @param {ListNode} l2
  * @return {ListNode}
  */
- const addTwoNumbers = function (l1, l2) {
+const addTwoNumbers = function (l1, l2) {
     const dummyHead = new ListNode();
     let ptr = dummyHead;
     let carry = 0;
