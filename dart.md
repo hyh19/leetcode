@@ -4034,7 +4034,66 @@ class Solution {
 <https://leetcode.cn/problems/reverse-pairs/>
 
 ```dart
-// TODO
+class Solution {
+  int _ans = 0;
+
+  int reversePairs(List<int> nums) {
+    final aux = List<int>.of(nums);
+    _sort(nums, aux, 0, nums.length - 1);
+    return _ans;
+  }
+
+  void _sort(List<int> nums, List<int> aux, int lo, int hi) {
+    if (lo >= hi) {
+      return;
+    }
+    final mid = lo + (hi - lo) ~/ 2;
+    _sort(nums, aux, lo, mid);
+    _sort(nums, aux, mid + 1, hi);
+    _merge(nums, aux, lo, mid, hi);
+  }
+
+  void _merge(List<int> nums, List<int> aux, int lo, int mid, int hi) {
+    for (var k = lo; k <= hi; ++k) {
+      aux[k] = nums[k];
+    }
+    _ans += _countReversePairs(nums, lo, mid, hi);
+    var i = lo, j = mid + 1;
+    for (var k = lo; k <= hi; ++k) {
+      if (i > mid || (j <= hi && aux[j] < aux[i])) {
+        nums[k] = aux[j++];
+      } else {
+        nums[k] = aux[i++];
+      }
+    }
+  }
+
+  int _countReversePairs(List<int> nums, int lo, int mid, int hi) {
+    var res = 0;
+    //     nums[i]      > 2*nums[j]
+    // (1) nums[i]      > 2*nums[mid+1..j]
+    // (2) nums[i..mid] > 2*nums[j]
+    //
+    //     nums[i]     <= 2*nums[j]
+    // (1) nums[i]     <= 2*nums[j..hi]
+    // (2) nums[lo..i] <= 2*nums[j]
+    var i = lo, j = mid + 1;
+    while (i <= mid && j <= hi) {
+      if (_isReversePair(nums, i, j)) {
+        res += (mid - i + 1);
+        ++j;
+      } else {
+        ++i;
+      }
+    }
+    return res;
+  }
+
+  bool _isReversePair(List<int> nums, int i, int j) {
+    return i < j && nums[i] > 2 * nums[j];
+  }
+}
+// https://leetcode.cn/submissions/detail/392447595/
 ```
 
 ## 494. 目标和
