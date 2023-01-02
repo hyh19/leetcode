@@ -825,11 +825,10 @@ class Solution {
 ```dart
 class Solution {
   int removeElement(List<int> nums, int val) {
-    // nums[0..i-1]   数值不等于 val 的元素区间
-    // nums[i..j]     遍历区间
-    // nums[j+1..n-1] 数值等于 val 的元素区间
-    var i = 0;
-    var j = nums.length - 1;
+    // nums[0..i-1]   != val
+    // nums[i..j]     Scanning
+    // nums[j+1..n-1] == val
+    var i = 0, j = nums.length - 1;
     while (i <= j) {
       while (i <= j && nums[i] != val) {
         ++i;
@@ -838,19 +837,13 @@ class Solution {
         --j;
       }
       if (i <= j) {
-        _swap(nums, i++, j--);
+        nums[i++] = nums[j--];
       }
     }
     return i;
   }
-
-  void _swap(List<int> nums, int i, int j) {
-    final temp = nums[i];
-    nums[i] = nums[j];
-    nums[j] = temp;
-  }
 }
-// https://leetcode.cn/submissions/detail/377811197/
+// https://leetcode.cn/submissions/detail/392453544/
 ```
 
 ## 28. 实现 strStr()
