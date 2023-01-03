@@ -243,18 +243,17 @@ class Solution {
     final window = HashSet<String>();
     // s[left..right) = Window Substring
     // s[right..n-1]  = Scanning
-    var left = 0;
-    var right = 0;
+    var left = 0, right = 0;
     while (right < s.length) {
-      final c = s[right];
-      if (!window.contains(c)) {
-        window.add(c);
+      final add = s[right];
+      if (!window.contains(add)) {
+        window.add(add);
         ++right;
       } else {
         while (left < right) {
-          final d = s[left++];
-          window.remove(d);
-          if (c == d) {
+          final del = s[left++];
+          window.remove(del);
+          if (del == add) {
             break;
           }
         }
@@ -264,7 +263,7 @@ class Solution {
     return ans;
   }
 }
-// https://leetcode.cn/submissions/detail/378511289/
+// https://leetcode.cn/submissions/detail/392740565/
 ```
 
 ## 4. 寻找两个正序数组的中位数
