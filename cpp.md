@@ -251,10 +251,10 @@ public:
                 window.insert(add);
                 ++right;
             } else {
-                while (left <= right) {
+                while (left < right) {
                     char del = s[left++];
                     window.erase(del);
-                    if (add == del) {
+                    if (del == add) {
                         break;
                     }
                 }
@@ -264,7 +264,7 @@ public:
         return ans;
     }
 };
-// https://leetcode.cn/submissions/detail/391684221/
+// https://leetcode.cn/submissions/detail/392737787/
 ```
 
 ## 4. 寻找两个正序数组的中位数
