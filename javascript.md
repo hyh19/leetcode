@@ -243,22 +243,22 @@ const addTwoNumbers = function (l1, l2) {
  * @param {string} s
  * @return {number}
  */
- const lengthOfLongestSubstring = function (s) {
+const lengthOfLongestSubstring = function (s) {
     let ans = 0;
     const window = new Set();
     // s[left..right) = Window Substring
     // s[right..n-1]  = Scanning
     let left = 0, right = 0;
     while (right < s.length) {
-        const c = s.charAt(right);
-        if (!window.has(c)) {
-            window.add(c);
+        const add = s.charAt(right);
+        if (!window.has(add)) {
+            window.add(add);
             ++right;
         } else {
-            while (left <= right) {
-                const d = s.charAt(left++);
-                window.delete(d);
-                if (c === d) {
+            while (left < right) {
+                const del = s.charAt(left++);
+                window.delete(del);
+                if (del === add) {
                     break;
                 }
             }
@@ -267,7 +267,7 @@ const addTwoNumbers = function (l1, l2) {
     }
     return ans;
 };
-// https://leetcode.cn/submissions/detail/381022081/
+// https://leetcode.cn/submissions/detail/392739787/
 ```
 
 ## 4. 寻找两个正序数组的中位数
