@@ -283,11 +283,11 @@ int lengthOfLongestSubstring(char *s) {
             HASH_ADD_INT(window, key, item);
             ++right;
         } else {
-            while (left <= right) {
+            while (left < right) {
                 int del = s[left++];
                 HASH_FIND_INT(window, &del, item);
                 HASH_DEL(window, item);
-                if (add == del) {
+                if (del == add) {
                     break;
                 }
             }
@@ -302,7 +302,7 @@ int lengthOfLongestSubstring(char *s) {
     HASH_CLEAR(hh, window);
     return ans;
 }
-// https://leetcode.cn/submissions/detail/391410268/
+// https://leetcode.cn/submissions/detail/392737260/
 ```
 
 ## 4. 寻找两个正序数组的中位数
