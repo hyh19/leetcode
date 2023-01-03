@@ -240,11 +240,11 @@ class Solution:
                     d = s[left]
                     left += 1
                     window.remove(d)
-                    if c == d:
+                    if d == c:
                         break
             ans = max(ans, right - left)
         return ans
-# https://leetcode.cn/submissions/detail/379005811/
+# https://leetcode.cn/submissions/detail/392738890/
 ```
 
 ## 4. 寻找两个正序数组的中位数
