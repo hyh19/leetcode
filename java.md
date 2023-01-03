@@ -242,15 +242,15 @@ class Solution {
         // s[right..n-1]  = Scanning
         int left = 0, right = 0;
         while (right < s.length()) {
-            char c = s.charAt(right);
-            if (!window.contains(c)) {
-                window.add(c);
+            char add = s.charAt(right);
+            if (!window.contains(add)) {
+                window.add(add);
                 ++right;
             } else {
-                while (left <= right) {
-                    char d = s.charAt(left++);
-                    window.remove(d);
-                    if (c == d) {
+                while (left < right) {
+                    char del = s.charAt(left++);
+                    window.remove(del);
+                    if (del == add) {
                         break;
                     }
                 }
@@ -260,7 +260,7 @@ class Solution {
         return ans;
     }
 }
-// https://leetcode.cn/submissions/detail/365632675/
+// https://leetcode.cn/submissions/detail/392736471/
 ```
 
 ## 4. 寻找两个正序数组的中位数
