@@ -273,10 +273,10 @@ class Solution
                 $win[$add] = $add;
                 ++$right;
             } else {
-                while ($left <= $right) {
+                while ($left < $right) {
                     $del = $s[$left++];
                     unset($win[$del]);
-                    if ($add === $del) {
+                    if ($del === $add) {
                         break;
                     }
                 }
@@ -286,7 +286,7 @@ class Solution
         return $ans;
     }
 }
-// https://leetcode.cn/submissions/detail/383306210/
+// https://leetcode.cn/submissions/detail/392741601/
 ```
 
 ## 4. 寻找两个正序数组的中位数
