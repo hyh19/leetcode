@@ -240,8 +240,7 @@ class Solution {
         var window = Set<Character>();
         // s[left..right) = Window Substring
         // s[right..n-1]  = Scanning
-        var left = 0;
-        var right = 0;
+        var left = 0, right = 0;
         while (right < chs.count) {
             let add = chs[right];
             if (!window.contains(add)) {
@@ -252,7 +251,7 @@ class Solution {
                     let del = chs[left];
                     left += 1;
                     window.remove(del);
-                    if (add == del) {
+                    if (del == add) {
                         break;
                     }
                 }
@@ -262,7 +261,7 @@ class Solution {
         return ans;
     }
 }
-// https://leetcode.cn/submissions/detail/385501653/
+// https://leetcode.cn/submissions/detail/392738243/
 ```
 
 ## 4. 寻找两个正序数组的中位数
