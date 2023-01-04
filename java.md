@@ -10231,7 +10231,7 @@ class Solution {
         int ans = lo;
         while (lo <= hi) {
             int mid = lo + (hi - lo) / 2;
-            if (canFinish(weights, mid, days)) {
+            if (canFinish(weights, days, mid)) {
                 ans = mid;
                 hi = mid - 1;
             } else {
@@ -10242,7 +10242,7 @@ class Solution {
     }
 
     // 当船的运载能力为 capacity 时，是否能在 days 天内送完
-    private boolean canFinish(int[] weights, int capacity, int days) {
+    private boolean canFinish(int[] weights, int days, int capacity) {
         int minDays = 0;
         int i = 0, n = weights.length;
         while (i < n) {
@@ -10255,7 +10255,7 @@ class Solution {
         return minDays <= days;
     }
 }
-// https://leetcode.cn/submissions/detail/368932059/
+// https://leetcode.cn/submissions/detail/393036553/
 ```
 
 ## 1020. 飞地的数量
