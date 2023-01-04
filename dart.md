@@ -2902,12 +2902,12 @@ class Solution {
   }
 
   void _swap(List<int> nums, int i, int j) {
-    final swap = nums[i];
+    final temp = nums[i];
     nums[i] = nums[j];
-    nums[j] = swap;
+    nums[j] = temp;
   }
 }
-// https://leetcode.cn/submissions/detail/376047347/
+// https://leetcode.cn/submissions/detail/393026485/
 ```
 
 ## 198. 打家劫舍
