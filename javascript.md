@@ -6510,7 +6510,7 @@ const constructFromPrePost = function (preorder, postorder,
  * @param {number[]} nums
  * @return {number[]}
  */
- var sortArrayByParity = function (nums) {
+const sortArrayByParity = function (nums) {
     // nums[0..i-1]     Even
     // nums[i..j]       Scanning
     // nums[j+1..n - 1] Odd
@@ -6526,7 +6526,39 @@ const constructFromPrePost = function (preorder, postorder,
     }
     return nums;
 };
-// https://leetcode.cn/submissions/detail/380712183/
+// https://leetcode.cn/submissions/detail/393033693/
+```
+
+```js
+/**
+ * @param {number[]} nums
+ * @return {number[]}
+ */
+const sortArrayByParity = function (nums) {
+    const n = nums.length;
+    // nums[0..i]   Even
+    // nums(i..j)   Scanning
+    // nums[j..n-1] Odd
+    let i = -1, j = n;
+    while (true) {
+        while (nums[++i] % 2 === 0) {
+            if (i === n - 1) {
+                break;
+            }
+        }
+        while (nums[--j] % 2 === 1) {
+            if (j === 0) {
+                break;
+            }
+        }
+        if (i >= j) {
+            break;
+        }
+        [nums[i], nums[j]] = [nums[j], nums[i]];
+    }
+    return nums;
+};
+// https://leetcode.cn/submissions/detail/393033258/
 ```
 
 ## 912. 排序数组
