@@ -335,11 +335,10 @@ public:
 private:
     // 寻找两个正序数组 nums1 和 nums2 从小到大排列的第 k 个数
     int getKthElement(const vector<int> &nums1, int start1, const vector<int> &nums2, int start2, int k) {
-        int n1 = nums1.size();
+        int n1 = nums1.size(), n2 = nums2.size();
         if (start1 == n1) {
             return nums2[start2 + k - 1];
         }
-        int n2 = nums2.size();
         if (start2 == n2) {
             return nums1[start1 + k - 1];
         }
@@ -358,7 +357,7 @@ private:
         }
     }
 };
-// https://leetcode.cn/submissions/detail/393252213/
+// https://leetcode.cn/submissions/detail/393258693/
 ```
 
 ## 5. 最长回文子串
