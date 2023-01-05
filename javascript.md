@@ -291,7 +291,16 @@ const findMedianSortedArrays = function (nums1, nums2) {
     return getKthElement(nums1, 0, nums2, 0, half + 1);
 };
 
-// 寻找两个正序数组 nums1[start1..end1] 和 nums2[start2..end2] 从小到大排列的第 k 个数
+/**
+ * 寻找两个正序数组 nums1[start1..end1] 和 nums2[start2..end2] 从小到大排列的第 k 个数
+ *
+ * @param {number[]} nums1
+ * @param {number} start1
+ * @param {number[]} nums2
+ * @param {number} start2
+ * @param {number} k
+ * @return {number}
+ */
 const getKthElement = function (nums1, start1, nums2, start2, k) {
     const n1 = nums1.length, n2 = nums2.length;
     if (start1 === n1) {
@@ -314,7 +323,7 @@ const getKthElement = function (nums1, start1, nums2, start2, k) {
         return getKthElement(nums1, start1, nums2, j + 1, k - (j - start2 + 1));
     }
 };
-// https://leetcode.cn/submissions/detail/381725874/
+// https://leetcode.cn/submissions/detail/393260639/
 ```
 
 ## 5. 最长回文子串
