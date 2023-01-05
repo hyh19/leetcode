@@ -274,7 +274,7 @@ public:
 ```cpp
 class Solution {
 public:
-    double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2) {
+    double findMedianSortedArrays(const vector<int> &nums1, const vector<int> &nums2) {
         int total = nums1.size() + nums2.size();
         int half = total / 2;
         if (total % 2 == 0) {
@@ -315,13 +315,13 @@ private:
         }
     }
 };
-// https://leetcode.cn/submissions/detail/365180070/
+// https://leetcode.cn/submissions/detail/393252886/
 ```
 
 ```cpp
 class Solution {
 public:
-    double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2) {
+    double findMedianSortedArrays(const vector<int> &nums1, const vector<int> &nums2) {
         int total = nums1.size() + nums2.size();
         int half = total / 2;
         if (total % 2 == 0) {
@@ -358,7 +358,7 @@ private:
         }
     }
 };
-// https://leetcode.cn/submissions/detail/365179063/
+// https://leetcode.cn/submissions/detail/393252213/
 ```
 
 ## 5. 最长回文子串
