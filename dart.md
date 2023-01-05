@@ -284,10 +284,8 @@ class Solution {
   }
 
   // 寻找两个正序数组 nums1[start1..end1] 和 nums2[start2..end2] 从小到大排列的第 k 个数
-  int _getKthElement(
-      List<int> nums1, int start1, List<int> nums2, int start2, int k) {
-    final n1 = nums1.length;
-    final n2 = nums2.length;
+  int _getKthElement(List<int> nums1, int start1, List<int> nums2, int start2, int k) {
+    final n1 = nums1.length, n2 = nums2.length;
     if (start1 >= n1) {
       return nums2[start2 + k - 1];
     }
@@ -309,7 +307,7 @@ class Solution {
     }
   }
 }
-// https://leetcode.cn/submissions/detail/377852201/
+// https://leetcode.cn/submissions/detail/393258255/
 ```
 
 ## 5. 最长回文子串
