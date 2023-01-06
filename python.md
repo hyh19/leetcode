@@ -2240,15 +2240,14 @@ class Solution:
 ```py
 class Solution:
     def hasCycle(self, head: Optional[ListNode]) -> bool:
-        slow = head
-        fast = head
-        while fast is not None and fast.next is not None:
+        slow = fast = head
+        while (fast is not None) and (fast.next is not None):
             slow = slow.next
             fast = fast.next.next
             if slow is fast:
                 return True
         return False
-# https://leetcode.cn/submissions/detail/378719570/
+# https://leetcode.cn/submissions/detail/393497407/
 ```
 
 ## 142. 环形链表 II
