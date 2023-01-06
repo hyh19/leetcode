@@ -7540,7 +7540,7 @@ const floodFill = function (grid, i, j) {
  * @param {number} k
  * @return {number}
  */
- var kthToLast = function (head, k) {
+const kthToLast = function (head, k) {
     let slow = head, fast = head;
     for (let i = 1; i <= k; ++i) {
         fast = fast.next;
@@ -7551,5 +7551,5 @@ const floodFill = function (grid, i, j) {
     }
     return slow.val;
 };
-// https://leetcode.cn/submissions/detail/380804982/
+// https://leetcode.cn/submissions/detail/393493330/
 ```
