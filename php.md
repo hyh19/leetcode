@@ -238,12 +238,12 @@ class Solution
             }
             $ptr->next = new ListNode($sum % 10);
             $ptr = $ptr->next;
-            $carry = floor($sum / 10);
+            $carry = intval($sum / 10);
         }
         return $dummyHead->next;
     }
 }
-// https://leetcode.cn/submissions/detail/382718463/
+// https://leetcode.cn/submissions/detail/393664438/
 ```
 
 ## 3. 无重复字符的最长子串
