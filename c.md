@@ -2349,7 +2349,7 @@ struct ListNode *deleteDuplicates(struct ListNode *head) {
     while (ptr != NULL && ptr->next != NULL) {
         if (ptr->val == ptr->next->val) {
             struct ListNode *x = ptr->next;
-            ptr->next = x->next;
+            ptr->next = ptr->next->next;
             free(x);
         } else {
             ptr = ptr->next;
@@ -2357,7 +2357,7 @@ struct ListNode *deleteDuplicates(struct ListNode *head) {
     }
     return head;
 }
-// https://leetcode.cn/submissions/detail/388678148/
+// https://leetcode.cn/submissions/detail/393681242/
 ```
 
 ## 86. 分隔链表
