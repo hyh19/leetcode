@@ -276,6 +276,51 @@ class Solution {
     final total = nums1.length + nums2.length;
     final half = total ~/ 2;
     if (total % 2 == 0) {
+      final k1 = _getKthElement(nums1, nums2, half);
+      final k2 = _getKthElement(nums1, nums2, half + 1);
+      return (k1 + k2) / 2;
+    }
+    return _getKthElement(nums1, nums2, half + 1).toDouble();
+  }
+
+  // 寻找两个正序数组 nums1 和 nums2 从小到大排列的第 k 个数
+  int _getKthElement(List<int> nums1, List<int> nums2, int k) {
+    final n1 = nums1.length, n2 = nums2.length;
+    var start1 = 0, start2 = 0;
+    while (true) {
+      if (start1 == n1) {
+        return nums2[start2 + k - 1];
+      }
+      if (start2 == n2) {
+        return nums1[start1 + k - 1];
+      }
+      if (k == 1) {
+        return min(nums1[start1], nums2[start2]);
+      }
+      final half = k ~/ 2;
+      final i = min(n1 - 1, start1 + half - 1);
+      final j = min(n2 - 1, start2 + half - 1);
+      if (nums1[i] < nums2[j]) {
+        // 排除 nums1[start1..i] 共 i-start1+1 个元素
+        k -= (i - start1 + 1);
+        start1 = i + 1;
+      } else {
+        // 排除 nums2[start2..j] 共 j-start2+1 个元素
+        k -= (j - start2 + 1);
+        start2 = j + 1;
+      }
+    }
+  }
+}
+// https://leetcode.cn/submissions/detail/393649376/
+```
+
+```dart
+class Solution {
+  double findMedianSortedArrays(List<int> nums1, List<int> nums2) {
+    final total = nums1.length + nums2.length;
+    final half = total ~/ 2;
+    if (total % 2 == 0) {
       final k1 = _getKthElement(nums1, 0, nums2, 0, half);
       final k2 = _getKthElement(nums1, 0, nums2, 0, half + 1);
       return (k1 + k2) / 2;
