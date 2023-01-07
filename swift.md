@@ -274,6 +274,50 @@ class Solution {
         let total = nums1.count + nums2.count;
         let half = total / 2;
         if (total % 2 == 0) {
+            let k1 = getKthElement(nums1, nums2, half);
+            let k2 = getKthElement(nums1, nums2, half + 1);
+            return Double(k1 + k2) / 2.0;
+        }
+        return Double(getKthElement(nums1, nums2, half + 1));
+    }
+
+    // 寻找两个正序数组 nums1 和 nums2 从小到大排列的第 k 个数
+    private func getKthElement(_ nums1: [Int], _ nums2: [Int], _ k: Int) -> Int {
+        let n1 = nums1.count, n2 = nums2.count;
+        var start1 = 0, start2 = 0, k = k;
+        while (true) {
+            if (start1 == n1) {
+                return nums2[start2 + k - 1];
+            }
+            if (start2 == n2) {
+                return nums1[start1 + k - 1];
+            }
+            if (k == 1) {
+                return min(nums1[start1], nums2[start2]);
+            }
+            let half = k / 2;
+            let i = min(n1 - 1, start1 + half - 1);
+            let j = min(n2 - 1, start2 + half - 1);
+            if (nums1[i] < nums2[j]) {
+                // 排除 nums1[start1..i] 共 i-start1+1 个元素
+                k -= (i - start1 + 1);
+                start1 = i + 1;
+            } else {
+                // 排除 nums2[start2..j] 共 j-start2+1 个元素
+                k -= (j - start2 + 1);
+                start2 = j + 1;
+            }
+        }
+    }
+}
+```
+
+```swift
+class Solution {
+    func findMedianSortedArrays(_ nums1: [Int], _ nums2: [Int]) -> Double {
+        let total = nums1.count + nums2.count;
+        let half = total / 2;
+        if (total % 2 == 0) {
             let k1 = getKthElement(nums1, 0, nums2, 0, half);
             let k2 = getKthElement(nums1, 0, nums2, 0, half + 1);
             return Double(k1 + k2) / 2.0;
