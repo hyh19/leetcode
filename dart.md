@@ -4736,13 +4736,13 @@ class Solution {
     if (val < root.val) {
       return searchBST(root.left, val);
     }
-    if (val > root.val) {
+    if (root.val < val) {
       return searchBST(root.right, val);
     }
     return root;
   }
 }
-// https://leetcode.cn/submissions/detail/378405227/
+// https://leetcode.cn/submissions/detail/393694714/
 ```
 
 ## 701. 二叉搜索树中的插入操作
