@@ -311,6 +311,48 @@ int lengthOfLongestSubstring(char *s) {
 
 ```c
 // 寻找两个正序数组 nums1 和 nums2 从小到大排列的第 k 个数
+int getKthElement(const int *nums1, int nums1Size, const int *nums2, int nums2Size, int k) {
+    int start1 = 0, start2 = 0;
+    while (true) {
+        if (start1 == nums1Size) {
+            return nums2[start2 + k - 1];
+        }
+        if (start2 == nums2Size) {
+            return nums1[start1 + k - 1];
+        }
+        if (k == 1) {
+            return fmin(nums1[start1], nums2[start2]);
+        }
+        int half = k / 2;
+        int i = fmin(nums1Size - 1, start1 + half - 1);
+        int j = fmin(nums2Size - 1, start2 + half - 1);
+        if (nums1[i] < nums2[j]) {
+            // 排除 nums1[start1..i] 共 i-start1+1 个元素
+            k -= (i - start1 + 1);
+            start1 = i + 1;
+        } else {
+            // 排除 nums2[start2..j] 共 j-start2+1 个元素
+            k -= (j - start2 + 1);
+            start2 = j + 1;
+        }
+    }
+}
+
+double findMedianSortedArrays(const int *nums1, int nums1Size, const int *nums2, int nums2Size) {
+    int total = nums1Size + nums2Size;
+    int half = total / 2;
+    if (total % 2 == 0) {
+        int k1 = getKthElement(nums1, nums1Size, nums2, nums2Size, half);
+        int k2 = getKthElement(nums1, nums1Size, nums2, nums2Size, half + 1);
+        return (k1 + k2) / 2.0;
+    }
+    return getKthElement(nums1, nums1Size, nums2, nums2Size, half + 1);
+}
+// https://leetcode.cn/submissions/detail/393644000/
+```
+
+```c
+// 寻找两个正序数组 nums1 和 nums2 从小到大排列的第 k 个数
 int getKthElement(const int *nums1, int nums1Size, int start1, const int *nums2, int nums2Size, int start2, int k) {
     if (start1 == nums1Size) {
         return nums2[start2 + k - 1];
