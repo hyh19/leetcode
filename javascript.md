@@ -284,6 +284,61 @@ const findMedianSortedArrays = function (nums1, nums2) {
     const total = nums1.length + nums2.length;
     const half = Math.floor(total / 2);
     if (total % 2 === 0) {
+        const k1 = getKthElement(nums1, nums2, half);
+        const k2 = getKthElement(nums1, nums2, half + 1);
+        return (k1 + k2) / 2;
+    }
+    return getKthElement(nums1, nums2, half + 1);
+};
+
+/**
+ * 寻找两个正序数组 nums1 和 nums2 从小到大排列的第 k 个数
+ *
+ * @param {number[]} nums1
+ * @param {number[]} nums2
+ * @param {number} k
+ * @return {number}
+ */
+const getKthElement = function (nums1, nums2, k) {
+    const n1 = nums1.length, n2 = nums2.length;
+    let start1 = 0, start2 = 0;
+    while (true) {
+        if (start1 === n1) {
+            return nums2[start2 + k - 1];
+        }
+        if (start2 === n2) {
+            return nums1[start1 + k - 1];
+        }
+        if (k === 1) {
+            return Math.min(nums1[start1], nums2[start2]);
+        }
+        const half = Math.floor(k / 2);
+        const i = Math.min(n1 - 1, start1 + half - 1);
+        const j = Math.min(n2 - 1, start2 + half - 1);
+        if (nums1[i] < nums2[j]) {
+            // 排除 nums1[start1..i] 共 i-start1+1 个元素
+            k -= (i - start1 + 1);
+            start1 = i + 1;
+        } else {
+            // 排除 nums2[start2..j] 共 j-start2+1 个元素
+            k -= (j - start2 + 1);
+            start2 = j + 1;
+        }
+    }
+};
+// https://leetcode.cn/submissions/detail/393645493/
+```
+
+```js
+/**
+ * @param {number[]} nums1
+ * @param {number[]} nums2
+ * @return {number}
+ */
+const findMedianSortedArrays = function (nums1, nums2) {
+    const total = nums1.length + nums2.length;
+    const half = Math.floor(total / 2);
+    if (total % 2 === 0) {
         const k1 = getKthElement(nums1, 0, nums2, 0, half);
         const k2 = getKthElement(nums1, 0, nums2, 0, half + 1);
         return (k1 + k2) / 2;
