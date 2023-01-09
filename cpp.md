@@ -368,13 +368,13 @@ private:
 class Solution {
 public:
     string longestPalindrome(const string &s) {
-        string s1, s2, ans;
+        string ans;
         for (int i = 0; i < s.size(); ++i) {
-            s1 = longestPalindrome(s, i, i);
+            string s1 = longestPalindrome(s, i, i);
             if (s1.size() > ans.size()) {
                 ans = s1;
             }
-            s2 = longestPalindrome(s, i, i + 1);
+            string s2 = longestPalindrome(s, i, i + 1);
             if (s2.size() > ans.size()) {
                 ans = s2;
             }
@@ -395,7 +395,7 @@ private:
         return s.substr(i + 1, j - i - 1);
     }
 };
-// https://leetcode.cn/submissions/detail/394192510/
+// https://leetcode.cn/submissions/detail/394194306/
 ```
 
 ## 7. 整数反转
