@@ -376,7 +376,7 @@ class Solution {
     return ans;
   }
 
-  // 字符串 s 中以 s[i] 和 s[j] 为中心的最长回文子串
+  // 返回字符串 s 中以 s[i] 和 s[j] 为中心的最长回文子串
   String longestPalindromeCenter(String s, int i, int j) {
     if (i > j || j - i > 1) {
       return '';
@@ -388,7 +388,7 @@ class Solution {
     return s.substring(i + 1, j);
   }
 }
-// https://leetcode.cn/submissions/detail/394193871/
+// https://leetcode.cn/submissions/detail/394200304/
 ```
 
 ## 7. 整数反转
