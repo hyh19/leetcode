@@ -428,39 +428,42 @@ class Solution
 {
     /**
      * @param string $s
-     * @param int|null $i
-     * @param int|null $j
      * @return string
      */
-    function longestPalindrome(string $s, int $i = null, int $j = null): string
+    function longestPalindrome(string $s): string
     {
-        // 子问题：返回字符串 s 中以 s[i] 和 s[j] 为中心的最长回文子串
-        if (!is_null($i) && !is_null($j)) {
-            while ($i >= 0 && $j < strlen($s) && $s[$i] === $s[$j]) {
-                --$i;
-                ++$j;
+        $ans = "";
+        for ($i = 0; $i < strlen($s); ++$i) {
+            $s1 = $this->longestPalindromeCenter($s, $i, $i);
+            if (strlen($s1) > strlen($ans)) {
+                $ans = $s1;
             }
-            return substr($s, $i + 1, $j - $i - 1);
-        }
-        // 原问题：返回字符串 s 的最长回文子串
-        if (is_null($i) && is_null($j)) {
-            $ans = "";
-            for ($k = 0; $k < strlen($s); ++$k) {
-                $s1 = $this->longestPalindrome($s, $k, $k);
-                if (strlen($s1) > strlen($ans)) {
-                    $ans = $s1;
-                }
-                $s2 = $this->longestPalindrome($s, $k, $k + 1);
-                if (strlen($s2) > strlen($ans)) {
-                    $ans = $s2;
-                }
+            $s2 = $this->longestPalindromeCenter($s, $i, $i + 1);
+            if (strlen($s2) > strlen($ans)) {
+                $ans = $s2;
             }
-            return $ans;
         }
-        return "";
+        return $ans;
+    }
+
+    /**
+     * 返回字符串 s 中以 s[i] 和 s[j] 为中心的最长回文子串
+     *
+     * @param string $s
+     * @param int $i
+     * @param int $j
+     * @return string
+     */
+    private function longestPalindromeCenter(string $s, int $i, int $j): string
+    {
+        while ($i >= 0 && $j < strlen($s) && $s[$i] === $s[$j]) {
+            --$i;
+            ++$j;
+        }
+        return substr($s, $i + 1, $j - $i - 1);
     }
 }
-// https://leetcode.cn/submissions/detail/383264536/
+// https://leetcode.cn/submissions/detail/394197950/
 ```
 
 ## 7. 整数反转
