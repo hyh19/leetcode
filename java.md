@@ -359,13 +359,13 @@ class Solution {
 ```java
 class Solution {
     public String longestPalindrome(String s) {
-        String s1, s2, ans = "";
+        String ans = "";
         for (int i = 0; i < s.length(); ++i) {
-            s1 = longestPalindrome(s, i, i);
+            String s1 = longestPalindrome(s, i, i);
             if (s1.length() > ans.length()) {
                 ans = s1;
             }
-            s2 = longestPalindrome(s, i, i + 1);
+            String s2 = longestPalindrome(s, i, i + 1);
             if (s2.length() > ans.length()) {
                 ans = s2;
             }
@@ -385,7 +385,7 @@ class Solution {
         return s.substring(i + 1, j);
     }
 }
-// https://leetcode.cn/submissions/detail/364087990/
+// https://leetcode.cn/submissions/detail/394195923/
 ```
 
 ## 7. 整数反转
