@@ -331,23 +331,23 @@ class Solution:
     def longestPalindrome(self, s: str) -> str:
         ans = ''
         for i in range(len(s)):
-            s1 = self._longestPalindrome(s, i, i)
+            s1 = self.longestPalindromeCenter(s, i, i)
             if len(s1) > len(ans):
                 ans = s1
-            s2 = self._longestPalindrome(s, i, i + 1)
+            s2 = self.longestPalindromeCenter(s, i, i + 1)
             if len(s2) > len(ans):
                 ans = s2
         return ans
 
-    # 字符串 s 中以 s[i] 和 s[j] 为中心的最长回文子串
-    def _longestPalindrome(self, s: str, i: int, j: int) -> str:
+    # 返回字符串 s 中以 s[i] 和 s[j] 为中心的最长回文子串
+    def longestPalindromeCenter(self, s: str, i: int, j: int) -> str:
         if i > j or j - i > 1:
             return ''
         while i >= 0 and j < len(s) and s[i] == s[j]:
             i -= 1
             j += 1
         return s[i + 1:j]
-# https://leetcode.cn/submissions/detail/378867226/
+# https://leetcode.cn/submissions/detail/394199293/
 ```
 
 ## 7. 整数反转
