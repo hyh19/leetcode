@@ -393,11 +393,11 @@ const getKthElement = function (nums1, start1, nums2, start2, k) {
 const longestPalindrome = function (s) {
     let ans = "";
     for (let i = 0; i < s.length; ++i) {
-        const s1 = longestPalindromeRange(s, i, i);
+        const s1 = longestPalindromeCenter(s, i, i);
         if (s1.length > ans.length) {
             ans = s1;
         }
-        const s2 = longestPalindromeRange(s, i, i + 1);
+        const s2 = longestPalindromeCenter(s, i, i + 1);
         if (s2.length > ans.length) {
             ans = s2;
         }
@@ -407,12 +407,13 @@ const longestPalindrome = function (s) {
 
 /**
  * 返回字符串 s 中以 s[i] 和 s[j] 为中心的最长回文子串
+ * 
  * @param {string} s
  * @param {number} i
  * @param {number} j
  * @return {string}
  */
-const longestPalindromeRange = function (s, i, j) {
+const longestPalindromeCenter = function (s, i, j) {
     if (i > j || j - i > 1) {
         return "";
     }
@@ -422,7 +423,7 @@ const longestPalindromeRange = function (s, i, j) {
     }
     return s.substring(i + 1, j);
 };
-// https://leetcode.cn/submissions/detail/380910954/
+// https://leetcode.cn/submissions/detail/394198533/
 ```
 
 ## 7. 整数反转
