@@ -405,7 +405,7 @@ char *longestPalindromeCenter(const char *s, int i, int j, size_t *len) {
     return strncpy(res, s + i + 1, *len);
 }
 
-char *longestPalindrome(char *s) {
+char *longestPalindrome(const char *s) {
     size_t len = 0;
     char *ans = malloc(0);
     size_t n = strlen(s);
@@ -431,7 +431,7 @@ char *longestPalindrome(char *s) {
     }
     return ans;
 }
-// https://leetcode.cn/submissions/detail/394191039/
+// https://leetcode.cn/submissions/detail/394191547/
 ```
 
 ## 7. 整数反转
