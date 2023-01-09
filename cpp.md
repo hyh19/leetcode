@@ -5921,7 +5921,7 @@ public:
             ptr = ptr->left;
         }
         int rightHeight = 0;
-        ptr = root->right;
+        ptr = root;
         while (ptr != nullptr) {
             ++rightHeight;
             ptr = ptr->right;
@@ -5932,7 +5932,7 @@ public:
         return 1 + countNodes(root->left) + countNodes(root->right);
     }
 };
-// https://leetcode.cn/submissions/detail/391482036/
+// https://leetcode.cn/submissions/detail/394183375/
 ```
 
 ```cpp
@@ -5949,7 +5949,7 @@ public:
             ptr = ptr->left;
         }
         int rightHeight = 0;
-        ptr = root->right;
+        ptr = root;
         while (ptr != nullptr) {
             ++rightHeight;
             ptr = ptr->right;
@@ -5960,7 +5960,7 @@ public:
         return 1 + countNodes(root->left) + countNodes(root->right);
     }
 };
-// https://leetcode.cn/submissions/detail/368826005/
+// https://leetcode.cn/submissions/detail/394184877/
 ```
 
 ## 225. 用队列实现栈
