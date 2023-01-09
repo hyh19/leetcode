@@ -400,9 +400,9 @@ char *longestPalindromeCenter(const char *s, int i, int j, size_t *len) {
         --i;
         ++j;
     }
-    char *res = calloc(j - i, sizeof(char));
     *len = j - i - 1;
-    return strncpy(res, s + i + 1, j - i - 1);
+    char *res = calloc(*len + 1, sizeof(char));
+    return strncpy(res, s + i + 1, *len);
 }
 
 char *longestPalindrome(char *s) {
@@ -431,7 +431,7 @@ char *longestPalindrome(char *s) {
     }
     return ans;
 }
-// https://leetcode.cn/submissions/detail/391338749/
+// https://leetcode.cn/submissions/detail/394191039/
 ```
 
 ## 7. 整数反转
