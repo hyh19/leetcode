@@ -390,7 +390,7 @@ const getKthElement = function (nums1, start1, nums2, start2, k) {
  * @param {string} s
  * @return {string}
  */
- const longestPalindrome = function (s) {
+const longestPalindrome = function (s) {
     let ans = "";
     for (let i = 0; i < s.length; ++i) {
         const s1 = longestPalindromeRange(s, i, i);
