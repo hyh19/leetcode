@@ -364,11 +364,11 @@ class Solution {
   String longestPalindrome(String s) {
     var ans = '';
     for (var i = 0; i < s.length; ++i) {
-      final s1 = _longestPalindrome(s, i, i);
+      final s1 = longestPalindromeCenter(s, i, i);
       if (s1.length > ans.length) {
         ans = s1;
       }
-      final s2 = _longestPalindrome(s, i, i + 1);
+      final s2 = longestPalindromeCenter(s, i, i + 1);
       if (s2.length > ans.length) {
         ans = s2;
       }
@@ -377,7 +377,7 @@ class Solution {
   }
 
   // 字符串 s 中以 s[i] 和 s[j] 为中心的最长回文子串
-  String _longestPalindrome(String s, int i, int j) {
+  String longestPalindromeCenter(String s, int i, int j) {
     if (i > j || j - i > 1) {
       return '';
     }
@@ -388,7 +388,7 @@ class Solution {
     return s.substring(i + 1, j);
   }
 }
-// https://leetcode.cn/submissions/detail/378014362/
+// https://leetcode.cn/submissions/detail/394193871/
 ```
 
 ## 7. 整数反转
