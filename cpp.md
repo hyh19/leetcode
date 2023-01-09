@@ -367,7 +367,7 @@ private:
 ```cpp
 class Solution {
 public:
-    string longestPalindrome(string s) {
+    string longestPalindrome(const string &s) {
         string s1, s2, ans;
         for (int i = 0; i < s.size(); ++i) {
             s1 = longestPalindrome(s, i, i);
@@ -395,7 +395,7 @@ private:
         return s.substr(i + 1, j - i - 1);
     }
 };
-// https://leetcode.cn/submissions/detail/364086132/
+// https://leetcode.cn/submissions/detail/394192510/
 ```
 
 ## 7. 整数反转
