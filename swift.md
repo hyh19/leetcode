@@ -375,17 +375,17 @@ class Solution {
         return ans;
     }
 
-    // 字符串 s 中以 s[i] 和 s[j] 为中心的最长回文子串
+    // 返回字符串 s 中以 s[i] 和 s[j] 为中心的最长回文子串
     private func longestPalindrome(_ s: [Character], _ i: Int, _ j: Int) -> String {
-        var left = i, right = j;
-        while (left >= 0 && right < s.count && s[left] == s[right]) {
-            left -= 1;
-            right += 1;
+        var i = i, j = j;
+        while (i >= 0 && j < s.count && s[i] == s[j]) {
+            i -= 1;
+            j += 1;
         }
-        return left + 1 > right - 1 ? "" : String(s[left + 1...right - 1]);
+        return i + 1 > j - 1 ? "" : String(s[i + 1...j - 1]);
     }
 }
-// https://leetcode.cn/submissions/detail/385123737/
+// https://leetcode.cn/submissions/detail/394199939/
 ```
 
 ## 7. 整数反转
