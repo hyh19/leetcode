@@ -3778,7 +3778,7 @@ class Solution:
             return None
         if key < root.val:
             root.left = self.deleteNode(root.left, key)
-        elif key > root.val:
+        elif root.val < key:
             root.right = self.deleteNode(root.right, key)
         else:
             if root.left is None:
@@ -3801,7 +3801,7 @@ class Solution:
             return root.right
         root.left = self.deleteMin(root.left)
         return root
-# https://leetcode.cn/submissions/detail/380144048/
+# https://leetcode.cn/submissions/detail/394416894/
 ```
 
 ## 452. 用最少数量的箭引爆气球
