@@ -471,7 +471,36 @@ class Solution
 <https://leetcode.cn/problems/reverse-integer/>
 
 ```php
-// TODO
+<?php
+
+class Solution
+{
+    const INT_MIN = -(1 << 31);
+    const INT_MAX = (1 << 31) - 1;
+
+    /**
+     * @param int $x
+     * @return int
+     */
+    function reverse(int $x): int
+    {
+        if ($x === 0 || $x === self::INT_MIN) {
+            return 0;
+        }
+        $ans = 0;
+        $sign = ($x > 0 ? 1 : -1);
+        $x = abs($x);
+        while ($x !== 0) {
+            if ($ans > intval(self::INT_MAX / 10)) {
+                return 0;
+            }
+            $ans = $ans * 10 + $x % 10;
+            $x = intval($x / 10);
+        }
+        return $ans * $sign;
+    }
+}
+// https://leetcode.cn/submissions/detail/394908072/
 ```
 
 ## 11. 盛最多水的容器
