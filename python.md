@@ -355,7 +355,22 @@ class Solution:
 <https://leetcode.cn/problems/reverse-integer/>
 
 ```py
-# TODO
+class Solution:
+    def reverse(self, x: int) -> int:
+        INT_MIN = -(1 << 31)
+        INT_MAX = (1 << 31) - 1
+        if x == 0 or x == INT_MIN:
+            return 0
+        ans = 0
+        sign = 1 if x > 0 else -1
+        x = abs(x)
+        while x != 0:
+            if ans > INT_MAX // 10:
+                return 0
+            ans = ans * 10 + x % 10
+            x = x // 10
+        return ans * sign
+# https://leetcode.cn/submissions/detail/394902979/
 ```
 
 ## 11. 盛最多水的容器
