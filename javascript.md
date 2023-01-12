@@ -431,7 +431,30 @@ const longestPalindromeCenter = function (s, i, j) {
 <https://leetcode.cn/problems/reverse-integer/>
 
 ```js
+const INT_MIN = -Math.pow(2, 31);
+const INT_MAX = Math.pow(2, 31) - 1;
 
+/**
+ * @param {number} x
+ * @return {number}
+ */
+const reverse = function (x) {
+    if (x === 0 || x === INT_MIN) {
+        return 0;
+    }
+    let ans = 0;
+    const sign = (x > 0 ? 1 : -1);
+    x = Math.abs(x);
+    while (x !== 0) {
+        if (ans > Math.floor(INT_MAX / 10)) {
+            return 0;
+        }
+        ans = ans * 10 + x % 10;
+        x = Math.floor(x / 10);
+    }
+    return ans * sign;
+};
+// https://leetcode.cn/submissions/detail/394905962/
 ```
 
 ## 11. 盛最多水的容器
