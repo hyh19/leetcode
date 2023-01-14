@@ -393,7 +393,28 @@ class Solution {
 <https://leetcode.cn/problems/reverse-integer/>
 
 ```swift
-// TODO
+class Solution {
+    private static let INT_MIN = -(1 << 31);
+    private static let INT_MAX = (1 << 31) - 1;
+
+    func reverse(_ x: Int) -> Int {
+        if (x == 0 || x == Solution.INT_MIN) {
+            return 0;
+        }
+        let sign = (x > 0 ? 1 : -1);
+        var val = 0;
+        var y = abs(x);
+        while (y > 0) {
+            if (val > Solution.INT_MAX / 10) {
+                return 0;
+            }
+            val = val * 10 + y % 10;
+            y /= 10;
+        }
+        return val * sign;
+    }
+}
+// https://leetcode.cn/submissions/detail/395337882/
 ```
 
 ## 11. 盛最多水的容器
