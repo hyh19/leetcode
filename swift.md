@@ -427,7 +427,7 @@ class Solution {
         var ans = 0;
         var i = 0, j = height.count - 1;
         while (i < j) {
-            let area = min(height[i], height[j]) * (j - i);
+            let area = (j - i) * min(height[i], height[j]);
             ans = max(ans, area);
             if (height[i] < height[j]) {
                 i += 1;
@@ -438,7 +438,7 @@ class Solution {
         return ans;
     }
 }
-// https://leetcode.cn/submissions/detail/384824510/
+// https://leetcode.cn/submissions/detail/395984988/
 ```
 
 ## 14. 最长公共前缀
