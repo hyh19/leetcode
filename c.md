@@ -467,9 +467,8 @@ int maxArea(const int *height, int heightSize) {
     int ans = 0;
     int i = 0, j = heightSize - 1;
     while (i < j) {
-        int w = j - i;
-        int h = fmin(height[i], height[j]);
-        ans = fmax(ans, w * h);
+        int area = (j - i) * fmin(height[i], height[j]);
+        ans = fmax(ans, area);
         if (height[i] < height[j]) {
             ++i;
         } else {
@@ -478,7 +477,7 @@ int maxArea(const int *height, int heightSize) {
     }
     return ans;
 }
-// https://leetcode.cn/submissions/detail/395982808/
+// https://leetcode.cn/submissions/detail/395984331/
 ```
 
 ## 14. 最长公共前缀
