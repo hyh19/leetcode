@@ -446,7 +446,7 @@ public:
 ```cpp
 class Solution {
 public:
-    int maxArea(vector<int> &height) {
+    int maxArea(const vector<int> &height) {
         int ans = 0;
         int i = 0, j = height.size() - 1;
         while (i < j) {
@@ -461,7 +461,7 @@ public:
         return ans;
     }
 };
-// https://leetcode.cn/submissions/detail/391453039/
+// https://leetcode.cn/submissions/detail/395983462/
 ```
 
 ## 14. 最长公共前缀
