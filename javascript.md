@@ -466,11 +466,11 @@ const reverse = function (x) {
  * @param {number[]} height
  * @return {number}
  */
- var maxArea = function (height) {
+const maxArea = function (height) {
     let ans = 0;
     let i = 0, j = height.length - 1;
     while (i < j) {
-        const area = Math.min(height[i], height[j]) * (j - i);
+        const area = (j - i) * Math.min(height[i], height[j]);
         ans = Math.max(ans, area);
         if (height[i] < height[j]) {
             ++i;
@@ -480,7 +480,7 @@ const reverse = function (x) {
     }
     return ans;
 };
-// https://leetcode.cn/submissions/detail/380806635/
+// https://leetcode.cn/submissions/detail/395986456/
 ```
 
 ## 14. 最长公共前缀
