@@ -450,7 +450,7 @@ public:
         int ans = 0;
         int i = 0, j = height.size() - 1;
         while (i < j) {
-            int area = min(height[i], height[j]) * (j - i);
+            int area = (j - i) * min(height[i], height[j]);
             ans = max(ans, area);
             if (height[i] < height[j]) {
                 ++i;
@@ -461,7 +461,7 @@ public:
         return ans;
     }
 };
-// https://leetcode.cn/submissions/detail/395983462/
+// https://leetcode.cn/submissions/detail/395984630/
 ```
 
 ## 14. 最长公共前缀
