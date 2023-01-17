@@ -422,12 +422,11 @@ class Solution {
 ```dart
 class Solution {
   int maxArea(List<int> height) {
-    var i = 0;
-    var j = height.length - 1;
     var ans = 0;
+    var i = 0, j = height.length - 1;
     while (i < j) {
-      final area = min(height[i], height[j]) * (j - i);
-      ans = max(ans, area);
+      final area = (j - i) * min<int>(height[i], height[j]);
+      ans = max<int>(ans, area);
       if (height[i] < height[j]) {
         ++i;
       } else {
@@ -437,7 +436,7 @@ class Solution {
     return ans;
   }
 }
-// https://leetcode.cn/submissions/detail/378016142/
+// https://leetcode.cn/submissions/detail/395991717/
 ```
 
 ## 14. 最长公共前缀
