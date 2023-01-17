@@ -464,8 +464,8 @@ int reverse(int x) {
 
 ```c
 int maxArea(const int *height, int heightSize) {
-    int i = 0, j = heightSize - 1;
     int ans = 0;
+    int i = 0, j = heightSize - 1;
     while (i < j) {
         int w = j - i;
         int h = fmin(height[i], height[j]);
@@ -478,7 +478,7 @@ int maxArea(const int *height, int heightSize) {
     }
     return ans;
 }
-// https://leetcode.cn/submissions/detail/388261355/
+// https://leetcode.cn/submissions/detail/395982808/
 ```
 
 ## 14. 最长公共前缀
