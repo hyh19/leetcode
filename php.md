@@ -513,8 +513,8 @@ class Solution
 class Solution
 {
     /**
-     * @param Integer[] $height
-     * @return Integer
+     * @param int[] $height
+     * @return int
      */
     function maxArea(array $height): int
     {
@@ -522,7 +522,7 @@ class Solution
         $i = 0;
         $j = count($height) - 1;
         while ($i < $j) {
-            $area = min($height[$i], $height[$j]) * ($j - $i);
+            $area = ($j - $i) * min($height[$i], $height[$j]);
             $ans = max($ans, $area);
             if ($height[$i] < $height[$j]) {
                 ++$i;
@@ -533,7 +533,7 @@ class Solution
         return $ans;
     }
 }
-// https://leetcode.cn/submissions/detail/382777174/
+// https://leetcode.cn/submissions/detail/395986939/
 ```
 
 ## 14. 最长公共前缀
