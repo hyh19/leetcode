@@ -435,12 +435,11 @@ class Solution {
 ```java
 class Solution {
     public int maxArea(int[] height) {
-        int i = 0, j = height.length - 1;
         int ans = 0;
+        int i = 0, j = height.length - 1;
         while (i < j) {
-            int w = j - i;
-            int h = Math.min(height[i], height[j]);
-            ans = Math.max(ans, w * h);
+            int area = (j - i) * Math.min(height[i], height[j]);
+            ans = Math.max(ans, area);
             if (height[i] < height[j]) {
                 ++i;
             } else {
@@ -450,7 +449,7 @@ class Solution {
         return ans;
     }
 }
-// https://leetcode.cn/submissions/detail/368395393/
+// https://leetcode.cn/submissions/detail/395986082/
 ```
 
 ## 14. 最长公共前缀
