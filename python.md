@@ -385,14 +385,14 @@ class Solution:
         i = 0
         j = len(height) - 1
         while i < j:
-            area = min(height[i], height[j]) * (j - i)
+            area = (j - i) * min(height[i], height[j])
             ans = max(ans, area)
             if height[i] < height[j]:
                 i += 1
             else:
                 j -= 1
         return ans
-# https://leetcode.cn/submissions/detail/378728904/
+# https://leetcode.cn/submissions/detail/395987844/
 ```
 
 ## 14. 最长公共前缀
