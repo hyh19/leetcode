@@ -3668,7 +3668,7 @@ int maxProfit(int *prices, int pricesSize) {
 <https://leetcode.cn/problems/valid-palindrome/>
 
 ```c
-bool isPalindrome(char *s) {
+bool isPalindrome(const char *s) {
     int n = strlen(s);
     int i = -1, j = n;
     while (true) {
@@ -3691,7 +3691,7 @@ bool isPalindrome(char *s) {
     }
     return true;
 }
-// https://leetcode.cn/submissions/detail/390150971/
+// https://leetcode.cn/submissions/detail/396856908/
 ```
 
 ## 128. 最长连续序列
