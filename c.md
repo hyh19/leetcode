@@ -504,15 +504,19 @@ char *longestCommonPrefixRange(char **strs, int lo, int hi) {
     char *left = longestCommonPrefixRange(strs, lo, mid);
     char *right = longestCommonPrefixRange(strs, mid + 1, hi);
     char *res = longestCommonPrefixTwo(left, right);
-    free(left);
-    free(right);
+    if (lo == mid) {
+        free(left);
+    }
+    if (mid + 1 == hi) {
+        free(right);
+    }
     return res;
 }
 
 char *longestCommonPrefix(char **strs, int strsSize) {
     return longestCommonPrefixRange(strs, 0, strsSize - 1);
 }
-// https://leetcode.cn/submissions/detail/391332707/
+// https://leetcode.cn/submissions/detail/397113281/
 ```
 
 ## 15. 三数之和
