@@ -3441,7 +3441,7 @@ const reverse = function (nums, lo, hi) {
  * @param {number[]} nums
  * @return {number}
  */
- const rob = function (nums) {
+const rob = function (nums) {
     return subseqSum(nums);
 };
 
