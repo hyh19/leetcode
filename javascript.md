@@ -492,7 +492,7 @@ const maxArea = function (height) {
  * @param {string[]} strs
  * @return {string}
  */
- const longestCommonPrefix = function (strs, lo = 0, hi = strs.length - 1) {
+const longestCommonPrefix = function (strs, lo = 0, hi = strs.length - 1) {
     if (lo === hi) {
         return strs[lo];
     }

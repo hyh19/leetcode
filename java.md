@@ -473,15 +473,15 @@ class Solution {
     }
 
     private String longestCommonPrefix(String s1, String s2) {
-        int len = Math.min(s1.length(), s2.length());
+        int n = Math.min(s1.length(), s2.length());
         int i = 0;
-        while (i < len && s1.charAt(i) == s2.charAt(i)) {
+        while (i < n && s1.charAt(i) == s2.charAt(i)) {
             ++i;
         }
         return s1.substring(0, i);
     }
 }
-// https://leetcode.cn/submissions/detail/363203257/
+// https://leetcode.cn/submissions/detail/398711600/
 ```
 
 ```java
@@ -495,15 +495,15 @@ class Solution {
     }
 
     private String longestCommonPrefix(String s1, String s2) {
-        int len = Math.min(s1.length(), s2.length());
+        int n = Math.min(s1.length(), s2.length());
         int i = 0;
-        while (i < len && s1.charAt(i) == s2.charAt(i)) {
+        while (i < n && s1.charAt(i) == s2.charAt(i)) {
             ++i;
         }
         return s1.substring(0, i);
     }
 }
-// https://leetcode.cn/submissions/detail/363201881/
+// https://leetcode.cn/submissions/detail/398712016/
 ```
 
 ## 15. 三数之和

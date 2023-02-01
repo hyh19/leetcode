@@ -547,25 +547,28 @@ class Solution
 {
     /**
      * @param string[] $strs
-     * @param int|null $lo
-     * @param int|null $hi
      * @return string
      */
-    function longestCommonPrefix(array $strs, int $lo = null, int $hi = null): string
+    function longestCommonPrefix(array $strs): string
     {
-        if (is_null($lo) && is_null($hi)) {
-            return $this->longestCommonPrefix($strs, 0, count($strs) - 1);
+        return $this->longestCommonPrefixRange($strs, 0, count($strs) - 1);
+    }
+
+    /**
+     * @param string[] $strs
+     * @param int $lo
+     * @param int $hi
+     * @return string
+     */
+    private function longestCommonPrefixRange(array $strs, int $lo, int $hi): string
+    {
+        if ($lo === $hi) {
+            return $strs[$lo];
         }
-        if (!is_null($lo) && !is_null($hi)) {
-            if ($lo === $hi) {
-                return $strs[$lo];
-            }
-            $mid = $lo + floor(($hi - $lo) / 2);
-            $left = $this->longestCommonPrefix($strs, $lo, $mid);
-            $right = $this->longestCommonPrefix($strs, $mid + 1, $hi);
-            return $this->longestCommonPrefixTwo($left, $right);
-        }
-        return "";
+        $mid = $lo + intval(($hi - $lo) / 2);
+        $left = $this->longestCommonPrefixRange($strs, $lo, $mid);
+        $right = $this->longestCommonPrefixRange($strs, $mid + 1, $hi);
+        return $this->longestCommonPrefixTwo($left, $right);
     }
 
     /**
@@ -583,7 +586,7 @@ class Solution
         return substr($s1, 0, $i);
     }
 }
-// https://leetcode.cn/submissions/detail/383386400/
+// https://leetcode.cn/submissions/detail/398714598/
 ```
 
 ## 15. 三数之和

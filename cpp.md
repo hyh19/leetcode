@@ -471,7 +471,7 @@ public:
 ```cpp
 class Solution {
 public:
-    string longestCommonPrefix(vector<string> &strs) {
+    string longestCommonPrefix(const vector<string> &strs) {
         return longestCommonPrefix(strs, 0, strs.size() - 1);
     }
 
@@ -495,13 +495,13 @@ private:
         return s1.substr(0, i);
     }
 };
-// https://leetcode.cn/submissions/detail/391682154/
+// https://leetcode.cn/submissions/detail/398710143/
 ```
 
 ```cpp
 class Solution {
 public:
-    string longestCommonPrefix(vector<string> &strs) {
+    string longestCommonPrefix(const vector<string> &strs) {
         string ans = strs[0];
         for (int i = 1; i < strs.size(); ++i) {
             ans = longestCommonPrefix(ans, strs[i]);
@@ -519,7 +519,7 @@ private:
         return s1.substr(0, i);
     }
 };
-// https://leetcode.cn/submissions/detail/391682316/
+// https://leetcode.cn/submissions/detail/398710916/
 ```
 
 ## 15. 三数之和

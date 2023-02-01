@@ -462,16 +462,16 @@ class Solution {
     }
 
     private func longestCommonPrefix(_ s1: String, _ s2: String) -> String {
-        let chs1 = [Character](s1), chs2 = [Character](s2);
-        let n = min(chs1.count, chs2.count);
+        let c1 = [Character](s1), c2 = [Character](s2);
+        let n = min(c1.count, c2.count);
         var i = 0;
-        while (i < n && chs1[i] == chs2[i]) {
+        while (i < n && c1[i] == c2[i]) {
             i += 1;
         }
-        return i < 1 ? "" : String(chs1[0...i - 1]);
+        return i < 1 ? "" : String(c1[0...i - 1]);
     }
 }
-// https://leetcode.cn/submissions/detail/385527449/
+// https://leetcode.cn/submissions/detail/398715539/
 ```
 
 ## 15. 三数之和
