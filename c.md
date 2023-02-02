@@ -532,9 +532,12 @@ int cmp(const void *a, const void *b) {
 
 // 返回升序数组 nums[lo..hi] 中所有和为 target 且不重复的二元组
 int **twoSum(const int *nums, int numsSize, int lo, int hi, long target, int *returnSize) {
+    *returnSize = 0;
+    if (lo < 0 || hi >= numsSize || lo >= hi) {
+        return NULL;
+    }
     int capacity = 4;
     int **res = malloc(sizeof(int *) * capacity);
-    *returnSize = 0;
     while (lo < hi) {
         int first = nums[lo], second = nums[hi];
         int sum = first + second;
@@ -561,7 +564,7 @@ int **twoSum(const int *nums, int numsSize, int lo, int hi, long target, int *re
 // 返回升序数组 nums[lo..hi] 中所有和为 target 且不重复的 k 元组
 int **kSum(int k, const int *nums, int numsSize, int lo, int hi, long target, int *returnSize) {
     *returnSize = 0;
-    if (hi - lo + 1 < k) {
+    if (k < 2 || lo < 0 || hi >= numsSize || hi - lo + 1 < k) {
         return NULL;
     }
     if (k == 2) {
@@ -602,7 +605,7 @@ int **threeSum(int *nums, int numsSize, int *returnSize, int **returnColumnSizes
     }
     return ans;
 }
-// https://leetcode.cn/submissions/detail/391331223/
+// https://leetcode.cn/submissions/detail/398993732/
 ```
 
 ## 18. 四数之和
