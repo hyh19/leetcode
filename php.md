@@ -783,25 +783,19 @@ class Solution
     function removeNthFromEnd(ListNode $head, int $n): ?ListNode
     {
         $dummyHead = new ListNode(-1, $head);
-        $slow = $dummyHead;
-        $fast = $dummyHead;
+        $slow = $fast = $dummyHead;
         for ($i = 1; $i <= $n; ++$i) {
             $fast = $fast->next;
         }
-        while ($fast !== null && $fast->next !== null) {
+        while ($fast->next !== null) {
             $slow = $slow->next;
             $fast = $fast->next;
         }
-        $delNode = $slow->next;
-        if ($delNode === $head) { // 删除的是头结点
-            $head = $head->next;
-        } else {
-            $slow->next = $delNode->next;
-        }
-        return $head;
+        $slow->next = $slow->next->next;
+        return $dummyHead->next;
     }
 }
-// https://leetcode.cn/submissions/detail/382545635/
+// https://leetcode.cn/submissions/detail/399275638/
 ```
 
 ## 20. 有效的括号
