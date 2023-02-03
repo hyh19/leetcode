@@ -530,19 +530,16 @@ class Solution:
 ```py
 class Solution:
     def removeNthFromEnd(self, head: Optional[ListNode], n: int) -> Optional[ListNode]:
-        slow = fast = ListNode(-1, head)
+        dummyHead = ListNode(-1, head)
+        slow = fast = dummyHead
         for i in range(n):
             fast = fast.next
         while fast.next is not None:
             slow = slow.next
             fast = fast.next
-        delNode = slow.next
-        if delNode is head:
-            head = head.next
-        else:
-            slow.next = delNode.next
-        return head
-# https://leetcode.cn/submissions/detail/378724721/
+        slow.next = slow.next.next   
+        return dummyHead.next
+# https://leetcode.cn/submissions/detail/399274667/
 ```
 
 ## 20. 有效的括号
