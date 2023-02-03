@@ -645,20 +645,15 @@ class Solution {
         for (int i = 1; i <= n; ++i) {
             fast = fast.next;
         }
-        while (fast != null && fast.next != null) {
+        while (fast.next != null) {
             slow = slow.next;
             fast = fast.next;
         }
-        ListNode x = slow.next;
-        if (x == head) { // 删除的是头结点
-            head = head.next;
-        } else {
-            slow.next = x.next;
-        }
-        return head;
+        slow.next = slow.next.next;
+        return dummyHead.next;
     }
 }
-// https://leetcode.cn/submissions/detail/367675516/
+// https://leetcode.cn/submissions/detail/399272129/
 ```
 
 ## 20. 有效的括号

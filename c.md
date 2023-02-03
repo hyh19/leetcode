@@ -711,21 +711,21 @@ struct ListNode *removeNthFromEnd(struct ListNode *head, int n) {
     for (int i = 1; i <= n; ++i) {
         fast = fast->next;
     }
-    while (fast != NULL && fast->next != NULL) {
+    while (fast->next != NULL) {
         slow = slow->next;
         fast = fast->next;
     }
-    struct ListNode *x = slow->next;
-    if (x == head) { // 删除的是头结点
+    struct ListNode *delNode = slow->next;
+    if (delNode == head) { // 删除的是头结点
         head = head->next;
     } else {
-        slow->next = x->next;
+        slow->next = delNode->next;
     }
-    free(x);
+    free(delNode);
     free(dummyHead);
     return head;
 }
-// https://leetcode.cn/submissions/detail/391143669/
+// https://leetcode.cn/submissions/detail/399271713/
 ```
 
 ## 20. 有效的括号

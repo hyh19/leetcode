@@ -650,22 +650,22 @@ public:
         for (int i = 1; i <= n; ++i) {
             fast = fast->next;
         }
-        while (fast != nullptr && fast->next != nullptr) {
+        while (fast->next != nullptr) {
             slow = slow->next;
             fast = fast->next;
         }
-        ListNode *x = slow->next;
-        if (x == head) { // 删除的是头结点
+        ListNode *delNode = slow->next;
+        if (delNode == head) { // 删除的是头结点
             head = head->next;
         } else {
-            slow->next = slow->next->next;
+            slow->next = delNode->next;
         }
-        delete x;
+        delete delNode;
         delete dummyHead;
         return head;
     }
 };
-// https://leetcode.cn/submissions/detail/391560727/
+// https://leetcode.cn/submissions/detail/399270541/
 ```
 
 ## 20. 有效的括号
