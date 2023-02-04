@@ -593,24 +593,18 @@ class Solution {
     final dummyHead = ListNode(-1, head);
     var slow = dummyHead;
     var fast = dummyHead;
-    for (var i = 0; i < n; ++i) {
+    for (var i = 1; i <= n; ++i) {
       fast = fast.next!;
     }
     while (fast.next != null) {
       slow = slow.next!;
       fast = fast.next!;
     }
-    final x = slow.next;
-    if (x == head) {
-      // 删除的是头结点
-      head = head!.next;
-    } else {
-      slow.next = x!.next;
-    }
-    return head;
+    slow.next = slow.next!.next;
+    return dummyHead.next;
   }
 }
-// https://leetcode.cn/submissions/detail/377953429/
+// https://leetcode.cn/submissions/detail/399461986/
 ```
 
 ## 20. 有效的括号
