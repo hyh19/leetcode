@@ -800,7 +800,7 @@ void myStackFree(MyLinkedListStack *obj) {
     free(obj);
 }
 
-bool isValid(char *s) {
+bool isValid(const char *s) {
     size_t n = strlen(s);
     if (n % 2 == 1) {
         return false;
@@ -833,7 +833,7 @@ bool isValid(char *s) {
     myStackFree(stack);
     return ans;
 }
-// https://leetcode.cn/submissions/detail/391408357/
+// https://leetcode.cn/submissions/detail/399503949/
 ```
 
 ```c
@@ -891,7 +891,7 @@ void myStackFree(MyResizingArrayStack *obj) {
     free(obj);
 }
 
-bool isValid(char *s) {
+bool isValid(const char *s) {
     size_t n = strlen(s);
     if (n % 2 == 1) {
         return false;
@@ -924,7 +924,44 @@ bool isValid(char *s) {
     myStackFree(stack);
     return ans;
 }
-// https://leetcode.cn/submissions/detail/391363710/
+// https://leetcode.cn/submissions/detail/399504253/
+```
+
+```c
+bool isValid(const char *s) {
+    size_t n = strlen(s);
+    if (n % 2 == 1) {
+        return false;
+    }
+    char stack[n];
+    int top = 0;
+    for (int i = 0; i < n; ++i) {
+        char ch = s[i];
+        switch (ch) {
+            case '(': {
+                stack[top++] = ')';
+                break;
+            }
+            case '[': {
+                stack[top++] = ']';
+                break;
+            }
+            case '{': {
+                stack[top++] = '}';
+                break;
+            }
+            default: {
+                if (top == 0 || stack[top - 1] != ch) {
+                    return false;
+                }
+                --top;
+                break;
+            }
+        }
+    }
+    return top == 0;
+}
+// https://leetcode.cn/submissions/detail/399502710/
 ```
 
 ## 21. 合并两个有序链表

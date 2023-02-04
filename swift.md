@@ -638,8 +638,7 @@ class Solution {
 ```swift
 class Solution {
     func isValid(_ s: String) -> Bool {
-        let n = s.count;
-        if (n % 2 == 1) {
+        if (s.count % 2 == 1) {
             return false;
         }
         var stack: [Character] = [];
@@ -663,7 +662,7 @@ class Solution {
         return stack.isEmpty;
     }
 }
-// https://leetcode.cn/submissions/detail/387237752/
+// https://leetcode.cn/submissions/detail/399500818/
 ```
 
 ## 21. 合并两个有序链表

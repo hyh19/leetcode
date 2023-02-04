@@ -814,56 +814,6 @@ class Solution
     function isValid(string $s): bool
     {
         $n = strlen($s);
-        if ($n % 2 == 1) {
-            return false;
-        }
-        $stack = new SplStack();
-        for ($i = 0; $i < $n; ++$i) {
-            $ch = $s[$i];
-            switch ($ch) {
-                case '(':
-                {
-                    $stack->push(')');
-                    break;
-                }
-                case '[':
-                {
-                    $stack->push(']');
-                    break;
-                }
-                case '{':
-                {
-                    $stack->push('}');
-                    break;
-                }
-                default:
-                {
-                    if ($stack->isEmpty() || $stack->top() !== $ch) {
-                        return false;
-                    }
-                    $stack->pop();
-                    break;
-                }
-            }
-        }
-        return $stack->isEmpty();
-    }
-}
-// https://leetcode.cn/submissions/detail/383273552/
-```
-
-```php
-<?php
-
-class Solution
-{
-    /**
-     * @param string $s
-     * @return bool
-     */
-    function isValid(string $s): bool
-    {
-        $n = strlen($s);
         if ($n % 2 === 1) {
             return false;
         }
@@ -891,14 +841,61 @@ class Solution
                     if (count($stack) === 0 || array_pop($stack) !== $ch) {
                         return false;
                     }
-                    break;
                 }
             }
         }
         return count($stack) === 0;
     }
 }
-// https://leetcode.cn/submissions/detail/383278174/
+// https://leetcode.cn/submissions/detail/399505266/
+```
+
+```php
+<?php
+
+class Solution
+{
+    /**
+     * @param string $s
+     * @return bool
+     */
+    function isValid(string $s): bool
+    {
+        $n = strlen($s);
+        if ($n % 2 == 1) {
+            return false;
+        }
+        $stack = new SplStack();
+        for ($i = 0; $i < $n; ++$i) {
+            $ch = $s[$i];
+            switch ($ch) {
+                case '(':
+                {
+                    $stack->push(')');
+                    break;
+                }
+                case '[':
+                {
+                    $stack->push(']');
+                    break;
+                }
+                case '{':
+                {
+                    $stack->push('}');
+                    break;
+                }
+                default:
+                {
+                    if ($stack->isEmpty() || $stack->pop() !== $ch) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return $stack->isEmpty();
+    }
+}
+// https://leetcode.cn/submissions/detail/399505733/
 ```
 
 ## 21. 合并两个有序链表

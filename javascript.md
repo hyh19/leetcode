@@ -704,7 +704,7 @@ const removeNthFromEnd = function (head, n) {
  * @param {string} s
  * @return {boolean}
  */
- const isValid = function (s) {
+const isValid = function (s) {
     if (s.length % 2 === 1) {
         return false;
     }

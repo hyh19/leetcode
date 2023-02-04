@@ -549,8 +549,7 @@ class Solution:
 ```py
 class Solution:
     def isValid(self, s: str) -> bool:
-        n = len(s)
-        if n % 2 == 1:
+        if len(s) % 2 == 1:
             return False
         stack = []
         for ch in s:
@@ -564,7 +563,7 @@ class Solution:
                 if len(stack) == 0 or stack.pop() != ch:
                     return False
         return len(stack) == 0
-# https://leetcode.cn/submissions/detail/378932972/
+# https://leetcode.cn/submissions/detail/399499144/
 ```
 
 ## 21. 合并两个有序链表
