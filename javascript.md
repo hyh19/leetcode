@@ -746,7 +746,7 @@ const isValid = function (s) {
  * @param {ListNode} list2
  * @return {ListNode}
  */
- const mergeTwoLists = function (list1, list2) {
+const mergeTwoLists = function (list1, list2) {
     const dummyHead = new ListNode();
     let ptr = dummyHead;
     while (list1 != null && list2 != null) {
