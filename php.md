@@ -942,7 +942,6 @@ class Solution
 
 class Solution
 {
-    private int $n = 0;
     private int $left = 0;    // 已使用的『左括号』数量
     private int $right = 0;   // 已使用的『右括号』数量
     private array $path = []; // 取 '(', ')' 为元素
@@ -954,42 +953,42 @@ class Solution
      */
     function generateParenthesis(int $n): array
     {
-        $this->n = $n;
-        $this->backtrack();
+        $this->backtrack($n);
         return $this->ans;
     }
 
     /**
+     * @param int $n
      * @return void
      */
-    private function backtrack(): void
+    private function backtrack(int $n): void
     {
         // 对于一个「合法」的括号字符串组合 p，必然对于任何 0 <= i < len(p) 都有：
         // 子串 p[0..i] 中左括号的数量都大于或等于右括号的数量
-        if ($this->left < $this->right || $this->left > $this->n) {
+        if ($this->left < $this->right || $this->left > $n) {
             return;
         }
         // 一个「合法」括号组合的左括号数量一定等于右括号数量
-        if ($this->left === $this->n && $this->right === $this->n) {
+        if ($this->left === $n && $this->right === $n) {
             $this->ans[] = join($this->path);
             return;
         }
         // edge = 取 '(', ')' 为值
         // 使用『左括号』
         $this->path[] = '(';
-        ++$this->left;
-        $this->backtrack();
+        $this->left++;
+        $this->backtrack($n);
         array_pop($this->path);
-        --$this->left;
+        $this->left--;
         // 使用『右括号』
         $this->path[] = ')';
-        ++$this->right;
-        $this->backtrack();
+        $this->right++;
+        $this->backtrack($n);
         array_pop($this->path);
-        --$this->right;
+        $this->right--;
     }
 }
-// https://leetcode.cn/submissions/detail/383300726/
+// https://leetcode.cn/submissions/detail/400029705/
 ```
 
 ## 23. 合并 K 个升序链表
