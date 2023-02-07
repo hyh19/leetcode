@@ -809,16 +809,14 @@ class Solution {
 ```swift
 class Solution {
     func reverseKGroup(_ head: ListNode?, _ k: Int) -> ListNode? {
-        if (head == nil || head!.next == nil) {
+        if (head == nil || head!.next == nil || k == 1) {
             return head;
         }
         var ptr = head;
-        if (k > 1) {
-            for _ in 1...k - 1 {
-                ptr = ptr!.next;
-                if (ptr == nil) {
-                    return head;
-                }
+        for _ in 1...k - 1 {
+            ptr = ptr!.next;
+            if (ptr == nil) {
+                return head;
             }
         }
         let nextGroup = ptr!.next;
@@ -840,7 +838,7 @@ class Solution {
         return reverseHead;
     }
 }
-// https://leetcode.cn/submissions/detail/386778449/
+// https://leetcode.cn/submissions/detail/400343617/
 ```
 
 ## 26. 删除有序数组中的重复项
