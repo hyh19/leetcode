@@ -2604,7 +2604,7 @@ const flatten = function (root) {
  * @param {number[]} prices
  * @return {number}
  */
- const maxProfit = function (prices) {
+const maxProfit = function (prices) {
     const n = prices.length;
     // dp[i][0] = 第 i 天，空仓状态下的最大利润
     // dp[i][1] = 第 i 天，持仓状态下的最大利润
