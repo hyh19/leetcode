@@ -2355,15 +2355,20 @@ const buildTree = function (preorder, inorder,
 <https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/>
 
 ```js
+let inorderMap = new Map();
+
 /**
  * @param {number[]} inorder
  * @param {number[]} postorder
  * @return {TreeNode}
  */
-const buildTree = function (inorder, postorder,
-                            inStart = 0, inEnd = inorder.length - 1,
-                            postStart = 0, postEnd = postorder.length - 1,
-                            inorderMap = new Map(inorder.map((e, i) => [e, i]))) {
+const buildTree = function (inorder, postorder) {
+    inorderMap.clear();
+    inorder.forEach((element, index) => inorderMap.set(element, index));
+    return buildTreeRange(inorder, 0, inorder.length - 1, postorder, 0, postorder.length - 1);
+};
+
+const buildTreeRange = function (inorder, inStart, inEnd, postorder, postStart, postEnd) {
     if (inStart > inEnd) {
         return null;
     }
@@ -2371,11 +2376,11 @@ const buildTree = function (inorder, postorder,
     const inRoot = inorderMap.get(rootVal);
     const leftSize = inRoot - inStart;
     const root = new TreeNode(rootVal);
-    root.left = buildTree(inorder, postorder, inStart, inRoot - 1, postStart, postStart + leftSize - 1, inorderMap);
-    root.right = buildTree(inorder, postorder, inRoot + 1, inEnd, postStart + leftSize, postEnd - 1, inorderMap);
+    root.left = buildTreeRange(inorder, inStart, inRoot - 1, postorder, postStart, postStart + leftSize - 1);
+    root.right = buildTreeRange(inorder, inRoot + 1, inEnd, postorder, postStart + leftSize, postEnd - 1);
     return root;
 };
-// https://leetcode.cn/submissions/detail/381408100/
+// https://leetcode.cn/submissions/detail/402804961/
 ```
 
 ## 107. 二叉树的层序遍历 II
