@@ -2355,7 +2355,7 @@ const buildTree = function (preorder, inorder,
 <https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/>
 
 ```js
-let inorderMap = new Map();
+const inorderMap = new Map();
 
 /**
  * @param {number[]} inorder
@@ -2380,7 +2380,7 @@ const buildTreeRange = function (inorder, inStart, inEnd, postorder, postStart, 
     root.right = buildTreeRange(inorder, inRoot + 1, inEnd, postorder, postStart + leftSize, postEnd - 1);
     return root;
 };
-// https://leetcode.cn/submissions/detail/402804961/
+// https://leetcode.cn/submissions/detail/403135248/
 ```
 
 ## 107. 二叉树的层序遍历 II
