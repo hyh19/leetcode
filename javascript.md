@@ -2904,7 +2904,7 @@ const singleNumber = function (nums) {
  * @param {ListNode} head
  * @return {void} Do not return anything, modify head in-place instead.
  */
- const reorderList = function (head) {
+const reorderList = function (head) {
     let slow = head, fast = head;
     while (fast.next != null && fast.next.next != null) {
         slow = slow.next;
@@ -2931,15 +2931,15 @@ const singleNumber = function (nums) {
  */
 const reverseList = function (head) {
     let reverseHead = null;
-    while (head !== null) {
-        const nextHead = head.next;
+    while (head != null) {
+        const x = head.next;
         head.next = reverseHead;
         reverseHead = head;
-        head = nextHead;
+        head = x;
     }
     return reverseHead;
 };
-// https://leetcode.cn/submissions/detail/380945939/
+// https://leetcode.cn/submissions/detail/403136416/
 ```
 
 ## 144. 二叉树的前序遍历
