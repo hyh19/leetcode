@@ -2307,9 +2307,8 @@ class Solution:
 ```py
 class Solution:
     def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:
-        slow = head
-        fast = head
-        while fast is not None and fast.next is not None:
+        slow = fast = head
+        while (fast is not None) and (fast.next is not None):
             slow = slow.next
             fast = fast.next.next
             if slow is fast:
@@ -2319,7 +2318,7 @@ class Solution:
                     fast = fast.next
                 return slow
         return None
-# https://leetcode.cn/submissions/detail/378721333/
+# https://leetcode.cn/submissions/detail/403432491/
 ```
 
 ## 143. 重排链表
