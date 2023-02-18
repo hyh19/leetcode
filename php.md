@@ -4264,12 +4264,12 @@ class Solution
     function largestNumber(array $nums): string
     {
         $strs = array_map(fn($x): string => strval($x), $nums);
-        usort($strs, fn($s1, $s2): int => strcmp(($s2 . $s1), ($s1 . $s2)));
+        usort($strs, fn($s1, $s2): int => strcmp($s2 . $s1, $s1 . $s2));
         $ans = join($strs);
         return $ans[0] === '0' ? "0" : $ans;
     }
 }
-// https://leetcode.cn/submissions/detail/383387913/
+// https://leetcode.cn/submissions/detail/403698492/
 ```
 
 ## 188. 买卖股票的最佳时机 IV
