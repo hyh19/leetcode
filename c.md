@@ -2739,18 +2739,18 @@ bool isSameTree(struct TreeNode *p, struct TreeNode *q) {
 <https://leetcode.cn/problems/binary-tree-level-order-traversal/>
 
 ```c
-static const int MAXSIZE = 2000;
+static const int MAX_SIZE = 2000;
 
 /**
  * Return an array of arrays of size *returnSize.
  * The sizes of the arrays are returned as *returnColumnSizes array.
  * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  */
-int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes) {
+int **levelOrder(const struct TreeNode *root, int *returnSize, int **returnColumnSizes) {
     *returnSize = 0;
-    *returnColumnSizes = malloc(sizeof(int) * MAXSIZE);
-    int **ans = malloc(sizeof(int *) * MAXSIZE);
-    struct TreeNode **queue = malloc(sizeof(struct TreeNode *) * MAXSIZE);
+    *returnColumnSizes = malloc(sizeof(int) * MAX_SIZE);
+    int **ans = malloc(sizeof(int *) * MAX_SIZE);
+    const struct TreeNode **queue = malloc(sizeof(struct TreeNode *) * MAX_SIZE);
     int first = 0, last = 0;
     if (root != NULL) {
         queue[last++] = root;
@@ -2759,13 +2759,13 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
         int n = last - first;
         int *level = malloc(sizeof(int) * n);
         for (int i = 0; i < n; ++i) {
-            struct TreeNode *x = queue[first++];
+            const struct TreeNode *x = queue[first++];
             level[i] = x->val;
-            struct TreeNode *left = x->left;
+            const struct TreeNode *left = x->left;
             if (left != NULL) {
                 queue[last++] = left;
             }
-            struct TreeNode *right = x->right;
+            const struct TreeNode *right = x->right;
             if (right != NULL) {
                 queue[last++] = right;
             }
@@ -2776,7 +2776,7 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
     free(queue);
     return ans;
 }
-// https://leetcode.cn/submissions/detail/390966123/
+// https://leetcode.cn/submissions/detail/404395237/
 ```
 
 ```c
