@@ -5516,10 +5516,10 @@ class Solution {
 
     public int numIslands(char[][] grid) {
         int count = 0;
-        for (int i = 0; i < grid.length; ++i) {
-            for (int j = 0; j < grid[0].length; ++j) {
-                if (grid[i][j] == LAND) {
-                    floodFill(grid, i, j);
+        for (int row = 0; row < grid.length; ++row) {
+            for (int col = 0; col < grid[0].length; ++col) {
+                if (grid[row][col] == LAND) {
+                    floodFill(grid, row, col);
                     ++count;
                 }
             }
@@ -5527,18 +5527,18 @@ class Solution {
         return count;
     }
 
-    private void floodFill(char[][] grid, int i, int j) {
-        if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length || grid[i][j] == WATER) {
+    private void floodFill(char[][] grid, int row, int col) {
+        if (row < 0 || row >= grid.length || col < 0 || col >= grid[0].length || grid[row][col] == WATER) {
             return;
         }
-        grid[i][j] = WATER;
-        floodFill(grid, i, j + 1);
-        floodFill(grid, i, j - 1);
-        floodFill(grid, i + 1, j);
-        floodFill(grid, i - 1, j);
+        grid[row][col] = WATER;
+        floodFill(grid, row, col + 1);
+        floodFill(grid, row, col - 1);
+        floodFill(grid, row + 1, col);
+        floodFill(grid, row - 1, col);
     }
 }
-// https://leetcode.cn/submissions/detail/362787749/
+// https://leetcode.cn/submissions/detail/404383694/
 ```
 
 ```java
