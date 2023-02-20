@@ -5422,13 +5422,13 @@ public:
 ```cpp
 class Solution {
 public:
-    vector<int> rightSideView(TreeNode *root) {
+    vector<int> rightSideView(const TreeNode *root) {
         dfs(root, 0);
         return ans;
     }
 
 private:
-    void dfs(TreeNode *root, int depth) {
+    void dfs(const TreeNode *root, int depth) {
         if (root == nullptr) {
             return;
         }
@@ -5441,7 +5441,7 @@ private:
 
     vector<int> ans;
 };
-// https://leetcode.cn/submissions/detail/391696281/
+// https://leetcode.cn/submissions/detail/404386387/
 ```
 
 ```cpp
