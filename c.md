@@ -5283,18 +5283,18 @@ int **combinationSum3(int k, int n, int *returnSize, int **returnColumnSizes) {
 <https://leetcode.cn/problems/count-complete-tree-nodes/>
 
 ```c
-int countNodes(struct TreeNode *root) {
+int countNodes(const struct TreeNode *root) {
     if (root == NULL) {
         return 0;
     }
-    int leftHeight = 0;
-    struct TreeNode *ptr = root;
+    const struct TreeNode *ptr = NULL;
+    int leftHeight = 0, rightHeight = 0;
+    ptr = root;
     while (ptr != NULL) {
         ++leftHeight;
         ptr = ptr->left;
     }
-    int rightHeight = 0;
-    ptr = root->right;
+    ptr = root;
     while (ptr != NULL) {
         ++rightHeight;
         ptr = ptr->right;
@@ -5304,7 +5304,7 @@ int countNodes(struct TreeNode *root) {
     }
     return 1 + countNodes(root->left) + countNodes(root->right);
 }
-// https://leetcode.cn/submissions/detail/390008475/
+// https://leetcode.cn/submissions/detail/404784327/
 ```
 
 ## 225. 用队列实现栈
