@@ -3350,12 +3350,11 @@ class Solution:
 ```py
 class Solution:
     def moveZeroes(self, nums: List[int]) -> None:
+        n = len(nums)
         # nums[0..i-1] != 0
         # nums[i..j-1] == 0
         # nums[j..n-1] Scanning
-        i = 0
-        j = 0
-        n = len(nums)
+        i, j = 0, 0
         while j < n:
             while j < n and nums[j] == 0:
                 j += 1
@@ -3363,7 +3362,7 @@ class Solution:
                 nums[i], nums[j] = nums[j], nums[i]
                 i += 1
                 j += 1
-# https://leetcode.cn/submissions/detail/378656262/
+# https://leetcode.cn/submissions/detail/405577693/
 ```
 
 ## 297. 二叉树的序列化与反序列化
