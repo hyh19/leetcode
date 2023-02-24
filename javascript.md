@@ -4008,9 +4008,9 @@ const select = function (root, rank) {
 
 ```js
 /**
- * ------------------| |--------------------
- * pop <- Left Stack | | Right Stack <- push
- * ------------------| |--------------------
+ * -----------------------------| |-------------------------------
+ * pop <- top Left Stack bottom | | bottom Right Stack top <- push
+ * -----------------------------| |-------------------------------
  */
 const MyQueue = function () {
     this.leftStack = [];
@@ -4057,7 +4057,7 @@ MyQueue.prototype.move = function () {
         this.leftStack.push(this.rightStack.pop());
     }
 };
-// https://leetcode.cn/submissions/detail/381983750/
+// https://leetcode.cn/submissions/detail/405929863/
 ```
 
 ## 234. 回文链表
