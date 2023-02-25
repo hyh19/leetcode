@@ -5647,17 +5647,18 @@ class Solution
         // dp[i] = max({length(subseq) | subseq 是以 nums[i] 结尾的严格递增子序列})
         $dp = array_fill(0, $n, 1);
         for ($i = 0; $i < $n; ++$i) {
+            $res = 1;
             for ($j = $i - 1; $j >= 0; --$j) {
                 if ($nums[$j] < $nums[$i]) {
-                    $dp[$i] = max($dp[$i], $dp[$j] + 1);
+                    $res = max($res, $dp[$j] + 1);
                 }
             }
+            $dp[$i] = $res;
             $ans = max($ans, $dp[$i]);
         }
         return $ans;
     }
 }
-// https://leetcode.cn/submissions/detail/383551427/
 ```
 
 ## 303. 区域和检索 - 数组不可变
