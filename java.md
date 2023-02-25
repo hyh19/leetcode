@@ -6469,23 +6469,23 @@ class Solution {
 ```java
 class Solution {
     public int[] maxSlidingWindow(int[] nums, int k) {
-        List<Integer> list = new LinkedList();
-        Deque<Integer> queue = new LinkedList();
+        List<Integer> list = new LinkedList<>();
+        Deque<Integer> maxMonoQueue = new LinkedList<>();
         for (int i = 0; i < nums.length; ++i) {
             // nums[i] = 进入窗口的数字
             int x = nums[i];
-            while (!queue.isEmpty() && queue.getLast() < x) {
-                queue.removeLast();
+            while (!maxMonoQueue.isEmpty() && maxMonoQueue.getLast() < x) {
+                maxMonoQueue.removeLast();
             }
-            queue.addLast(x);
+            maxMonoQueue.addLast(x);
             if (i < k - 1) {
                 continue;
             }
             // nums[i-k] = 退出窗口的数字
-            if (i >= k && nums[i - k] == queue.getFirst()) {
-                queue.removeFirst();
+            if (i >= k && nums[i - k] == maxMonoQueue.getFirst()) {
+                maxMonoQueue.removeFirst();
             }
-            list.add(queue.getFirst());
+            list.add(maxMonoQueue.getFirst());
         }
         int[] ans = new int[list.size()];
         int i = 0;
@@ -6495,7 +6495,7 @@ class Solution {
         return ans;
     }
 }
-// https://leetcode.cn/submissions/detail/374206350/
+// https://leetcode.cn/submissions/detail/406238156/
 ```
 
 ## 253. 会议室 II
