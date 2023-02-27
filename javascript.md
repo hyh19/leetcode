@@ -4492,11 +4492,12 @@ const buildTree = function (array) {
     if (val === "#") {
         return null;
     }
-    const right = buildTree(array);
-    const left = buildTree(array);
-    return new TreeNode(parseInt(val), left, right);
+    const root = new TreeNode(parseInt(val));
+    root.right = buildTree(array);
+    root.left = buildTree(array);
+    return root;
 };
-// https://leetcode.cn/submissions/detail/381422676/
+// https://leetcode.cn/submissions/detail/406986525/
 ```
 
 ## 300. 最长递增子序列
