@@ -6688,7 +6688,7 @@ private:
 ```cpp
 class NumArray {
 public:
-    explicit NumArray(vector<int> &nums) {
+    explicit NumArray(const vector<int> &nums) {
         sums = vector<int>(nums);
         for (int i = 1; i < nums.size(); ++i) {
             sums[i] = sums[i - 1] + nums[i];
@@ -6705,7 +6705,7 @@ public:
 private:
     vector<int> sums;
 };
-// https://leetcode.cn/submissions/detail/391691592/
+// https://leetcode.cn/submissions/detail/406982246/
 ```
 
 ## 309. 最佳买卖股票时机含冷冻期
