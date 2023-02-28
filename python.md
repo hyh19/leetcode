@@ -3566,13 +3566,12 @@ class Solution:
 ```py
 class Solution:
     def reverseString(self, s: List[str]) -> None:
-        i = 0
-        j = len(s) - 1
+        i, j = 0, len(s) - 1
         while i < j:
             s[i], s[j] = s[j], s[i]
             i += 1
             j -= 1
-# https://leetcode.cn/submissions/detail/378885728/
+# https://leetcode.cn/submissions/detail/407451616/
 ```
 
 ## 354. 俄罗斯套娃信封问题
