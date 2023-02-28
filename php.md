@@ -6040,10 +6040,8 @@ class Solution
         if ($sum % 2 === 1) {
             return false;
         }
-        return $this->hasSubsetSum($nums, $sum / 2);
+        return $this->hasSubsetSum($nums, intval($sum / 2));
     }
-
-    // 数组 $nums 是否存在和为 $sum 的子集
 
     /**
      * 数组 nums 是否存在和为 sum 的子集
@@ -6065,7 +6063,7 @@ class Solution
         for ($j = 1; $j <= $sum; ++$j) {
             $dp[0][$j] = false;
         }
-        // 空集的和为 0，空集是任何数组的子集，包括空数组
+        // 空集的和为 0，空集是任何数组的子集，包括空数组。
         $dp[0][0] = true;
         for ($i = 1; $i <= $n; ++$i) {
             for ($j = 1; $j <= $sum; ++$j) {
@@ -6090,7 +6088,7 @@ class Solution
         return $dp[$n][$sum];
     }
 }
-// https://leetcode.cn/submissions/detail/383745305/
+// https://leetcode.cn/submissions/detail/407450532/
 ```
 
 ## 435. 无重叠区间
