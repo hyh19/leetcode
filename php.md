@@ -5188,7 +5188,7 @@ class Solution
      */
     function isPalindrome(ListNode $head): bool
     {
-        // 寻找链表的中点（偶数个节点时选择左侧），即前半部分链表的尾节点
+        // 寻找链表的中点（偶数个节点时选择左侧），即前半部分链表的尾节点。
         $slow = $head;
         $fast = $head;
         while ($fast->next !== null && $fast->next->next !== null) {
@@ -5221,15 +5221,15 @@ class Solution
     {
         $reverseHead = null;
         while ($head !== null) {
-            $nextHead = $head->next;
+            $x = $head->next;
             $head->next = $reverseHead;
             $reverseHead = $head;
-            $head = $nextHead;
+            $head = $x;
         }
         return $reverseHead;
     }
 }
-// https://leetcode.cn/submissions/detail/382717214/
+// https://leetcode.cn/submissions/detail/408331690/
 ```
 
 ## 235. 二叉搜索树的最近公共祖先
