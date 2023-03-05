@@ -7503,36 +7503,34 @@ class Solution {
 ```java
 class Solution {
     public int findMinArrowShots(int[][] points) {
-        return maxNonOverlappingIntervals(points).size();
+        return maxNonOverlappingIntervals(points);
     }
 
-    private List<int[]> maxNonOverlappingIntervals(int[][] intervals) {
-        Arrays.sort(intervals, new Comparator<int[]>() {
-            public int compare(int[] a, int[] b) {
-                if (a[1] > b[1]) {
-                    return 1;
-                } else if (a[1] < b[1]) {
-                    return -1;
-                } else {
-                    return 0;
-                }
+    private int maxNonOverlappingIntervals(int[][] intervals) {
+        Arrays.sort(intervals, (a, b) -> {
+            if (a[1] > b[1]) {
+                return 1;
             }
+            if (a[1] < b[1]) {
+                return -1;
+            }
+            return 0;
         });
-        List<int[]> list = new LinkedList();
-        list.add(intervals[0]);
-        int minEnd = intervals[0][1];
+        int lastEnd = intervals[0][1];
+        int count = 1;
         for (int i = 1; i < intervals.length; ++i) {
             int start = intervals[i][0];
             int end = intervals[i][1];
-            if (start > minEnd) {
-                list.add(intervals[i]);
-                minEnd = end;
+            if (start <= lastEnd) {
+                continue;
             }
+            ++count;
+            lastEnd = end;
         }
-        return list;
+        return count;
     }
 }
-// https://leetcode.cn/submissions/detail/364702555/
+// https://leetcode.cn/submissions/detail/409172016/
 ```
 
 ## 460. LFU 缓存
