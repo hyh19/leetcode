@@ -5343,12 +5343,14 @@ const reversePairs = function (nums) {
 <https://leetcode.cn/problems/target-sum/>
 
 ```js
+const memo = new Map();
+
 /**
  * @param {number[]} nums
  * @param {number} target
  * @return {number}
  */
- const findTargetSumWays = function (nums, target) {
+const findTargetSumWays = function (nums, target) {
     let sum = 0;
     for (const x of nums) {
         sum += x;
@@ -5356,11 +5358,12 @@ const reversePairs = function (nums) {
     if (Math.abs(target) > sum) {
         return 0;
     }
-    return findTargetSumWaysSub(nums, nums.length - 1, target, new Map());
+    memo.clear();
+    return findTargetSumWaysMemo(nums, nums.length - 1, target);
 };
 
 // 返回子数组 nums[0..i] 中目标和为 target 的不同表达式的数目
-const findTargetSumWaysSub = function (nums, i, target, memo) {
+const findTargetSumWaysMemo = function (nums, i, target) {
     if (i < 0) {
         return target === 0 ? 1 : 0;
     }
@@ -5369,15 +5372,15 @@ const findTargetSumWaysSub = function (nums, i, target, memo) {
         const x = nums[i];
         // x 前添加 + 号
         // sum(nums[0..i-1]) = target - x
-        const sp1 = findTargetSumWaysSub(nums, i - 1, target - x, memo);
+        const sp1 = findTargetSumWaysMemo(nums, i - 1, target - x);
         // x 前添加 - 号
         // sum(nums[0..i-1]) = target + x
-        const sp2 = findTargetSumWaysSub(nums, i - 1, target + x, memo);
+        const sp2 = findTargetSumWaysMemo(nums, i - 1, target + x);
         memo.set(key, sp1 + sp2);
     }
     return memo.get(key);
 };
-// https://leetcode.cn/submissions/detail/381221286/
+// https://leetcode.cn/submissions/detail/409166446/
 ```
 
 ## 496. 下一个更大元素 I
