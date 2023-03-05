@@ -4219,20 +4219,20 @@ class Solution {
   List<int> nextGreaterElements(List<int> nums) {
     final n = nums.length;
     final ans = List<int>.filled(n, -1);
-    final Queue<int> stack = DoubleLinkedQueue();
+    final Queue<int> minMonoStack = DoubleLinkedQueue();
     for (var i = 2 * n - 1; i >= 0; --i) {
       final k = i % n;
       final x = nums[k];
-      while (stack.isNotEmpty && stack.last <= x) {
-        stack.removeLast();
+      while (minMonoStack.isNotEmpty && minMonoStack.last <= x) {
+        minMonoStack.removeLast();
       }
-      ans[k] = stack.isEmpty ? -1 : stack.last;
-      stack.addLast(x);
+      ans[k] = minMonoStack.isEmpty ? -1 : minMonoStack.last;
+      minMonoStack.addLast(x);
     }
     return ans;
   }
 }
-// https://leetcode.cn/submissions/detail/376029930/
+// https://leetcode.cn/submissions/detail/409463241/
 ```
 
 ## 509. 斐波那契数
