@@ -6719,14 +6719,19 @@ struct ListNode *reverseList(struct ListNode *head) {
 }
 
 struct ListNode *addTwoNumbers(struct ListNode *l1, struct ListNode *l2) {
-    l1 = reverseList(l1), l2 = reverseList(l2);
-    struct ListNode *dummyHead = malloc(sizeof(struct ListNode));
+    struct ListNode *dummyHead, *head, *ptr, *x;
+    int carry = 0, sum;
+
+    l1 = reverseList(l1);
+    l2 = reverseList(l2);
+
+    dummyHead = malloc(sizeof(struct ListNode));
     dummyHead->val = -1;
     dummyHead->next = NULL;
-    struct ListNode *ptr = dummyHead;
-    int carry = 0;
+    ptr = dummyHead;
+
     while (l1 != NULL || l2 != NULL || carry > 0) {
-        int sum = carry;
+        sum = carry;
         if (l1 != NULL) {
             sum += l1->val;
             l1 = l1->next;
@@ -6735,17 +6740,18 @@ struct ListNode *addTwoNumbers(struct ListNode *l1, struct ListNode *l2) {
             sum += l2->val;
             l2 = l2->next;
         }
-        struct ListNode *x = malloc(sizeof(struct ListNode));
-        x->val = sum % 10, x->next = NULL;
+        x = malloc(sizeof(struct ListNode));
+        x->val = sum % 10;
+        x->next = NULL;
         ptr->next = x;
         ptr = ptr->next;
         carry = sum / 10;
     }
-    struct ListNode *head = dummyHead->next;
+    head = dummyHead->next;
     free(dummyHead);
     return reverseList(head);
 }
-// https://leetcode.cn/submissions/detail/391145715/
+// https://leetcode.cn/submissions/detail/410963652/
 ```
 
 ## 450. 删除二叉搜索树中的节点
