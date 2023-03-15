@@ -8240,18 +8240,18 @@ int maxProfit(int *prices, int pricesSize, int fee) {
 int *dailyTemperatures(const int *temperatures, int temperaturesSize, int *returnSize) {
     *returnSize = temperaturesSize;
     int *ans = malloc(sizeof(int[temperaturesSize]));
-    int stack[temperaturesSize];
+    int minMonoStack[temperaturesSize];
     int top = 0;
     for (int i = temperaturesSize - 1; i >= 0; --i) {
-        while (top > 0 && temperatures[stack[top - 1]] <= temperatures[i]) {
+        while (top > 0 && temperatures[minMonoStack[top - 1]] <= temperatures[i]) {
             --top;
         }
-        ans[i] = top == 0 ? 0 : (stack[top - 1] - i);
-        stack[top++] = i;
+        ans[i] = (top == 0 ? 0 : minMonoStack[top - 1] - i);
+        minMonoStack[top++] = i;
     }
     return ans;
 }
-// https://leetcode.cn/submissions/detail/391282252/
+// https://leetcode.cn/submissions/detail/413776355/
 ```
 
 ## 743. 网络延迟时间
