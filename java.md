@@ -9496,7 +9496,7 @@ class Solution {
         if (n % groupSize != 0) {
             return false;
         }
-        PriorityQueue<Integer> minPQ = new PriorityQueue(n);
+        PriorityQueue<Integer> minPQ = new PriorityQueue<>(n);
         for (int card : hand) {
             minPQ.offer(card);
         }
@@ -9514,7 +9514,7 @@ class Solution {
         return true;
     }
 }
-// https://leetcode.cn/submissions/detail/365855710/
+// https://leetcode.cn/submissions/detail/414920852/
 ```
 
 ```java
@@ -9524,7 +9524,7 @@ class Solution {
             return false;
         }
         Arrays.sort(hand);
-        Map<Integer, Integer> counter = new HashMap();
+        Map<Integer, Integer> counter = new HashMap<>();
         for (int card : hand) {
             counter.put(card, counter.getOrDefault(card, 0) + 1);
         }
@@ -9545,7 +9545,7 @@ class Solution {
         return true;
     }
 }
-// https://leetcode.cn/submissions/detail/365865477/
+// https://leetcode.cn/submissions/detail/414923600/
 ```
 
 ## 875. 爱吃香蕉的珂珂
