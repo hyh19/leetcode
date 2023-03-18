@@ -4805,7 +4805,7 @@ class Solution {
     return _minimumDeleteSum(s1, n1 - 1, s2, n2 - 1);
   }
 
-  // 子串 s1[0..i] s2[0..j] 的最小 ASCII 删除和
+  // 返回子串 s1[0..i] s2[0..j] 的最小 ASCII 删除和
   int _minimumDeleteSum(String s1, int i, String s2, int j) {
     if (i < 0 && j < 0) {
       return 0;
@@ -4858,7 +4858,7 @@ class Solution {
     return sum;
   }
 }
-// https://leetcode.cn/submissions/detail/376600935/
+// https://leetcode.cn/submissions/detail/414937522/
 ```
 
 ## 714. 买卖股票的最佳时机含手续费
