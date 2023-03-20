@@ -9149,9 +9149,9 @@ int minFallingPathSum(int **matrix, int matrixSize, const int *matrixColSize) {
 int **
 intervalIntersection(int **firstList, int firstListSize, int *firstListColSize, int **secondList, int secondListSize,
                      int *secondListColSize, int *returnSize, int **returnColumnSizes) {
-    int n = firstListSize + secondListSize;
-    int **ans = malloc(sizeof(int *) * n);
-    *returnColumnSizes = malloc(sizeof(int *) * n);
+    int capacity = firstListSize + secondListSize;
+    int **ans = malloc(sizeof(int *) * capacity);
+    *returnColumnSizes = malloc(sizeof(int[capacity]));
     *returnSize = 0;
     int i = 0, j = 0;
     while (i < firstListSize && j < secondListSize) {
@@ -9176,7 +9176,7 @@ intervalIntersection(int **firstList, int firstListSize, int *firstListColSize, 
     }
     return ans;
 }
-// https://leetcode.cn/submissions/detail/391303654/
+// https://leetcode.cn/submissions/detail/415731989/
 ```
 
 ## 990. 等式方程的可满足性
