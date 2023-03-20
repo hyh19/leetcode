@@ -7112,7 +7112,7 @@ class Solution {
         return ans;
     }
 
-    // 从 matrix[0][0..n-1] 到 matrix[row][col] 的最小下降路径和
+    // 返回从 matrix[0][0..n-1] 到 matrix[row][col] 的最小下降路径和
     private func minFallingPathSum(_ matrix: [[Int]], _ row: Int, _ col: Int) -> Int {
         if (col < 0 || col >= matrix[0].count) {
             return Int.max;
@@ -7129,7 +7129,7 @@ class Solution {
         return memo[row][col]!;
     }
 }
-// https://leetcode.cn/submissions/detail/387522059/
+// https://leetcode.cn/submissions/detail/415736274/
 ```
 
 ## 986. 区间列表的交集
