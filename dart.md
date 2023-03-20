@@ -5151,10 +5151,9 @@ class Solution {
   List<int> sortArrayByParity(List<int> nums) {
     final n = nums.length;
     // nums[0..i]   偶数区间
-    // nums(i..j)   遍历区间
+    // nums(i..j)   扫描区间
     // nums[j..n-1] 奇数区间
-    var i = -1;
-    var j = n;
+    var i = -1, j = n;
     while (true) {
       while (nums[++i] % 2 == 0) {
         if (i == n - 1) {
@@ -5180,7 +5179,7 @@ class Solution {
     nums[j] = temp;
   }
 }
-// https://leetcode.cn/submissions/detail/377968096/
+// https://leetcode.cn/submissions/detail/415738831/
 ```
 
 ## 912. 排序数组
