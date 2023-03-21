@@ -10260,19 +10260,19 @@ class Solution {
         int m = grid.length;
         int n = grid[0].length;
         // 淹没与左右边界的陆地相连的岛屿
-        for (int i = 0; i < m; ++i) {
-            floodFill(grid, i, 0);
-            floodFill(grid, i, n - 1);
+        for (int row = 0; row < m; ++row) {
+            floodFill(grid, row, 0);
+            floodFill(grid, row, n - 1);
         }
         // 淹没与上下边界的陆地相连的岛屿
-        for (int j = 0; j < n; ++j) {
-            floodFill(grid, 0, j);
-            floodFill(grid, m - 1, j);
+        for (int col = 0; col < n; ++col) {
+            floodFill(grid, 0, col);
+            floodFill(grid, m - 1, col);
         }
         int count = 0;
-        for (int i = 0; i < m; ++i) {
-            for (int j = 0; j < n; ++j) {
-                if (grid[i][j] == LAND) {
+        for (int row = 0; row < m; ++row) {
+            for (int col = 0; col < n; ++col) {
+                if (grid[row][col] == LAND) {
                     ++count;
                 }
             }
@@ -10280,18 +10280,18 @@ class Solution {
         return count;
     }
 
-    private void floodFill(int[][] grid, int i, int j) {
-        if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length || grid[i][j] == WATER) {
+    private void floodFill(int[][] grid, int row, int col) {
+        if (row < 0 || row >= grid.length || col < 0 || col >= grid[0].length || grid[row][col] == WATER) {
             return;
         }
-        grid[i][j] = WATER;
-        floodFill(grid, i, j + 1);
-        floodFill(grid, i, j - 1);
-        floodFill(grid, i + 1, j);
-        floodFill(grid, i - 1, j);
+        grid[row][col] = WATER;
+        floodFill(grid, row, col + 1);
+        floodFill(grid, row, col - 1);
+        floodFill(grid, row + 1, col);
+        floodFill(grid, row - 1, col);
     }
 }
-// https://leetcode.cn/submissions/detail/362786604/
+// https://leetcode.cn/submissions/detail/416184747/
 ```
 
 ## 1024. 视频拼接
