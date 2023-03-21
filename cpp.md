@@ -9900,7 +9900,7 @@ public:
 ```cpp
 class Solution {
 public:
-    int shipWithinDays(vector<int> &weights, int days) {
+    int shipWithinDays(const vector<int> &weights, int days) {
         int lo = 0, hi = 0;
         for (const auto &w: weights) {
             lo = max(lo, w);
@@ -9934,7 +9934,7 @@ private:
         return minDays <= days;
     }
 };
-// https://leetcode.cn/submissions/detail/391455411/
+// https://leetcode.cn/submissions/detail/416187282/
 ```
 
 ## 1020. 飞地的数量
