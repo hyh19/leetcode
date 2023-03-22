@@ -5366,35 +5366,25 @@ class Solution:
 <https://leetcode.cn/problems/video-stitching/>
 
 ```py
-# 测试用例
-# [[0,1],[6,8],[0,2],[5,6],[0,4],[0,3],[6,7],[1,3],[4,7],[1,4],[2,5],[2,6],[3,4],[4,5],[5,7],[6,9]]
-# 9
-# 排序后
-# [[0,4],[0,3],[0,2],[0,1],[1,4],[1,3],[2,6],[2,5],[3,4],[4,7],[4,5],[5,7],[5,6],[6,9],[6,8],[6,7]]
-# 删除被覆盖区间后 [0,4],[2,6],[4,7],[6,9]
-# 虽然 [2,6],[4,7] 都与 [0,4] 相交，但是只取 end 最大的区间 [4,7]
-# 正确答案 [0,4],[4,7],[6,9]
-# 相似题目 1288. 删除被覆盖区间 https://leetcode.cn/problems/remove-covered-intervals/
 class Solution:
     def videoStitching(self, clips: List[List[int]], time: int) -> int:
         clips.sort(key=lambda clip: (clip[0], -clip[1]))
         count = 0
-        maxEnd = 0
-        i = 0
-        n = len(clips)
-        # 当 clips[i] 与 [0, maxEnd] 重叠（相交或被覆盖）时
-        while i < n and clips[i][0] <= maxEnd:
-            # 记录与 [0, maxEnd] 重叠的所有区间中最大的 end
-            nextEnd = 0
-            while i < n and clips[i][0] <= maxEnd:
-                nextEnd = max(nextEnd, clips[i][1])
+        cover_end = 0
+        i, n = 0, len(clips)
+        # 当 clips[i] 与 [0, cover_end] 重叠（相交或被覆盖）时
+        while i < n and clips[i][0] <= cover_end:
+            # 记录与 [0, cover_end] 重叠的所有区间中最大的 end
+            max_end = 0
+            while i < n and clips[i][0] <= cover_end:
+                max_end = max(max_end, clips[i][1])
                 i += 1
             count += 1
-            maxEnd = nextEnd
-            if maxEnd >= time:
+            cover_end = max_end
+            if cover_end >= time:
                 return count
         return -1
-# https://leetcode.cn/submissions/detail/379139601/
+# https://leetcode.cn/submissions/detail/416600787/
 ```
 
 ## 1143. 最长公共子序列
