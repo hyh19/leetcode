@@ -11368,7 +11368,7 @@ class Solution {
 class Solution {
     public int kthToLast(ListNode head, int k) {
         ListNode slow = head, fast = head;
-        for (int i = 1; i <= k; ++i) {
+        for (int i = 0; i < k; ++i) {
             fast = fast.next;
         }
         while (fast != null) {
@@ -11378,5 +11378,5 @@ class Solution {
         return slow.val;
     }
 }
-// https://leetcode.cn/submissions/detail/369387091/
+// https://leetcode.cn/submissions/detail/418807180/
 ```
