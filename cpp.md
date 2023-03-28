@@ -10316,9 +10316,9 @@ public:
 class Solution {
 public:
     int countSubIslands(vector<vector<int>> &grid1, vector<vector<int>> &grid2) {
-        int m = grid2.size(), n = grid2[0].size();
-        for (int row = 0; row < m; ++row) {
-            for (int col = 0; col < n; ++col) {
+        int rowSize = grid2.size(), colSize = grid2[0].size();
+        for (int row = 0; row < rowSize; ++row) {
+            for (int col = 0; col < colSize; ++col) {
                 // 淹没『非子岛屿』
                 if (grid2[row][col] == LAND && grid1[row][col] == WATER) {
                     floodFill(grid2, row, col);
@@ -10326,8 +10326,8 @@ public:
             }
         }
         int count = 0;
-        for (int row = 0; row < m; ++row) {
-            for (int col = 0; col < n; ++col) {
+        for (int row = 0; row < rowSize; ++row) {
+            for (int col = 0; col < colSize; ++col) {
                 if (grid2[row][col] == LAND) {
                     floodFill(grid2, row, col);
                     ++count;
@@ -10352,7 +10352,7 @@ private:
     static const int LAND = 1;
     static const int WATER = 0;
 };
-// https://leetcode.cn/submissions/detail/391548193/
+// https://leetcode.cn/submissions/detail/418812833/
 ```
 
 ## CtCI 02.02. 返回倒数第 K 个节点
