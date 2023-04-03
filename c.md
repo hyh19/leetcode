@@ -9561,7 +9561,7 @@ struct TreeNode *balanceBST(struct TreeNode *root) {
 <https://leetcode.cn/problems/minimum-insertions-to-balance-a-parentheses-string/>
 
 ```c
-int minInsertions(char *s) {
+int minInsertions(const char *s) {
     int insertLeft = 0;  // 已插入左括号的数量
     int insertRight = 0; // 已插入右括号的数量
     int needRight = 0;   // 待插入右括号的数量
@@ -9591,7 +9591,7 @@ int minInsertions(char *s) {
     }
     return insertLeft + insertRight + needRight;
 }
-// https://leetcode.cn/submissions/detail/391412447/
+// https://leetcode.cn/submissions/detail/420915041/
 ```
 
 ## 1584. 连接所有点的最小费用
