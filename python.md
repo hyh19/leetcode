@@ -431,7 +431,7 @@ class Solution:
         nums.sort()
         return self.kSum(3, nums, 0, len(nums) - 1, 0)
 
-    # 升序子数组 nums[lo..hi] 所有和为 target 且不重复的 k 元组
+    # 返回升序子数组 nums[lo..hi] 中所有和为 target 且不重复的 k 元组
     def kSum(self, k: int, nums: List[int], lo: int, hi: int, target: int) -> List[List[int]]:
         if hi - lo + 1 < k:
             return []
@@ -449,12 +449,11 @@ class Solution:
                 i += 1
         return res
 
-    # 升序子数组 nums[lo..hi] 所有和为 target 且不重复的 2 元组
+    # 返回升序子数组 nums[lo..hi] 中所有和为 target 且不重复的 2 元组
     def twoSum(self, nums: List[int], lo: int, hi: int, target: int) -> List[List[int]]:
         res = []
         while lo < hi:
-            first = nums[lo]
-            second = nums[hi]
+            first, second = nums[lo], nums[hi]
             sum = first + second
             if sum < target:
                 while lo < hi and nums[lo] == first:
@@ -469,7 +468,7 @@ class Solution:
                 while lo < hi and nums[hi] == second:
                     hi -= 1
         return res
-# https://leetcode.cn/submissions/detail/378734279/
+# https://leetcode.cn/submissions/detail/421268011/
 ```
 
 ## 18. 四数之和
