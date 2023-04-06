@@ -600,13 +600,14 @@ const twoSum = function (nums, lo, hi, target) {
  * @param {number} target
  * @return {number[][]}
  */
- const fourSum = function (nums, target) {
+const fourSum = function (nums, target) {
     nums.sort((a, b) => a - b);
     return kSum(4, nums, 0, nums.length - 1, target);
 };
 
 /**
  * 返回升序子数组 nums[lo..hi] 中所有和为 target 且不重复的 k 元组
+ *
  * @param {number} k
  * @param {number[]} nums
  * @param {number} lo
@@ -626,9 +627,9 @@ const kSum = function (k, nums, lo, hi, target) {
     while (i <= hi) {
         const curNum = nums[i];
         const sp = kSum(k - 1, nums, i + 1, hi, target - curNum);
-        for (const a of sp) {
-            a.push(curNum);
-            res.push(a);
+        for (const x of sp) {
+            x.push(curNum);
+            res.push(x);
         }
         while (++i <= hi && nums[i] === curNum) {
         }
@@ -638,6 +639,7 @@ const kSum = function (k, nums, lo, hi, target) {
 
 /**
  * 返回升序子数组 nums[lo..hi] 中所有和为 target 且不重复的二元组
+ *
  * @param {number[]} nums
  * @param {number} lo
  * @param {number} hi
@@ -665,7 +667,7 @@ const twoSum = function (nums, lo, hi, target) {
     }
     return res;
 };
-// https://leetcode.cn/submissions/detail/380878482/
+// https://leetcode.cn/submissions/detail/421956687/
 ```
 
 ## 19. 删除链表的倒数第 N 个结点
