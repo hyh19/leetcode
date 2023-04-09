@@ -1046,13 +1046,13 @@ char **generateParenthesis(int n, int *returnSize) {
     ansCapacity = 8;
     ans = malloc(sizeof(char *) * ansCapacity);
     ansSize = pathSize = 0;
-    left = 0, right = 0;
+    left = right = 0;
     backtrack(n);
     *returnSize = ansSize;
     free(path);
     return ans;
 }
-// https://leetcode.cn/submissions/detail/391307976/
+// https://leetcode.cn/submissions/detail/422569923/
 ```
 
 ## 23. 合并 K 个升序链表
