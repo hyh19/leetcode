@@ -839,6 +839,49 @@ private:
 class Solution {
 public:
     ListNode *mergeKLists(vector<ListNode *> &lists) {
+        return mergeKLists(lists, 0, lists.size() - 1);
+    }
+
+private:
+    ListNode *mergeKLists(vector<ListNode *> &lists, int lo, int hi) {
+        if (lo > hi) {
+            return nullptr;
+        }
+        if (lo == hi) {
+            return lists[lo];
+        }
+        int mid = lo + (hi - lo) / 2;
+        ListNode *left = mergeKLists(lists, lo, mid);
+        ListNode *right = mergeKLists(lists, mid + 1, hi);
+        return mergeTwoLists(left, right);
+    }
+
+    ListNode *mergeTwoLists(ListNode *list1, ListNode *list2) {
+        auto *dummyHead = new ListNode();
+        ListNode *ptr = dummyHead;
+        while (list1 != nullptr && list2 != nullptr) {
+            if (list1->val < list2->val) {
+                ptr->next = list1;
+                list1 = list1->next;
+            } else {
+                ptr->next = list2;
+                list2 = list2->next;
+            }
+            ptr = ptr->next;
+        }
+        ptr->next = (list1 == nullptr ? list2 : list1);
+        ListNode *head = dummyHead->next;
+        delete dummyHead;
+        return head;
+    }
+};
+// https://leetcode.cn/submissions/detail/391583443/
+```
+
+```cpp
+class Solution {
+public:
+    ListNode *mergeKLists(vector<ListNode *> &lists) {
         ListNode *head = nullptr;
         for (auto &l: lists) {
             head = mergeTwoLists(head, l);
@@ -867,40 +910,6 @@ private:
     }
 };
 // https://leetcode.cn/submissions/detail/391583801/
-```
-
-```cpp
-class Solution {
-public:
-    ListNode *mergeKLists(vector<ListNode *> &lists) {
-        ListNode *ans = nullptr;
-        for (auto &l : lists) {
-            ans = mergeTwoLists(ans, l);
-        }
-        return ans;
-    }
-
-private:
-    ListNode *mergeTwoLists(ListNode *list1, ListNode *list2) {
-        ListNode *dummyHead = new ListNode();
-        ListNode *ptr = dummyHead;
-        while (list1 != nullptr && list2 != nullptr) {
-            if (list1->val < list2->val) {
-                ptr->next = list1;
-                list1 = list1->next;
-            } else {
-                ptr->next = list2;
-                list2 = list2->next;
-            }
-            ptr = ptr->next;
-        }
-        ptr->next = (list1 == nullptr ? list2 : list1);
-        ListNode *head = dummyHead->next;
-        delete dummyHead;
-        return head;
-    }
-};
-// https://leetcode.cn/submissions/detail/361147035/
 ```
 
 ## 24. 两两交换链表中的节点
