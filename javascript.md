@@ -1615,8 +1615,15 @@ const totalNQueens = function (n) {
  * @param {number[][]} grid
  * @return {number}
  */
-const minPathSum = function (grid, row = grid.length - 1, col = grid[0].length - 1,
-                             memo = Array.from(new Array(grid.length), (_) => new Array(grid[0].length))) {
+const minPathSum = function (grid) {
+    const m = grid.length;
+    const n = grid[0].length;
+    const memo = Array.from(new Array(m), (_) => new Array(n));
+    return minPathSumSP(grid, m - 1, n - 1, memo);
+};
+
+// 返回从 grid[0][0] 到 grid[row][col] 的最小路径和
+const minPathSumSP = function (grid, row, col, memo) {
     if (row < 0 || col < 0) {
         return Number.POSITIVE_INFINITY;
     }
@@ -1624,13 +1631,13 @@ const minPathSum = function (grid, row = grid.length - 1, col = grid[0].length -
         return grid[row][col];
     }
     if (memo[row][col] === undefined) {
-        const sp1 = minPathSum(grid, row - 1, col, memo);
-        const sp2 = minPathSum(grid, row, col - 1, memo);
+        const sp1 = minPathSumSP(grid, row - 1, col, memo);
+        const sp2 = minPathSumSP(grid, row, col - 1, memo);
         memo[row][col] = Math.min(sp1, sp2) + grid[row][col];
     }
     return memo[row][col];
-}
-// https://leetcode.cn/submissions/detail/381308877/
+};
+// https://leetcode.cn/submissions/detail/427293322/
 ```
 
 ## 69. x 的平方根
