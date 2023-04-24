@@ -2055,7 +2055,7 @@ class Solution
         $lo = 1;
         $hi = $x;
         while ($lo <= $hi) {
-            $mid = $lo + floor(($hi - $lo) / 2);
+            $mid = $lo + intval(($hi - $lo) / 2);
             if ($mid <= $x / $mid && ($mid + 1) > $x / ($mid + 1)) {
                 return $mid;
             }
@@ -2068,7 +2068,7 @@ class Solution
         return -1;
     }
 }
-// https://leetcode.cn/submissions/detail/382831539/
+// https://leetcode.cn/submissions/detail/427612380/
 ```
 
 ## 70. 爬楼梯
