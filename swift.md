@@ -1611,7 +1611,7 @@ class Solution {
         return minDistance([Character](word1), n1 - 1, [Character](word2), n2 - 1);
     }
 
-    // 子串 s1[0..i] s2[0..j] 的最小编辑距离
+    // 返回子串 s1[0..i] s2[0..j] 的最小编辑距离
     private func minDistance(_ s1: [Character], _ i: Int, _ s2: [Character], _ j: Int) -> Int {
         // 插入 s2[0..j] 到 s1
         // s1""
@@ -1649,7 +1649,7 @@ class Solution {
         return memo[i][j]!;
     }
 }
-// https://leetcode.cn/submissions/detail/387510507/
+// https://leetcode.cn/submissions/detail/428200809/
 ```
 
 ## 75. 颜色分类
