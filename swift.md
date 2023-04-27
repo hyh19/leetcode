@@ -1290,7 +1290,7 @@ class Solution {
 
     private func backtrack(_ nums: [Int]) {
         let n = nums.count;
-        if (path.count == n) {
+        if path.count == n {
             ans.append(path);
             return;
         }
@@ -1298,7 +1298,7 @@ class Solution {
         // edge = 取数组 nums 的索引为值
         for edge in 0...n - 1 {
             let x = nums[edge];
-            if (!marked[edge] && x != prev) {
+            if !marked[edge] && x != prev {
                 prev = x;
                 path.append(x);
                 marked[edge] = true;
@@ -1309,7 +1309,7 @@ class Solution {
         }
     }
 }
-// https://leetcode.cn/submissions/detail/387749179/
+// https://leetcode.cn/submissions/detail/428455251/
 ```
 
 ## 51. N 皇后
