@@ -945,7 +945,7 @@ const reverseList = function (head) {
  * @param {number[]} nums
  * @return {number}
  */
- var removeDuplicates = function (nums) {
+const removeDuplicates = function (nums) {
     const n = nums.length;
     // [0..i-1] 不重复元素区间
     // [i..j-1] 重复元素区间
@@ -961,7 +961,7 @@ const reverseList = function (head) {
     }
     return i;
 };
-// https://leetcode.cn/submissions/detail/380801778/
+// https://leetcode.cn/submissions/detail/429127967/
 ```
 
 ## 27. 移除元素
