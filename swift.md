@@ -900,6 +900,29 @@ class Solution {
 <https://leetcode.cn/problems/implement-strstr/>
 
 ```swift
+//
+// Created by HUANGYUHUI on 2023/2/4.
+//
+
+import Foundation
+
+public class ListNode {
+    public var val: Int
+    public var next: ListNode?
+
+    public init() {
+        self.val = 0; self.next = nil;
+    }
+
+    public init(_ val: Int) {
+        self.val = val; self.next = nil;
+    }
+
+    public init(_ val: Int, _ next: ListNode?) {
+        self.val = val; self.next = next;
+    }
+}
+
 struct KMP {
     private let m: Int;
     private var dfa: [[Int]];
@@ -910,7 +933,7 @@ struct KMP {
         dfa = Array(repeating: Array(repeating: 0, count: m), count: 256);
         dfa[Int(patArray[0].asciiValue!)][0] = 1;
         var x = 0, j = 1;
-        while (j < m) {
+        while j < m {
             for c in 0...255 {
                 dfa[c][j] = dfa[c][x];
             }
@@ -924,11 +947,11 @@ struct KMP {
         let txtArray = [Character](txt);
         let n = txtArray.count;
         var i = 0, j = 0;
-        while (i < n && j < m) {
+        while i < n && j < m {
             j = dfa[Int(txtArray[i].asciiValue!)][j];
             i += 1;
         }
-        if (j == m) {
+        if j == m {
             return i - m;
         }
         return -1;
@@ -941,7 +964,7 @@ class Solution {
         return kmp.search(haystack);
     }
 }
-// https://leetcode.cn/submissions/detail/386214692/
+// https://leetcode.cn/submissions/detail/429013885/
 ```
 
 ```swift
