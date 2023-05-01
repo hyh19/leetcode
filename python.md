@@ -688,7 +688,7 @@ class Solution:
 ```py
 class Solution:
     def reverseKGroup(self, head: Optional[ListNode], k: int) -> Optional[ListNode]:
-        if head is None or head.next is None:
+        if (head is None) or (head.next is None):
             return head
         ptr = head
         for i in range(k - 1):
@@ -709,7 +709,7 @@ class Solution:
             reverseHead = head
             head = x
         return reverseHead
-# https://leetcode.cn/submissions/detail/378895898/
+# https://leetcode.cn/submissions/detail/429130122/
 ```
 
 ## 26. 删除有序数组中的重复项
