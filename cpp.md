@@ -1332,7 +1332,7 @@ private:
 ```cpp
 class Solution {
 public:
-    vector<int> searchRange(vector<int> &nums, int target) {
+    vector<int> searchRange(const vector<int> &nums, int target) {
         return {binarySearch(nums, target, true), binarySearch(nums, target, false)};
     }
 
@@ -1358,7 +1358,7 @@ private:
         return res;
     }
 };
-// https://leetcode.cn/submissions/detail/361626206/
+// https://leetcode.cn/submissions/detail/429780068/
 ```
 
 ## 37. 解数独
