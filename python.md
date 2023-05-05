@@ -939,36 +939,32 @@ class Solution:
 ```py
 class Solution:
     def __init__(self):
-        self.nums = None
-        self.target = None
         self.pathSum = 0
         self.path = []  # 取 nums[edge] 为元素
         self.ans = []
 
     def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
-        self.nums = candidates
-        self.target = target
-        self.backtrack(-1)
+        self.backtrack(candidates, target, -1)
         return self.ans
 
     # edge = 取数组 nums 的索引为值
-    def backtrack(self, edge: int) -> None:
-        if self.pathSum == self.target:
+    def backtrack(self, nums: List[int], target: int, edge: int) -> None:
+        if self.pathSum == target:
             self.ans.append(self.path.copy())
             return
         if edge == -1:
             edge = 0
         # 避免重复，从 edge 开始选择
         # 例如 [1->2] 和 [2->1] 是重复的
-        for e in range(edge, len(self.nums)):
-            x = self.nums[e]
-            if self.pathSum + x <= self.target:
+        for e in range(edge, len(nums)):
+            x = nums[e]
+            if self.pathSum + x <= target:
                 self.pathSum += x
                 self.path.append(x)
-                self.backtrack(e)
+                self.backtrack(nums, target, e)
                 self.pathSum -= x
                 self.path.pop()
-# https://leetcode.cn/submissions/detail/379640591/
+# https://leetcode.cn/submissions/detail/430080039/
 ```
 
 ## 40. 组合总和 II
