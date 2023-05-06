@@ -1273,43 +1273,50 @@ const isValid = function (board, row, col, ch) {
 <https://leetcode.cn/problems/combination-sum-ii/>
 
 ```js
+let pathSum = 0;
+let path = []; // 取 nums[edge] 为元素
+let ans = [];
+
 /**
  * @param {number[]} candidates
  * @param {number} target
  * @return {number[][]}
  */
- const combinationSum2 = function (candidates, target) {
-    let pathSum = 0;
-    const path = []; // 取 nums[edge] 为元素
-    const ans = [];
-
-    // edge = 取数组 nums 的索引为值
-    const backtrack = function (edge) {
-        if (pathSum === target) {
-            ans.push([...path]);
-            return;
-        }
-        let prev = Number.NEGATIVE_INFINITY;
-        // 避免重复，从 edge + 1 开始选择
-        // 例如 [1->2] 和 [2->1] 是重复的
-        while (++edge < candidates.length) {
-            const x = candidates[edge];
-            if (x !== prev && pathSum + x <= target) {
-                prev = x;
-                pathSum += x;
-                path.push(x);
-                backtrack(edge);
-                pathSum -= x;
-                path.pop();
-            }
-        }
-    }
-
+const combinationSum2 = function (candidates, target) {
+    pathSum = 0;
+    path = [];
+    ans = [];
     candidates.sort((a, b) => a - b);
-    backtrack(-1);
+    backtrack(candidates, target, -1);
     return ans;
 };
-// https://leetcode.cn/submissions/detail/381235954/
+
+/**
+ * @param {number[]} candidates
+ * @param {number} target
+ * @param {number} edge 取数组 nums 的索引为值
+ */
+const backtrack = function (candidates, target, edge) {
+    if (pathSum === target) {
+        ans.push([...path]);
+        return;
+    }
+    let prev = Number.NEGATIVE_INFINITY;
+    // 避免重复，从 edge + 1 开始选择
+    // 例如 [1->2] 和 [2->1] 是重复的
+    while (++edge < candidates.length) {
+        const x = candidates[edge];
+        if (pathSum + x <= target && x !== prev) {
+            prev = x;
+            pathSum += x;
+            path.push(x);
+            backtrack(candidates, target, edge);
+            pathSum -= x;
+            path.pop();
+        }
+    }
+};
+// https://leetcode.cn/submissions/detail/430357992/
 ```
 
 ## 42. 接雨水
