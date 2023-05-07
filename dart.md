@@ -1150,20 +1150,18 @@ class Solution {
 
 ```dart
 class Solution {
-  late final List<int> _nums;
   late final List<bool> _marked;
   late final List<int> _path = []; // 取 nums[edge] 为元素
   late final List<List<int>> _ans = [];
 
   List<List<int>> permute(List<int> nums) {
-    _nums = nums;
-    _marked = List<bool>.filled(_nums.length, false);
-    _backtrack();
+    _marked = List<bool>.filled(nums.length, false);
+    _backtrack(nums);
     return _ans;
   }
 
-  void _backtrack() {
-    final n = _nums.length;
+  void _backtrack(List<int> nums) {
+    final n = nums.length;
     if (_path.length == n) {
       _ans.add(List<int>.of(_path));
       return;
@@ -1171,16 +1169,16 @@ class Solution {
     // edge = 取数组 nums 的索引为值
     for (var edge = 0; edge < n; ++edge) {
       if (!_marked[edge]) {
-        _path.add(_nums[edge]);
+        _path.add(nums[edge]);
         _marked[edge] = true;
-        _backtrack();
+        _backtrack(nums);
         _path.removeLast();
         _marked[edge] = false;
       }
     }
   }
 }
-// https://leetcode.cn/submissions/detail/376921744/
+// https://leetcode.cn/submissions/detail/430612473/
 ```
 
 ## 47. 全排列 II
