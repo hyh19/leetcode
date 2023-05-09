@@ -1757,7 +1757,7 @@ void backtrack(char **board, int n, int row) {
         }
         if (ansSize == ansCapacity) {
             ansCapacity *= 2;
-            ans = realloc(ans, sizeof(char *) * ansCapacity);
+            ans = realloc(ans, sizeof(char **) * ansCapacity);
             ansColSize = realloc(ansColSize, sizeof(int[ansCapacity]));
         }
         ans[ansSize] = sol;
@@ -1798,7 +1798,7 @@ char ***solveNQueens(int n, int *returnSize, int **returnColumnSizes) {
     free(board);
     return ans;
 }
-// https://leetcode.cn/submissions/detail/391342236/
+// https://leetcode.cn/submissions/detail/431177739/
 ```
 
 ## 52. N 皇后 II
