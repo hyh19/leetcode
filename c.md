@@ -1787,7 +1787,7 @@ char ***solveNQueens(int n, int *returnSize, int **returnColumnSizes) {
     char **board = malloc(sizeof(char *) * n);
     for (int i = 0; i < n; ++i) {
         board[i] = calloc(n + 1, sizeof(char));
-        memset(board[i], '.', sizeof(char[n]));
+        memset(board[i], '.', n);
     }
     backtrack(board, n, -1);
     *returnSize = ansSize;
@@ -1798,7 +1798,7 @@ char ***solveNQueens(int n, int *returnSize, int **returnColumnSizes) {
     free(board);
     return ans;
 }
-// https://leetcode.cn/submissions/detail/431177739/
+// https://leetcode.cn/submissions/detail/432914363/
 ```
 
 ## 52. N 皇后 II
@@ -1852,7 +1852,7 @@ int totalNQueens(int n) {
     char **board = malloc(sizeof(char *) * n);
     for (int i = 0; i < n; ++i) {
         board[i] = calloc(n + 1, sizeof(char));
-        memset(board[i], '.', sizeof(char[n]));
+        memset(board[i], '.', n);
     }
     backtrack(board, n, -1);
     for (int i = 0; i < n; ++i) {
@@ -1861,7 +1861,7 @@ int totalNQueens(int n) {
     free(board);
     return ans;
 }
-// https://leetcode.cn/submissions/detail/390810027/
+// https://leetcode.cn/submissions/detail/432911016/
 ```
 
 ## 53. 最大子数组和
