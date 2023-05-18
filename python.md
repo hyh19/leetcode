@@ -1353,10 +1353,10 @@ class Solution:
         self.memo = {}
 
     def minDistance(self, s1: str, s2: str) -> int:
-        return self._minDistance(s1, len(s1) - 1, s2, len(s2) - 1)
+        return self.dp(s1, len(s1) - 1, s2, len(s2) - 1)
 
-    # 子串 s1[0..i] s2[0..j] 的最小编辑距离
-    def _minDistance(self, s1: str, i: int, s2: str, j: int) -> int:
+    # 返回子串 s1[0..i] s2[0..j] 的最小编辑距离
+    def dp(self, s1: str, i: int, s2: str, j: int) -> int:
         # 插入 s2[0..j] 到 s1
         # s1""
         # s2[0..j]
@@ -1371,33 +1371,33 @@ class Solution:
             if s1[i] == s2[j]:
                 # s1[0..i-1][i]
                 # s2[0..j-1][j]
-                self.memo[(i, j)] = self._minDistance(s1, i - 1, s2, j - 1)
+                self.memo[(i, j)] = self.dp(s1, i - 1, s2, j - 1)
             else:
                 # 替换 s1[i] 为 s2[j]
                 # s1[0..i-1][i]
                 # s2[0..j-1][j]
-                sp1 = self._minDistance(s1, i - 1, s2, j - 1) + 1
+                sp1 = self.dp(s1, i - 1, s2, j - 1) + 1
                 # 插入 s2[j] 到 s1
                 # s1[0..i]
                 # s2[0..j-1][j]
-                sp2 = self._minDistance(s1, i, s2, j - 1) + 1
+                sp2 = self.dp(s1, i, s2, j - 1) + 1
                 # 删除 s1[i]
                 # s1[0..i-1][i]
                 # s2[0..j]
-                sp3 = self._minDistance(s1, i - 1, s2, j) + 1
+                sp3 = self.dp(s1, i - 1, s2, j) + 1
                 self.memo[(i, j)] = min(sp1, sp2, sp3)
         return self.memo[(i, j)]
-# https://leetcode.cn/submissions/detail/379341598/
+# https://leetcode.cn/submissions/detail/433542854/
 ```
 
 ```py
 class Solution:
     def minDistance(self, s1: str, s2: str) -> int:
-        return self._minDistance(s1, len(s1) - 1, s2, len(s2) - 1)
+        return self.dp(s1, len(s1) - 1, s2, len(s2) - 1)
 
-    # 子串 s1[0..i] s2[0..j] 的最小编辑距离
+    # 返回子串 s1[0..i] s2[0..j] 的最小编辑距离
     @cache
-    def _minDistance(self, s1: str, i: int, s2: str, j: int) -> int:
+    def dp(self, s1: str, i: int, s2: str, j: int) -> int:
         # 插入 s2[0..j] 到 s1
         # s1""
         # s2[0..j]
@@ -1411,22 +1411,22 @@ class Solution:
         if s1[i] == s2[j]:
             # s1[0..i-1][i]
             # s2[0..j-1][j]
-            return self._minDistance(s1, i - 1, s2, j - 1)
+            return self.dp(s1, i - 1, s2, j - 1)
         else:
             # 替换 s1[i] 为 s2[j]
             # s1[0..i-1][i]
             # s2[0..j-1][j]
-            sp1 = self._minDistance(s1, i - 1, s2, j - 1) + 1
+            sp1 = self.dp(s1, i - 1, s2, j - 1) + 1
             # 插入 s2[j] 到 s1
             # s1[0..i]
             # s2[0..j-1][j]
-            sp2 = self._minDistance(s1, i, s2, j - 1) + 1
+            sp2 = self.dp(s1, i, s2, j - 1) + 1
             # 删除 s1[i]
             # s1[0..i-1][i]
             # s2[0..j]
-            sp3 = self._minDistance(s1, i - 1, s2, j) + 1
+            sp3 = self.dp(s1, i - 1, s2, j) + 1
             return min(sp1, sp2, sp3)
-# https://leetcode.cn/submissions/detail/379346358/
+# https://leetcode.cn/submissions/detail/433543228/
 ```
 
 ## 75. 颜色分类
