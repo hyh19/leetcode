@@ -1939,8 +1939,8 @@ int **merge(int **intervals, int intervalsSize, int *intervalsColSize, int *retu
 <https://leetcode.cn/problems/minimum-path-sum/>
 
 ```c
-// 从 grid[0][0] 到 grid[row][col] 的最小路径和
-int minPathSumMemo(int **grid, int gridColSize, int row, int col, int *memo) {
+// 返回从 grid[0][0] 到 grid[row][col] 的最小路径和
+int minPathSumMemo(const int **grid, int gridColSize, int row, int col, int *memo) {
     if (row < 0 || col < 0) {
         return INT_MAX;
     }
@@ -1956,16 +1956,16 @@ int minPathSumMemo(int **grid, int gridColSize, int row, int col, int *memo) {
     return *p;
 }
 
-int minPathSum(int **grid, int gridSize, const int *gridColSize) {
+int minPathSum(const int **grid, int gridSize, const int *gridColSize) {
     int memo[gridSize][*gridColSize];
-    for (int i = 0; i < gridSize; ++i) {
-        for (int j = 0; j < *gridColSize; ++j) {
-            memo[i][j] = -1;
+    for (int row = 0; row < gridSize; ++row) {
+        for (int col = 0; col < *gridColSize; ++col) {
+            memo[row][col] = -1;
         }
     }
-    return minPathSumMemo(grid, *gridColSize, gridSize - 1, *gridColSize - 1, memo[0]);
+    return minPathSumMemo(grid, *gridColSize, gridSize - 1, *gridColSize - 1, &memo[0][0]);
 }
-// https://leetcode.cn/submissions/detail/391222469/
+// https://leetcode.cn/submissions/detail/433538545/
 ```
 
 ## 69. x 的平方根
