@@ -2247,10 +2247,10 @@ class Solution
         $left = 0;
         $right = 0;
         while ($right < strlen($s)) {
-            $ch = $s[$right++];
-            if (array_key_exists($ch, $need)) {
-                $win[$ch] = ($win[$ch] ?? 0) + 1;
-                if ($win[$ch] === $need[$ch]) {
+            $add = $s[$right++];
+            if (array_key_exists($add, $need)) {
+                $win[$add] = ($win[$add] ?? 0) + 1;
+                if ($win[$add] === $need[$add]) {
                     ++$valid;
                 }
             }
@@ -2274,7 +2274,7 @@ class Solution
         return $len === PHP_INT_MAX ? "" : substr($s, $start, $len);
     }
 }
-// https://leetcode.cn/submissions/detail/383312320/
+// https://leetcode.cn/submissions/detail/433921286/
 ```
 
 ## 77. 组合
