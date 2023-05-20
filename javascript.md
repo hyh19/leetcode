@@ -1792,11 +1792,9 @@ const sortColors = function (nums) {
 };
 
 const swap = function (nums, i, j) {
-    const x = nums[i];
-    nums[i] = nums[j];
-    nums[j] = x;
+    [nums[i], nums[j]] = [nums[j], nums[i]];
 };
-// https://leetcode.cn/submissions/detail/381880814/
+// https://leetcode.cn/submissions/detail/433919199/
 ```
 
 ## 76. 最小覆盖子串
