@@ -1610,34 +1610,30 @@ class Solution {
 
 ```dart
 class Solution {
-  late final int _n;
-  late final int _k;
   late final List<int> _path = []; // 取 [1..n] 为元素
   late final List<List<int>> _ans = [];
 
   List<List<int>> combine(int n, int k) {
-    _n = n;
-    _k = k;
-    _backtrack(0);
+    _backtrack(n, k, 0);
     return _ans;
   }
 
   // edge = 取 [1..n] 为值
-  void _backtrack(int edge) {
-    if (_path.length == _k) {
+  void _backtrack(int n, int k, int edge) {
+    if (_path.length == k) {
       _ans.add(List<int>.of(_path));
       return;
     }
     // 避免重复，从 edge + 1 开始选择
     // 例如 [1->2] 和 [2->1] 是重复的
-    while (++edge <= _n) {
+    while (++edge <= n) {
       _path.add(edge);
-      _backtrack(edge);
+      _backtrack(n, k, edge);
       _path.removeLast();
     }
   }
 }
-// https://leetcode.cn/submissions/detail/376920083/
+// https://leetcode.cn/submissions/detail/433922780/
 ```
 
 ## 78. 子集
