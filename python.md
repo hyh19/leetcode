@@ -1631,30 +1631,27 @@ class Solution:
 ```py
 class Solution:
     def __init__(self):
-        self.nums = None
         self.path = []  # 取 nums[edge] 为元素
         self.ans = []
 
     def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:
-        nums.sort()
-        self.nums = nums
-        self.backtrack(-1)
+        self.backtrack(sorted(nums), -1)
         return self.ans
 
     # edge = 取数组 nums 的索引为值
-    def backtrack(self, edge: int) -> None:
+    def backtrack(self, nums: List[int], edge: int) -> None:
         self.ans.append(self.path.copy())
         prev = None
         # 避免重复，从 edge + 1 开始选择
         # 例如 [1->2] 和 [2->1] 是重复的
-        for e in range(edge + 1, len(self.nums)):
-            x = self.nums[e]
+        for e in range(edge + 1, len(nums)):
+            x = nums[e]
             if x != prev:
                 prev = x
                 self.path.append(x)
-                self.backtrack(e)
+                self.backtrack(nums, e)
                 self.path.pop()
-# https://leetcode.cn/submissions/detail/379633418/
+# https://leetcode.cn/submissions/detail/434400854/
 ```
 
 ## 92. 反转链表 II
