@@ -2062,7 +2062,7 @@ const partition = function (head, x) {
  * @param {number} right
  * @return {ListNode}
  */
- const reverseBetween = function (head, left, right) {
+const reverseBetween = function (head, left, right) {
     if (left === 1) {
         return reverseList(head, right);
     }
@@ -2075,7 +2075,8 @@ const partition = function (head, x) {
 };
 
 /**
- * 翻转链表的前 n 个节点，返回翻转后的头节点
+ * 翻转链表的前 n 个节点，返回翻转后的头节点。
+ *
  * @param {ListNode} head
  * @param {number} n
  * @return {ListNode}
@@ -2093,7 +2094,7 @@ const reverseList = function (head, n) {
     head.next = ptr;
     return reverseHead;
 };
-// https://leetcode.cn/submissions/detail/380941108/
+// https://leetcode.cn/submissions/detail/434403189/
 ```
 
 ## 94. 二叉树的中序遍历
