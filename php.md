@@ -2665,7 +2665,7 @@ class Solution
     private array $memo = [];
 
     /**
-     * 由 n 个不同数字 x_1 < x_2 < ... < x_n 组成的
+     * 返回由 n 个不同数字 x_1 < x_2 < ... < x_n 组成的
      * 节点值互不相同的二叉搜索树的种数
      *
      * @param int $n
@@ -2689,7 +2689,7 @@ class Solution
         return $this->memo[$n];
     }
 }
-// https://leetcode.cn/submissions/detail/383045370/
+// https://leetcode.cn/submissions/detail/434674852/
 ```
 
 ## 98. 验证二叉搜索树
