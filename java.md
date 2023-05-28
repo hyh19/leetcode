@@ -3348,15 +3348,15 @@ class Solution {
 ```java
 class Solution {
     public List<List<Integer>> levelOrder(TreeNode root) {
-        List<List<Integer>> ans = new LinkedList();
-        Deque<TreeNode> queue = new LinkedList();
+        List<List<Integer>> ans = new LinkedList<>();
+        Deque<TreeNode> queue = new LinkedList<>();
         if (root != null) {
             queue.addLast(root);
         }
         while (!queue.isEmpty()) {
-            List<Integer> level = new LinkedList();
-            int sz = queue.size();
-            for (int i = 0; i < sz; ++i) {
+            List<Integer> level = new LinkedList<>();
+            int n = queue.size();
+            for (int i = 0; i < n; ++i) {
                 TreeNode x = queue.removeFirst();
                 level.add(x.val);
                 TreeNode left = x.left;
@@ -3373,7 +3373,7 @@ class Solution {
         return ans;
     }
 }
-// https://leetcode.cn/submissions/detail/368730913/
+// https://leetcode.cn/submissions/detail/435839522/
 ```
 
 ```java
