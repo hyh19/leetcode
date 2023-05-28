@@ -1820,7 +1820,7 @@ class Solution:
         while len(q) > 0:
             level = []
             n = len(q)
-            for i in range(n):
+            for _ in range(n):
                 x = q.popleft()
                 level.append(x.val)
                 left = x.left
@@ -1831,7 +1831,7 @@ class Solution:
                     q.append(right)
             ans.append(level)
         return ans
-# https://leetcode.cn/submissions/detail/379986876/
+# https://leetcode.cn/submissions/detail/435841848/
 ```
 
 ## 103. 二叉树的锯齿形层序遍历
