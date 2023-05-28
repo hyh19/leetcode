@@ -2286,7 +2286,7 @@ const isValidBST = function (root) {
  * @param {TreeNode} root
  * @return {number[][]}
  */
- const zigzagLevelOrder = function (root) {
+const zigzagLevelOrder = function (root) {
     const ans = [];
     const queue = new Queue();
     if (root != null) {
