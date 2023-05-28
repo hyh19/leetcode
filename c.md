@@ -2693,15 +2693,14 @@ int numTrees(int n) {
 <https://leetcode.cn/problems/validate-binary-search-tree/>
 
 ```c
-bool bst;
-
-// 检查二叉树是否在区间 (lower, upper) 内，递归过程中确定是否满足二叉搜索树的性质
+// 检查二叉树 root 是否满足以下两个条件：
+// 1、lower < 二叉树 root < upper
+// 2、左子树 < 根节点 root < 右子树
 bool lowerUpper(struct TreeNode *root, long lower, long upper) {
     if (root == NULL) {
         return true;
     }
     if (root->val <= lower || root->val >= upper) {
-        bst = false;
         return false;
     }
     return lowerUpper(root->left, lower, root->val) &&
@@ -2709,11 +2708,9 @@ bool lowerUpper(struct TreeNode *root, long lower, long upper) {
 }
 
 bool isValidBST(struct TreeNode *root) {
-    bst = true;
-    lowerUpper(root, LONG_MIN, LONG_MAX);
-    return bst;
+    return lowerUpper(root, LONG_MIN, LONG_MAX);
 }
-// https://leetcode.cn/submissions/detail/391165182/
+// https://leetcode.cn/submissions/detail/435835132/
 ```
 
 ## 100. 相同的树
