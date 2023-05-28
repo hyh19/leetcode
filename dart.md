@@ -2083,27 +2083,27 @@ class Solution {
     for (var i = 0; i < inorder.length; ++i) {
       _valToIndex[inorder[i]] = i;
     }
-    return _buildTree(
+    return _buildTreeRange(
         preorder, 0, preorder.length - 1, inorder, 0, inorder.length - 1);
   }
 
-  TreeNode? _buildTree(List<int> preorder, int preStart, int preEnd,
+  TreeNode? _buildTreeRange(List<int> preorder, int preStart, int preEnd,
       List<int> inorder, int inStart, int inEnd) {
     if (preStart > preEnd) {
       return null;
     }
     final rootVal = preorder[preStart];
+    final root = TreeNode(rootVal);
     final index = _valToIndex[rootVal]!;
     final leftSize = index - inStart;
-    final root = TreeNode(rootVal);
-    root.left = _buildTree(preorder, preStart + 1, preStart + leftSize, inorder,
-        inStart, index - 1);
-    root.right = _buildTree(
+    root.left = _buildTreeRange(preorder, preStart + 1, preStart + leftSize,
+        inorder, inStart, index - 1);
+    root.right = _buildTreeRange(
         preorder, preStart + leftSize + 1, preEnd, inorder, index + 1, inEnd);
     return root;
   }
 }
-// https://leetcode.cn/submissions/detail/377515375/
+// https://leetcode.cn/submissions/detail/435846823/
 ```
 
 ## 106. 从中序与后序遍历序列构造二叉树
