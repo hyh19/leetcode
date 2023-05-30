@@ -2558,21 +2558,21 @@ class Solution {
 
     private func buildTree(_ inorder: [Int], _ inStart: Int, _ inEnd: Int,
                            _ postorder: [Int], _ postStart: Int, _ postEnd: Int) -> TreeNode? {
-        if (inStart > inEnd) {
+        if inStart > inEnd {
             return nil;
         }
         let rootVal = postorder[postEnd];
-        let inRoot = valueToIndex[rootVal]!;
-        let leftSize = inRoot - inStart;
         let root = TreeNode(rootVal);
-        root.left = buildTree(inorder, inStart, inRoot - 1,
+        let index = valueToIndex[rootVal]!;
+        let leftSize = index - inStart;
+        root.left = buildTree(inorder, inStart, index - 1,
                 postorder, postStart, postStart + leftSize - 1);
-        root.right = buildTree(inorder, inRoot + 1, inEnd,
+        root.right = buildTree(inorder, index + 1, inEnd,
                 postorder, postStart + leftSize, postEnd - 1);
         return root;
     }
 }
-// https://leetcode.cn/submissions/detail/384979729/
+// https://leetcode.cn/submissions/detail/436425037/
 ```
 
 ## 107. 二叉树的层序遍历 II
