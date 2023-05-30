@@ -3243,7 +3243,7 @@ private:
 ```cpp
 class Solution {
 public:
-    bool isSameTree(TreeNode *p, TreeNode *q) {
+    bool isSameTree(const TreeNode *p, const TreeNode *q) {
         if (p == nullptr && q == nullptr) {
             return true;
         }
@@ -3255,7 +3255,7 @@ public:
                isSameTree(p->right, q->right);
     }
 };
-// https://leetcode.cn/submissions/detail/391588421/
+// https://leetcode.cn/submissions/detail/436410511/
 ```
 
 ```cpp
