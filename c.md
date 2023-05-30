@@ -2696,7 +2696,7 @@ int numTrees(int n) {
 // 检查二叉树 root 是否满足以下两个条件：
 // 1、lower < 二叉树 root < upper
 // 2、左子树 < 根节点 root < 右子树
-bool lowerUpper(struct TreeNode *root, long lower, long upper) {
+bool lowerUpper(const struct TreeNode *root, long lower, long upper) {
     if (root == NULL) {
         return true;
     }
@@ -2707,10 +2707,10 @@ bool lowerUpper(struct TreeNode *root, long lower, long upper) {
            lowerUpper(root->right, root->val, upper);
 }
 
-bool isValidBST(struct TreeNode *root) {
+bool isValidBST(const struct TreeNode *root) {
     return lowerUpper(root, LONG_MIN, LONG_MAX);
 }
-// https://leetcode.cn/submissions/detail/435835132/
+// https://leetcode.cn/submissions/detail/436408455/
 ```
 
 ## 100. 相同的树
