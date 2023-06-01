@@ -3367,17 +3367,20 @@ int **levelOrderBottom(struct TreeNode *root, int *returnSize, int **returnColum
         (*returnColumnSizes)[(*returnSize)++] = size;
     }
     myQueueFree(queue);
-    for (int i = 0, j = *returnSize - 1; i < j; ++i, --j) {
-        int *temp1 = ans[i];
-        ans[i] = ans[j];
-        ans[j] = temp1;
-        int temp2 = (*returnColumnSizes)[i];
-        (*returnColumnSizes)[i] = (*returnColumnSizes)[j];
-        (*returnColumnSizes)[j] = temp2;
+    int lo = 0, hi = *returnSize - 1;
+    while (lo < hi) {
+        int *temp1 = ans[lo];
+        ans[lo] = ans[hi];
+        ans[hi] = temp1;
+        int temp2 = (*returnColumnSizes)[lo];
+        (*returnColumnSizes)[lo] = (*returnColumnSizes)[hi];
+        (*returnColumnSizes)[hi] = temp2;
+        ++lo;
+        --hi;
     }
     return ans;
 }
-// https://leetcode.cn/submissions/detail/391407366/
+// https://leetcode.cn/submissions/detail/436946217/
 ```
 
 ## 108. 将有序数组转换为二叉搜索树
