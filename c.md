@@ -3335,20 +3335,19 @@ void myQueueFree(MyLinkedListQueue *obj) {
  * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  */
 int **levelOrderBottom(struct TreeNode *root, int *returnSize, int **returnColumnSizes) {
-    *returnSize = 0;
-    int capacity = 8;
+    int level = 0, capacity = 8;
     int **ans = malloc(sizeof(int *) * capacity);
-    *returnColumnSizes = malloc(sizeof(int[capacity]));
+    int *levelSizes = malloc(sizeof(int[capacity]));
     MyLinkedListQueue *queue = myQueueCreate();
     if (root != NULL) {
         myQueuePush(queue, root);
     }
     while (!myQueueEmpty(queue)) {
-        int size = myQueueSize(queue);
-        int *level = malloc(sizeof(int[size]));
-        for (int i = 0; i < size; ++i) {
+        int qsize = myQueueSize(queue);
+        int *levelValues = malloc(sizeof(int[qsize]));
+        for (int i = 0; i < qsize; ++i) {
             struct TreeNode *x = myQueuePop(queue);
-            level[i] = x->val;
+            levelValues[i] = x->val;
             struct TreeNode *left = x->left;
             if (left != NULL) {
                 myQueuePush(queue, left);
@@ -3358,29 +3357,31 @@ int **levelOrderBottom(struct TreeNode *root, int *returnSize, int **returnColum
                 myQueuePush(queue, right);
             }
         }
-        if (*returnSize == capacity) {
+        if (level == capacity) {
             capacity *= 2;
             ans = realloc(ans, sizeof(int *) * capacity);
-            *returnColumnSizes = realloc(*returnColumnSizes, sizeof(int[capacity]));
+            levelSizes = realloc(levelSizes, sizeof(int[capacity]));
         }
-        ans[*returnSize] = level;
-        (*returnColumnSizes)[(*returnSize)++] = size;
+        ans[level] = levelValues;
+        levelSizes[level++] = qsize;
     }
     myQueueFree(queue);
-    int lo = 0, hi = *returnSize - 1;
+    int lo = 0, hi = level - 1;
     while (lo < hi) {
         int *temp1 = ans[lo];
         ans[lo] = ans[hi];
         ans[hi] = temp1;
-        int temp2 = (*returnColumnSizes)[lo];
-        (*returnColumnSizes)[lo] = (*returnColumnSizes)[hi];
-        (*returnColumnSizes)[hi] = temp2;
+        int temp2 = levelSizes[lo];
+        levelSizes[lo] = levelSizes[hi];
+        levelSizes[hi] = temp2;
         ++lo;
         --hi;
     }
+    *returnSize = level;
+    *returnColumnSizes = levelSizes;
     return ans;
 }
-// https://leetcode.cn/submissions/detail/436946217/
+// https://leetcode.cn/submissions/detail/437330930/
 ```
 
 ## 108. 将有序数组转换为二叉搜索树
