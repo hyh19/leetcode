@@ -3621,7 +3621,7 @@ public:
 ```cpp
 class Solution {
 public:
-    TreeNode *sortedArrayToBST(vector<int> &nums) {
+    TreeNode *sortedArrayToBST(const vector<int> &nums) {
         return sortedArrayToBST(nums, 0, nums.size() - 1);
     }
 
@@ -3638,7 +3638,7 @@ private:
         return root;
     }
 };
-// https://leetcode.cn/submissions/detail/391475815/
+// https://leetcode.cn/submissions/detail/437317019/
 ```
 
 ## 110. 平衡二叉树
