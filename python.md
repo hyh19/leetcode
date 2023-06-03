@@ -2023,7 +2023,7 @@ class Solution:
         while len(q) > 0:
             depth += 1
             n = len(q)
-            for i in range(n):
+            for _ in range(n):
                 x = q.popleft()
                 left = x.left
                 right = x.right
@@ -2034,7 +2034,7 @@ class Solution:
                 if right is not None:
                     q.append(right)
         return 0
-# https://leetcode.cn/submissions/detail/380078550/
+# https://leetcode.cn/submissions/detail/437322341/
 ```
 
 ## 112. 路径总和
