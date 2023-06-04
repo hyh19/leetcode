@@ -2959,7 +2959,7 @@ class Solution {
 class Solution {
     func maxProfit(_ prices: [Int]) -> Int {
         let n = prices.count;
-        if (n == 1) {
+        if n == 1 {
             return 0;
         }
         // dp[i][0] = 第 i 天，空仓状态下的最大利润
@@ -2977,7 +2977,7 @@ class Solution {
         return dp[n - 1][0];
     }
 }
-// https://leetcode.cn/submissions/detail/385800340/
+// https://leetcode.cn/submissions/detail/437549897/
 ```
 
 ## 123. 买卖股票的最佳时机 III
