@@ -2240,8 +2240,7 @@ class Solution:
         # 淹没封闭岛屿
         for row in range(m):
             for col in range(n):
-                if grid[row][col] == Solution.LAND:
-                    self.floodFill(grid, row, col)
+                self.floodFill(grid, row, col)
         # 重建原来与边界陆地相连的岛屿
         for x in self.recovery:
             row = x[0]
@@ -2258,7 +2257,7 @@ class Solution:
         self.floodFill(grid, row + 1, col)
         self.floodFill(grid, row, col - 1)
         self.floodFill(grid, row, col + 1)
-# https://leetcode.cn/submissions/detail/380264429/
+# https://leetcode.cn/submissions/detail/437929296/
 ```
 
 ## 136. 只出现一次的数字
