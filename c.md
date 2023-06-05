@@ -3676,7 +3676,7 @@ int maxProfit(int *prices, int pricesSize) {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iii/>
 
 ```c
-int maxProfitK(int k, int *prices, int pricesSize) {
+int maxProfitK(int k, const int *prices, int pricesSize) {
     if (k <= 0 || pricesSize <= 1) {
         return 0;
     }
@@ -3705,10 +3705,10 @@ int maxProfitK(int k, int *prices, int pricesSize) {
     return dp[k][pricesSize - 1][0];
 }
 
-int maxProfit(int *prices, int pricesSize) {
+int maxProfit(const int *prices, int pricesSize) {
     return maxProfitK(2, prices, pricesSize);
 }
-// https://leetcode.cn/submissions/detail/390324243/
+// https://leetcode.cn/submissions/detail/437925792/
 ```
 
 ## 125. 验证回文串
