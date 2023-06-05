@@ -4097,7 +4097,7 @@ class Solution {
 class Solution {
     public int longestConsecutive(int[] nums) {
         int ans = 0;
-        Set<Integer> set = new HashSet(nums.length);
+        Set<Integer> set = new HashSet<>(nums.length);
         for (int x : nums) {
             set.add(x);
         }
@@ -4118,7 +4118,7 @@ class Solution {
         return ans;
     }
 }
-// https://leetcode.cn/submissions/detail/364668899/
+// https://leetcode.cn/submissions/detail/437927675/
 ```
 
 ## 130. 被围绕的区域
