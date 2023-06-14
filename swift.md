@@ -3268,23 +3268,23 @@ class Solution {
 
 ```swift
 class Solution {
-    private var ans: [Int] = [];
+    private var ans: [Int] = []
 
     func preorderTraversal(_ root: TreeNode?) -> [Int] {
-        dfs(root);
-        return ans;
+        dfs(root)
+        return ans
     }
 
     private func dfs(_ root: TreeNode?) {
-        if (root == nil) {
-            return;
+        guard let root = root else {
+            return
         }
-        ans.append(root!.val);
-        dfs(root!.left);
-        dfs(root!.right);
+        ans.append(root.val)
+        dfs(root.left)
+        dfs(root.right)
     }
 }
-// https://leetcode.cn/submissions/detail/384923695/
+// https://leetcode.cn/submissions/detail/440040583/
 ```
 
 ## 145. 二叉树的后序遍历
