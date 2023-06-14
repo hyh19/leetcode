@@ -3301,15 +3301,15 @@ class Solution {
     }
 
     private func dfs(_ root: TreeNode?) {
-        if (root == nil) {
-            return;
+        guard let root = root else {
+            return
         }
-        dfs(root!.left);
-        dfs(root!.right);
-        ans.append(root!.val);
+        dfs(root.left)
+        dfs(root.right)
+        ans.append(root.val)
     }
 }
-// https://leetcode.cn/submissions/detail/384924611/
+// https://leetcode.cn/submissions/detail/440041358/
 ```
 
 ## 146. LRU 缓存
