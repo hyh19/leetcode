@@ -3293,11 +3293,11 @@ class Solution {
 
 ```swift
 class Solution {
-    private var ans: [Int] = [];
+    private var ans: [Int] = []
 
     func postorderTraversal(_ root: TreeNode?) -> [Int] {
-        dfs(root);
-        return ans;
+        dfs(root)
+        return ans
     }
 
     private func dfs(_ root: TreeNode?) {
@@ -3309,7 +3309,7 @@ class Solution {
         ans.append(root.val)
     }
 }
-// https://leetcode.cn/submissions/detail/440041358/
+// https://leetcode.cn/submissions/detail/440044148/
 ```
 
 ## 146. LRU 缓存
