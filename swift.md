@@ -3514,15 +3514,15 @@ class MinStack {
 ```swift
 class Solution {
     func getIntersectionNode(_ headA: ListNode?, _ headB: ListNode?) -> ListNode? {
-        var ptrA = headA, ptrB = headB;
-        while (ptrA !== ptrB) {
-            ptrA = (ptrA == nil ? headB : ptrA!.next);
-            ptrB = (ptrB == nil ? headA : ptrB!.next);
+        var ptrA = headA, ptrB = headB
+        while ptrA !== ptrB {
+            ptrA = (ptrA == nil ? headB : ptrA!.next)
+            ptrB = (ptrB == nil ? headA : ptrB!.next)
         }
-        return ptrA;
+        return ptrA
     }
 }
-// https://leetcode.cn/submissions/detail/384869511/
+// https://leetcode.cn/submissions/detail/440043678/
 ```
 
 ## 165. 比较版本号
