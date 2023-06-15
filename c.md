@@ -4397,37 +4397,37 @@ struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *he
 <https://leetcode.cn/problems/compare-version-numbers/>
 
 ```c
-int compareVersion(char *version1, char *version2) {
+int compareVersion(const char *version1, const char *version2) {
     size_t n1 = strlen(version1);
     size_t n2 = strlen(version2);
     int i = 0, j = 0;
     while (i < n1 || j < n2) {
-        int r1 = 0;
+        int revision1 = 0;
         while (i < n1) {
             char c = version1[i++];
             if (c == '.') {
                 break;
             }
-            r1 = r1 * 10 + (c - '0');
+            revision1 = revision1 * 10 + (c - '0');
         }
-        int r2 = 0;
+        int revision2 = 0;
         while (j < n2) {
             char c = version2[j++];
             if (c == '.') {
                 break;
             }
-            r2 = r2 * 10 + (c - '0');
+            revision2 = revision2 * 10 + (c - '0');
         }
-        if (r1 > r2) {
+        if (revision1 > revision2) {
             return 1;
         }
-        if (r1 < r2) {
+        if (revision1 < revision2) {
             return -1;
         }
     }
     return 0;
 }
-// https://leetcode.cn/submissions/detail/391412644/
+// https://leetcode.cn/submissions/detail/440257744/
 ```
 
 ## 167. 两数之和 II - 输入有序数组
