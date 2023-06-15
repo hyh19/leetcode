@@ -5089,7 +5089,7 @@ public:
 ```cpp
 class Solution {
 public:
-    vector<int> twoSum(vector<int> &numbers, int target) {
+    vector<int> twoSum(const vector<int> &numbers, int target) {
         int i = 0, j = numbers.size() - 1;
         while (i < j) {
             int sum = numbers[i] + numbers[j];
@@ -5104,7 +5104,7 @@ public:
         return {-1, -1};
     }
 };
-// https://leetcode.cn/submissions/detail/368958958/
+// https://leetcode.cn/submissions/detail/440258850/
 ```
 
 ## 169. 多数元素
