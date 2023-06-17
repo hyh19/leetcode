@@ -4495,9 +4495,9 @@ int majorityElement(const int *nums, int numsSize) {
 int cmp(const void *a, const void *b) {
     const int arg1 = *(const int *) a;
     const int arg2 = *(const int *) b;
-    char *str1 = malloc(sizeof(char[20]));
+    char *str1 = malloc(sizeof(char[32]));
     sprintf(str1, "%d%d", arg1, arg2);
-    char *str2 = malloc(sizeof(char[20]));
+    char *str2 = malloc(sizeof(char[32]));
     sprintf(str2, "%d%d", arg2, arg1);
     int res = strcmp(str2, str1);
     free(str1);
@@ -4510,15 +4510,15 @@ char *largestNumber(int *nums, int numsSize) {
     if (nums[0] == 0) {
         return "0";
     }
-    char *ans = calloc(1000, sizeof(char));
+    char *ans = calloc(1024, sizeof(char));
     char *p = ans;
-    for (int i = 0; i < numsSize; i++) {
+    for (int i = 0; i < numsSize; ++i) {
         sprintf(p, "%d", nums[i]);
         p += strlen(p);
     }
     return ans;
 }
-// https://leetcode.cn/submissions/detail/391328967/
+// https://leetcode.cn/submissions/detail/440493682/
 ```
 
 ## 188. 买卖股票的最佳时机 IV
