@@ -3374,7 +3374,7 @@ const largestNumber = function (nums) {
  * @param {number[]} prices
  * @return {number}
  */
- const maxProfit = function (k, prices) {
+const maxProfit = function (k, prices) {
     const n = prices.length;
     if (k <= 0 || n <= 1) {
         return 0;
