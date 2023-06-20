@@ -5191,7 +5191,7 @@ public:
 ```cpp
 class Solution {
 public:
-    int maxProfit(int k, vector<int> &prices) {
+    int maxProfit(int k, const vector<int> &prices) {
         size_t n = prices.size();
         if (k <= 0 || n <= 1) {
             return 0;
@@ -5221,7 +5221,7 @@ public:
         return dp[k][n - 1][0];
     }
 };
-// https://leetcode.cn/submissions/detail/391543969/
+// https://leetcode.cn/submissions/detail/441210880/
 ```
 
 ## 189. 轮转数组
