@@ -4526,7 +4526,7 @@ char *largestNumber(int *nums, int numsSize) {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/>
 
 ```c
-int maxProfit(int k, int *prices, int pricesSize) {
+int maxProfit(int k, const int *prices, int pricesSize) {
     if (k <= 0 || pricesSize <= 1) {
         return 0;
     }
@@ -4554,7 +4554,7 @@ int maxProfit(int k, int *prices, int pricesSize) {
     }
     return dp[k][pricesSize - 1][0];
 }
-// https://leetcode.cn/submissions/detail/390323619/
+// https://leetcode.cn/submissions/detail/441209742/
 ```
 
 ## 189. 轮转数组
