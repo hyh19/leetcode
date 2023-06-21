@@ -4776,8 +4776,8 @@ class LRUCache {
 
 ```java
 class LRUCache {
-    private Map<Integer, Integer> keyToVal = new LinkedHashMap();
-    private int capacity;
+    private final Map<Integer, Integer> keyToVal = new LinkedHashMap<>();
+    private final int capacity;
 
     public LRUCache(int capacity) {
         this.capacity = capacity;
@@ -4821,16 +4821,16 @@ class LRUCache {
     }
 
     private int touchCache(int key, int val) {
-        int newval = keyToVal.get(key);
+        int newVal = keyToVal.get(key);
         if (val != Integer.MIN_VALUE) {
-            newval = val;
+            newVal = val;
         }
         keyToVal.remove(key);
-        keyToVal.put(key, newval);
-        return newval;
+        keyToVal.put(key, newVal);
+        return newVal;
     }
 }
-// https://leetcode.cn/submissions/detail/365104207/
+// https://leetcode.cn/submissions/detail/441253902/
 ```
 
 ## 153. 寻找旋转排序数组中的最小值
