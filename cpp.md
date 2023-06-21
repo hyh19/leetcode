@@ -4614,25 +4614,25 @@ public:
 <https://leetcode.cn/problems/lru-cache/>
 
 ```cpp
-struct Node {
+struct MyListNode {
     int key, val;
-    Node *prev;
-    Node *next;
+    MyListNode *prev;
+    MyListNode *next;
 
-    Node(int k, int v) : key{k}, val{v}, prev{nullptr}, next{nullptr} {}
+    MyListNode(int k, int v) : key{k}, val{v}, prev{nullptr}, next{nullptr} {}
 };
 
-class DoublyLinkedList {
+class MyDoublyLinkedList {
 public:
-    DoublyLinkedList() : first{nullptr}, last{nullptr}, n{0} {}
+    MyDoublyLinkedList() : first{nullptr}, last{nullptr}, n{0} {}
 
-    ~DoublyLinkedList() {
+    ~MyDoublyLinkedList() {
         while (!empty()) {
             removeFirst();
         }
     }
 
-    void addLast(Node *x) {
+    void addLast(MyListNode *x) {
         if (n == 0) {
             first = x;
             last = x;
@@ -4645,7 +4645,7 @@ public:
     }
 
     void removeFirst() {
-        Node *x = first;
+        MyListNode *x = first;
         if (n == 1) {
             first = nullptr;
             last = nullptr;
@@ -4658,7 +4658,7 @@ public:
     }
 
     void removeLast() {
-        Node *x = last;
+        MyListNode *x = last;
         if (n == 1) {
             first = nullptr;
             last = nullptr;
@@ -4670,7 +4670,7 @@ public:
         --n;
     }
 
-    void remove(Node *x) {
+    void remove(MyListNode *x) {
         if (x == first) {
             removeFirst();
         } else if (x == last) {
@@ -4683,7 +4683,7 @@ public:
         }
     }
 
-    const Node *getFirst() const {
+    const MyListNode *getFirst() const {
         return first;
     }
 
@@ -4692,8 +4692,8 @@ public:
     }
 
 private:
-    Node *first;
-    Node *last;
+    MyListNode *first;
+    MyListNode *last;
     int n;
 };
 
@@ -4733,7 +4733,7 @@ private:
     }
 
     void addCache(int key, int val) {
-        Node *x = new Node(key, val);
+        MyListNode *x = new MyListNode(key, val);
         list.addLast(x);
         keyToNode[key] = x;
     }
@@ -4745,13 +4745,13 @@ private:
     }
 
     int touchCache(int key, int val) {
-        Node *x = keyToNode[key];
+        MyListNode *x = keyToNode[key];
         int newVal = x->val;
         if (val != INT_MIN) {
             newVal = val;
         }
         list.remove(x);
-        x = new Node(key, newVal);
+        x = new MyListNode(key, newVal);
         list.addLast(x);
         keyToNode[key] = x;
         return newVal;
@@ -4759,10 +4759,10 @@ private:
 
 private:
     int capacity;
-    DoublyLinkedList list;
-    unordered_map<int, Node *> keyToNode;
+    MyDoublyLinkedList list;
+    unordered_map<int, MyListNode *> keyToNode;
 };
-// https://leetcode.cn/submissions/detail/391594600/
+// https://leetcode.cn/submissions/detail/441250286/
 ```
 
 ```cpp
