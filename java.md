@@ -4639,27 +4639,27 @@ class Solution {
 <https://leetcode.cn/problems/lru-cache/>
 
 ```java
-class Node {
+class MyListNode {
     public int key, val;
-    public Node prev, next;
+    public MyListNode prev, next;
 
-    public Node(int key, int val) {
+    public MyListNode(int key, int val) {
         this.key = key;
         this.val = val;
     }
 }
 
-class DoublyLinkedList {
-    private Node first, last;
+class MyDoublyLinkedList {
+    private MyListNode first, last;
     private int n;
 
-    public DoublyLinkedList() {
+    public MyDoublyLinkedList() {
         first = null;
         last = null;
         n = 0;
     }
 
-    public void addLast(Node x) {
+    public void addLast(MyListNode x) {
         if (n == 0) {
             first = x;
             last = x;
@@ -4671,8 +4671,8 @@ class DoublyLinkedList {
         ++n;
     }
 
-    public Node removeFirst() {
-        Node oldFirst = first;
+    public MyListNode removeFirst() {
+        MyListNode oldFirst = first;
         if (n == 1) {
             first = null;
             last = null;
@@ -4685,8 +4685,8 @@ class DoublyLinkedList {
         return oldFirst;
     }
 
-    public Node removeLast() {
-        Node oldLast = last;
+    public MyListNode removeLast() {
+        MyListNode oldLast = last;
         if (n == 1) {
             first = null;
             last = null;
@@ -4699,7 +4699,7 @@ class DoublyLinkedList {
         return oldLast;
     }
 
-    public void remove(Node x) {
+    public void remove(MyListNode x) {
         if (x == first) {
             removeFirst();
         } else if (x == last) {
@@ -4715,9 +4715,9 @@ class DoublyLinkedList {
 }
 
 class LRUCache {
-    private DoublyLinkedList list = new DoublyLinkedList();
-    private Map<Integer, Node> keyToNode = new HashMap();
-    private int capacity;
+    private final MyDoublyLinkedList list = new MyDoublyLinkedList();
+    private final Map<Integer, MyListNode> keyToNode = new HashMap<>();
+    private final int capacity;
 
     public LRUCache(int capacity) {
         this.capacity = capacity;
@@ -4752,7 +4752,7 @@ class LRUCache {
     }
 
     private void addCache(int key, int val) {
-        Node x = new Node(key, val);
+        MyListNode x = new MyListNode(key, val);
         list.addLast(x);
         keyToNode.put(key, x);
     }
@@ -4762,7 +4762,7 @@ class LRUCache {
     }
 
     private int touchCache(int key, int val) {
-        Node x = keyToNode.get(key);
+        MyListNode x = keyToNode.get(key);
         if (val != Integer.MIN_VALUE) {
             x.val = val;
         }
@@ -4771,7 +4771,7 @@ class LRUCache {
         return x.val;
     }
 }
-// https://leetcode.cn/submissions/detail/365103708/
+// https://leetcode.cn/submissions/detail/441252338/
 ```
 
 ```java
