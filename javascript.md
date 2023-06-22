@@ -3016,7 +3016,7 @@ const reverseList = function (head) {
 <https://leetcode.cn/problems/lru-cache/>
 
 ```js
-class Node {
+class MyListNode {
     constructor(key, val, prev = null, next = null) {
         this.key = key;
         this.val = val;
@@ -3025,7 +3025,7 @@ class Node {
     }
 }
 
-class DoublyLinkedList {
+class MyDoublyLinkedList {
     constructor() {
         this.first = null;
         this.last = null;
@@ -3095,7 +3095,7 @@ class DoublyLinkedList {
  */
 const LRUCache = function (capacity) {
     this.capacity = capacity;
-    this.list = new DoublyLinkedList();
+    this.list = new MyDoublyLinkedList();
     this.keyToNode = new Map();
 };
 
@@ -3137,7 +3137,7 @@ LRUCache.prototype.full = function () {
 };
 
 LRUCache.prototype.addCache = function (key, val) {
-    const x = new Node(key, val);
+    const x = new MyListNode(key, val);
     this.list.addLast(x);
     this.keyToNode.set(key, x);
 };
@@ -3155,7 +3155,7 @@ LRUCache.prototype.touchCache = function (key, val) {
     this.list.addLast(x);
     return x.val;
 };
-// https://leetcode.cn/submissions/detail/382049287/
+// https://leetcode.cn/submissions/detail/441423758/
 ```
 
 ## 153. 寻找旋转排序数组中的最小值
