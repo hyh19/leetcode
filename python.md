@@ -2395,7 +2395,7 @@ class Solution:
 <https://leetcode.cn/problems/lru-cache/>
 
 ```py
-class Node:
+class MyListNode:
     def __init__(self, key: int, val: int):
         self.key = key
         self.val = val
@@ -2403,13 +2403,13 @@ class Node:
         self.next = None
 
 
-class DoublyLinkedList:
+class MyDoublyLinkedList:
     def __init__(self):
         self.__first = None
         self.__last = None
         self.__n = 0
 
-    def addLast(self, x: Node) -> None:
+    def addLast(self, x: MyListNode) -> None:
         if self.__n == 0:
             self.__first = x
             self.__last = x
@@ -2420,7 +2420,7 @@ class DoublyLinkedList:
             self.__last = x
             self.__n += 1
 
-    def removeFirst(self) -> Node:
+    def removeFirst(self) -> MyListNode:
         oldFirst = self.__first
         if self.__n == 1:
             self.__first = None
@@ -2433,7 +2433,7 @@ class DoublyLinkedList:
             self.__n -= 1
         return oldFirst
 
-    def removeLast(self) -> Node:
+    def removeLast(self) -> MyListNode:
         oldLast = self.__last
         if self.__n == 1:
             self.__first = None
@@ -2446,7 +2446,7 @@ class DoublyLinkedList:
             self.__n -= 1
         return oldLast
 
-    def remove(self, x: Node) -> None:
+    def remove(self, x: MyListNode) -> None:
         if x is self.__first:
             self.removeFirst()
         elif x is self.__last:
@@ -2462,7 +2462,7 @@ class DoublyLinkedList:
 class LRUCache:
     def __init__(self, capacity: int):
         self.__capacity = capacity
-        self.__list = DoublyLinkedList()
+        self.__list = MyDoublyLinkedList()
         self.__keyToNode = {}
 
     def get(self, key: int) -> int:
@@ -2486,7 +2486,7 @@ class LRUCache:
         return len(self.__keyToNode) == self.__capacity
 
     def __addCache(self, key: int, val: int) -> None:
-        x = Node(key, val)
+        x = MyListNode(key, val)
         self.__list.addLast(x)
         self.__keyToNode[key] = x
 
@@ -2500,7 +2500,7 @@ class LRUCache:
         self.__list.remove(x)
         self.__list.addLast(x)
         return x.val
-# https://leetcode.cn/submissions/detail/380510819/
+# https://leetcode.cn/submissions/detail/441422814/
 ```
 
 ## 153. 寻找旋转排序数组中的最小值
