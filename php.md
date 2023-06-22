@@ -3811,20 +3811,20 @@ class Solution
 ```php
 <?php
 
-class Node
+class MyListNode
 {
     public int $key;
     public int $val;
-    public ?Node $prev;
-    public ?Node $next;
+    public ?MyListNode $prev;
+    public ?MyListNode $next;
 
     /**
      * @param int $key
      * @param int $val
-     * @param Node|null $prev
-     * @param Node|null $next
+     * @param MyListNode|null $prev
+     * @param MyListNode|null $next
      */
-    public function __construct(int $key, int $val, Node $prev = null, Node $next = null)
+    public function __construct(int $key, int $val, MyListNode $prev = null, MyListNode $next = null)
     {
         $this->key = $key;
         $this->val = $val;
@@ -3833,17 +3833,17 @@ class Node
     }
 }
 
-class DoublyLinkedList
+class MyDoublyLinkedList
 {
-    private ?Node $first = null;
-    private ?Node $last = null;
+    private ?MyListNode $first = null;
+    private ?MyListNode $last = null;
     private int $n = 0;
 
     /**
-     * @param Node $x
+     * @param MyListNode $x
      * @return void
      */
-    public function addLast(Node $x): void
+    public function addLast(MyListNode $x): void
     {
         if ($this->n === 0) {
             $this->first = $x;
@@ -3857,9 +3857,9 @@ class DoublyLinkedList
     }
 
     /**
-     * @return Node
+     * @return MyListNode
      */
-    public function removeFirst(): Node
+    public function removeFirst(): MyListNode
     {
         $oldFirst = $this->first;
         if ($this->n === 1) {
@@ -3875,9 +3875,9 @@ class DoublyLinkedList
     }
 
     /**
-     * @return Node
+     * @return MyListNode
      */
-    public function removeLast(): Node
+    public function removeLast(): MyListNode
     {
         $oldLast = $this->last;
         if ($this->n === 1) {
@@ -3893,10 +3893,10 @@ class DoublyLinkedList
     }
 
     /**
-     * @param Node $x
+     * @param MyListNode $x
      * @return void
      */
-    public function remove(Node $x): void
+    public function remove(MyListNode $x): void
     {
         if ($x === $this->first) {
             $this->removeFirst();
@@ -3914,7 +3914,7 @@ class DoublyLinkedList
 
 class LRUCache
 {
-    private DoublyLinkedList $list;
+    private MyDoublyLinkedList $list;
     private array $keyToNode = [];
     private int $capacity;
 
@@ -3924,7 +3924,7 @@ class LRUCache
     function __construct(int $capacity)
     {
         $this->capacity = $capacity;
-        $this->list = new DoublyLinkedList();
+        $this->list = new MyDoublyLinkedList();
     }
 
     /**
@@ -3982,7 +3982,7 @@ class LRUCache
      */
     private function addCache(int $key, int $val): void
     {
-        $x = new Node($key, $val);
+        $x = new MyListNode($key, $val);
         $this->list->addLast($x);
         $this->keyToNode[$key] = $x;
     }
@@ -4011,7 +4011,7 @@ class LRUCache
         return $x->val;
     }
 }
-// https://leetcode.cn/submissions/detail/384083756/
+// https://leetcode.cn/submissions/detail/441425103/
 ```
 
 ## 153. 寻找旋转排序数组中的最小值
