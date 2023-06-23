@@ -4037,99 +4037,99 @@ int *postorderTraversal(struct TreeNode *root, int *returnSize) {
 <https://leetcode.cn/problems/lru-cache/>
 
 ```c
-struct MyListNode {
+typedef struct MyListNode {
     int key;
     int val;
     struct MyListNode *prev;
     struct MyListNode *next;
-};
+} MyListNode;
 
 typedef struct {
-    struct MyListNode *first;
-    struct MyListNode *last;
+    MyListNode *first;
+    MyListNode *last;
     int size;
 } MyDoublyLinkedList;
 
 MyDoublyLinkedList *myListCreate() {
-    MyDoublyLinkedList *obj = malloc(sizeof(MyDoublyLinkedList));
-    obj->first = NULL;
-    obj->last = NULL;
-    obj->size = 0;
-    return obj;
+    MyDoublyLinkedList *list = malloc(sizeof(MyDoublyLinkedList));
+    list->first = NULL;
+    list->last = NULL;
+    list->size = 0;
+    return list;
 }
 
-void myListAddLast(MyDoublyLinkedList *obj, struct MyListNode *x) {
-    if (obj->size == 0) {
-        obj->first = x;
-        obj->last = x;
+void myListAddLast(MyDoublyLinkedList *list, MyListNode *newNode) {
+    if (list->size == 0) {
+        list->first = newNode;
+        list->last = newNode;
     } else {
-        obj->last->next = x;
-        x->prev = obj->last;
-        obj->last = x;
+        list->last->next = newNode;
+        newNode->prev = list->last;
+        list->last = newNode;
     }
-    obj->size++;
+    list->size++;
 }
 
-void myListRemoveFirst(MyDoublyLinkedList *obj) {
-    struct MyListNode *x = obj->first;
-    if (obj->size == 1) {
-        obj->first = NULL;
-        obj->last = NULL;
+void myListRemoveFirst(MyDoublyLinkedList *list) {
+    MyListNode *oldFirst = list->first;
+    if (list->size == 1) {
+        list->first = NULL;
+        list->last = NULL;
     } else {
-        obj->first = obj->first->next;
-        obj->first->prev = NULL;
+        list->first = list->first->next;
+        list->first->prev = NULL;
     }
-    free(x);
-    obj->size--;
+    free(oldFirst);
+    list->size--;
 }
 
-void myListRemoveLast(MyDoublyLinkedList *obj) {
-    struct MyListNode *x = obj->last;
-    if (obj->size == 1) {
-        obj->first = NULL;
-        obj->last = NULL;
+void myListRemoveLast(MyDoublyLinkedList *list) {
+    MyListNode *oldLast = list->last;
+    if (list->size == 1) {
+        list->first = NULL;
+        list->last = NULL;
     } else {
-        obj->last = obj->last->prev;
-        obj->last->next = NULL;
+        list->last = list->last->prev;
+        list->last->next = NULL;
     }
-    free(x);
-    obj->size--;
+    free(oldLast);
+    list->size--;
 }
 
-void myListRemove(MyDoublyLinkedList *obj, struct MyListNode *x) {
-    if (x == obj->first) {
-        myListRemoveFirst(obj);
-    } else if (x == obj->last) {
-        myListRemoveLast(obj);
+void myListRemove(MyDoublyLinkedList *list, MyListNode *delNode) {
+    if (delNode == list->first) {
+        myListRemoveFirst(list);
+    } else if (delNode == list->last) {
+        myListRemoveLast(list);
     } else {
-        x->prev->next = x->next;
-        x->next->prev = x->prev;
-        free(x);
-        obj->size--;
+        delNode->prev->next = delNode->next;
+        delNode->next->prev = delNode->prev;
+        free(delNode);
+        list->size--;
     }
 }
 
-struct MyListNode *myListGetFirst(MyDoublyLinkedList *obj) {
-    return obj->first;
+MyListNode *myListGetFirst(MyDoublyLinkedList *list) {
+    return list->first;
 }
 
-bool myListEmpty(MyDoublyLinkedList *obj) {
-    return obj->first == NULL;
+bool myListEmpty(MyDoublyLinkedList *list) {
+    return list->first == NULL;
 }
 
-void myListFree(MyDoublyLinkedList *obj) {
-    struct MyListNode *p = obj->first;
+void myListFree(MyDoublyLinkedList *list) {
+    MyListNode *p = list->first, *tmp = NULL;
     while (p != NULL) {
-        struct MyListNode *x = p;
+        tmp = p;
         p = p->next;
-        free(x);
+        free(tmp);
     }
-    free(obj);
+    free(list);
 }
 
 typedef struct {
     int key;
-    struct MyListNode *val;
+    MyListNode *node;
     UT_hash_handle hh;
 } HashMapItem;
 
@@ -4139,96 +4139,116 @@ typedef struct {
     int capacity;
 } LRUCache;
 
+bool lRUCacheContains(LRUCache *cache, int key);
+
+bool lRUCacheFull(LRUCache *cache);
+
+void lRUCacheAdd(LRUCache *cache, int key, int val);
+
+void lRUCacheRemove(LRUCache *cache);
+
+int lRUCacheTouch(LRUCache *cache, int key, int val);
+
 LRUCache *lRUCacheCreate(int capacity) {
-    LRUCache *obj = malloc(sizeof(LRUCache));
-    obj->list = myListCreate();
-    obj->keyToNode = NULL;
-    obj->capacity = capacity;
-    return obj;
+    LRUCache *cache = malloc(sizeof(LRUCache));
+    cache->list = myListCreate();
+    cache->keyToNode = NULL;
+    cache->capacity = capacity;
+    return cache;
 }
 
-bool lRUCacheContains(LRUCache *obj, int key) {
-    HashMapItem *item;
-    HASH_FIND_INT(obj->keyToNode, &key, item);
-    return item != NULL;
-}
-
-bool lRUCacheFull(LRUCache *obj) {
-    return HASH_COUNT(obj->keyToNode) == obj->capacity;
-}
-
-void lRUCacheAdd(LRUCache *obj, int key, int val) {
-    struct MyListNode *x = malloc(sizeof(struct MyListNode));
-    x->key = key;
-    x->val = val;
-    x->prev = NULL;
-    x->next = NULL;
-    myListAddLast(obj->list, x);
-    HashMapItem *item = malloc(sizeof(HashMapItem));
-    item->key = key;
-    item->val = x;
-    HASH_ADD_INT(obj->keyToNode, key, item);
-}
-
-void lRUCacheRemove(LRUCache *obj) {
-    int key = myListGetFirst(obj->list)->key;
-    myListRemoveFirst(obj->list);
-    HashMapItem *item;
-    HASH_FIND_INT(obj->keyToNode, &key, item);
-    HASH_DEL(obj->keyToNode, item);
-    free(item);
-}
-
-int lRUCacheTouch(LRUCache *obj, int key, int val) {
-    HashMapItem *item;
-    HASH_FIND_INT(obj->keyToNode, &key, item);
-    struct MyListNode *x = item->val;
-    int newVal = x->val;
-    if (val != INT_MIN) {
-        newVal = val;
-    }
-    myListRemove(obj->list, x);
-    x = malloc(sizeof(struct MyListNode));
-    x->key = key;
-    x->val = newVal;
-    x->prev = NULL;
-    x->next = NULL;
-    myListAddLast(obj->list, x);
-    item->val = x;
-    return newVal;
-}
-
-int lRUCacheGet(LRUCache *obj, int key) {
-    if (lRUCacheContains(obj, key)) {
-        return lRUCacheTouch(obj, key, INT_MIN);
+int lRUCacheGet(LRUCache *cache, int key) {
+    if (lRUCacheContains(cache, key)) {
+        return lRUCacheTouch(cache, key, INT_MIN);
     }
     return -1;
 }
 
-void lRUCachePut(LRUCache *obj, int key, int val) {
-    if (obj->capacity > 0) {
-        if (lRUCacheContains(obj, key)) {
-            lRUCacheTouch(obj, key, val);
+void lRUCachePut(LRUCache *cache, int key, int val) {
+    if (cache->capacity > 0) {
+        if (lRUCacheContains(cache, key)) {
+            lRUCacheTouch(cache, key, val);
         } else {
-            if (lRUCacheFull(obj)) {
-                lRUCacheRemove(obj);
+            if (lRUCacheFull(cache)) {
+                lRUCacheRemove(cache);
             }
-            lRUCacheAdd(obj, key, val);
+            lRUCacheAdd(cache, key, val);
         }
     }
 }
 
-void lRUCacheFree(LRUCache *obj) {
-    myListFree(obj->list);
-    HashMapItem *cur, *tmp;
-    HASH_ITER(hh, obj->keyToNode, cur, tmp) {
-        HASH_DEL(obj->keyToNode, cur);
+void lRUCacheFree(LRUCache *cache) {
+    HashMapItem *cur = NULL, *tmp = NULL;
+    HASH_ITER(hh, cache->keyToNode, cur, tmp) {
+        HASH_DEL(cache->keyToNode, cur);
         free(cur);
     }
-    HASH_CLEAR(hh, obj->keyToNode);
-    free(obj);
+    HASH_CLEAR(hh, cache->keyToNode);
+
+    myListFree(cache->list);
+    free(cache);
 }
-// https://leetcode.cn/submissions/detail/391164207/
+
+bool lRUCacheContains(LRUCache *cache, int key) {
+    HashMapItem *item = NULL;
+    HASH_FIND_INT(cache->keyToNode, &key, item);
+    return item != NULL;
+}
+
+bool lRUCacheFull(LRUCache *cache) {
+    return HASH_COUNT(cache->keyToNode) == cache->capacity;
+}
+
+void lRUCacheAdd(LRUCache *cache, int key, int val) {
+    MyListNode *newNode = NULL;
+    HashMapItem *newItem = NULL;
+
+    newNode = malloc(sizeof(MyListNode));
+    newNode->key = key;
+    newNode->val = val;
+    newNode->prev = NULL;
+    newNode->next = NULL;
+    myListAddLast(cache->list, newNode);
+
+    newItem = malloc(sizeof(HashMapItem));
+    newItem->key = key;
+    newItem->node = newNode;
+    HASH_ADD_INT(cache->keyToNode, key, newItem);
+}
+
+void lRUCacheRemove(LRUCache *cache) {
+    int firstKey = myListGetFirst(cache->list)->key;
+    HashMapItem *item = NULL;
+
+    myListRemoveFirst(cache->list);
+    HASH_FIND_INT(cache->keyToNode, &firstKey, item);
+    HASH_DEL(cache->keyToNode, item);
+    free(item);
+}
+
+int lRUCacheTouch(LRUCache *cache, int key, int val) {
+    int newVal = val;
+    MyListNode *delNode = NULL, *newNode = NULL;
+    HashMapItem *item = NULL;
+
+    HASH_FIND_INT(cache->keyToNode, &key, item);
+    delNode = item->node;
+    if (val == INT_MIN) {
+        newVal = delNode->val;
+    }
+    myListRemove(cache->list, delNode);
+
+    newNode = malloc(sizeof(MyListNode));
+    newNode->key = key;
+    newNode->val = newVal;
+    newNode->prev = NULL;
+    newNode->next = NULL;
+    myListAddLast(cache->list, newNode);
+    item->node = newNode;
+
+    return newVal;
+}
+// https://leetcode.cn/submissions/detail/441593199/
 ```
 
 ## 153. 寻找旋转排序数组中的最小值
