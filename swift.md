@@ -3317,13 +3317,13 @@ class Solution {
 <https://leetcode.cn/problems/lru-cache/>
 
 ```swift
-class Node {
+class MyListNode {
     public var key: Int;
     public var val: Int;
-    public var prev: Node?;
-    public var next: Node?;
+    public var prev: MyListNode?;
+    public var next: MyListNode?;
 
-    init(_ key: Int, _ val: Int, _ prev: Node? = nil, _ next: Node? = nil) {
+    init(_ key: Int, _ val: Int, _ prev: MyListNode? = nil, _ next: MyListNode? = nil) {
         self.key = key
         self.val = val
         self.prev = prev
@@ -3331,12 +3331,12 @@ class Node {
     }
 }
 
-struct DoublyLinkedList {
-    private var first: Node? = nil;
-    private var last: Node? = nil;
+class MyDoublyLinkedList {
+    private var first: MyListNode? = nil;
+    private var last: MyListNode? = nil;
     private var n = 0;
 
-    public mutating func addLast(_ x: Node) {
+    public func addLast(_ x: MyListNode) {
         if (n == 0) {
             first = x;
             last = x;
@@ -3349,7 +3349,7 @@ struct DoublyLinkedList {
     }
 
     @discardableResult
-    public mutating func removeFirst() -> Node {
+    public func removeFirst() -> MyListNode {
         let oldFirst = first;
         if (n == 1) {
             first = nil;
@@ -3364,7 +3364,7 @@ struct DoublyLinkedList {
     }
 
     @discardableResult
-    public mutating func removeLast() -> Node {
+    public func removeLast() -> MyListNode {
         let oldLast = last;
         if (n == 1) {
             first = nil;
@@ -3378,7 +3378,7 @@ struct DoublyLinkedList {
         return oldLast!;
     }
 
-    public mutating func remove(_ x: Node) {
+    public func remove(_ x: MyListNode) {
         if (x === first) {
             removeFirst();
         } else if (x === last) {
@@ -3394,8 +3394,8 @@ struct DoublyLinkedList {
 }
 
 class LRUCache {
-    private var list: DoublyLinkedList = DoublyLinkedList();
-    private var keyToNode: [Int: Node] = [:];
+    private var list: MyDoublyLinkedList = MyDoublyLinkedList();
+    private var keyToNode: [Int: MyListNode] = [:];
     private var capacity: Int;
 
     init(_ capacity: Int) {
@@ -3431,7 +3431,7 @@ class LRUCache {
     }
 
     private func addCache(_ key: Int, _ val: Int) {
-        let x = Node(key, val);
+        let x = MyListNode(key, val);
         list.addLast(x);
         keyToNode[key] = x;
     }
@@ -3451,7 +3451,7 @@ class LRUCache {
         return x.val;
     }
 }
-// https://leetcode.cn/submissions/detail/387970840/
+// https://leetcode.cn/submissions/detail/441579599/
 ```
 
 ## 153. 寻找旋转排序数组中的最小值
