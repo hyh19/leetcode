@@ -4632,20 +4632,20 @@ public:
         }
     }
 
-    void addLast(MyListNode *x) {
+    void addLast(MyListNode *newNode) {
         if (n == 0) {
-            first = x;
-            last = x;
+            first = newNode;
+            last = newNode;
         } else {
-            last->next = x;
-            x->prev = last;
-            last = x;
+            last->next = newNode;
+            newNode->prev = last;
+            last = newNode;
         }
         ++n;
     }
 
     void removeFirst() {
-        MyListNode *x = first;
+        MyListNode *oldFirst = first;
         if (n == 1) {
             first = nullptr;
             last = nullptr;
@@ -4653,12 +4653,12 @@ public:
             first = first->next;
             first->prev = nullptr;
         }
-        delete x;
+        delete oldFirst;
         --n;
     }
 
     void removeLast() {
-        MyListNode *x = last;
+        MyListNode *oldLast = last;
         if (n == 1) {
             first = nullptr;
             last = nullptr;
@@ -4666,19 +4666,19 @@ public:
             last = last->prev;
             last->next = nullptr;
         }
-        delete x;
+        delete oldLast;
         --n;
     }
 
-    void remove(MyListNode *x) {
-        if (x == first) {
+    void remove(MyListNode *delNode) {
+        if (delNode == first) {
             removeFirst();
-        } else if (x == last) {
+        } else if (delNode == last) {
             removeLast();
         } else {
-            x->prev->next = x->next;
-            x->next->prev = x->prev;
-            delete x;
+            delNode->prev->next = delNode->next;
+            delNode->next->prev = delNode->prev;
+            delete delNode;
             --n;
         }
     }
@@ -4733,27 +4733,27 @@ private:
     }
 
     void addCache(int key, int val) {
-        MyListNode *x = new MyListNode(key, val);
-        list.addLast(x);
-        keyToNode[key] = x;
+        auto *newNode = new MyListNode(key, val);
+        list.addLast(newNode);
+        keyToNode[key] = newNode;
     }
 
     void removeCache() {
-        int key = list.getFirst()->key;
+        int delKey = list.getFirst()->key;
         list.removeFirst();
-        keyToNode.erase(key);
+        keyToNode.erase(delKey);
     }
 
     int touchCache(int key, int val) {
-        MyListNode *x = keyToNode[key];
-        int newVal = x->val;
+        MyListNode *oldNode = keyToNode[key];
+        int newVal = oldNode->val;
         if (val != INT_MIN) {
             newVal = val;
         }
-        list.remove(x);
-        x = new MyListNode(key, newVal);
-        list.addLast(x);
-        keyToNode[key] = x;
+        list.remove(oldNode);
+        auto *newNode = new MyListNode(key, newVal);
+        list.addLast(newNode);
+        keyToNode[key] = newNode;
         return newVal;
     }
 
@@ -4762,7 +4762,7 @@ private:
     MyDoublyLinkedList list;
     unordered_map<int, MyListNode *> keyToNode;
 };
-// https://leetcode.cn/submissions/detail/441250286/
+// https://leetcode.cn/submissions/detail/441746007/
 ```
 
 ```cpp
