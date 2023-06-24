@@ -7415,38 +7415,38 @@ private:
 <https://leetcode.cn/problems/lfu-cache/>
 
 ```cpp
-struct Node {
+struct MyListNode {
     int key, val, freq;
-    Node *prev;
-    Node *next;
+    MyListNode *prev;
+    MyListNode *next;
 
-    Node(int k, int v, int f) : key{k}, val{v}, freq{f}, prev{nullptr}, next{nullptr} {}
+    MyListNode(int k, int v, int f) : key{k}, val{v}, freq{f}, prev{nullptr}, next{nullptr} {}
 };
 
-class DoublyLinkedList {
+class MyDoublyLinkedList {
 public:
-    DoublyLinkedList() : first{nullptr}, last{nullptr}, n{0} {}
+    MyDoublyLinkedList() : first{nullptr}, last{nullptr}, n{0} {}
 
-    ~DoublyLinkedList() {
+    ~MyDoublyLinkedList() {
         while (!empty()) {
             removeFirst();
         }
     }
 
-    void addLast(Node *x) {
+    void addLast(MyListNode *newNode) {
         if (n == 0) {
-            first = x;
-            last = x;
+            first = newNode;
+            last = newNode;
         } else {
-            last->next = x;
-            x->prev = last;
-            last = x;
+            last->next = newNode;
+            newNode->prev = last;
+            last = newNode;
         }
         ++n;
     }
 
     void removeFirst() {
-        Node *x = first;
+        MyListNode *oldFirst = first;
         if (n == 1) {
             first = nullptr;
             last = nullptr;
@@ -7454,12 +7454,12 @@ public:
             first = first->next;
             first->prev = nullptr;
         }
-        delete x;
+        delete oldFirst;
         --n;
     }
 
     void removeLast() {
-        Node *x = last;
+        MyListNode *oldLast = last;
         if (n == 1) {
             first = nullptr;
             last = nullptr;
@@ -7467,24 +7467,24 @@ public:
             last = last->prev;
             last->next = nullptr;
         }
-        delete x;
+        delete oldLast;
         --n;
     }
 
-    void remove(Node *x) {
-        if (x == first) {
+    void remove(MyListNode *delNode) {
+        if (delNode == first) {
             removeFirst();
-        } else if (x == last) {
+        } else if (delNode == last) {
             removeLast();
         } else {
-            x->prev->next = x->next;
-            x->next->prev = x->prev;
-            delete x;
+            delNode->prev->next = delNode->next;
+            delNode->next->prev = delNode->prev;
+            delete delNode;
             --n;
         }
     }
 
-    const Node *getFirst() const {
+    const MyListNode *getFirst() const {
         return first;
     }
 
@@ -7493,8 +7493,8 @@ public:
     }
 
 private:
-    Node *first;
-    Node *last;
+    MyListNode *first;
+    MyListNode *last;
     int n;
 };
 
@@ -7534,52 +7534,52 @@ private:
     }
 
     void addCache(int key, int val) {
-        Node *x = new Node(key, val, 1);
-        keyToNode[key] = x;
-        freqToList[1].addLast(x);
+        auto *newNode = new MyListNode(key, val, 1);
+        keyToNode[key] = newNode;
+        freqToList[1].addLast(newNode);
         minFreq = 1;
     }
 
     void removeCache() {
-        auto &list = freqToList[minFreq];
-        int key = list.getFirst()->key;
-        keyToNode.erase(key);
-        list.removeFirst();
-        if (list.empty()) {
+        auto &minFreqList = freqToList[minFreq];
+        int delKey = minFreqList.getFirst()->key;
+        keyToNode.erase(delKey);
+        minFreqList.removeFirst();
+        if (minFreqList.empty()) {
             freqToList.erase(minFreq);
         }
     }
 
     int touchCache(int key, int val) {
-        Node *x = keyToNode[key];
-        int newVal = x->val;
+        MyListNode *oldNode = keyToNode[key];
+        int newVal = oldNode->val;
         if (val != INT_MIN) {
             newVal = val;
         }
-        int oldFreq = x->freq;
+        int oldFreq = oldNode->freq;
         int newFreq = oldFreq + 1;
         keyToNode.erase(key);
         auto &oldFreqList = freqToList[oldFreq];
-        oldFreqList.remove(x);
+        oldFreqList.remove(oldNode);
         if (oldFreqList.empty()) {
             freqToList.erase(oldFreq);
             if (minFreq == oldFreq) {
                 minFreq = newFreq;
             }
         }
-        x = new Node(key, newVal, newFreq);
-        keyToNode[key] = x;
+        auto *newNode = new MyListNode(key, newVal, newFreq);
+        keyToNode[key] = newNode;
         auto &newFreqList = freqToList[newFreq];
-        newFreqList.addLast(x);
+        newFreqList.addLast(newNode);
         return newVal;
     }
 
     int capacity;
-    int minFreq;
-    unordered_map<int, Node *> keyToNode;
-    unordered_map<int, DoublyLinkedList> freqToList;
+    int minFreq{};
+    unordered_map<int, MyListNode *> keyToNode;
+    unordered_map<int, MyDoublyLinkedList> freqToList;
 };
-// https://leetcode.cn/submissions/detail/391598310/
+// https://leetcode.cn/submissions/detail/441743799/
 ```
 
 ```cpp
