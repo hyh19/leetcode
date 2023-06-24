@@ -5456,7 +5456,7 @@ private:
 ```cpp
 class Solution {
 public:
-    vector<int> rightSideView(TreeNode *root) {
+    vector<int> rightSideView(const TreeNode *root) {
         dfs(root, 0);
         size_t n = map.size();
         vector<int> ans(n);
@@ -5478,7 +5478,7 @@ private:
 
     unordered_map<int, int> map;
 };
-// https://leetcode.cn/submissions/detail/391695908/
+// https://leetcode.cn/submissions/detail/441816935/
 ```
 
 ## 200. 岛屿数量
