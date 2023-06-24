@@ -4807,29 +4807,29 @@ private:
     }
 
     void removeCache() {
-        int key = list.front().first;
+        int delKey = list.front().first;
         list.pop_front();
-        keyToIter.erase(key);
+        keyToIter.erase(delKey);
     }
 
     int touchCache(int key, int val) {
-        auto iter = keyToIter[key];
-        int newVal = iter->second;
+        auto oldIter = keyToIter[key];
+        int newVal = oldIter->second;
         if (val != INT_MIN) {
             newVal = val;
         }
-        list.erase(iter);
+        list.erase(oldIter);
         list.emplace_back(key, newVal);
-        iter = prev(list.end());
-        keyToIter[key] = iter;
-        return iter->second;
+        auto newIter = prev(list.end());
+        keyToIter[key] = newIter;
+        return newIter->second;
     }
 
-    unordered_map<int, list<pair<int, int>>::iterator> keyToIter;
-    list<pair<int, int>> list;
     int capacity;
+    std::list<pair<int, int>> list;
+    unordered_map<int, std::list<pair<int, int>>::iterator> keyToIter;
 };
-// https://leetcode.cn/submissions/detail/391596335/
+// https://leetcode.cn/submissions/detail/441748772/
 ```
 
 ## 153. 寻找旋转排序数组中的最小值
