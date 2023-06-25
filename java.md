@@ -7700,9 +7700,9 @@ class LFUCache {
 ```java
 class LFUCache {
     private final int capacity;
-    private final Map<Integer, Integer> keyToVal = new HashMap();
-    private final Map<Integer, Integer> keyToFreq = new HashMap();
-    private final Map<Integer, LinkedHashSet<Integer>> freqToKeyList = new HashMap();
+    private final Map<Integer, Integer> keyToVal = new HashMap<>();
+    private final Map<Integer, Integer> keyToFreq = new HashMap<>();
+    private final Map<Integer, LinkedHashSet<Integer>> freqToKeyList = new HashMap<>();
     private int minFreq = 0;
 
     public LFUCache(int capacity) {
@@ -7740,18 +7740,18 @@ class LFUCache {
     private void addCache(int key, int val) {
         keyToVal.put(key, val);
         keyToFreq.put(key, 1);
-        freqToKeyList.putIfAbsent(1, new LinkedHashSet<Integer>());
+        freqToKeyList.putIfAbsent(1, new LinkedHashSet<>());
         freqToKeyList.get(1).add(key);
         minFreq = 1;
     }
 
     private void removeCache() {
-        LinkedHashSet<Integer> list = freqToKeyList.get(minFreq);
-        int key = list.iterator().next();
-        keyToVal.remove(key);
-        keyToFreq.remove(key);
-        list.remove(key);
-        if (list.isEmpty()) {
+        LinkedHashSet<Integer> minFreqList = freqToKeyList.get(minFreq);
+        int delKey = minFreqList.iterator().next();
+        keyToVal.remove(delKey);
+        keyToFreq.remove(delKey);
+        minFreqList.remove(delKey);
+        if (minFreqList.isEmpty()) {
             freqToKeyList.remove(minFreq);
         }
     }
@@ -7771,13 +7771,13 @@ class LFUCache {
                 minFreq = newFreq;
             }
         }
-        freqToKeyList.putIfAbsent(newFreq, new LinkedHashSet<Integer>());
+        freqToKeyList.putIfAbsent(newFreq, new LinkedHashSet<>());
         LinkedHashSet<Integer> newList = freqToKeyList.get(newFreq);
         newList.add(key);
         return keyToVal.get(key);
     }
 }
-// https://leetcode.cn/submissions/detail/365102836/
+// https://leetcode.cn/submissions/detail/442128400/
 ```
 
 ## 493. 翻转对
