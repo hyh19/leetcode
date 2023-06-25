@@ -4659,14 +4659,14 @@ class MyDoublyLinkedList {
         n = 0;
     }
 
-    public void addLast(MyListNode x) {
+    public void addLast(MyListNode newNode) {
         if (n == 0) {
-            first = x;
-            last = x;
+            first = newNode;
+            last = newNode;
         } else {
-            last.next = x;
-            x.prev = last;
-            last = x;
+            last.next = newNode;
+            newNode.prev = last;
+            last = newNode;
         }
         ++n;
     }
@@ -4699,16 +4699,16 @@ class MyDoublyLinkedList {
         return oldLast;
     }
 
-    public void remove(MyListNode x) {
-        if (x == first) {
+    public void remove(MyListNode delNode) {
+        if (delNode == first) {
             removeFirst();
-        } else if (x == last) {
+        } else if (delNode == last) {
             removeLast();
         } else {
-            x.prev.next = x.next;
-            x.next.prev = x.prev;
-            x.prev = null;
-            x.next = null;
+            delNode.prev.next = delNode.next;
+            delNode.next.prev = delNode.prev;
+            delNode.prev = null;
+            delNode.next = null;
             --n;
         }
     }
@@ -4752,9 +4752,9 @@ class LRUCache {
     }
 
     private void addCache(int key, int val) {
-        MyListNode x = new MyListNode(key, val);
-        list.addLast(x);
-        keyToNode.put(key, x);
+        MyListNode newNode = new MyListNode(key, val);
+        list.addLast(newNode);
+        keyToNode.put(key, newNode);
     }
 
     private void removeCache() {
@@ -4762,16 +4762,16 @@ class LRUCache {
     }
 
     private int touchCache(int key, int val) {
-        MyListNode x = keyToNode.get(key);
+        MyListNode touchNode = keyToNode.get(key);
         if (val != Integer.MIN_VALUE) {
-            x.val = val;
+            touchNode.val = val;
         }
-        list.remove(x);
-        list.addLast(x);
-        return x.val;
+        list.remove(touchNode);
+        list.addLast(touchNode);
+        return touchNode.val;
     }
 }
-// https://leetcode.cn/submissions/detail/441252338/
+// https://leetcode.cn/submissions/detail/442124950/
 ```
 
 ```java
