@@ -7538,41 +7538,41 @@ class Solution {
 <https://leetcode.cn/problems/lfu-cache/>
 
 ```java
-class Node {
+class MyListNode {
     public int key, val, freq;
-    public Node prev, next;
+    public MyListNode prev, next;
 
-    public Node(int key, int val, int freq) {
+    public MyListNode(int key, int val, int freq) {
         this.key = key;
         this.val = val;
         this.freq = freq;
     }
 }
 
-class DoublyLinkedList {
-    private Node first, last;
+class MyDoublyLinkedList {
+    private MyListNode first, last;
     private int n;
 
-    public DoublyLinkedList() {
+    public MyDoublyLinkedList() {
         first = null;
         last = null;
         n = 0;
     }
 
-    public void addLast(Node x) {
+    public void addLast(MyListNode newNode) {
         if (n == 0) {
-            first = x;
-            last = x;
+            first = newNode;
+            last = newNode;
         } else {
-            last.next = x;
-            x.prev = last;
-            last = x;
+            last.next = newNode;
+            newNode.prev = last;
+            last = newNode;
         }
         ++n;
     }
 
-    public Node removeFirst() {
-        Node oldFirst = first;
+    public MyListNode removeFirst() {
+        MyListNode oldFirst = first;
         if (n == 1) {
             first = null;
             last = null;
@@ -7585,8 +7585,8 @@ class DoublyLinkedList {
         return oldFirst;
     }
 
-    public Node removeLast() {
-        Node oldLast = last;
+    public MyListNode removeLast() {
+        MyListNode oldLast = last;
         if (n == 1) {
             first = null;
             last = null;
@@ -7599,16 +7599,16 @@ class DoublyLinkedList {
         return oldLast;
     }
 
-    public void remove(Node x) {
-        if (x == first) {
+    public void remove(MyListNode delNode) {
+        if (delNode == first) {
             removeFirst();
-        } else if (x == last) {
+        } else if (delNode == last) {
             removeLast();
         } else {
-            x.prev.next = x.next;
-            x.next.prev = x.prev;
-            x.prev = null;
-            x.next = null;
+            delNode.prev.next = delNode.next;
+            delNode.next.prev = delNode.prev;
+            delNode.prev = null;
+            delNode.next = null;
             --n;
         }
     }
@@ -7620,8 +7620,8 @@ class DoublyLinkedList {
 
 class LFUCache {
     private final int capacity;
-    private final Map<Integer, Node> keyToNode = new HashMap();
-    private final Map<Integer, DoublyLinkedList> freqToList = new HashMap();
+    private final Map<Integer, MyListNode> keyToNode = new HashMap<>();
+    private final Map<Integer, MyDoublyLinkedList> freqToList = new HashMap<>();
     private int minFreq = 0;
 
     public LFUCache(int capacity) {
@@ -7657,44 +7657,44 @@ class LFUCache {
     }
 
     private void addCache(int key, int val) {
-        Node x = new Node(key, val, 1);
-        keyToNode.put(key, x);
-        freqToList.putIfAbsent(1, new DoublyLinkedList());
-        freqToList.get(1).addLast(x);
+        MyListNode newNode = new MyListNode(key, val, 1);
+        keyToNode.put(key, newNode);
+        freqToList.putIfAbsent(1, new MyDoublyLinkedList());
+        freqToList.get(1).addLast(newNode);
         minFreq = 1;
     }
 
     private void removeCache() {
-        DoublyLinkedList list = freqToList.get(minFreq);
-        keyToNode.remove(list.removeFirst().key);
-        if (list.empty()) {
+        MyDoublyLinkedList minFreqList = freqToList.get(minFreq);
+        keyToNode.remove(minFreqList.removeFirst().key);
+        if (minFreqList.empty()) {
             freqToList.remove(minFreq);
         }
     }
 
     private int touchCache(int key, int val) {
-        Node x = keyToNode.get(key);
+        MyListNode touchNode = keyToNode.get(key);
         if (val != Integer.MIN_VALUE) {
-            x.val = val;
+            touchNode.val = val;
         }
-        int oldFreq = x.freq;
+        int oldFreq = touchNode.freq;
         int newFreq = oldFreq + 1;
-        x.freq = newFreq;
-        DoublyLinkedList oldList = freqToList.get(oldFreq);
-        oldList.remove(x);
+        touchNode.freq = newFreq;
+        MyDoublyLinkedList oldList = freqToList.get(oldFreq);
+        oldList.remove(touchNode);
         if (oldList.empty()) {
             freqToList.remove(oldFreq);
             if (minFreq == oldFreq) {
                 minFreq = newFreq;
             }
         }
-        freqToList.putIfAbsent(newFreq, new DoublyLinkedList());
-        DoublyLinkedList newList = freqToList.get(newFreq);
-        newList.addLast(x);
-        return x.val;
+        freqToList.putIfAbsent(newFreq, new MyDoublyLinkedList());
+        MyDoublyLinkedList newList = freqToList.get(newFreq);
+        newList.addLast(touchNode);
+        return touchNode.val;
     }
 }
-// https://leetcode.cn/submissions/detail/365101727/
+// https://leetcode.cn/submissions/detail/442124154/
 ```
 
 ```java
