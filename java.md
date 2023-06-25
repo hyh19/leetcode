@@ -4816,8 +4816,8 @@ class LRUCache {
     }
 
     private void removeCache() {
-        int key = keyToVal.keySet().iterator().next();
-        keyToVal.remove(key);
+        int delKey = keyToVal.keySet().iterator().next();
+        keyToVal.remove(delKey);
     }
 
     private int touchCache(int key, int val) {
@@ -4830,7 +4830,7 @@ class LRUCache {
         return newVal;
     }
 }
-// https://leetcode.cn/submissions/detail/441253902/
+// https://leetcode.cn/submissions/detail/442129269/
 ```
 
 ## 153. 寻找旋转排序数组中的最小值
