@@ -3833,7 +3833,7 @@ class Solution:
 <https://leetcode.cn/problems/lfu-cache/>
 
 ```py
-class Node:
+class MyListNode:
     def __init__(self, key: int, val: int, freq: int):
         self.key = key
         self.val = val
@@ -3842,25 +3842,25 @@ class Node:
         self.next = None
 
 
-class DoublyLinkedList:
+class MyDoublyLinkedList:
     def __init__(self):
         self.__first = None
         self.__last = None
         self.__n = 0
 
-    def addLast(self, x: Node) -> None:
+    def add_last(self, new_node: MyListNode) -> None:
         if self.__n == 0:
-            self.__first = x
-            self.__last = x
+            self.__first = new_node
+            self.__last = new_node
             self.__n = 1
         else:
-            self.__last.next = x
-            x.prev = self.__last
-            self.__last = x
+            self.__last.next = new_node
+            new_node.prev = self.__last
+            self.__last = new_node
             self.__n += 1
 
-    def removeFirst(self) -> Node:
-        oldFirst = self.__first
+    def remove_first(self) -> MyListNode:
+        old_first = self.__first
         if self.__n == 1:
             self.__first = None
             self.__last = None
@@ -3868,12 +3868,12 @@ class DoublyLinkedList:
         else:
             self.__first = self.__first.next
             self.__first.prev = None
-            oldFirst.next = None
+            old_first.next = None
             self.__n -= 1
-        return oldFirst
+        return old_first
 
-    def removeLast(self) -> Node:
-        oldLast = self.__last
+    def remove_last(self) -> MyListNode:
+        old_last = self.__last
         if self.__n == 1:
             self.__first = None
             self.__last = None
@@ -3881,20 +3881,20 @@ class DoublyLinkedList:
         else:
             self.__last = self.__last.prev
             self.__last.next = None
-            oldLast.prev = None
+            old_last.prev = None
             self.__n -= 1
-        return oldLast
+        return old_last
 
-    def remove(self, x: Node) -> None:
-        if x is self.__first:
-            self.removeFirst()
-        elif x is self.__last:
-            self.removeLast()
+    def remove(self, del_node: MyListNode) -> None:
+        if del_node is self.__first:
+            self.remove_first()
+        elif del_node is self.__last:
+            self.remove_last()
         else:
-            x.prev.next = x.next
-            x.next.prev = x.prev
-            x.prev = None
-            x.next = None
+            del_node.prev.next = del_node.next
+            del_node.next.prev = del_node.prev
+            del_node.prev = None
+            del_node.next = None
             self.__n -= 1
 
     def empty(self) -> bool:
@@ -3904,59 +3904,59 @@ class DoublyLinkedList:
 class LFUCache:
     def __init__(self, capacity: int):
         self.__capacity = capacity
-        self.__minFreq = 0
-        self.__keyToNode = {}
-        self.__freqToList = defaultdict(DoublyLinkedList)
+        self.__min_freq = 0
+        self.__key_to_node = {}
+        self.__freq_to_list = defaultdict(MyDoublyLinkedList)
 
     def get(self, key: int) -> int:
         if self.__contains(key):
-            return self.__touchCache(key, None)
+            return self.__touch_cache(key, None)
         return -1
 
     def put(self, key: int, value: int) -> None:
         if self.__capacity > 0:
             if self.__contains(key):
-                self.__touchCache(key, value)
+                self.__touch_cache(key, value)
             else:
                 if self.__full():
-                    self.__removeCache()
-                self.__addCache(key, value)
+                    self.__remove_cache()
+                self.__add_cache(key, value)
 
     def __contains(self, key: int) -> bool:
-        return key in self.__keyToNode
+        return key in self.__key_to_node
 
     def __full(self) -> bool:
-        return len(self.__keyToNode) == self.__capacity
+        return len(self.__key_to_node) == self.__capacity
 
-    def __addCache(self, key: int, val: int) -> None:
-        x = Node(key, val, 1)
-        self.__keyToNode[key] = x
-        self.__freqToList[1].addLast(x)
-        self.__minFreq = 1
+    def __add_cache(self, key: int, val: int) -> None:
+        new_node = MyListNode(key, val, 1)
+        self.__key_to_node[key] = new_node
+        self.__freq_to_list[1].add_last(new_node)
+        self.__min_freq = 1
 
-    def __removeCache(self) -> None:
-        theList = self.__freqToList[self.__minFreq]
-        self.__keyToNode.pop(theList.removeFirst().key)
-        if theList.empty():
-            self.__freqToList.pop(self.__minFreq)
+    def __remove_cache(self) -> None:
+        min_freq_list = self.__freq_to_list[self.__min_freq]
+        self.__key_to_node.pop(min_freq_list.remove_first().key)
+        if min_freq_list.empty():
+            self.__freq_to_list.pop(self.__min_freq)
 
-    def __touchCache(self, key: int, val: Optional[int]) -> int:
-        x = self.__keyToNode[key]
+    def __touch_cache(self, key: int, val: Optional[int]) -> int:
+        touch_node = self.__key_to_node[key]
         if val is not None:
-            x.val = val
-        oldFreq = x.freq
-        newFreq = oldFreq + 1
-        x.freq = newFreq
-        oldList = self.__freqToList[oldFreq]
-        oldList.remove(x)
-        if oldList.empty():
-            self.__freqToList.pop(oldFreq)
-            if self.__minFreq == oldFreq:
-                self.__minFreq = newFreq
-        newList = self.__freqToList[newFreq]
-        newList.addLast(x)
-        return x.val
-# https://leetcode.cn/submissions/detail/380511332/
+            touch_node.val = val
+        old_freq = touch_node.freq
+        new_freq = old_freq + 1
+        touch_node.freq = new_freq
+        old_list = self.__freq_to_list[old_freq]
+        old_list.remove(touch_node)
+        if old_list.empty():
+            self.__freq_to_list.pop(old_freq)
+            if self.__min_freq == old_freq:
+                self.__min_freq = new_freq
+        new_list = self.__freq_to_list[new_freq]
+        new_list.add_last(touch_node)
+        return touch_node.val
+# https://leetcode.cn/submissions/detail/442599806/
 ```
 
 ## 493. 翻转对
