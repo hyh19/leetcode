@@ -6367,22 +6367,22 @@ class Solution
 ```php
 <?php
 
-class Node
+class MyListNode
 {
     public int $key;
     public int $val;
     public int $freq;
-    public ?Node $prev;
-    public ?Node $next;
+    public ?MyListNode $prev;
+    public ?MyListNode $next;
 
     /**
      * @param int $key
      * @param int $val
      * @param int $freq
-     * @param Node|null $prev
-     * @param Node|null $next
+     * @param MyListNode|null $prev
+     * @param MyListNode|null $next
      */
-    public function __construct(int $key, int $val, int $freq, Node $prev = null, Node $next = null)
+    public function __construct(int $key, int $val, int $freq, MyListNode $prev = null, MyListNode $next = null)
     {
         $this->key = $key;
         $this->val = $val;
@@ -6392,33 +6392,33 @@ class Node
     }
 }
 
-class DoublyLinkedList
+class MyDoublyLinkedList
 {
-    private ?Node $first = null;
-    private ?Node $last = null;
+    private ?MyListNode $first = null;
+    private ?MyListNode $last = null;
     private int $n = 0;
 
     /**
-     * @param Node $x
+     * @param MyListNode $newNode
      * @return void
      */
-    public function addLast(Node $x): void
+    public function addLast(MyListNode $newNode): void
     {
         if ($this->n === 0) {
-            $this->first = $x;
-            $this->last = $x;
+            $this->first = $newNode;
+            $this->last = $newNode;
         } else {
-            $this->last->next = $x;
-            $x->prev = $this->last;
-            $this->last = $x;
+            $this->last->next = $newNode;
+            $newNode->prev = $this->last;
+            $this->last = $newNode;
         }
         ++$this->n;
     }
 
     /**
-     * @return Node
+     * @return MyListNode
      */
-    public function removeFirst(): Node
+    public function removeFirst(): MyListNode
     {
         $oldFirst = $this->first;
         if ($this->n === 1) {
@@ -6434,9 +6434,9 @@ class DoublyLinkedList
     }
 
     /**
-     * @return Node
+     * @return MyListNode
      */
-    public function removeLast(): Node
+    public function removeLast(): MyListNode
     {
         $oldLast = $this->last;
         if ($this->n === 1) {
@@ -6452,20 +6452,20 @@ class DoublyLinkedList
     }
 
     /**
-     * @param Node $x
+     * @param MyListNode $delNode
      * @return void
      */
-    public function remove(Node $x): void
+    public function remove(MyListNode $delNode): void
     {
-        if ($x === $this->first) {
+        if ($delNode === $this->first) {
             $this->removeFirst();
-        } else if ($x === $this->last) {
+        } else if ($delNode === $this->last) {
             $this->removeLast();
         } else {
-            $x->prev->next = $x->next;
-            $x->next->prev = $x->prev;
-            $x->prev = null;
-            $x->next = null;
+            $delNode->prev->next = $delNode->next;
+            $delNode->next->prev = $delNode->prev;
+            $delNode->prev = null;
+            $delNode->next = null;
             --$this->n;
         }
     }
@@ -6549,10 +6549,10 @@ class LFUCache
      */
     private function addCache(int $key, int $val): void
     {
-        $x = new Node($key, $val, 1);
-        $this->keyToNode[$key] = $x;
-        $this->freqToList[1] = $this->freqToList[1] ?? new DoublyLinkedList();
-        $this->freqToList[1]->addLast($x);
+        $newNode = new MyListNode($key, $val, 1);
+        $this->keyToNode[$key] = $newNode;
+        $this->freqToList[1] = $this->freqToList[1] ?? new MyDoublyLinkedList();
+        $this->freqToList[1]->addLast($newNode);
         $this->minFreq = 1;
     }
 
@@ -6561,9 +6561,9 @@ class LFUCache
      */
     private function removeCache(): void
     {
-        $list = $this->freqToList[$this->minFreq];
-        unset($this->keyToNode[$list->removeFirst()->key]);
-        if ($list->empty()) {
+        $minFreqList = $this->freqToList[$this->minFreq];
+        unset($this->keyToNode[$minFreqList->removeFirst()->key]);
+        if ($minFreqList->empty()) {
             unset($this->freqToList[$this->minFreq]);
         }
     }
@@ -6575,28 +6575,28 @@ class LFUCache
      */
     private function touchCache(int $key, int $val = null): int
     {
-        $x = $this->keyToNode[$key];
+        $touchNode = $this->keyToNode[$key];
         if (isset($val)) {
-            $x->val = $val;
+            $touchNode->val = $val;
         }
-        $oldFreq = $x->freq;
+        $oldFreq = $touchNode->freq;
         $newFreq = $oldFreq + 1;
-        $x->freq = $newFreq;
+        $touchNode->freq = $newFreq;
         $oldList = $this->freqToList[$oldFreq];
-        $oldList->remove($x);
+        $oldList->remove($touchNode);
         if ($oldList->empty()) {
             unset($this->freqToList[$oldFreq]);
             if ($this->minFreq === $oldFreq) {
                 $this->minFreq = $newFreq;
             }
         }
-        $this->freqToList[$newFreq] = $this->freqToList[$newFreq] ?? new DoublyLinkedList();
+        $this->freqToList[$newFreq] = $this->freqToList[$newFreq] ?? new MyDoublyLinkedList();
         $newList = $this->freqToList[$newFreq];
-        $newList->addLast($x);
-        return $x->val;
+        $newList->addLast($touchNode);
+        return $touchNode->val;
     }
 }
-// https://leetcode.cn/submissions/detail/384087732/
+// https://leetcode.cn/submissions/detail/442825899/
 ```
 
 ## 493. 翻转对
