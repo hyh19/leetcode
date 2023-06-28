@@ -5049,11 +5049,11 @@ int *rightSideView(struct TreeNode *root, int *returnSize) {
 <https://leetcode.cn/problems/number-of-islands/>
 
 ```c
-static const char LAND = '1';
-static const char WATER = '0';
+const char LAND = '1';
+const char WATER = '0';
 
 void floodFill(char **grid, int gridSize, int *gridColSize, int row, int col) {
-    if (row < 0 || row >= gridSize || col < 0 || col >= *gridColSize || grid[row][col] == WATER) {
+    if (row < 0 || row >= gridSize || col < 0 || col >= gridColSize[row] || grid[row][col] == WATER) {
         return;
     }
     grid[row][col] = WATER;
@@ -5066,7 +5066,7 @@ void floodFill(char **grid, int gridSize, int *gridColSize, int row, int col) {
 int numIslands(char **grid, int gridSize, int *gridColSize) {
     int count = 0;
     for (int row = 0; row < gridSize; ++row) {
-        for (int col = 0; col < *gridColSize; ++col) {
+        for (int col = 0; col < gridColSize[row]; ++col) {
             if (grid[row][col] == LAND) {
                 floodFill(grid, gridSize, gridColSize, row, col);
                 ++count;
@@ -5075,7 +5075,7 @@ int numIslands(char **grid, int gridSize, int *gridColSize) {
     }
     return count;
 }
-// https://leetcode.cn/submissions/detail/391254735/
+// https://leetcode.cn/submissions/detail/442638933/
 ```
 
 ## 203. 移除链表元素
