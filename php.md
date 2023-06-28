@@ -3840,18 +3840,18 @@ class MyDoublyLinkedList
     private int $n = 0;
 
     /**
-     * @param MyListNode $x
+     * @param MyListNode $newNode
      * @return void
      */
-    public function addLast(MyListNode $x): void
+    public function addLast(MyListNode $newNode): void
     {
         if ($this->n === 0) {
-            $this->first = $x;
-            $this->last = $x;
+            $this->first = $newNode;
+            $this->last = $newNode;
         } else {
-            $this->last->next = $x;
-            $x->prev = $this->last;
-            $this->last = $x;
+            $this->last->next = $newNode;
+            $newNode->prev = $this->last;
+            $this->last = $newNode;
         }
         ++$this->n;
     }
@@ -3893,20 +3893,20 @@ class MyDoublyLinkedList
     }
 
     /**
-     * @param MyListNode $x
+     * @param MyListNode $delNode
      * @return void
      */
-    public function remove(MyListNode $x): void
+    public function remove(MyListNode $delNode): void
     {
-        if ($x === $this->first) {
+        if ($delNode === $this->first) {
             $this->removeFirst();
-        } else if ($x === $this->last) {
+        } else if ($delNode === $this->last) {
             $this->removeLast();
         } else {
-            $x->prev->next = $x->next;
-            $x->next->prev = $x->prev;
-            $x->prev = null;
-            $x->next = null;
+            $delNode->prev->next = $delNode->next;
+            $delNode->next->prev = $delNode->prev;
+            $delNode->prev = null;
+            $delNode->next = null;
             --$this->n;
         }
     }
@@ -3982,9 +3982,9 @@ class LRUCache
      */
     private function addCache(int $key, int $val): void
     {
-        $x = new MyListNode($key, $val);
-        $this->list->addLast($x);
-        $this->keyToNode[$key] = $x;
+        $newNode = new MyListNode($key, $val);
+        $this->list->addLast($newNode);
+        $this->keyToNode[$key] = $newNode;
     }
 
     /**
@@ -4002,16 +4002,16 @@ class LRUCache
      */
     private function touchCache(int $key, int $val = null): int
     {
-        $x = $this->keyToNode[$key];
+        $touchNode = $this->keyToNode[$key];
         if (isset($val)) {
-            $x->val = $val;
+            $touchNode->val = $val;
         }
-        $this->list->remove($x);
-        $this->list->addLast($x);
-        return $x->val;
+        $this->list->remove($touchNode);
+        $this->list->addLast($touchNode);
+        return $touchNode->val;
     }
 }
-// https://leetcode.cn/submissions/detail/441425103/
+// https://leetcode.cn/submissions/detail/442827300/
 ```
 
 ## 153. 寻找旋转排序数组中的最小值
