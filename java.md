@@ -5638,15 +5638,15 @@ class Solution {
     public ListNode reverseList(ListNode head) {
         ListNode reverseHead = null;
         while (head != null) {
-            ListNode next = head.next;
+            ListNode nextHead = head.next;
             head.next = reverseHead;
             reverseHead = head;
-            head = next;
+            head = nextHead;
         }
         return reverseHead;
     }
 }
-// https://leetcode.cn/submissions/detail/366016493/
+// https://leetcode.cn/submissions/detail/442649619/
 ```
 
 ```java
@@ -5680,39 +5680,36 @@ class Solution {
         if (head == null) {
             return;
         }
-        ListNode next = head.next;
+        ListNode nextHead = head.next;
         head.next = null;
-        dfs(next);
+        dfs(nextHead);
         ptr.next = head;
         ptr = ptr.next;
     }
 }
-// https://leetcode.cn/submissions/detail/367685090/
+// https://leetcode.cn/submissions/detail/442646330/
 ```
 
 ```java
 class Solution {
     public ListNode reverseList(ListNode head) {
-        if (head == null || head.next == null) {
-            return head;
-        }
-        Deque<ListNode> stack = new LinkedList();
+        Deque<ListNode> stack = new LinkedList<>();
         while (head != null) {
-            ListNode next = head.next;
+            ListNode nextHead = head.next;
             head.next = null;
             stack.push(head);
-            head = next;
+            head = nextHead;
         }
-        head = stack.pop();
-        ListNode ptr = head;
+        ListNode dummyHead = new ListNode();
+        ListNode ptr = dummyHead;
         while (!stack.isEmpty()) {
             ptr.next = stack.pop();
             ptr = ptr.next;
         }
-        return head;
+        return dummyHead.next;
     }
 }
-// https://leetcode.cn/submissions/detail/367691458/
+// https://leetcode.cn/submissions/detail/442649017/
 ```
 
 ## 207. 课程表
