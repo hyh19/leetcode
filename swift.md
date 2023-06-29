@@ -5403,163 +5403,168 @@ class Solution {
 ```swift
 import Foundation
 
-class Node {
-    public var key: Int;
-    public var val: Int;
-    public var freq: Int;
-    public var prev: Node?;
-    public var next: Node?;
+class MyListNode {
+    public var key: Int
+    public var val: Int
+    public var freq: Int
+    public var prev: MyListNode?
+    public var next: MyListNode?
 
-    init(_ key: Int, _ val: Int, _ freq: Int, _ prev: Node? = nil, _ next: Node? = nil) {
-        self.key = key;
-        self.val = val;
-        self.freq = freq;
-        self.prev = prev;
-        self.next = next;
+    init(_ key: Int, _ val: Int, _ freq: Int, _ prev: MyListNode? = nil, _ next: MyListNode? = nil) {
+        self.key = key
+        self.val = val
+        self.freq = freq
+        self.prev = prev
+        self.next = next
     }
 }
 
-struct DoublyLinkedList {
-    private var first: Node? = nil;
-    private var last: Node? = nil;
-    private var n = 0;
+class MyDoublyLinkedList {
+    private var first: MyListNode? = nil
+    private var last: MyListNode? = nil
+    private var n = 0
 
-    public mutating func addLast(_ x: Node) {
-        if (n == 0) {
-            first = x;
-            last = x;
+    public func addLast(_ newNode: MyListNode) {
+        if n == 0 {
+            first = newNode
+            last = newNode
         } else {
-            last!.next = x;
-            x.prev = last;
-            last = x;
+            last!.next = newNode
+            newNode.prev = last
+            last = newNode
         }
-        n += 1;
+        n += 1
     }
 
     @discardableResult
-    public mutating func removeFirst() -> Node {
-        let oldFirst = first;
-        if (n == 1) {
-            first = nil;
-            last = nil;
-        } else {
-            first = first!.next;
-            first!.prev = nil;
-            oldFirst!.next = nil;
+    public func removeFirst() -> MyListNode? {
+        guard let oldFirst = first else {
+            return nil
         }
-        n -= 1;
-        return oldFirst!;
+        if n == 1 {
+            first = nil
+            last = nil
+        } else {
+            first = first!.next
+            first!.prev = nil
+            oldFirst.next = nil
+        }
+        n -= 1
+        return oldFirst
     }
 
     @discardableResult
-    public mutating func removeLast() -> Node {
-        let oldLast = last;
-        if (n == 1) {
-            first = nil;
-            last = nil;
-        } else {
-            last = last!.prev;
-            last!.next = nil;
-            oldLast!.prev = nil;
+    public func removeLast() -> MyListNode? {
+        guard let oldLast = last else {
+            return nil;
         }
-        n -= 1;
-        return oldLast!;
+        if n == 1 {
+            first = nil
+            last = nil
+        } else {
+            last = last!.prev
+            last!.next = nil
+            oldLast.prev = nil
+        }
+        n -= 1
+        return oldLast
     }
 
-    public mutating func remove(_ x: Node) {
-        if (x === first) {
-            removeFirst();
-        } else if (x === last) {
-            removeLast();
+    public func remove(_ delNode: MyListNode) {
+        if delNode === first {
+            removeFirst()
+        } else if delNode === last {
+            removeLast()
         } else {
-            x.prev!.next = x.next;
-            x.next!.prev = x.prev;
-            x.prev = nil;
-            x.next = nil;
-            n -= 1;
+            delNode.prev!.next = delNode.next
+            delNode.next!.prev = delNode.prev
+            delNode.prev = nil
+            delNode.next = nil
+            n -= 1
         }
     }
 
     public func empty() -> Bool {
-        first == nil;
+        first == nil
     }
 }
 
 class LFUCache {
-    private var capacity: Int;
-    private var minFreq = 0;
-    private var keyToNode: [Int: Node] = [:];
-    private var freqToList: [Int: DoublyLinkedList] = [:];
+    private var capacity: Int
+    private var minFreq = 0
+    private var keyToNode: [Int: MyListNode] = [:]
+    private var freqToList: [Int: MyDoublyLinkedList] = [:]
 
     init(_ capacity: Int) {
-        self.capacity = capacity;
+        self.capacity = capacity
     }
 
     func get(_ key: Int) -> Int {
-        if (contains(key)) {
-            return touchCache(key, nil);
+        if contains(key) {
+            return touchCache(key, nil)
         }
-        return -1;
+        return -1
     }
 
     func put(_ key: Int, _ value: Int) {
-        if (capacity > 0) {
-            if (contains(key)) {
-                touchCache(key, value);
+        if capacity > 0 {
+            if contains(key) {
+                touchCache(key, value)
             } else {
-                if (full()) {
-                    removeCache();
+                if full() {
+                    removeCache()
                 }
-                addCache(key, value);
+                addCache(key, value)
             }
         }
     }
 
     private func contains(_ key: Int) -> Bool {
-        keyToNode[key] != nil;
+        keyToNode[key] != nil
     }
 
     private func full() -> Bool {
-        keyToNode.count == capacity;
+        keyToNode.count == capacity
     }
 
     private func addCache(_ key: Int, _ val: Int) {
-        let x = Node(key, val, 1);
-        keyToNode[key] = x;
-        freqToList[1] = freqToList[1] ?? DoublyLinkedList();
-        freqToList[1]!.addLast(x);
-        minFreq = 1;
+        let newNode = MyListNode(key, val, 1)
+        keyToNode[key] = newNode
+        freqToList[1] = freqToList[1] ?? MyDoublyLinkedList()
+        freqToList[1]!.addLast(newNode)
+        minFreq = 1
     }
 
     private func removeCache() {
-        keyToNode.removeValue(forKey: freqToList[minFreq]!.removeFirst().key);
-        if (freqToList[minFreq]!.empty()) {
-            freqToList.removeValue(forKey: minFreq);
+        let minFreqList = freqToList[minFreq]!
+        keyToNode.removeValue(forKey: minFreqList.removeFirst()!.key)
+        if minFreqList.empty() {
+            freqToList.removeValue(forKey: minFreq)
         }
     }
 
     @discardableResult
     private func touchCache(_ key: Int, _ val: Int?) -> Int {
-        let x = keyToNode[key]!;
-        if (val != nil) {
-            x.val = val!;
-        }
-        let oldFreq = x.freq;
-        let newFreq = oldFreq + 1;
-        x.freq = newFreq;
-        freqToList[oldFreq]!.remove(x);
-        if (freqToList[oldFreq]!.empty()) {
-            freqToList.removeValue(forKey: oldFreq);
-            if (minFreq == oldFreq) {
-                minFreq = newFreq;
+        let touchNode = keyToNode[key]!
+        touchNode.val = val ?? touchNode.val
+        let oldFreq = touchNode.freq
+        let newFreq = oldFreq + 1
+        touchNode.freq = newFreq
+        let oldFreqList = freqToList[oldFreq]!
+        oldFreqList.remove(touchNode)
+        if oldFreqList.empty() {
+            freqToList.removeValue(forKey: oldFreq)
+            if minFreq == oldFreq {
+                minFreq = newFreq
             }
         }
-        freqToList[newFreq] = freqToList[newFreq] ?? DoublyLinkedList();
-        freqToList[newFreq]!.addLast(x);
-        return x.val;
+        let newFreqList = freqToList[newFreq] ?? MyDoublyLinkedList()
+        newFreqList.addLast(touchNode)
+        freqToList[newFreq] = newFreqList
+        return touchNode.val
     }
 }
-// https://leetcode.cn/submissions/detail/387974541/
+// https://leetcode.cn/submissions/detail/443083063/
 ```
 
 ## 493. 翻转对
