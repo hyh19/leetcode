@@ -4194,55 +4194,55 @@ class Solution {
 ```swift
 class Solution {
     func countNodes(_ root: TreeNode?) -> Int {
-        if (root == nil) {
-            return 0;
+        if root == nil {
+            return 0
         }
-        var leftHeight = 0;
-        var ptr = root;
-        while (ptr != nil) {
-            leftHeight += 1;
-            ptr = ptr!.left;
+        var leftHeight = 0
+        var ptr = root
+        while ptr != nil {
+            leftHeight += 1
+            ptr = ptr!.left
         }
-        var rightHeight = 0;
-        ptr = root;
-        while (ptr != nil) {
-            rightHeight += 1;
-            ptr = ptr!.right;
+        var rightHeight = 0
+        ptr = root
+        while ptr != nil {
+            rightHeight += 1
+            ptr = ptr!.right
         }
-        if (leftHeight == rightHeight) {
-            return (1 << leftHeight) - 1;
+        if leftHeight == rightHeight {
+            return (1 << leftHeight) - 1
         }
-        return 1 + countNodes(root!.left) + countNodes(root!.right);
+        return 1 + countNodes(root!.left) + countNodes(root!.right)
     }
 }
-// https://leetcode.cn/submissions/detail/385065677/
+// https://leetcode.cn/submissions/detail/443348256/
 ```
 
 ```swift
 class Solution {
     func countNodes(_ root: TreeNode?) -> Int {
-        if (root == nil) {
-            return 0;
+        if root == nil {
+            return 0
         }
-        var leftHeight = 0;
-        var ptr = root;
-        while (ptr != nil) {
-            leftHeight += 1;
-            ptr = ptr!.left;
+        var leftHeight = 0
+        var ptr = root
+        while ptr != nil {
+            leftHeight += 1
+            ptr = ptr!.left
         }
-        var rightHeight = 0;
-        ptr = root;
-        while (ptr != nil) {
-            rightHeight += 1;
-            ptr = ptr!.right;
+        var rightHeight = 0
+        ptr = root
+        while ptr != nil {
+            rightHeight += 1
+            ptr = ptr!.right
         }
-        if (leftHeight == rightHeight) {
-            return Int(pow(2.0, Double(leftHeight))) - 1;
+        if leftHeight == rightHeight {
+            return Int(pow(2.0, Double(leftHeight))) - 1
         }
-        return 1 + countNodes(root!.left) + countNodes(root!.right);
+        return 1 + countNodes(root!.left) + countNodes(root!.right)
     }
 }
-// https://leetcode.cn/submissions/detail/385065414/
+// https://leetcode.cn/submissions/detail/443348051/
 ```
 
 ## 225. 用队列实现栈
