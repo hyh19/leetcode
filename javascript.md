@@ -3032,15 +3032,15 @@ class MyDoublyLinkedList {
         this.n = 0;
     }
 
-    addLast(x) {
+    addLast(newNode) {
         if (this.n === 0) {
-            this.first = x;
-            this.last = x;
+            this.first = newNode;
+            this.last = newNode;
             this.n = 1;
         } else {
-            this.last.next = x;
-            x.prev = this.last;
-            this.last = x;
+            this.last.next = newNode;
+            newNode.prev = this.last;
+            this.last = newNode;
             this.n++;
         }
     }
@@ -3075,16 +3075,16 @@ class MyDoublyLinkedList {
         return oldLast;
     }
 
-    remove(x) {
-        if (x === this.first) {
+    remove(delNode) {
+        if (delNode === this.first) {
             this.removeFirst();
-        } else if (x === this.last) {
+        } else if (delNode === this.last) {
             this.removeLast();
         } else {
-            x.prev.next = x.next;
-            x.next.prev = x.prev;
-            x.prev = null;
-            x.next = null;
+            delNode.prev.next = delNode.next;
+            delNode.next.prev = delNode.prev;
+            delNode.prev = null;
+            delNode.next = null;
             this.n--;
         }
     }
@@ -3137,9 +3137,9 @@ LRUCache.prototype.full = function () {
 };
 
 LRUCache.prototype.addCache = function (key, val) {
-    const x = new MyListNode(key, val);
-    this.list.addLast(x);
-    this.keyToNode.set(key, x);
+    const newNode = new MyListNode(key, val);
+    this.list.addLast(newNode);
+    this.keyToNode.set(key, newNode);
 };
 
 LRUCache.prototype.removeCache = function () {
@@ -3147,15 +3147,15 @@ LRUCache.prototype.removeCache = function () {
 };
 
 LRUCache.prototype.touchCache = function (key, val) {
-    const x = this.keyToNode.get(key);
+    const touchNode = this.keyToNode.get(key);
     if (val !== undefined) {
-        x.val = val;
+        touchNode.val = val;
     }
-    this.list.remove(x);
-    this.list.addLast(x);
-    return x.val;
+    this.list.remove(touchNode);
+    this.list.addLast(touchNode);
+    return touchNode.val;
 };
-// https://leetcode.cn/submissions/detail/441423758/
+// https://leetcode.cn/submissions/detail/443542672/
 ```
 
 ## 153. 寻找旋转排序数组中的最小值
