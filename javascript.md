@@ -5115,7 +5115,7 @@ const maxNonOverlappingIntervals = function (intervals) {
 <https://leetcode.cn/problems/lfu-cache/>
 
 ```js
-class Node {
+class MyListNode {
     constructor(key, val, freq, prev = null, next = null) {
         this.key = key;
         this.val = val;
@@ -5125,22 +5125,22 @@ class Node {
     }
 }
 
-class DoublyLinkedList {
+class MyDoublyLinkedList {
     constructor() {
         this.first = null;
         this.last = null;
         this.n = 0;
     }
 
-    addLast(x) {
+    addLast(newNode) {
         if (this.n === 0) {
-            this.first = x;
-            this.last = x;
+            this.first = newNode;
+            this.last = newNode;
             this.n = 1;
         } else {
-            this.last.next = x;
-            x.prev = this.last;
-            this.last = x;
+            this.last.next = newNode;
+            newNode.prev = this.last;
+            this.last = newNode;
             this.n++;
         }
     }
@@ -5175,16 +5175,16 @@ class DoublyLinkedList {
         return oldLast;
     }
 
-    remove(x) {
-        if (x === this.first) {
+    remove(delNode) {
+        if (delNode === this.first) {
             this.removeFirst();
-        } else if (x === this.last) {
+        } else if (delNode === this.last) {
             this.removeLast();
         } else {
-            x.prev.next = x.next;
-            x.next.prev = x.prev;
-            x.prev = null;
-            x.next = null;
+            delNode.prev.next = delNode.next;
+            delNode.next.prev = delNode.prev;
+            delNode.prev = null;
+            delNode.next = null;
             this.n--;
         }
     }
@@ -5242,33 +5242,33 @@ LFUCache.prototype.full = function () {
 };
 
 LFUCache.prototype.addCache = function (key, val) {
-    const x = new Node(key, val, 1);
-    this.keyToNode.set(key, x);
+    const newNode = new MyListNode(key, val, 1);
+    this.keyToNode.set(key, newNode);
     if (!this.freqToList.has(1)) {
-        this.freqToList.set(1, new DoublyLinkedList());
+        this.freqToList.set(1, new MyDoublyLinkedList());
     }
-    this.freqToList.get(1).addLast(x);
+    this.freqToList.get(1).addLast(newNode);
     this.minFreq = 1;
 };
 
 LFUCache.prototype.removeCache = function () {
-    const list = this.freqToList.get(this.minFreq);
-    this.keyToNode.delete(list.removeFirst().key);
-    if (list.empty()) {
+    const minFreqList = this.freqToList.get(this.minFreq);
+    this.keyToNode.delete(minFreqList.removeFirst().key);
+    if (minFreqList.empty()) {
         this.freqToList.delete(this.minFreq);
     }
 };
 
 LFUCache.prototype.touchCache = function (key, val) {
-    const x = this.keyToNode.get(key);
+    const touchNode = this.keyToNode.get(key);
     if (val !== undefined) {
-        x.val = val;
+        touchNode.val = val;
     }
-    const oldFreq = x.freq;
+    const oldFreq = touchNode.freq;
     const newFreq = oldFreq + 1;
-    x.freq = newFreq;
+    touchNode.freq = newFreq;
     const oldList = this.freqToList.get(oldFreq);
-    oldList.remove(x);
+    oldList.remove(touchNode);
     if (oldList.empty()) {
         this.freqToList.delete(oldFreq);
         if (this.minFreq === oldFreq) {
@@ -5276,13 +5276,13 @@ LFUCache.prototype.touchCache = function (key, val) {
         }
     }
     if (!this.freqToList.has(newFreq)) {
-        this.freqToList.set(newFreq, new DoublyLinkedList());
+        this.freqToList.set(newFreq, new MyDoublyLinkedList());
     }
     const newList = this.freqToList.get(newFreq);
-    newList.addLast(x);
-    return x.val;
+    newList.addLast(touchNode);
+    return touchNode.val;
 };
-// https://leetcode.cn/submissions/detail/382053526/
+// https://leetcode.cn/submissions/detail/443541900/
 ```
 
 ## 493. 翻转对
