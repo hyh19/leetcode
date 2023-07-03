@@ -3159,30 +3159,26 @@ class Solution {
 ```dart
 class Solution {
   int _pathSum = 0;
-  late final int _k;
-  late final int _n;
   late final List<int> _path = []; // 取 [1..9] 为元素
   late final List<List<int>> _ans = [];
 
   List<List<int>> combinationSum3(int k, int n) {
-    _k = k;
-    _n = n;
-    _backtrack(0);
+    _backtrack(k, n, 0);
     return _ans;
   }
 
   // edge = 取 [1..9] 为值
-  void _backtrack(int edge) {
-    if (_path.length == _k && _pathSum == _n) {
+  void _backtrack(int k, int n, int edge) {
+    if (_path.length == k && _pathSum == n) {
       _ans.add(List<int>.of(_path));
-    } else if (_path.length < _k && _pathSum < _n) {
+    } else if (_path.length < k && _pathSum < n) {
       // 避免重复，从 edge + 1 开始选择
       // 例如 [1->2] 和 [2->1] 是重复的
       while (++edge <= 9) {
-        if (_pathSum + edge <= _n) {
+        if (_pathSum + edge <= n) {
           _pathSum += edge;
           _path.add(edge);
-          _backtrack(edge);
+          _backtrack(k, n, edge);
           _pathSum -= edge;
           _path.removeLast();
         }
@@ -3190,7 +3186,7 @@ class Solution {
     }
   }
 }
-// https://leetcode.cn/submissions/detail/376972200/
+// https://leetcode.cn/submissions/detail/443978997/
 ```
 
 ## 222. 完全二叉树的节点个数
