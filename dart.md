@@ -1030,21 +1030,17 @@ class Solution {
 ```dart
 class Solution {
   int _pathSum = 0;
-  late final int _target;
-  late final List<int> _nums;
   late final List<int> _path = []; // 取 nums[edge] 为元素
   late final List<List<int>> _ans = [];
 
   List<List<int>> combinationSum(List<int> candidates, int target) {
-    _nums = candidates;
-    _target = target;
-    _backtrack(-1);
+    _backtrack(candidates, target, -1);
     return _ans;
   }
 
   // edge = 取数组 nums 的索引为值
-  void _backtrack(int edge) {
-    if (_pathSum == _target) {
+  void _backtrack(List<int> candidates, int target, int edge) {
+    if (_pathSum == target) {
       _ans.add(List<int>.of(_path));
       return;
     }
@@ -1053,12 +1049,12 @@ class Solution {
     }
     // 避免重复，从 edge 开始选择
     // 例如 [1->2] 和 [2->1] 是重复的
-    while (edge < _nums.length) {
-      final x = _nums[edge];
-      if (_pathSum + x <= _target) {
+    while (edge < candidates.length) {
+      final x = candidates[edge];
+      if (_pathSum + x <= target) {
         _pathSum += x;
         _path.add(x);
-        _backtrack(edge);
+        _backtrack(candidates, target, edge);
         _pathSum -= x;
         _path.removeLast();
       }
@@ -1066,7 +1062,7 @@ class Solution {
     }
   }
 }
-// https://leetcode.cn/submissions/detail/376925810/
+// https://leetcode.cn/submissions/detail/443973978/
 ```
 
 ## 40. 组合总和 II
