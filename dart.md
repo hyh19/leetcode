@@ -1072,42 +1072,38 @@ class Solution {
 ```dart
 class Solution {
   int _pathSum = 0;
-  late final int _target;
-  late final List<int> _nums;
   late final List<int> _path = []; // 取 nums[edge] 为元素
   late final List<List<int>> _ans = [];
 
   List<List<int>> combinationSum2(List<int> candidates, int target) {
-    _nums = candidates;
-    _target = target;
-    _nums.sort();
-    _backtrack(-1);
+    candidates.sort();
+    _backtrack(candidates, target, -1);
     return _ans;
   }
 
   // edge = 取数组 nums 的索引为值
-  void _backtrack(int edge) {
-    if (_pathSum == _target) {
+  void _backtrack(List<int> candidates, int target, int edge) {
+    if (_pathSum == target) {
       _ans.add(List<int>.of(_path));
       return;
     }
     var prev = -1;
     // 避免重复，从 edge + 1 开始选择
     // 例如 [1->2] 和 [2->1] 是重复的
-    while (++edge < _nums.length) {
-      final x = _nums[edge];
-      if (x != prev && _pathSum + x <= _target) {
+    while (++edge < candidates.length) {
+      final x = candidates[edge];
+      if (x != prev && _pathSum + x <= target) {
         prev = x;
         _pathSum += x;
         _path.add(x);
-        _backtrack(edge);
+        _backtrack(candidates, target, edge);
         _pathSum -= x;
         _path.removeLast();
       }
     }
   }
 }
-// https://leetcode.cn/submissions/detail/376927180/
+// https://leetcode.cn/submissions/detail/443977479/
 ```
 
 ## 42. 接雨水
