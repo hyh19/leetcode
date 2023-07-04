@@ -1179,21 +1179,19 @@ class Solution {
 
 ```dart
 class Solution {
-  late final List<int> _nums;
   late final List<bool> _marked;
   late final List<int> _path = []; // 取 nums[edge] 为元素
   late final List<List<int>> _ans = [];
 
   List<List<int>> permuteUnique(List<int> nums) {
-    _nums = nums;
-    _marked = List<bool>.filled(_nums.length, false);
-    _nums.sort();
-    _backtrack();
+    _marked = List<bool>.filled(nums.length, false);
+    nums.sort();
+    _backtrack(nums);
     return _ans;
   }
 
-  void _backtrack() {
-    final n = _nums.length;
+  void _backtrack(List<int> nums) {
+    final n = nums.length;
     if (_path.length == n) {
       _ans.add(List<int>.of(_path));
       return;
@@ -1201,19 +1199,19 @@ class Solution {
     var prev = -11;
     // edge = 取数组 nums 的索引为值
     for (var edge = 0; edge < n; ++edge) {
-      final x = _nums[edge];
+      final x = nums[edge];
       if (!_marked[edge] && x != prev) {
         prev = x;
         _path.add(x);
         _marked[edge] = true;
-        _backtrack();
+        _backtrack(nums);
         _path.removeLast();
         _marked[edge] = false;
       }
     }
   }
 }
-// https://leetcode.cn/submissions/detail/376922796/
+// https://leetcode.cn/submissions/detail/444262227/
 ```
 
 ## 51. N 皇后
