@@ -1632,29 +1632,27 @@ class Solution {
 
 ```dart
 class Solution {
-  late final List<int> _nums;
   late final List<int> _path = []; // 取 nums[edge] 为元素
   late final List<List<int>> _ans = [];
 
   List<List<int>> subsets(List<int> nums) {
-    _nums = nums;
-    _backtrack(-1);
+    _backtrack(nums, -1);
     return _ans;
   }
 
   // edge = 取数组 nums 的索引为值
-  void _backtrack(int edge) {
+  void _backtrack(List<int> nums, int edge) {
     _ans.add(List<int>.of(_path));
     // 避免重复，从 edge + 1 开始选择
     // 例如 [1->2] 和 [2->1] 是重复的
-    while (++edge < _nums.length) {
-      _path.add(_nums[edge]);
-      _backtrack(edge);
+    while (++edge < nums.length) {
+      _path.add(nums[edge]);
+      _backtrack(nums, edge);
       _path.removeLast();
     }
   }
 }
-// https://leetcode.cn/submissions/detail/376919789/
+// https://leetcode.cn/submissions/detail/444265251/
 ```
 
 ## 81. 搜索旋转排序数组 II
