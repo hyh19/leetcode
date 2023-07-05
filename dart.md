@@ -4626,10 +4626,7 @@ class Solution {
   late final Map<String, bool> _memo = HashMap();
 
   bool canPartitionKSubsets(List<int> nums, int k) {
-    var sum = 0;
-    for (final x in nums) {
-      sum += x;
-    }
+    final sum = nums.reduce((value, element) => value + element);
     if (sum % k != 0) {
       return false;
     }
@@ -4690,7 +4687,7 @@ class Solution {
     return res;
   }
 }
-// https://leetcode.cn/submissions/detail/377152233/
+// https://leetcode.cn/submissions/detail/444566539/
 ```
 
 ## 700. 二叉搜索树中的搜索
