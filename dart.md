@@ -679,24 +679,22 @@ class Solution {
 class Solution {
   int _left = 0; // 已使用的『左括号』数量
   int _right = 0; // 已使用的『右括号』数量
-  late final int _n;
   late final List<String> _path = []; // 取 '(', ')' 为元素
   late final List<String> _ans = [];
 
   List<String> generateParenthesis(int n) {
-    _n = n;
-    _backtrack();
+    _backtrack(n);
     return _ans;
   }
 
-  void _backtrack() {
+  void _backtrack(int n) {
     // 对于一个「合法」的括号字符串组合 p，必然对于任何 0 <= i < len(p) 都有：
     // 子串 p[0..i] 中左括号的数量都大于或等于右括号的数量
-    if (_left < _right || _left > _n || _right > _n) {
+    if (_left < _right || _left > n) {
       return;
     }
     // 一个「合法」括号组合的左括号数量一定等于右括号数量
-    if (_left == _n && _right == _n) {
+    if (_left == n && _right == n) {
       final sb = StringBuffer();
       sb.writeAll(_path);
       _ans.add(sb.toString());
@@ -706,18 +704,18 @@ class Solution {
     // 使用『左括号』
     _path.add('(');
     ++_left;
-    _backtrack();
+    _backtrack(n);
     _path.removeLast();
     --_left;
     // 使用『右括号』
     _path.add(')');
     ++_right;
-    _backtrack();
+    _backtrack(n);
     _path.removeLast();
     --_right;
   }
 }
-// https://leetcode.cn/submissions/detail/377181373/
+// https://leetcode.cn/submissions/detail/444856544/
 ```
 
 ## 23. 合并 K 个升序链表
