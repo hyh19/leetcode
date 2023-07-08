@@ -1230,13 +1230,15 @@ class Solution {
   void _backtrack(List<List<String>> board, int row) {
     final n = board.length;
     if (row == n - 1) {
-      final strs = <String>[];
-      for (final chs in board) {
+      // 二维数组 board 内的元素是一个字符，'Q' 或 '.'
+      // 二维数组 ans 内的元素是棋盘上的一行字符，例如 '..Q.'
+      final stringList = <String>[];
+      for (final characterList in board) {
         final sb = StringBuffer();
-        sb.writeAll(chs);
-        strs.add(sb.toString());
+        sb.writeAll(characterList);
+        stringList.add(sb.toString());
       }
-      _ans.add(strs);
+      _ans.add(stringList);
       return;
     }
     // edge = col
@@ -1249,7 +1251,7 @@ class Solution {
     }
   }
 
-  // board[row][col] 放置 Q 是否有效
+  // 检查在 board[row][col] 上放置 Q 是否有效
   bool _isValid(List<List<String>> board, int row, int col) {
     final n = board.length;
     // 同一列
@@ -1258,13 +1260,13 @@ class Solution {
         return false;
       }
     }
-    // 右斜线
+    // 左斜线
     for (var r = row - 1, c = col - 1; r >= 0 && c >= 0; --r, --c) {
       if (board[r][c] == 'Q') {
         return false;
       }
     }
-    // 左斜线
+    // 右斜线
     for (var r = row - 1, c = col + 1; r >= 0 && c < n; --r, ++c) {
       if (board[r][c] == 'Q') {
         return false;
@@ -1273,7 +1275,7 @@ class Solution {
     return true;
   }
 }
-// https://leetcode.cn/submissions/detail/377035352/
+// https://leetcode.cn/submissions/detail/445167248/
 ```
 
 ## 52. N 皇后 II
@@ -1307,7 +1309,7 @@ class Solution {
     }
   }
 
-  // board[row][col] 放置 Q 是否有效
+  // 检查在 board[row][col] 上放置 Q 是否有效
   bool _isValid(List<List<String>> board, int row, int col) {
     final n = board.length;
     // 同一列
@@ -1316,13 +1318,13 @@ class Solution {
         return false;
       }
     }
-    // 右斜线
+    // 左斜线
     for (var r = row - 1, c = col - 1; r >= 0 && c >= 0; --r, --c) {
       if (board[r][c] == 'Q') {
         return false;
       }
     }
-    // 左斜线
+    // 右斜线
     for (var r = row - 1, c = col + 1; r >= 0 && c < n; --r, ++c) {
       if (board[r][c] == 'Q') {
         return false;
@@ -1331,7 +1333,7 @@ class Solution {
     return true;
   }
 }
-// https://leetcode.cn/submissions/detail/377036254/
+// https://leetcode.cn/submissions/detail/445168486/
 ```
 
 ## 53. 最大子数组和
