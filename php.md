@@ -4476,10 +4476,10 @@ class Solution
     function numIslands(array $grid): int
     {
         $ans = 0;
-        for ($i = 0; $i < count($grid); ++$i) {
-            for ($j = 0; $j < count($grid[0]); ++$j) {
-                if ($grid[$i][$j] === self::LAND) {
-                    $this->floodFill($grid, $i, $j);
+        for ($row = 0; $row < count($grid); ++$row) {
+            for ($col = 0; $col < count($grid[0]); ++$col) {
+                if ($grid[$row][$col] === self::LAND) {
+                    $this->floodFill($grid, $row, $col);
                     ++$ans;
                 }
             }
@@ -4489,25 +4489,25 @@ class Solution
 
     /**
      * @param string[][] $grid
-     * @param int $i
-     * @param int $j
+     * @param int $row
+     * @param int $col
      * @return void
      */
-    private function floodFill(array &$grid, int $i, int $j): void
+    private function floodFill(array &$grid, int $row, int $col): void
     {
-        if ($i < 0 || $i >= count($grid) ||
-            $j < 0 || $j >= count($grid[0]) ||
-            $grid[$i][$j] === self::WATER) {
+        if ($row < 0 || $row >= count($grid) ||
+            $col < 0 || $col >= count($grid[0]) ||
+            $grid[$row][$col] === self::WATER) {
             return;
         }
-        $grid[$i][$j] = self::WATER;
-        $this->floodFill($grid, $i, $j + 1);
-        $this->floodFill($grid, $i, $j - 1);
-        $this->floodFill($grid, $i + 1, $j);
-        $this->floodFill($grid, $i - 1, $j);
+        $grid[$row][$col] = self::WATER;
+        $this->floodFill($grid, $row, $col + 1);
+        $this->floodFill($grid, $row, $col - 1);
+        $this->floodFill($grid, $row + 1, $col);
+        $this->floodFill($grid, $row - 1, $col);
     }
 }
-// https://leetcode.cn/submissions/detail/383799432/
+// https://leetcode.cn/submissions/detail/445391376/
 ```
 
 ## 203. 移除链表元素
