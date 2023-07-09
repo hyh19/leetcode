@@ -9659,19 +9659,19 @@ class Solution
     {
         $m = count($grid2);
         $n = count($grid2[0]);
-        for ($i = 0; $i < $m; ++$i) {
-            for ($j = 0; $j < $n; ++$j) {
+        for ($row = 0; $row < $m; ++$row) {
+            for ($col = 0; $col < $n; ++$col) {
                 // 淹没『非子岛屿』
-                if ($grid2[$i][$j] === self::LAND && $grid1[$i][$j] === self::WATER) {
-                    $this->floodFill($grid2, $i, $j);
+                if ($grid2[$row][$col] === self::LAND && $grid1[$row][$col] === self::WATER) {
+                    $this->floodFill($grid2, $row, $col);
                 }
             }
         }
         $ans = 0;
-        for ($i = 0; $i < $m; ++$i) {
-            for ($j = 0; $j < $n; ++$j) {
-                if ($grid2[$i][$j] === self::LAND) {
-                    $this->floodFill($grid2, $i, $j);
+        for ($row = 0; $row < $m; ++$row) {
+            for ($col = 0; $col < $n; ++$col) {
+                if ($grid2[$row][$col] === self::LAND) {
+                    $this->floodFill($grid2, $row, $col);
                     ++$ans;
                 }
             }
@@ -9681,25 +9681,25 @@ class Solution
 
     /**
      * @param int[][] $grid
-     * @param int $i
-     * @param int $j
+     * @param int $row
+     * @param int $col
      * @return void
      */
-    private function floodFill(array &$grid, int $i, int $j): void
+    private function floodFill(array &$grid, int $row, int $col): void
     {
-        if ($i < 0 || $i >= count($grid) ||
-            $j < 0 || $j >= count($grid[0]) ||
-            $grid[$i][$j] === self::WATER) {
+        if ($row < 0 || $row >= count($grid) ||
+            $col < 0 || $col >= count($grid[0]) ||
+            $grid[$row][$col] === self::WATER) {
             return;
         }
-        $grid[$i][$j] = self::WATER;
-        $this->floodFill($grid, $i, $j + 1);
-        $this->floodFill($grid, $i, $j - 1);
-        $this->floodFill($grid, $i + 1, $j);
-        $this->floodFill($grid, $i - 1, $j);
+        $grid[$row][$col] = self::WATER;
+        $this->floodFill($grid, $row, $col + 1);
+        $this->floodFill($grid, $row, $col - 1);
+        $this->floodFill($grid, $row + 1, $col);
+        $this->floodFill($grid, $row - 1, $col);
     }
 }
-// https://leetcode.cn/submissions/detail/383803436/
+// https://leetcode.cn/submissions/detail/445403251/
 ```
 
 ## CtCI 02.02. 返回倒数第 K 个节点
