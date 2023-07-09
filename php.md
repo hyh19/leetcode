@@ -8761,19 +8761,19 @@ class Solution
         $m = count($grid);
         $n = count($grid[0]);
         // 淹没与左右边界的陆地相连的岛屿
-        for ($i = 0; $i < $m; ++$i) {
-            $this->floodFill($grid, $i, 0);
-            $this->floodFill($grid, $i, $n - 1);
+        for ($row = 0; $row < $m; ++$row) {
+            $this->floodFill($grid, $row, 0);
+            $this->floodFill($grid, $row, $n - 1);
         }
         // 淹没与上下边界的陆地相连的岛屿
-        for ($j = 0; $j < $n; ++$j) {
-            $this->floodFill($grid, 0, $j);
-            $this->floodFill($grid, $m - 1, $j);
+        for ($col = 0; $col < $n; ++$col) {
+            $this->floodFill($grid, 0, $col);
+            $this->floodFill($grid, $m - 1, $col);
         }
         $ans = 0;
-        for ($i = 0; $i < $m; ++$i) {
-            for ($j = 0; $j < $n; ++$j) {
-                if ($grid[$i][$j] === self::LAND) {
+        for ($row = 0; $row < $m; ++$row) {
+            for ($col = 0; $col < $n; ++$col) {
+                if ($grid[$row][$col] === self::LAND) {
                     ++$ans;
                 }
             }
@@ -8783,26 +8783,26 @@ class Solution
 
     /**
      * @param int[][] $grid
-     * @param int $i
-     * @param int $j
+     * @param int $row
+     * @param int $col
      * @return void
      */
-    private function floodFill(array &$grid, int $i, int $j): void
+    private function floodFill(array &$grid, int $row, int $col): void
     {
-        if ($i < 0 || $i >= count($grid) ||
-            $j < 0 || $j >= count($grid[0]) ||
-            $grid[$i][$j] === self::WATER) {
+        if ($row < 0 || $row >= count($grid) ||
+            $col < 0 || $col >= count($grid[0]) ||
+            $grid[$row][$col] === self::WATER) {
             return;
         }
 
-        $grid[$i][$j] = self::WATER;
-        $this->floodFill($grid, $i, $j + 1);
-        $this->floodFill($grid, $i, $j - 1);
-        $this->floodFill($grid, $i + 1, $j);
-        $this->floodFill($grid, $i - 1, $j);
+        $grid[$row][$col] = self::WATER;
+        $this->floodFill($grid, $row, $col + 1);
+        $this->floodFill($grid, $row, $col - 1);
+        $this->floodFill($grid, $row + 1, $col);
+        $this->floodFill($grid, $row - 1, $col);
     }
 }
-// https://leetcode.cn/submissions/detail/383802105/
+// https://leetcode.cn/submissions/detail/445395444/
 ```
 
 ## 1024. 视频拼接
