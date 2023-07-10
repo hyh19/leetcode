@@ -5744,22 +5744,22 @@ class Solution {
 ```swift
 class Solution {
     func fib(_ n: Int) -> Int {
-        if (n == 0) {
-            return 0;
+        if n == 0 {
+            return 0
         }
-        if (n == 1) {
-            return 1;
+        if n == 1 {
+            return 1
         }
-        var dp = Array(repeating: 0, count: n + 1);
-        dp[0] = 0;
-        dp[1] = 1;
+        var dp = Array(repeating: 0, count: n + 1)
+        dp[0] = 0
+        dp[1] = 1
         for i in 2...n {
-            dp[i] = dp[i - 1] + dp[i - 2];
+            dp[i] = dp[i - 1] + dp[i - 2]
         }
-        return dp[n];
+        return dp[n]
     }
 }
-// https://leetcode.cn/submissions/detail/384861495/
+// https://leetcode.cn/submissions/detail/445883030/
 ```
 
 ## 516. 最长回文子序列
