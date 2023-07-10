@@ -4811,27 +4811,27 @@ class Codec {
 ```swift
 class Solution {
     func lengthOfLIS(_ nums: [Int]) -> Int {
-        let n = nums.count;
-        if (n == 1) {
-            return 1;
+        let n = nums.count
+        if n == 1 {
+            return 1
         }
         // dp[i] = max({length(subseq) | subseq 是以 nums[i] 结尾的严格递增子序列})
-        var dp = Array(repeating: 1, count: n);
-        var ans = 1;
+        var dp = Array(repeating: 1, count: n)
+        var ans = 1
         for i in 1...n - 1 {
-            var res = 1;
+            var res = 1
             for j in stride(from: i - 1, through: 0, by: -1) {
-                if (nums[j] < nums[i]) {
-                    res = max(res, dp[j] + 1);
+                if nums[j] < nums[i] {
+                    res = max(res, dp[j] + 1)
                 }
             }
-            dp[i] = res;
-            ans = max(ans, dp[i]);
+            dp[i] = res
+            ans = max(ans, dp[i])
         }
-        return ans;
+        return ans
     }
 }
-// https://leetcode.cn/submissions/detail/387505826/
+// https://leetcode.cn/submissions/detail/445887970/
 ```
 
 ## 303. 区域和检索 - 数组不可变
