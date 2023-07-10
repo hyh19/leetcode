@@ -4965,27 +4965,27 @@ class Solution {
 class Solution {
     func coinChange(_ coins: [Int], _ amount: Int) -> Int {
         // dp[i] = 凑成总金额 i 所需的最少的硬币个数
-        var dp = Array(repeating: -1, count: amount + 1);
-        dp[0] = 0;
-        if (amount > 0) {
+        var dp = Array(repeating: -1, count: amount + 1)
+        dp[0] = 0
+        if amount > 0 {
             for i in 1...amount {
-                var res = Int.max;
+                var res = Int.max
                 // c       = 选择放入的硬币
                 // i-c     = 剩余总金额
                 // dp[i-c] = 凑成剩余总金额所需的最少的硬币个数
                 for c in coins {
-                    let x = i - c;
-                    if (x >= 0 && dp[x] != -1) {
-                        res = min(res, dp[x] + 1);
+                    let x = i - c
+                    if x >= 0 && dp[x] != -1 {
+                        res = min(res, dp[x] + 1)
                     }
                 }
-                dp[i] = (res == Int.max ? -1 : res);
+                dp[i] = (res == Int.max ? -1 : res)
             }
         }
-        return dp[amount];
+        return dp[amount]
     }
 }
-// https://leetcode.cn/submissions/detail/385794660/
+// https://leetcode.cn/submissions/detail/445881218/
 ```
 
 ## 337. 打家劫舍 III
