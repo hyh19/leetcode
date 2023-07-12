@@ -2003,35 +2003,38 @@ class Solution
 
     /**
      * @param int[][] $grid
-     * @param int|null $row
-     * @param int|null $col
-     * @return int|null
+     * @return int
      */
-    function minPathSum(array $grid, int $row = null, int $col = null): ?int
+    function minPathSum(array $grid): int
     {
-        // 原问题
-        if (is_null($row) && is_null($col)) {
-            return $this->minPathSum($grid, count($grid) - 1, count($grid[0]) - 1);
+        return $this->minPathSumDP($grid, count($grid) - 1, count($grid[0]) - 1);
+    }
+
+    /**
+     * 返回从 grid[0][0] 到 grid[row][col] 的最小路径和
+     *
+     * @param int[][] $grid
+     * @param int $row
+     * @param int $col
+     * @return int
+     */
+    function minPathSumDP(array $grid, int $row, int $col): int
+    {
+        if ($row < 0 || $col < 0) {
+            return PHP_INT_MAX;
         }
-        // 子问题：从 grid[0][0] 到 grid[row][col] 的最小路径和
-        if (!is_null($row) && !is_null($col)) {
-            if ($row < 0 || $col < 0) {
-                return PHP_INT_MAX;
-            }
-            if ($row === 0 && $col === 0) {
-                return $grid[$row][$col];
-            }
-            if (is_null($this->memo[$row][$col])) {
-                $sp1 = $this->minPathSum($grid, $row - 1, $col, $this->memo);
-                $sp2 = $this->minPathSum($grid, $row, $col - 1, $this->memo);
-                $this->memo[$row][$col] = min($sp1, $sp2) + $grid[$row][$col];
-            }
-            return $this->memo[$row][$col];
+        if ($row === 0 && $col === 0) {
+            return $grid[$row][$col];
         }
-        return null;
+        if (is_null($this->memo[$row][$col])) {
+            $sp1 = $this->minPathSumDP($grid, $row - 1, $col);
+            $sp2 = $this->minPathSumDP($grid, $row, $col - 1);
+            $this->memo[$row][$col] = min($sp1, $sp2) + $grid[$row][$col];
+        }
+        return $this->memo[$row][$col];
     }
 }
-// https://leetcode.cn/submissions/detail/383637348/
+// https://leetcode.cn/submissions/detail/446499779/
 ```
 
 ## 69. x 的平方根
