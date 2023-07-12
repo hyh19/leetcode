@@ -8492,44 +8492,48 @@ class Solution
 class Solution
 {
     private array $memo = [];
+    private int $n;
 
     /**
      * @param int[][] $matrix
-     * @param int|null $row
-     * @param int|null $col
-     * @return int|null
+     * @return int
      */
-    function minFallingPathSum(array $matrix, int $row = null, int $col = null): ?int
+    function minFallingPathSum(array $matrix): int
     {
-        $n = count($matrix);
-        // 原问题
-        if (is_null($row) && is_null($col)) {
-            $ans = PHP_INT_MAX;
-            for ($col = 0; $col < $n; ++$col) {
-                $ans = min($ans, $this->minFallingPathSum($matrix, $n - 1, $col));
-            }
-            return $ans;
+        $this->n = count($matrix);
+        $ans = PHP_INT_MAX;
+        for ($col = 0; $col < $this->n; ++$col) {
+            $ans = min($ans, $this->minFallingPathSumDP($matrix, $this->n - 1, $col));
         }
-        // 子问题：从 matrix[0][0..n-1] 到 matrix[row][col] 的最小下降路径和
-        if (!is_null($row) && !is_null($col)) {
-            if ($col < 0 || $col >= $n) {
-                return PHP_INT_MAX;
-            }
-            if ($row === 0) {
-                return $matrix[$row][$col];
-            }
-            if (is_null($this->memo[$row][$col])) {
-                $sp1 = $this->minFallingPathSum($matrix, $row - 1, $col - 1);
-                $sp2 = $this->minFallingPathSum($matrix, $row - 1, $col);
-                $sp3 = $this->minFallingPathSum($matrix, $row - 1, $col + 1);
-                $this->memo[$row][$col] = min($sp1, $sp2, $sp3) + $matrix[$row][$col];
-            }
-            return $this->memo[$row][$col];
+        return $ans;
+    }
+
+    /**
+     * 返回从 matrix[0][0..n-1] 到 matrix[row][col] 的最小下降路径和
+     *
+     * @param int[][] $matrix
+     * @param int $row
+     * @param int $col
+     * @return int
+     */
+    function minFallingPathSumDP(array $matrix, int $row, int $col): int
+    {
+        if ($col < 0 || $col >= $this->n) {
+            return PHP_INT_MAX;
         }
-        return null;
+        if ($row === 0) {
+            return $matrix[$row][$col];
+        }
+        if (is_null($this->memo[$row][$col])) {
+            $sp1 = $this->minFallingPathSumDP($matrix, $row - 1, $col - 1);
+            $sp2 = $this->minFallingPathSumDP($matrix, $row - 1, $col);
+            $sp3 = $this->minFallingPathSumDP($matrix, $row - 1, $col + 1);
+            $this->memo[$row][$col] = min($sp1, $sp2, $sp3) + $matrix[$row][$col];
+        }
+        return $this->memo[$row][$col];
     }
 }
-// https://leetcode.cn/submissions/detail/383638394/
+// https://leetcode.cn/submissions/detail/446496930/
 ```
 
 ## 986. 区间列表的交集
