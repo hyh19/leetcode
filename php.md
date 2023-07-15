@@ -1945,14 +1945,14 @@ class Solution
         // dp[i] = max({sum(subarray) | subarray 是任意以 nums[i] 结尾的子数组})
         $dp = [...$nums];
         $ans = $dp[0];
-        for ($i = 1; $i < count($nums); ++$i) {
+        for ($i = 1, $n = count($nums); $i < $n; ++$i) {
             $dp[$i] = max($nums[$i], $dp[$i - 1] + $nums[$i]);
             $ans = max($ans, $dp[$i]);
         }
         return $ans;
     }
 }
-// https://leetcode.cn/submissions/detail/383552158/
+// https://leetcode.cn/submissions/detail/447280484/
 ```
 
 ## 56. 合并区间
