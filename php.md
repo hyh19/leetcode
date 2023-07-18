@@ -7541,65 +7541,77 @@ class Solution
 class Solution
 {
     private array $memo = [];
-    private ?array $sum1 = null;
-    private ?array $sum2 = null;
+    private array $sum1;
+    private array $sum2;
 
     /**
      * @param string $s1
      * @param string $s2
-     * @param int|null $i
-     * @param int|null $j
-     * @return int|null
+     * @return int
      */
-    function minimumDeleteSum(string $s1, string $s2, int $i = null, int $j = null): ?int
+    function minimumDeleteSum(string $s1, string $s2): int
     {
-        // 原问题
-        if (is_null($i) && is_null($j)) {
-            $this->sum1 = $this->prefixSum($s1);
-            $this->sum2 = $this->prefixSum($s2);
-            return $this->minimumDeleteSum($s1, $s2, strlen($s1) - 1, strlen($s2) - 1);
+        $n1 = strlen($s1);
+        $n2 = strlen($s2);
+        if ($n1 === 0) {
+            return $n2;
         }
-        // 子问题：子串 s1[0..i] s2[0..j] 的最小 ASCII 删除和
-        if (!is_null($i) && !is_null($j)) {
-            if ($i < 0 && $j < 0) {
-                return 0;
-            }
-            // 删除 s2[0..j]
-            // s1""
-            // s2[0..j]
-            if ($i < 0) {
-                return $this->sum2[$j];
-            }
-            // 删除 s1[0..i]
-            // s1[0..i]
-            // s2""
-            if ($j < 0) {
-                return $this->sum1[$i];
-            }
-            if (is_null($this->memo[$i][$j])) {
-                if ($s1[$i] === $s2[$j]) {
-                    // s1[0..i-1][i]
-                    // s2[0..j-1][j]
-                    $this->memo[$i][$j] = $this->minimumDeleteSum($s1, $s2, $i - 1, $j - 1);
-                } else {
-                    // 删除 s1[i] s2[j]
-                    // s1[0..i-1][i]
-                    // s2[0..j-1][j]
-                    $sp1 = $this->minimumDeleteSum($s1, $s2, $i - 1, $j - 1) + ord($s1[$i]) + ord($s2[$j]);
-                    // 删除 s2[j]
-                    // s1[0..i]
-                    // s2[0..j-1][j]
-                    $sp2 = $this->minimumDeleteSum($s1, $s2, $i, $j - 1) + ord($s2[$j]);
-                    // 删除 s1[i]
-                    // s1[0..i-1][i]
-                    // s2[0..j]
-                    $sp3 = $this->minimumDeleteSum($s1, $s2, $i - 1, $j) + ord($s1[$i]);
-                    $this->memo[$i][$j] = min($sp1, $sp2, $sp3);
-                }
-            }
-            return $this->memo[$i][$j];
+        if ($n2 === 0) {
+            return $n1;
         }
-        return null;
+        $this->sum1 = $this->prefixSum($s1);
+        $this->sum2 = $this->prefixSum($s2);
+        return $this->minimumDeleteSumDP($s1, $n1 - 1, $s2, $n2 - 1);
+    }
+
+    /**
+     * 返回子串 s1[0..i] s2[0..j] 的最小 ASCII 删除和
+     *
+     * @param string $s1
+     * @param int $i
+     * @param string $s2
+     * @param int $j
+     * @return int
+     */
+    private function minimumDeleteSumDP(string $s1, int $i, string $s2, int $j): int
+    {
+        if ($i < 0 && $j < 0) {
+            return 0;
+        }
+        // 删除 s2[0..j]
+        // s1""
+        // s2[0..j]
+        if ($i < 0) {
+            return $this->sum2[$j];
+        }
+        // 删除 s1[0..i]
+        // s1[0..i]
+        // s2""
+        if ($j < 0) {
+            return $this->sum1[$i];
+        }
+        if (is_null($this->memo[$i][$j])) {
+            if ($s1[$i] === $s2[$j]) {
+                // s1[0..i-1][i]
+                // s2[0..j-1][j]
+                $this->memo[$i][$j] = $this->minimumDeleteSumDP($s1, $i - 1, $s2, $j - 1);
+            } else {
+                // 删除 s1[i] s2[j]
+                // s1[0..i-1][i]
+                // s2[0..j-1][j]
+                $sp1 = $this->minimumDeleteSumDP($s1, $i - 1, $s2, $j - 1) + ord($s1[$i]) + ord($s2[$j]);
+                // 删除 s2[j]
+                // s1[0..i]
+                // s2[0..j-1][j]
+                $sp2 = $this->minimumDeleteSumDP($s1, $i, $s2, $j - 1) + ord($s2[$j]);
+                // 删除 s1[i]
+                // s1[0..i-1][i]
+                // s2[0..j]
+                $sp3 = $this->minimumDeleteSumDP($s1, $i - 1, $s2, $j) + ord($s1[$i]);
+                $this->memo[$i][$j] = min($sp1, $sp2, $sp3);
+            }
+        }
+        return $this->memo[$i][$j];
     }
 
     /**
@@ -7617,7 +7629,7 @@ class Solution
         return $sum;
     }
 }
-// https://leetcode.cn/submissions/detail/383622422/
+// https://leetcode.cn/submissions/detail/448167056/
 ```
 
 ## 714. 买卖股票的最佳时机含手续费
