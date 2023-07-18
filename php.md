@@ -7116,7 +7116,7 @@ class Solution
      */
     function minDistance(string $s1, string $s2): int
     {
-        return $this->minDistanceSp($s1, strlen($s1) - 1, $s2, strlen($s2) - 1);
+        return $this->minDistanceDP($s1, strlen($s1) - 1, $s2, strlen($s2) - 1);
     }
 
     /**
@@ -7128,7 +7128,7 @@ class Solution
      * @param int $j
      * @return int
      */
-    private function minDistanceSp(string $s1, int $i, string $s2, int $j): int
+    private function minDistanceDP(string $s1, int $i, string $s2, int $j): int
     {
         // 删除 s2[0..j]
         // s1""
@@ -7146,27 +7146,27 @@ class Solution
             if ($s1[$i] === $s2[$j]) {
                 // s1[0..i-1][i]
                 // s2[0..j-1][j]
-                $this->memo[$i][$j] = $this->minDistanceSp($s1, $i - 1, $s2, $j - 1);
+                $this->memo[$i][$j] = $this->minDistanceDP($s1, $i - 1, $s2, $j - 1);
             } else {
                 // 删除 s1[i] s2[j]
                 // s1[0..i-1][i]
                 // s2[0..j-1][j]
-                $sp1 = $this->minDistanceSp($s1, $i - 1, $s2, $j - 1) + 2;
+                $sp1 = $this->minDistanceDP($s1, $i - 1, $s2, $j - 1) + 2;
                 // 删除 s2[j]
                 // s1[0..i]
                 // s2[0..j-1][j]
-                $sp2 = $this->minDistanceSp($s1, $i, $s2, $j - 1) + 1;
+                $sp2 = $this->minDistanceDP($s1, $i, $s2, $j - 1) + 1;
                 // 删除 s1[i]
                 // s1[0..i-1][i]
                 // s2[0..j]
-                $sp3 = $this->minDistanceSp($s1, $i - 1, $s2, $j) + 1;
+                $sp3 = $this->minDistanceDP($s1, $i - 1, $s2, $j) + 1;
                 $this->memo[$i][$j] = min($sp1, $sp2, $sp3);
             }
         }
         return $this->memo[$i][$j];
     }
 }
-// https://leetcode.cn/submissions/detail/411337507/
+// https://leetcode.cn/submissions/detail/448152460/
 ```
 
 ## 617. 合并二叉树
