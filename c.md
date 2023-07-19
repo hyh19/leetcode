@@ -7774,8 +7774,8 @@ bool checkInclusion(char *s1, char *s2) {
 <https://leetcode.cn/problems/delete-operation-for-two-strings/>
 
 ```c
-// 子串 s1[0..i] s2[0..j] 的最小删除步数
-int minDistanceMemo(const char *s1, int i, const char *s2, int j, int *memo) {
+// 返回子串 s1[0..i] s2[0..j] 的最小删除步数
+int minDistanceDP(const char *s1, int i, const char *s2, int j, int *memo, int memoColSize) {
     if (i < 0) {
         // 删除 s2[0..j]
         // s1""
@@ -7788,32 +7788,32 @@ int minDistanceMemo(const char *s1, int i, const char *s2, int j, int *memo) {
         // s2""
         return i + 1;
     }
-    int *p = memo + i * strlen(s2) + j;
+    int *p = memo + i * memoColSize + j;
     if (*p == -1) {
         if (s1[i] == s2[j]) {
             // s1[0..i-1][i]
             // s2[0..j-1][j]
-            *p = minDistanceMemo(s1, i - 1, s2, j - 1, memo);
+            *p = minDistanceDP(s1, i - 1, s2, j - 1, memo, memoColSize);
         } else {
             // 删除 s1[i] s2[j]
             // s1[0..i-1][i]
             // s2[0..j-1][j]
-            int sp1 = minDistanceMemo(s1, i - 1, s2, j - 1, memo) + 2;
+            int sp1 = minDistanceDP(s1, i - 1, s2, j - 1, memo, memoColSize) + 2;
             // 删除 s2[j]
             // s1[0..i]
             // s2[0..j-1][j]
-            int sp2 = minDistanceMemo(s1, i, s2, j - 1, memo) + 1;
+            int sp2 = minDistanceDP(s1, i, s2, j - 1, memo, memoColSize) + 1;
             // 删除 s1[i]
             // s1[0..i-1][i]
             // s2[0..j]
-            int sp3 = minDistanceMemo(s1, i - 1, s2, j, memo) + 1;
+            int sp3 = minDistanceDP(s1, i - 1, s2, j, memo, memoColSize) + 1;
             *p = fmin(fmin(sp1, sp2), sp3);
         }
     }
     return *p;
 }
 
-int minDistance(char *word1, char *word2) {
+int minDistance(const char *word1, const char *word2) {
     int n1 = strlen(word1);
     int n2 = strlen(word2);
     if (n1 == 0) {
@@ -7828,9 +7828,9 @@ int minDistance(char *word1, char *word2) {
             memo[i][j] = -1;
         }
     }
-    return minDistanceMemo(word1, n1 - 1, word2, n2 - 1, memo[0]);
+    return minDistanceDP(word1, n1 - 1, word2, n2 - 1, &memo[0][0], n2);
 }
-// https://leetcode.cn/submissions/detail/391221823/
+// https://leetcode.cn/submissions/detail/448350829/
 ```
 
 ## 617. 合并二叉树
