@@ -8317,6 +8317,7 @@ class Solution {
     public int minDistance(String word1, String word2) {
         int m = word1.length();
         int n = word2.length();
+        // dp[i][j] = 子串 s1[0..i-1] s2[0..j-1] 的最小删除步数
         int[][] dp = new int[m + 1][n + 1];
         for (int i = 0; i <= m; i++) {
             dp[i][0] = i;
@@ -8326,7 +8327,7 @@ class Solution {
         }
         for (int i = 1; i <= m; i++) {
             for (int j = 1; j <= n; j++) {
-                int result = Integer.MAX_VALUE;
+                int result;
                 if (word1.charAt(i - 1) == word2.charAt(j - 1)) {
                     result = dp[i - 1][j - 1];
                 } else {
@@ -8338,7 +8339,7 @@ class Solution {
         return dp[m][n];
     }
 }
-// https://leetcode.cn/submissions/detail/330176023/
+// https://leetcode.cn/submissions/detail/448357182/
 ```
 
 ```java
