@@ -5710,7 +5710,7 @@ const diameterOfBinaryTree = function (root) {
  * @param {string} word2
  * @return {number}
  */
- const minDistance = function (word1, word2) {
+const minDistance = function (word1, word2) {
     const n1 = word1.length;
     const n2 = word2.length;
     const memo = new Array(n1);
@@ -5718,47 +5718,56 @@ const diameterOfBinaryTree = function (root) {
         memo[i] = new Array(n2).fill(-1);
     }
 
-    // 子串 s1[0..i] s2[0..j] 的最小删除步数
-    const _minDistance = function (s1, i, s2, j) {
-        // 删除 s2[0..j]
-        // s1""
-        // s2[0..j]
-        if (i < 0) {
-            return j + 1;
-        }
-        // 删除 s1[0..i]
-        // s1[0..i]
-        // s2""
-        if (j < 0) {
-            return i + 1;
-        }
-        if (memo[i][j] === -1) {
-            if (s1.charAt(i) === s2.charAt(j)) {
-                // s1[0..i-1][i]
-                // s2[0..j-1][j]
-                memo[i][j] = _minDistance(s1, i - 1, s2, j - 1);
-            } else {
-                // 删除 s1[i] s2[j]
-                // s1[0..i-1][i]
-                // s2[0..j-1][j]
-                const sp1 = _minDistance(s1, i - 1, s2, j - 1) + 2;
-                // 删除 s2[j]
-                // s1[0..i]
-                // s2[0..j-1][j]
-                const sp2 = _minDistance(s1, i, s2, j - 1) + 1;
-                // 删除 s1[i]
-                // s1[0..i-1][i]
-                // s2[0..j]
-                const sp3 = _minDistance(s1, i - 1, s2, j) + 1;
-                memo[i][j] = Math.min(Math.min(sp1, sp2), sp3);
-            }
-        }
-        return memo[i][j];
-    };
-
-    return _minDistance(word1, n1 - 1, word2, n2 - 1);
+    return minDistanceDP(word1, n1 - 1, word2, n2 - 1, memo);
 };
-// https://leetcode.cn/submissions/detail/381149691/
+
+/**
+ * 返回子串 s1[0..i] s2[0..j] 的最小删除步数
+ *
+ * @param {string} s1
+ * @param {number} i
+ * @param {string} s2
+ * @param {number} j
+ * @param {number[][]} memo
+ * @return {number}
+ */
+const minDistanceDP = function (s1, i, s2, j, memo) {
+    // 删除 s2[0..j]
+    // s1""
+    // s2[0..j]
+    if (i < 0) {
+        return j + 1;
+    }
+    // 删除 s1[0..i]
+    // s1[0..i]
+    // s2""
+    if (j < 0) {
+        return i + 1;
+    }
+    if (memo[i][j] === -1) {
+        if (s1.charAt(i) === s2.charAt(j)) {
+            // s1[0..i-1][i]
+            // s2[0..j-1][j]
+            memo[i][j] = minDistanceDP(s1, i - 1, s2, j - 1, memo);
+        } else {
+            // 删除 s1[i] s2[j]
+            // s1[0..i-1][i]
+            // s2[0..j-1][j]
+            const sp1 = minDistanceDP(s1, i - 1, s2, j - 1, memo) + 2;
+            // 删除 s2[j]
+            // s1[0..i]
+            // s2[0..j-1][j]
+            const sp2 = minDistanceDP(s1, i, s2, j - 1, memo) + 1;
+            // 删除 s1[i]
+            // s1[0..i-1][i]
+            // s2[0..j]
+            const sp3 = minDistanceDP(s1, i - 1, s2, j, memo) + 1;
+            memo[i][j] = Math.min(Math.min(sp1, sp2), sp3);
+        }
+    }
+    return memo[i][j];
+};
+// https://leetcode.cn/submissions/detail/448481587/
 ```
 
 ## 617. 合并二叉树
