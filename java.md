@@ -8354,7 +8354,7 @@ class Solution {
         return minDistance(word1, n1 - 1, word2, n2 - 1);
     }
 
-    // 子串 s1[0..i] s2[0..j] 的最小删除步数
+    // 返回子串 s1[0..i] s2[0..j] 的最小删除步数
     private int minDistance(String s1, int i, String s2, int j) {
         // 删除 s2[0..j]
         // s1""
@@ -8392,7 +8392,7 @@ class Solution {
         return memo[i][j];
     }
 }
-// https://leetcode.cn/submissions/detail/374430111/
+// https://leetcode.cn/submissions/detail/448353828/
 ```
 
 ## 617. 合并二叉树
