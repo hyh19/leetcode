@@ -8290,7 +8290,7 @@ public:
     }
 
 private:
-    // 子串 s1[0..i] s2[0..j] 的最小删除步数
+    // 返回子串 s1[0..i] s2[0..j] 的最小删除步数
     int minDistance(const string &s1, int i, const string &s2, int j) {
         if (i < 0) {
             // 删除 s2[0..j]
@@ -8330,7 +8330,7 @@ private:
 
     vector<vector<int>> memo;
 };
-// https://leetcode.cn/submissions/detail/391609762/
+// https://leetcode.cn/submissions/detail/448357793/
 ```
 
 ## 617. 合并二叉树
