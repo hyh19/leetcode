@@ -2122,57 +2122,61 @@ class Solution
     /**
      * @param string $s1
      * @param string $s2
-     * @param int|null $i
-     * @param int|null $j
-     * @return int|null
+     * @return int
      */
-    function minDistance(string $s1, string $s2, int $i = null, int $j = null): ?int
+    function minDistance(string $s1, string $s2): int
     {
-        // 原问题
-        if (is_null($i) && is_null($j)) {
-            return $this->minDistance($s1, $s2, strlen($s1) - 1, strlen($s2) - 1);
+        return $this->minDistanceDP($s1, strlen($s1) - 1, $s2, strlen($s2) - 1);
+    }
+
+    /**
+     * 返回子串 s1[0..i] s2[0..j] 的最小编辑距离
+     *
+     * @param string $s1
+     * @param int $i
+     * @param string $s2
+     * @param int $j
+     * @return int
+     */
+    function minDistanceDP(string $s1, int $i, string $s2, int $j): int
+    {
+        // 插入 s2[0..j] 到 s1
+        // s1""
+        // s2[0..j]
+        if ($i < 0) {
+            return $j + 1;
         }
-        // 子问题：子串 s1[0..i] s2[0..j] 的最小编辑距离
-        if (!is_null($i) && !is_null($j)) {
-            // 插入 s2[0..j] 到 s1
-            // s1""
-            // s2[0..j]
-            if ($i < 0) {
-                return $j + 1;
-            }
-            // 删除 s1[0..i]
-            // s1[0..i]
-            // s2""
-            if ($j < 0) {
-                return $i + 1;
-            }
-            if (is_null($this->memo[$i][$j])) {
-                if ($s1[$i] === $s2[$j]) {
-                    // s1[0..i-1][i]
-                    // s2[0..j-1][j]
-                    $this->memo[$i][$j] = $this->minDistance($s1, $s2, $i - 1, $j - 1);
-                } else {
-                    // 替换 s1[i] 为 s2[j]
-                    // s1[0..i-1][i]
-                    // s2[0..j-1][j]
-                    $sp1 = $this->minDistance($s1, $s2, $i - 1, $j - 1) + 1;
-                    // 插入 s2[j] 到 s1
-                    // s1[0..i]
-                    // s2[0..j-1][j]
-                    $sp2 = $this->minDistance($s1, $s2, $i, $j - 1) + 1;
-                    // 删除 s1[i]
-                    // s1[0..i-1][i]
-                    // s2[0..j]
-                    $sp3 = $this->minDistance($s1, $s2, $i - 1, $j) + 1;
-                    $this->memo[$i][$j] = min($sp1, $sp2, $sp3);
-                }
-            }
-            return $this->memo[$i][$j];
+        // 删除 s1[0..i]
+        // s1[0..i]
+        // s2""
+        if ($j < 0) {
+            return $i + 1;
         }
-        return null;
+        if (is_null($this->memo[$i][$j])) {
+            if ($s1[$i] === $s2[$j]) {
+                // s1[0..i-1][i]
+                // s2[0..j-1][j]
+                $this->memo[$i][$j] = $this->minDistanceDP($s1, $i - 1, $s2, $j - 1);
+            } else {
+                // 替换 s1[i] 为 s2[j]
+                // s1[0..i-1][i]
+                // s2[0..j-1][j]
+                $sp1 = $this->minDistanceDP($s1, $i - 1, $s2, $j - 1) + 1;
+                // 插入 s2[j] 到 s1
+                // s1[0..i]
+                // s2[0..j-1][j]
+                $sp2 = $this->minDistanceDP($s1, $i, $s2, $j - 1) + 1;
+                // 删除 s1[i]
+                // s1[0..i-1][i]
+                // s2[0..j]
+                $sp3 = $this->minDistanceDP($s1, $i - 1, $s2, $j) + 1;
+                $this->memo[$i][$j] = min($sp1, $sp2, $sp3);
+            }
+        }
+        return $this->memo[$i][$j];
     }
 }
-// https://leetcode.cn/submissions/detail/383615597/
+// https://leetcode.cn/submissions/detail/448470593/
 ```
 
 ## 75. 颜色分类
