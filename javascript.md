@@ -5762,12 +5762,12 @@ const minDistanceDP = function (s1, i, s2, j, memo) {
             // s1[0..i-1][i]
             // s2[0..j]
             const sp3 = minDistanceDP(s1, i - 1, s2, j, memo) + 1;
-            memo[i][j] = Math.min(Math.min(sp1, sp2), sp3);
+            memo[i][j] = Math.min(sp1, sp2, sp3);
         }
     }
     return memo[i][j];
 };
-// https://leetcode.cn/submissions/detail/448481587/
+// https://leetcode.cn/submissions/detail/448828606/
 ```
 
 ## 617. 合并二叉树
