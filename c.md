@@ -7562,7 +7562,7 @@ int fib(int n) {
 <https://leetcode.cn/problems/longest-palindromic-subsequence/>
 
 ```c
-int longestPalindromeSubseq(char *s) {
+int longestPalindromeSubseq(const char *s) {
     size_t n = strlen(s);
     // dp[i][j] = 子串 s[i..j] 的最长回文子序列的长度
     int dp[n][n];
@@ -7596,7 +7596,7 @@ int longestPalindromeSubseq(char *s) {
     }
     return dp[0][n - 1];
 }
-// https://leetcode.cn/submissions/detail/391413629/
+// https://leetcode.cn/submissions/detail/450975190/
 ```
 
 ## 518. 零钱兑换 II
