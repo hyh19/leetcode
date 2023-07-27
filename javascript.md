@@ -5505,7 +5505,7 @@ const fib = function (n) {
  * @param {string} s
  * @return {number}
  */
- const longestPalindromeSubseq = function (s) {
+const longestPalindromeSubseq = function (s) {
     const n = s.length;
     // dp[i][j] = 子串 s[i..j] 的最长回文子序列的长度
     const dp = new Array(n);
