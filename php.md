@@ -6051,7 +6051,7 @@ class Solution
     }
 
     /**
-     * 数组 nums 是否存在和为 sum 的子集
+     * 判断数组 nums 是否存在和为 sum 的子集
      *
      * @param int[] $nums
      * @param int $sum
@@ -6095,7 +6095,7 @@ class Solution
         return $dp[$n][$sum];
     }
 }
-// https://leetcode.cn/submissions/detail/407450532/
+// https://leetcode.cn/submissions/detail/452031907/
 ```
 
 ## 435. 无重叠区间
