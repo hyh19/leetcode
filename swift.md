@@ -5808,28 +5808,28 @@ class Solution {
 ```swift
 class Solution {
     func change(_ amount: Int, _ coins: [Int]) -> Int {
-        if (amount == 0) {
-            return 1;
+        if amount == 0 {
+            return 1
         }
-        let n = coins.count;
+        let n = coins.count
         // dp[i][j] = 使用硬币 coins[0..i-1] 凑成总金额 j 的组合数
-        var dp = Array(repeating: Array(repeating: 0, count: amount + 1), count: n + 1);
+        var dp = Array(repeating: Array(repeating: 0, count: amount + 1), count: n + 1)
         // 总金额为 0
         for i in 1...n {
-            dp[i][0] = 1;
+            dp[i][0] = 1
         }
         // 硬币数为 0
         for j in 1...amount {
-            dp[0][j] = 0;
+            dp[0][j] = 0
         }
-        dp[0][0] = 1;
+        dp[0][0] = 1
         for i in 1...n {
             for j in 1...amount {
-                let x = coins[i - 1];
-                if (j >= x) {
-                    let sp1 = dp[i - 1][j]; // 包含    0 个硬币 x
-                    let sp2 = dp[i][j - x]; // 包含 >= 1 个硬币 x
-                    dp[i][j] = sp1 + sp2;
+                let x = coins[i - 1]
+                if j >= x {
+                    let sp1 = dp[i - 1][j] // 包含    0 个硬币 x
+                    let sp2 = dp[i][j - x] // 包含 >= 1 个硬币 x
+                    dp[i][j] = sp1 + sp2
                     // 注意
                     // dp[i][j - x] = 包含 >= 1 个硬币 x
                     // dp[i-1][j-x] = 包含    1 个硬币 x
@@ -5839,14 +5839,14 @@ class Solution {
                     // dp[3][74] = 包含 >= 1 个硬币 5，79 = 1 x 5 + 74，剩余 74 可以从 [1, 2, 5] 凑
                 } else {
                     // 不包含硬币 x
-                    dp[i][j] = dp[i - 1][j];
+                    dp[i][j] = dp[i - 1][j]
                 }
             }
         }
-        return dp[n][amount];
+        return dp[n][amount]
     }
 }
-// https://leetcode.cn/submissions/detail/385799062/
+// https://leetcode.cn/submissions/detail/452036176/
 ```
 
 ## 538. 把二叉搜索树转换为累加树
