@@ -7230,7 +7230,7 @@ int findTargetSumWays(int *nums, int numsSize, int target) {
 ```
 
 ```c
-// 数组 nums 和为 sum 的子集的数目，其中 nums[i] >= 0, sum >= 0
+// 返回数组 nums 中和为 sum 的子集的数目，其中 nums[i] >= 0, sum >= 0
 int numSubsetSum(const int *nums, int numsSize, int sum) {
     int n = numsSize;
     // dp[i][j] = 子数组 nums[0..i-1] 和为 j 的子集的数目
@@ -7275,7 +7275,7 @@ int findTargetSumWays(const int *nums, int numsSize, int target) {
     }
     return numSubsetSum(nums, numsSize, (sum + target) / 2);
 }
-// https://leetcode.cn/submissions/detail/390326522/
+// https://leetcode.cn/submissions/detail/452351680/
 ```
 
 ## 496. 下一个更大元素 I
