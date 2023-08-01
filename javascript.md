@@ -3462,7 +3462,7 @@ const rob = function (nums) {
 };
 
 /**
- * max({sum(subseq) | subseq 是数组 nums 的任意不连续子序列})
+ * 返回 max({sum(subseq) | subseq 是数组 nums 的任意不连续子序列})
  * @param {number[]} nums
  * @return {number}
  */
@@ -3490,7 +3490,7 @@ const subseqSum = function (nums) {
     }
     return dp[n - 1];
 };
-// https://leetcode.cn/submissions/detail/381153690/
+// https://leetcode.cn/submissions/detail/452361221/
 ```
 
 ## 199. 二叉树的右视图
