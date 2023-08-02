@@ -5726,7 +5726,7 @@ private:
 ```cpp
 class Solution {
 public:
-    int rob(vector<int> &nums) {
+    int rob(const vector<int> &nums) {
         int n = nums.size();
         if (n == 1) {
             return nums[0];
@@ -5735,7 +5735,7 @@ public:
     }
 
 private:
-    // max({sum(subseq) | subseq 是子数组 nums[lo..hi] 的不连续子序列})
+    // 返回 max({sum(subseq) | subseq 是子数组 nums[lo..hi] 的不连续子序列})
     int subseqSum(const vector<int> &nums, int lo, int hi) {
         int n = hi - lo + 1;
         if (n == 0) {
@@ -5761,7 +5761,7 @@ private:
         return dp[n - 1];
     }
 };
-// https://leetcode.cn/submissions/detail/374747866/
+// https://leetcode.cn/submissions/detail/452708767/
 ```
 
 ## 215. 数组中的第 K 个最大元素
