@@ -6952,9 +6952,9 @@ class Solution {
 
 ```java
 class Solution {
-    private Map<TreeNode, Integer> memo = new HashMap();
+    private final Map<TreeNode, Integer> memo = new HashMap<>();
 
-    // 在二叉树 root，能盗取的最高金额
+    // 返回在二叉树 root，能盗取的最高金额
     public int rob(TreeNode root) {
         if (root == null) {
             return 0;
@@ -6975,7 +6975,7 @@ class Solution {
         return memo.get(root);
     }
 }
-// https://leetcode.cn/submissions/detail/374762287/
+// https://leetcode.cn/submissions/detail/452714303/
 ```
 
 ```java
