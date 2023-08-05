@@ -3630,7 +3630,7 @@ void flatten(struct TreeNode *root) {
 <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/>
 
 ```c
-int maxProfit(int *prices, int pricesSize) {
+int maxProfit(const int *prices, int pricesSize) {
     // dp[i][0] = 第 i 天，空仓状态下的最大利润
     // dp[i][1] = 第 i 天，持仓状态下的最大利润
     int dp[pricesSize][2];
@@ -3645,7 +3645,7 @@ int maxProfit(int *prices, int pricesSize) {
     }
     return dp[pricesSize - 1][0];
 }
-// https://leetcode.cn/submissions/detail/390320586/
+// https://leetcode.cn/submissions/detail/453614050/
 ```
 
 ## 122. 买卖股票的最佳时机 II
