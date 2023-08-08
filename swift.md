@@ -3647,36 +3647,36 @@ class Solution {
 ```swift
 class Solution {
     func maxProfit(_ k: Int, _ prices: [Int]) -> Int {
-        let n = prices.count;
+        let n = prices.count
         if (k == 0 || n <= 1) {
-            return 0;
+            return 0
         }
         // dp[t][i][0] = 交易次数限制为 t 时，第 i 天，空仓状态下的最大利润
         // dp[t][i][1] = 交易次数限制为 t 时，第 i 天，持仓状态下的最大利润
-        var dp = Array(repeating: Array(repeating: Array(repeating: 0, count: 2), count: n), count: k + 1);
+        var dp = Array(repeating: Array(repeating: Array(repeating: 0, count: 2), count: n), count: k + 1)
         // 交易次数限制为 0 时
         // 填写第 0 个 n x 2 矩阵
         for i in 0...n - 1 {
-            dp[0][i][0] = 0;
-            dp[0][i][1] = Int.min;
+            dp[0][i][0] = 0
+            dp[0][i][1] = Int.min
         }
         // 交易次数限制为 [1..k] 时
         // 填写第 t 个 n x 2 矩阵
         for t in 1...k {
-            dp[t][0][0] = 0;
-            dp[t][0][1] = -prices[0];
+            dp[t][0][0] = 0
+            dp[t][0][1] = -prices[0]
             for i in 1...n - 1 {
                 // dp[t][i - 1][0]             >= dp[t - 1][i - 1][0] - prices[i]
                 // dp[t][i - 1][1] + prices[i] >= dp[t][i - 1][1]
                 // => dp[t][i][0] >= dp[t][i][1]
-                dp[t][i][0] = max(dp[t][i - 1][0], dp[t][i - 1][1] + prices[i]);
-                dp[t][i][1] = max(dp[t - 1][i - 1][0] - prices[i], dp[t][i - 1][1]);
+                dp[t][i][0] = max(dp[t][i - 1][0], dp[t][i - 1][1] + prices[i])
+                dp[t][i][1] = max(dp[t - 1][i - 1][0] - prices[i], dp[t][i - 1][1])
             }
         }
-        return dp[k][n - 1][0];
+        return dp[k][n - 1][0]
     }
 }
-// https://leetcode.cn/submissions/detail/385802520/
+// https://leetcode.cn/submissions/detail/454562019/
 ```
 
 ## 189. 轮转数组
