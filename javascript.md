@@ -2655,12 +2655,13 @@ const maxProfit = function (prices) {
  * @param {number[]} prices
  * @return {number}
  */
- const maxProfit = function (prices) {
+const maxProfit = function (prices) {
     return maxProfitK(2, prices);
 };
 
 /**
- * 返回买卖股票的最大利润，交易次数限制为 k
+ * 返回买卖股票的最大利润（交易次数限制为 k）
+ *
  * @param {number} k
  * @param {number[]} prices
  * @return {number}
@@ -2700,7 +2701,7 @@ const maxProfitK = function (k, prices) {
     }
     return dp[k][n - 1][0];
 };
-// https://leetcode.cn/submissions/detail/381194682/
+// https://leetcode.cn/submissions/detail/454560380/
 ```
 
 ## 125. 验证回文串
