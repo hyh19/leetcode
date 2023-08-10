@@ -4905,6 +4905,7 @@ const eraseOverlapIntervals = function (intervals) {
 const maxNonOverlappingIntervals = function (intervals) {
     // 按区间终点升序排列
     intervals.sort((a, b) => a[1] - b[1]);
+    // 最后一个不重叠区间的终点
     let lastEnd = intervals[0][1];
     let count = 1;
     for (let i = 1; i < intervals.length; ++i) {
@@ -4916,7 +4917,7 @@ const maxNonOverlappingIntervals = function (intervals) {
     }
     return count;
 };
-// https://leetcode.cn/submissions/detail/455246816/
+// https://leetcode.cn/submissions/detail/455268934/
 ```
 
 ## 438. 找到字符串中所有字母异位词
