@@ -6117,28 +6117,30 @@ class Solution
     }
 
     /**
-     * 返回区间数组 intervals 中无重叠区间的最大数量
+     * 返回区间数组 intervals 无重叠区间的最大数量
      *
      * @param int[][] $intervals
      * @return int
      */
     private function maxNonOverlappingIntervals(array $intervals): int
     {
+        $n = count($intervals);
+        // 按区间终点升序排列
         usort($intervals, fn($a, $b) => $a[1] - $b[1]);
-        $count = 0;
-        $minEnd = PHP_INT_MIN;
-        for ($i = 0; $i < count($intervals); ++$i) {
+        // 最后一个不重叠区间的终点
+        $lastEnd = $intervals[0][1];
+        $count = 1;
+        for ($i = 1; $i < $n; ++$i) {
             [$start, $end] = $intervals[$i];
-            if ($start < $minEnd) {
-                continue;
+            if ($start >= $lastEnd) {
+                ++$count;
+                $lastEnd = $end;
             }
-            ++$count;
-            $minEnd = $end;
         }
         return $count;
     }
 }
-// https://leetcode.cn/submissions/detail/383519654/
+// https://leetcode.cn/submissions/detail/455249154/
 ```
 
 ## 438. 找到字符串中所有字母异位词
