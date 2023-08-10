@@ -7293,32 +7293,25 @@ class Solution {
         return intervals.length - maxNonOverlappingIntervals(intervals);
     }
 
-    // 区间数组 intervals 无重叠区间的最大数量
+    // 返回区间数组 intervals 无重叠区间的最大数量
     private int maxNonOverlappingIntervals(int[][] intervals) {
-        Arrays.sort(intervals, (a, b) -> {
-            if (a[1] < b[1]) {
-                return -1;
-            } else if (a[1] > b[1]) {
-                return 1;
-            } else {
-                return 0;
-            }
-        });
-        int count = 0;
-        int minEnd = Integer.MIN_VALUE;
-        for (int i = 0; i < intervals.length; ++i) {
+        // 按区间终点升序排列
+        Arrays.sort(intervals, Comparator.comparingInt(a -> a[1]));
+        // 最后一个不重叠区间的终点
+        int lastEnd = intervals[0][1];
+        int count = 1;
+        for (int i = 1; i < intervals.length; ++i) {
             int start = intervals[i][0];
             int end = intervals[i][1];
-            if (start < minEnd) {
-                continue;
+            if (start >= lastEnd) {
+                ++count;
+                lastEnd = end;
             }
-            ++count;
-            minEnd = end;
         }
         return count;
     }
 }
-// https://leetcode.cn/submissions/detail/375480990/
+// https://leetcode.cn/submissions/detail/455266150/
 ```
 
 ## 438. 找到字符串中所有字母异位词
