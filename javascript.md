@@ -4888,33 +4888,35 @@ const hasSubsetSum = function (nums, sum) {
 <https://leetcode.cn/problems/non-overlapping-intervals/>
 
 ```js
-int cmp(const void *a, const void *b) {
-    const int *arg1 = *(const int **) a;
-    const int *arg2 = *(const int **) b;
-    return arg1[1] - arg2[1];
-}
+/**
+ * @param {number[][]} intervals
+ * @return {number}
+ */
+const eraseOverlapIntervals = function (intervals) {
+    return intervals.length - maxNonOverlappingIntervals(intervals);
+};
 
-// 区间数组 intervals 无重叠区间的最大数量
-int maxNonOverlappingIntervals(int **intervals, int intervalsSize) {
-    qsort(intervals, intervalsSize, sizeof(int *), cmp);
-    int count = 0;
-    int minEnd = INT_MIN;
-    for (int i = 0; i < intervalsSize; ++i) {
-        int start = intervals[i][0];
-        int end = intervals[i][1];
-        if (start < minEnd) {
-            continue;
+/**
+ * 返回区间数组 intervals 无重叠区间的最大数量
+ *
+ * @param {number[][]} intervals
+ * @return {number}
+ */
+const maxNonOverlappingIntervals = function (intervals) {
+    // 按区间终点升序排列
+    intervals.sort((a, b) => a[1] - b[1]);
+    let lastEnd = intervals[0][1];
+    let count = 1;
+    for (let i = 1; i < intervals.length; ++i) {
+        const [start, end] = intervals[i];
+        if (start >= lastEnd) {
+            ++count;
+            lastEnd = end;
         }
-        ++count;
-        minEnd = end;
     }
     return count;
-}
-
-int eraseOverlapIntervals(int **intervals, int intervalsSize, int *intervalsColSize) {
-    return intervalsSize - maxNonOverlappingIntervals(intervals, intervalsSize);
-}
-// https://leetcode.cn/submissions/detail/391305215/
+};
+// https://leetcode.cn/submissions/detail/455246816/
 ```
 
 ## 438. 找到字符串中所有字母异位词
