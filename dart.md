@@ -3833,8 +3833,9 @@ class Solution {
     return intervals.length - _maxNonOverlappingIntervals(intervals);
   }
 
-  // 区间数组 intervals 无重叠区间的最大数量
+  // 返回区间数组 intervals 无重叠区间的最大数量
   int _maxNonOverlappingIntervals(List<List<int>> intervals) {
+    // 按区间终点升序排列
     intervals.sort((a, b) => a[1] - b[1]);
     // 最后一个不重叠区间的终点
     var lastEnd = intervals[0][1];
@@ -3842,16 +3843,15 @@ class Solution {
     for (var i = 1; i < intervals.length; ++i) {
       final start = intervals[i][0];
       final end = intervals[i][1];
-      if (start < lastEnd) {
-        continue;
+      if (start >= lastEnd) {
+        ++count;
+        lastEnd = end;
       }
-      ++count;
-      lastEnd = end;
     }
     return count;
   }
 }
-// https://leetcode.cn/submissions/detail/407447837/
+// https://leetcode.cn/submissions/detail/455264385/
 ```
 
 ## 438. 找到字符串中所有字母异位词
