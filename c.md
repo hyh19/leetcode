@@ -6613,19 +6613,20 @@ int cmp(const void *a, const void *b) {
     return arg1[1] - arg2[1];
 }
 
-// 区间数组 intervals 无重叠区间的最大数量
+// 返回区间数组 intervals 无重叠区间的最大数量
 int maxNonOverlappingIntervals(int **intervals, int intervalsSize) {
+    // 按区间终点升序排列
     qsort(intervals, intervalsSize, sizeof(int *), cmp);
-    int count = 0;
-    int minEnd = INT_MIN;
-    for (int i = 0; i < intervalsSize; ++i) {
+    // 最后一个不重叠区间的终点
+    int lastEnd = intervals[0][1];
+    int count = 1;
+    for (int i = 1; i < intervalsSize; ++i) {
         int start = intervals[i][0];
         int end = intervals[i][1];
-        if (start < minEnd) {
-            continue;
+        if (start >= lastEnd) {
+            ++count;
+            lastEnd = end;
         }
-        ++count;
-        minEnd = end;
     }
     return count;
 }
@@ -6633,7 +6634,7 @@ int maxNonOverlappingIntervals(int **intervals, int intervalsSize) {
 int eraseOverlapIntervals(int **intervals, int intervalsSize, int *intervalsColSize) {
     return intervalsSize - maxNonOverlappingIntervals(intervals, intervalsSize);
 }
-// https://leetcode.cn/submissions/detail/391305215/
+// https://leetcode.cn/submissions/detail/455252717/
 ```
 
 ## 438. 找到字符串中所有字母异位词
