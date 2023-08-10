@@ -5196,29 +5196,29 @@ class Solution {
 ```swift
 class Solution {
     func eraseOverlapIntervals(_ intervals: [[Int]]) -> Int {
-        intervals.count - maxNonOverlappingIntervals(intervals);
+        return intervals.count - maxNonOverlappingIntervals(intervals)
     }
 
-    // 返回区间数组 intervals 无重叠区间的最大数量
+    /// 返回区间数组 intervals 无重叠区间的最大数量
     private func maxNonOverlappingIntervals(_ intervals: [[Int]]) -> Int {
+        // 按区间终点升序排列
         let sortedIntervals = intervals.sorted { a, b in
             a[1] < b[1]
-        };
-        var count = 0;
-        var minEnd = Int.min;
-        for interval in sortedIntervals {
-            let start = interval[0];
-            let end = interval[1];
-            if (start < minEnd) {
-                continue;
-            }
-            count += 1;
-            minEnd = end;
         }
-        return count;
+        // 最后一个不重叠区间的终点
+        var lastEnd = sortedIntervals[0][1]
+        var count = 1
+        for i in 1..<sortedIntervals.count {
+            let (start, end) = (sortedIntervals[i][0], sortedIntervals[i][1])
+            if start >= lastEnd {
+                count += 1
+                lastEnd = end
+            }
+        }
+        return count
     }
 }
-// https://leetcode.cn/submissions/detail/385543314/
+// https://leetcode.cn/submissions/detail/455259825/
 ```
 
 ## 438. 找到字符串中所有字母异位词
