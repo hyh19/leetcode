@@ -3673,19 +3673,20 @@ class Solution:
     def eraseOverlapIntervals(self, intervals: List[List[int]]) -> int:
         return len(intervals) - self.maxNonOverlappingIntervals(intervals)
 
-    # 区间数组 intervals 无重叠区间的最大数量
+    # 返回区间数组 intervals 无重叠区间的最大数量
     def maxNonOverlappingIntervals(self, intervals: List[List[int]]) -> int:
+        # 按区间终点升序排列
         intervals.sort(key=lambda interval: interval[1])
-        count = 0
-        minEnd = -math.inf
-        for interval in intervals:
-            start, end = interval
-            if start < minEnd:
-                continue
-            count += 1
-            minEnd = end
+        # 最后一个不重叠区间的终点
+        lastEnd = intervals[0][1]
+        count = 1
+        for i in range(1, len(intervals)):
+            start, end = intervals[i]
+            if start >= lastEnd:
+                count += 1
+                lastEnd = end
         return count
-# https://leetcode.cn/submissions/detail/379141067/
+# https://leetcode.cn/submissions/detail/455267918/
 ```
 
 ## 438. 找到字符串中所有字母异位词
