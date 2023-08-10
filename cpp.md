@@ -7170,27 +7170,28 @@ public:
     }
 
 private:
-    // 区间数组 intervals 无重叠区间的最大数量
+    // 返回区间数组 intervals 无重叠区间的最大数量
     int maxNonOverlappingIntervals(vector<vector<int>> &intervals) {
+        // 按区间终点升序排列
         sort(intervals.begin(), intervals.end(),
              [](const vector<int> &a, const vector<int> &b) {
                  return a[1] < b[1];
              });
-        int count = 0;
-        long minEnd = LONG_MIN;
-        for (const auto &interval: intervals) {
-            int start = interval[0];
-            int end = interval[1];
-            if (start < minEnd) {
-                continue;
+        // 最后一个不重叠区间的终点
+        long lastEnd = intervals[0][1];
+        int count = 1;
+        for (int i = 1; i < intervals.size(); ++i) {
+            int start = intervals[i][0];
+            int end = intervals[i][1];
+            if (start >= lastEnd) {
+                ++count;
+                lastEnd = end;
             }
-            ++count;
-            minEnd = end;
         }
         return count;
     }
 };
-// https://leetcode.cn/submissions/detail/391669860/
+// https://leetcode.cn/submissions/detail/455263238/
 ```
 
 ## 438. 找到字符串中所有字母异位词
