@@ -5088,30 +5088,32 @@ const deleteMin = function (root) {
  * @param {number[][]} points
  * @return {number}
  */
- const findMinArrowShots = function (points) {
+const findMinArrowShots = function (points) {
     return maxNonOverlappingIntervals(points);
 };
 
 /**
- * 区间数组 intervals 中无重叠区间的最大数量
+ * 返回区间数组 intervals 无重叠区间的最大数量
+ *
  * @param {number[][]} intervals
  * @return {number}
  */
 const maxNonOverlappingIntervals = function (intervals) {
+    // 按区间终点升序排列
     intervals.sort((a, b) => a[1] - b[1]);
-    let count = 0;
-    let minEnd = Number.NEGATIVE_INFINITY;
-    for (let i = 0; i < intervals.length; ++i) {
+    // 最后一个不重叠区间的终点
+    let lastEnd = intervals[0][1];
+    let count = 1;
+    for (let i = 1; i < intervals.length; ++i) {
         const [start, end] = intervals[i];
-        if (start <= minEnd) {
-            continue;
+        if (start > lastEnd) {
+            ++count;
+            lastEnd = end;
         }
-        ++count;
-        minEnd = end;
     }
     return count;
 };
-// https://leetcode.cn/submissions/detail/381061984/
+// https://leetcode.cn/submissions/detail/456436263/
 ```
 
 ## 460. LFU 缓存
