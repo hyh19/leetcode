@@ -6113,7 +6113,7 @@ class Solution
      */
     function eraseOverlapIntervals(array $intervals): int
     {
-        return count($intervals) - $this->maxNonOverlappingIntervals($intervals);
+        return count($intervals) - self::maxNonOverlappingIntervals($intervals);
     }
 
     /**
@@ -6122,7 +6122,7 @@ class Solution
      * @param int[][] $intervals
      * @return int
      */
-    private function maxNonOverlappingIntervals(array $intervals): int
+    private static function maxNonOverlappingIntervals(array $intervals): int
     {
         $n = count($intervals);
         // 按区间终点升序排列
@@ -6140,7 +6140,7 @@ class Solution
         return $count;
     }
 }
-// https://leetcode.cn/submissions/detail/455249154/
+// https://leetcode.cn/submissions/detail/456437744/
 ```
 
 ## 438. 找到字符串中所有字母异位词
