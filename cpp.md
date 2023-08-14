@@ -7171,7 +7171,7 @@ public:
 
 private:
     // 返回区间数组 intervals 无重叠区间的最大数量
-    int maxNonOverlappingIntervals(vector<vector<int>> &intervals) {
+    static int maxNonOverlappingIntervals(vector<vector<int>> &intervals) {
         // 按区间终点升序排列
         sort(intervals.begin(), intervals.end(),
              [](const vector<int> &a, const vector<int> &b) {
@@ -7191,7 +7191,7 @@ private:
         return count;
     }
 };
-// https://leetcode.cn/submissions/detail/455263238/
+// https://leetcode.cn/submissions/detail/456430545/
 ```
 
 ## 438. 找到字符串中所有字母异位词
