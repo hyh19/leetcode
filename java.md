@@ -7294,7 +7294,7 @@ class Solution {
     }
 
     // 返回区间数组 intervals 无重叠区间的最大数量
-    private int maxNonOverlappingIntervals(int[][] intervals) {
+    private static int maxNonOverlappingIntervals(int[][] intervals) {
         // 按区间终点升序排列
         Arrays.sort(intervals, Comparator.comparingInt(interval -> interval[1]));
         // 最后一个不重叠区间的终点
@@ -7311,7 +7311,7 @@ class Solution {
         return count;
     }
 }
-// https://leetcode.cn/submissions/detail/455268532/
+// https://leetcode.cn/submissions/detail/456432830/
 ```
 
 ## 438. 找到字符串中所有字母异位词
@@ -7496,31 +7496,25 @@ class Solution {
         return maxNonOverlappingIntervals(points);
     }
 
-    private int maxNonOverlappingIntervals(int[][] intervals) {
-        Arrays.sort(intervals, (a, b) -> {
-            if (a[1] > b[1]) {
-                return 1;
-            }
-            if (a[1] < b[1]) {
-                return -1;
-            }
-            return 0;
-        });
+    // 返回区间数组 intervals 无重叠区间的最大数量
+    private static int maxNonOverlappingIntervals(int[][] intervals) {
+        // 按区间终点升序排列
+        Arrays.sort(intervals, Comparator.comparingInt(interval -> interval[1]));
+        // 最后一个不重叠区间的终点
         int lastEnd = intervals[0][1];
         int count = 1;
         for (int i = 1; i < intervals.length; ++i) {
             int start = intervals[i][0];
             int end = intervals[i][1];
-            if (start <= lastEnd) {
-                continue;
+            if (start > lastEnd) {
+                ++count;
+                lastEnd = end;
             }
-            ++count;
-            lastEnd = end;
         }
         return count;
     }
 }
-// https://leetcode.cn/submissions/detail/409172016/
+// https://leetcode.cn/submissions/detail/456432115/
 ```
 
 ## 460. LFU 缓存
