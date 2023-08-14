@@ -6837,19 +6837,20 @@ int cmp(const void *a, const void *b) {
     return 0;
 }
 
-// 区间数组 intervals 无重叠区间的最大数量
+// 返回区间数组 intervals 无重叠区间的最大数量
 int maxNonOverlappingIntervals(int **intervals, int intervalsSize) {
+    // 按区间终点升序排列
     qsort(intervals, intervalsSize, sizeof(int *), cmp);
-    int count = 0;
-    int minEnd = INT_MIN;
-    for (int i = 0; i < intervalsSize; ++i) {
+    // 最后一个不重叠区间的终点
+    int lastEnd = intervals[0][1];
+    int count = 1;
+    for (int i = 1; i < intervalsSize; ++i) {
         int start = intervals[i][0];
         int end = intervals[i][1];
-        if (start <= minEnd) {
-            continue;
+        if (start > lastEnd) {
+            ++count;
+            lastEnd = end;
         }
-        ++count;
-        minEnd = end;
     }
     return count;
 }
@@ -6860,7 +6861,7 @@ int findMinArrowShots(int **points, int pointsSize, int *pointsColSize) {
     }
     return maxNonOverlappingIntervals(points, pointsSize);
 }
-// https://leetcode.cn/submissions/detail/391305538/
+// https://leetcode.cn/submissions/detail/456427354/
 ```
 
 ## 460. LFU 缓存
