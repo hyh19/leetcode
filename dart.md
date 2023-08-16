@@ -4006,24 +4006,25 @@ class Solution {
     return _maxNonOverlappingIntervals(points);
   }
 
-  // 区间数组 intervals 无重叠区间的最大数量
-  int _maxNonOverlappingIntervals(List<List<int>> intervals) {
+  // 返回区间数组 intervals 无重叠区间的最大数量
+  static int _maxNonOverlappingIntervals(List<List<int>> intervals) {
+    // 按区间终点升序排列
     intervals.sort((a, b) => a[1] - b[1]);
-    var count = 0;
-    var minEnd = -pow(2, 31) - 1;
-    for (final interval in intervals) {
-      final start = interval[0];
-      final end = interval[1];
-      if (start <= minEnd) {
-        continue;
+    // 最后一个不重叠区间的终点
+    var lastEnd = intervals[0][1];
+    var count = 1;
+    for (var i = 1; i < intervals.length; ++i) {
+      final start = intervals[i][0];
+      final end = intervals[i][1];
+      if (start > lastEnd) {
+        ++count;
+        lastEnd = end;
       }
-      ++count;
-      minEnd = end;
     }
     return count;
   }
 }
-// https://leetcode.cn/submissions/detail/376159072/
+// https://leetcode.cn/submissions/detail/456897092/
 ```
 
 ## 460. LFU 缓存
