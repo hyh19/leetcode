@@ -9175,9 +9175,8 @@ intervalIntersection(int **firstList, int firstListSize, int *firstListColSize,
                      int *returnSize, int **returnColumnSizes) {
     int capacity = firstListSize + secondListSize;
     int **ans = malloc(sizeof(int *) * capacity);
-    *returnColumnSizes = malloc(sizeof(int[capacity]));
-    *returnSize = 0;
-    int i = 0, j = 0;
+    int *columnSizes = malloc(sizeof(int[capacity]));
+    int i = 0, j = 0, size = 0;
     while (i < firstListSize && j < secondListSize) {
         int start1 = firstList[i][0], end1 = firstList[i][1];
         int start2 = secondList[j][0], end2 = secondList[j][1];
@@ -9189,8 +9188,9 @@ intervalIntersection(int **firstList, int firstListSize, int *firstListColSize,
             int *t = malloc(sizeof(int[2]));
             t[0] = fmax(start1, start2);
             t[1] = fmin(end1, end2);
-            ans[*returnSize] = t;
-            (*returnColumnSizes)[(*returnSize)++] = 2;
+            ans[size] = t;
+            columnSizes[size] = 2;
+            ++size;
             if (end1 < end2) {
                 ++i;
             } else {
@@ -9198,8 +9198,11 @@ intervalIntersection(int **firstList, int firstListSize, int *firstListColSize,
             }
         }
     }
+    *returnSize = size;
+    *returnColumnSizes = columnSizes;
     return ans;
 }
+// https://leetcode.cn/submissions/detail/457116012/
 ```
 
 ## 990. 等式方程的可满足性
