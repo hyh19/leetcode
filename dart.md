@@ -5282,13 +5282,10 @@ class Solution {
   List<List<int>> intervalIntersection(
       List<List<int>> firstList, List<List<int>> secondList) {
     final ans = <List<int>>[];
-    var i = 0;
-    var j = 0;
+    var i = 0, j = 0;
     while (i < firstList.length && j < secondList.length) {
-      final start1 = firstList[i][0];
-      final end1 = firstList[i][1];
-      final start2 = secondList[j][0];
-      final end2 = secondList[j][1];
+      final start1 = firstList[i][0], end1 = firstList[i][1];
+      final start2 = secondList[j][0], end2 = secondList[j][1];
       if (end1 < start2) {
         // 不相交
         ++i;
@@ -5308,7 +5305,7 @@ class Solution {
     return ans;
   }
 }
-// https://leetcode.cn/submissions/detail/376154657/
+// https://leetcode.cn/submissions/detail/457118381/
 ```
 
 ## 990. 等式方程的可满足性
