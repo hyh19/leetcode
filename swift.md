@@ -7167,33 +7167,31 @@ class Solution {
 ```swift
 class Solution {
     func intervalIntersection(_ firstList: [[Int]], _ secondList: [[Int]]) -> [[Int]] {
-        var ans: [[Int]] = [];
-        var i = 0, j = 0;
-        while (i < firstList.count && j < secondList.count) {
-            let start1 = firstList[i][0];
-            let end1 = firstList[i][1];
-            let start2 = secondList[j][0];
-            let end2 = secondList[j][1];
-            if (end1 < start2) {
+        var ans: [[Int]] = []
+        var i = 0, j = 0
+        while i < firstList.count && j < secondList.count {
+            let (start1, end1) = (firstList[i][0], firstList[i][1])
+            let (start2, end2) = (secondList[j][0], secondList[j][1])
+            if end1 < start2 {
                 // 不相交
-                i += 1;
-            } else if (end2 < start1) {
+                i += 1
+            } else if end2 < start1 {
                 // 不相交
-                j += 1;
+                j += 1
             } else {
                 // 相交
-                ans.append([max(start1, start2), min(end1, end2)]);
-                if (end1 < end2) {
-                    i += 1;
+                ans.append([max(start1, start2), min(end1, end2)])
+                if end1 < end2 {
+                    i += 1
                 } else {
-                    j += 1;
+                    j += 1
                 }
             }
         }
-        return ans;
+        return ans
     }
 }
-// https://leetcode.cn/submissions/detail/385539111/
+// https://leetcode.cn/submissions/detail/457121859/
 ```
 
 ## 990. 等式方程的可满足性
