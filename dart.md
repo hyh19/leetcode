@@ -3834,7 +3834,7 @@ class Solution {
   }
 
   // 返回区间数组 intervals 无重叠区间的最大数量
-  int _maxNonOverlappingIntervals(List<List<int>> intervals) {
+  static int _maxNonOverlappingIntervals(List<List<int>> intervals) {
     // 按区间终点升序排列
     intervals.sort((a, b) => a[1] - b[1]);
     // 最后一个不重叠区间的终点
@@ -3851,7 +3851,7 @@ class Solution {
     return count;
   }
 }
-// https://leetcode.cn/submissions/detail/455264385/
+// https://leetcode.cn/submissions/detail/456896707/
 ```
 
 ## 438. 找到字符串中所有字母异位词
