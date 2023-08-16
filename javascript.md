@@ -1,5 +1,5 @@
 <!-- omit in toc -->
-# LeetCode 题解：JavaScript
+# LeetCode 题解：JavaScript 实现
 
 - [1. 两数之和](#1-两数之和)
 - [2. 两数相加](#2-两数相加)
