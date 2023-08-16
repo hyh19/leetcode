@@ -5371,29 +5371,29 @@ class Solution {
 ```swift
 class Solution {
     func findMinArrowShots(_ points: [[Int]]) -> Int {
-        maxNonOverlappingIntervals(points);
+        return Solution.maxNonOverlappingIntervals(points);
     }
 
-    // 返回区间数组 intervals 无重叠区间的最大数量
-    private func maxNonOverlappingIntervals(_ intervals: [[Int]]) -> Int {
+    /// 返回区间数组 intervals 无重叠区间的最大数量
+    private static func maxNonOverlappingIntervals(_ intervals: [[Int]]) -> Int {
+        // 按区间终点升序排列
         let sortedIntervals = intervals.sorted { a, b in
             a[1] < b[1]
-        };
-        var count = 0;
-        var minEnd = Int.min;
-        for interval in sortedIntervals {
-            let start = interval[0];
-            let end = interval[1];
-            if (start <= minEnd) {
-                continue;
-            }
-            count += 1;
-            minEnd = end;
         }
-        return count;
+        // 最后一个不重叠区间的终点
+        var lastEnd = sortedIntervals[0][1]
+        var count = 1
+        for i in 1..<sortedIntervals.count {
+            let (start, end) = (sortedIntervals[i][0], sortedIntervals[i][1])
+            if start > lastEnd {
+                count += 1
+                lastEnd = end
+            }
+        }
+        return count
     }
 }
-// https://leetcode.cn/submissions/detail/385543828/
+// https://leetcode.cn/submissions/detail/456898103/
 ```
 
 ## 460. LFU 缓存
