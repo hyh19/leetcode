@@ -5196,11 +5196,11 @@ class Solution {
 ```swift
 class Solution {
     func eraseOverlapIntervals(_ intervals: [[Int]]) -> Int {
-        return intervals.count - maxNonOverlappingIntervals(intervals)
+        return intervals.count - Solution.maxNonOverlappingIntervals(intervals)
     }
 
     /// 返回区间数组 intervals 无重叠区间的最大数量
-    private func maxNonOverlappingIntervals(_ intervals: [[Int]]) -> Int {
+    private static func maxNonOverlappingIntervals(_ intervals: [[Int]]) -> Int {
         // 按区间终点升序排列
         let sortedIntervals = intervals.sorted { a, b in
             a[1] < b[1]
@@ -5218,7 +5218,7 @@ class Solution {
         return count
     }
 }
-// https://leetcode.cn/submissions/detail/455259825/
+// https://leetcode.cn/submissions/detail/456897640/
 ```
 
 ## 438. 找到字符串中所有字母异位词
