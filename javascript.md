@@ -1588,13 +1588,8 @@ const totalNQueens = function (n) {
  * @param {number[][]} intervals
  * @return {number[][]}
  */
- const merge = function (intervals) {
-    intervals.sort((a, b) => {
-        if (a[0] === b[0]) {
-            return b[1] - a[1];
-        }
-        return a[0] - b[0];
-    });
+const merge = function (intervals) {
+    intervals.sort((a, b) => a[0] - b[0]);
     const ans = [];
     let [mStart, mEnd] = intervals[0];
     for (let i = 1; i < intervals.length; ++i) {
@@ -1610,7 +1605,7 @@ const totalNQueens = function (n) {
     ans.push([mStart, mEnd]);
     return ans;
 };
-// https://leetcode.cn/submissions/detail/381051976/
+// https://leetcode.cn/submissions/detail/458602646/
 ```
 
 ## 64. 最小路径和
