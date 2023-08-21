@@ -8990,8 +8990,8 @@ class Solution
         usort($intervals, fn($a, $b) => $a[0] === $b[0] ? $b[1] - $a[1] : $a[0] - $b[0]);
         $n = count($intervals);
         $count = $n;
-        $maxEnd = 0;
-        for ($i = 0; $i < $n; ++$i) {
+        $maxEnd = $intervals[0][1];
+        for ($i = 1; $i < $n; ++$i) {
             $end = $intervals[$i][1];
             if ($end <= $maxEnd) {
                 --$count;
@@ -9002,7 +9002,7 @@ class Solution
         return $count;
     }
 }
-// https://leetcode.cn/submissions/detail/383513683/
+// https://leetcode.cn/submissions/detail/458598667/
 ```
 
 ## 1382. 将二叉搜索树变平衡
