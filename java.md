@@ -10295,23 +10295,19 @@ class Solution {
 // 相似题目 1288. 删除被覆盖区间 https://leetcode.cn/problems/remove-covered-intervals/
 class Solution {
     public int videoStitching(int[][] clips, int time) {
-        Arrays.sort(clips, (a, b) -> {
-            if (a[0] == b[0]) {
-                return b[1] - a[1];
-            }
-            return a[0] - b[0];
-        });
+        Arrays.sort(clips, Comparator.comparingInt(a -> a[0]));
+        // 已迭代的区间中最大的 end
         int maxEnd = 0;
         int count = 0;
         int i = 0, n = clips.length;
         // 当 clips[i] 与 [0, maxEnd] 重叠（相交或被覆盖）时
         while (i < n && clips[i][0] <= maxEnd) {
             // 记录与 [0, maxEnd] 重叠的所有区间中最大的 end
-            int nextEnd = clips[i][1];
+            int nextMaxEnd = clips[i][1];
             while (++i < n && clips[i][0] <= maxEnd) {
-                nextEnd = Math.max(nextEnd, clips[i][1]);
+                nextMaxEnd = Math.max(nextMaxEnd, clips[i][1]);
             }
-            maxEnd = nextEnd;
+            maxEnd = nextMaxEnd;
             ++count;
             if (maxEnd >= time) {
                 return count;
@@ -10320,7 +10316,7 @@ class Solution {
         return -1;
     }
 }
-// https://leetcode.cn/submissions/detail/374218167/
+// https://leetcode.cn/submissions/detail/461331823/
 ```
 
 ## 1143. 最长公共子序列
