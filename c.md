@@ -178,7 +178,7 @@
 
 ## 1. 两数之和
 
-<https://leetcode-cn.com/problems/two-sum/>
+<https://leetcode.cn/problems/two-sum/>
 
 ```c
 typedef struct {
@@ -223,7 +223,7 @@ int *twoSum(const int *nums, int numsSize, int target, int *returnSize) {
 
 ## 2. 两数相加
 
-<https://leetcode-cn.com/problems/add-two-numbers/>
+<https://leetcode.cn/problems/add-two-numbers/>
 
 ```c
 struct ListNode *addTwoNumbers(const struct ListNode *l1, const struct ListNode *l2) {
@@ -258,7 +258,7 @@ struct ListNode *addTwoNumbers(const struct ListNode *l1, const struct ListNode 
 
 ## 3. 无重复字符的最长子串
 
-<https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/>
+<https://leetcode.cn/problems/longest-substring-without-repeating-characters/>
 
 ```c
 typedef struct {
@@ -521,7 +521,7 @@ char *longestCommonPrefix(char **strs, int strsSize) {
 
 ## 15. 三数之和
 
-<https://leetcode-cn.com/problems/3sum/>
+<https://leetcode.cn/problems/3sum/>
 
 ```c
 int cmp(const void *a, const void *b) {
@@ -699,7 +699,7 @@ int **fourSum(int *nums, int numsSize, int target, int *returnSize, int **return
 
 ## 19. 删除链表的倒数第 N 个结点
 
-<https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/>
+<https://leetcode.cn/problems/remove-nth-node-from-end-of-list/>
 
 ```c
 struct ListNode *removeNthFromEnd(struct ListNode *head, int n) {
@@ -730,7 +730,7 @@ struct ListNode *removeNthFromEnd(struct ListNode *head, int n) {
 
 ## 20. 有效的括号
 
-<https://leetcode-cn.com/problems/valid-parentheses/>
+<https://leetcode.cn/problems/valid-parentheses/>
 
 ```c
 typedef char Value;
@@ -966,7 +966,7 @@ bool isValid(const char *s) {
 
 ## 21. 合并两个有序链表
 
-<https://leetcode-cn.com/problems/merge-two-sorted-lists/>
+<https://leetcode.cn/problems/merge-two-sorted-lists/>
 
 ```c
 struct ListNode *mergeTwoLists(struct ListNode *list1, struct ListNode *list2) {
@@ -1057,7 +1057,7 @@ char **generateParenthesis(int n, int *returnSize) {
 
 ## 23. 合并 K 个升序链表
 
-<https://leetcode-cn.com/problems/merge-k-sorted-lists/>
+<https://leetcode.cn/problems/merge-k-sorted-lists/>
 
 ```c
 struct ListNode *mergeTwoLists(struct ListNode *list1, struct ListNode *list2) {
@@ -1102,7 +1102,7 @@ struct ListNode *mergeKLists(struct ListNode **lists, int listsSize) {
 
 ## 24. 两两交换链表中的节点
 
-<https://leetcode-cn.com/problems/swap-nodes-in-pairs/>
+<https://leetcode.cn/problems/swap-nodes-in-pairs/>
 
 ```c
 struct ListNode *swapPairs(struct ListNode *head) {
@@ -2519,7 +2519,7 @@ int **subsetsWithDup(int *nums, int numsSize, int *returnSize, int **returnColum
 
 ## 92. 反转链表 II
 
-<https://leetcode-cn.com/problems/reverse-linked-list-ii/>
+<https://leetcode.cn/problems/reverse-linked-list-ii/>
 
 ```c
 // 翻转链表的前 n 个节点，返回翻转后的头节点
@@ -3009,7 +3009,7 @@ int **levelOrder(struct TreeNode *root, int *returnSize, int **returnColumnSizes
 
 ## 103. 二叉树的锯齿形层序遍历
 
-<https://leetcode-cn.com/problems/binary-tree-zigzag-level-order-traversal/>
+<https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/>
 
 ```c
 typedef struct TreeNode *Value;
@@ -3255,7 +3255,7 @@ struct TreeNode *buildTree(const int *inorder, int inorderSize, const int *posto
 
 ## 107. 二叉树的层序遍历 II
 
-<https://leetcode-cn.com/problems/binary-tree-level-order-traversal-ii/>
+<https://leetcode.cn/problems/binary-tree-level-order-traversal-ii/>
 
 ```c
 typedef struct TreeNode *Value;
@@ -3882,7 +3882,7 @@ int singleNumber(const int *nums, int numsSize) {
 
 ## 141. 环形链表
 
-<https://leetcode-cn.com/problems/linked-list-cycle/>
+<https://leetcode.cn/problems/linked-list-cycle/>
 
 ```c
 bool hasCycle(struct ListNode *head) {
@@ -3902,7 +3902,7 @@ bool hasCycle(struct ListNode *head) {
 
 ## 142. 环形链表 II
 
-<https://leetcode-cn.com/problems/linked-list-cycle-ii/>
+<https://leetcode.cn/problems/linked-list-cycle-ii/>
 
 ```c
 struct ListNode *detectCycle(struct ListNode *head) {
@@ -4397,7 +4397,7 @@ void minStackFree(MinStack *obj) {
 
 ## 160. 相交链表
 
-<https://leetcode-cn.com/problems/intersection-of-two-linked-lists/>
+<https://leetcode.cn/problems/intersection-of-two-linked-lists/>
 
 ```c
 struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *headB) {
@@ -4452,7 +4452,7 @@ int compareVersion(const char *version1, const char *version2) {
 
 ## 167. 两数之和 II - 输入有序数组
 
-<https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/>
+<https://leetcode.cn/problems/two-sum-ii-input-array-is-sorted/>
 
 ```c
 /**
@@ -5080,7 +5080,7 @@ int numIslands(char **grid, int gridSize, int *gridColSize) {
 
 ## 203. 移除链表元素
 
-<https://leetcode-cn.com/problems/remove-linked-list-elements/>
+<https://leetcode.cn/problems/remove-linked-list-elements/>
 
 ```c
 struct ListNode *removeElements(struct ListNode *head, int val) {
@@ -5106,7 +5106,7 @@ struct ListNode *removeElements(struct ListNode *head, int val) {
 
 ## 206. 反转链表
 
-<https://leetcode-cn.com/problems/reverse-linked-list/>
+<https://leetcode.cn/problems/reverse-linked-list/>
 
 ```c
 struct ListNode *reverseList(struct ListNode *head) {
@@ -5696,7 +5696,7 @@ struct TreeNode *lowestCommonAncestor(struct TreeNode *root, struct TreeNode *p,
 
 ## 237. 删除链表中的节点
 
-<https://leetcode-cn.com/problems/delete-node-in-a-linked-list/>
+<https://leetcode.cn/problems/delete-node-in-a-linked-list/>
 
 ```c
 void deleteNode(struct ListNode *node) {
@@ -5894,7 +5894,7 @@ int *maxSlidingWindow(const int *nums, int numsSize, int k, int *returnSize) {
 
 ## 283. 移动零
 
-<https://leetcode-cn.com/problems/move-zeroes/>
+<https://leetcode.cn/problems/move-zeroes/>
 
 ```c
 void swap(int *a, int *b) {
@@ -8827,7 +8827,7 @@ int minEatingSpeed(const int *piles, int pilesSize, int h) {
 
 ## 876. 链表的中间结点
 
-<https://leetcode-cn.com/problems/middle-of-the-linked-list/>
+<https://leetcode.cn/problems/middle-of-the-linked-list/>
 
 ```c
 struct ListNode *middleNode(struct ListNode *head) {
@@ -9681,7 +9681,7 @@ int countSubIslands(int **grid1, int grid1Size, int *grid1ColSize, int **grid2, 
 
 ## CtCI 02.02. 返回倒数第 K 个节点
 
-<https://leetcode-cn.com/problems/kth-node-from-end-of-list-lcci/>
+<https://leetcode.cn/problems/kth-node-from-end-of-list-lcci/>
 
 ```c
 int kthToLast(struct ListNode *head, int k) {

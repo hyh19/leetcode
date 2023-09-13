@@ -178,7 +178,7 @@
 
 ## 1. 两数之和
 
-<https://leetcode-cn.com/problems/two-sum/>
+<https://leetcode.cn/problems/two-sum/>
 
 ```java
 class Solution {
@@ -201,7 +201,7 @@ class Solution {
 
 ## 2. 两数相加
 
-<https://leetcode-cn.com/problems/add-two-numbers/>
+<https://leetcode.cn/problems/add-two-numbers/>
 
 ```java
 class Solution {
@@ -231,7 +231,7 @@ class Solution {
 
 ## 3. 无重复字符的最长子串
 
-<https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/>
+<https://leetcode.cn/problems/longest-substring-without-repeating-characters/>
 
 ```java
 class Solution {
@@ -508,7 +508,7 @@ class Solution {
 
 ## 15. 三数之和
 
-<https://leetcode-cn.com/problems/3sum/>
+<https://leetcode.cn/problems/3sum/>
 
 ```java
 class Solution {
@@ -634,7 +634,7 @@ class Solution {
 
 ## 19. 删除链表的倒数第 N 个结点
 
-<https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/>
+<https://leetcode.cn/problems/remove-nth-node-from-end-of-list/>
 
 ```java
 class Solution {
@@ -658,7 +658,7 @@ class Solution {
 
 ## 20. 有效的括号
 
-<https://leetcode-cn.com/problems/valid-parentheses/>
+<https://leetcode.cn/problems/valid-parentheses/>
 
 ```java
 class Solution {
@@ -699,7 +699,7 @@ class Solution {
 
 ## 21. 合并两个有序链表
 
-<https://leetcode-cn.com/problems/merge-two-sorted-lists/>
+<https://leetcode.cn/problems/merge-two-sorted-lists/>
 
 ```java
 class Solution {
@@ -819,7 +819,7 @@ class Solution {
 
 ## 23. 合并 K 个升序链表
 
-<https://leetcode-cn.com/problems/merge-k-sorted-lists/>
+<https://leetcode.cn/problems/merge-k-sorted-lists/>
 
 ```java
 class Solution {
@@ -893,7 +893,7 @@ class Solution {
 
 ## 24. 两两交换链表中的节点
 
-<https://leetcode-cn.com/problems/swap-nodes-in-pairs/>
+<https://leetcode.cn/problems/swap-nodes-in-pairs/>
 
 ```java
 class Solution {
@@ -3006,7 +3006,7 @@ class Solution {
 
 ## 92. 反转链表 II
 
-<https://leetcode-cn.com/problems/reverse-linked-list-ii/>
+<https://leetcode.cn/problems/reverse-linked-list-ii/>
 
 ```java
 class Solution {
@@ -3402,7 +3402,7 @@ class Solution {
 
 ## 103. 二叉树的锯齿形层序遍历
 
-<https://leetcode-cn.com/problems/binary-tree-zigzag-level-order-traversal/>
+<https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/>
 
 ```java
 class Solution {
@@ -3644,7 +3644,7 @@ class Solution {
 
 ## 107. 二叉树的层序遍历 II
 
-<https://leetcode-cn.com/problems/binary-tree-level-order-traversal-ii/>
+<https://leetcode.cn/problems/binary-tree-level-order-traversal-ii/>
 
 ```java
 class Solution {
@@ -4256,7 +4256,7 @@ class Solution {
 
 ## 141. 环形链表
 
-<https://leetcode-cn.com/problems/linked-list-cycle/>
+<https://leetcode.cn/problems/linked-list-cycle/>
 
 ```java
 public class Solution {
@@ -4292,7 +4292,7 @@ public class Solution {
 
 ## 142. 环形链表 II
 
-<https://leetcode-cn.com/problems/linked-list-cycle-ii/>
+<https://leetcode.cn/problems/linked-list-cycle-ii/>
 
 ```java
 public class Solution {
@@ -4956,7 +4956,7 @@ class MinStack {
 
 ## 160. 相交链表
 
-<https://leetcode-cn.com/problems/intersection-of-two-linked-lists/>
+<https://leetcode.cn/problems/intersection-of-two-linked-lists/>
 
 ```java
 public class Solution {
@@ -5105,7 +5105,7 @@ class Solution {
 
 ## 167. 两数之和 II - 输入有序数组
 
-<https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/>
+<https://leetcode.cn/problems/two-sum-ii-input-array-is-sorted/>
 
 ```java
 class Solution {
@@ -5623,7 +5623,7 @@ class Solution {
 
 ## 203. 移除链表元素
 
-<https://leetcode-cn.com/problems/remove-linked-list-elements/>
+<https://leetcode.cn/problems/remove-linked-list-elements/>
 
 ```java
 // TODO
@@ -5631,7 +5631,7 @@ class Solution {
 
 ## 206. 反转链表
 
-<https://leetcode-cn.com/problems/reverse-linked-list/>
+<https://leetcode.cn/problems/reverse-linked-list/>
 
 ```java
 class Solution {
@@ -6453,7 +6453,7 @@ class Solution {
 
 ## 237. 删除链表中的节点
 
-<https://leetcode-cn.com/problems/delete-node-in-a-linked-list/>
+<https://leetcode.cn/problems/delete-node-in-a-linked-list/>
 
 ```java
 // TODO
@@ -6531,7 +6531,7 @@ class Solution {
 
 ## 283. 移动零
 
-<https://leetcode-cn.com/problems/move-zeroes/>
+<https://leetcode.cn/problems/move-zeroes/>
 
 ```java
 class Solution {
@@ -9572,7 +9572,7 @@ class Solution {
 
 ## 876. 链表的中间结点
 
-<https://leetcode-cn.com/problems/middle-of-the-linked-list/>
+<https://leetcode.cn/problems/middle-of-the-linked-list/>
 
 ```java
 class Solution {
@@ -11343,7 +11343,7 @@ class Solution {
 
 ## CtCI 02.02. 返回倒数第 K 个节点
 
-<https://leetcode-cn.com/problems/kth-node-from-end-of-list-lcci/>
+<https://leetcode.cn/problems/kth-node-from-end-of-list-lcci/>
 
 ```java
 class Solution {
