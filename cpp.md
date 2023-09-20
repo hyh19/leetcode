@@ -6055,7 +6055,7 @@ public:
 ```cpp
 class Solution {
 public:
-    int kthSmallest(TreeNode *root, int k) {
+    int kthSmallest(const TreeNode *root, int k) {
         return select(root, k - 1);
     }
 
@@ -6074,7 +6074,7 @@ private:
         return root->val;
     }
 
-    int size(TreeNode *root) {
+    int size(const TreeNode *root) {
         if (root == nullptr) {
             return 0;
         }
@@ -6084,9 +6084,9 @@ private:
         return memo[root];
     }
 
-    unordered_map<TreeNode *, int> memo;
+    unordered_map<const TreeNode *, int> memo;
 };
-// https://leetcode.cn/submissions/detail/391659318/
+// https://leetcode.cn/submissions/detail/467955590/
 ```
 
 ## 232. 用栈实现队列
