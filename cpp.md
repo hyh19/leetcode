@@ -6253,41 +6253,33 @@ public:
         if (p->val > q->val) {
             return lowestCommonAncestor(root, q, p);
         }
-        if (p->val <= root->val && root->val <= q->val) {
-            return root;
-        }
         if (q->val < root->val) {
             return lowestCommonAncestor(root->left, p, q);
         }
         if (root->val < p->val) {
             return lowestCommonAncestor(root->right, p, q);
         }
-        return nullptr;
+        return root;
     }
 };
-// https://leetcode.cn/submissions/detail/368725146/
+// https://leetcode.cn/submissions/detail/468479820/
 ```
 
 ```cpp
 class Solution {
 public:
     TreeNode *lowestCommonAncestor(TreeNode *root, TreeNode *p, TreeNode *q) {
-        int minVal = min(p->val, q->val);
-        int maxVal = max(p->val, q->val);
-        int rootVal = root->val;
-        if (minVal <= rootVal && rootVal <= maxVal) {
-            return root;
-        }
-        if (maxVal < rootVal) {
+        auto mm = minmax(p->val, q->val);
+        if (mm.second < root->val) {
             return lowestCommonAncestor(root->left, p, q);
         }
-        if (rootVal < minVal) {
+        if (root->val < mm.first) {
             return lowestCommonAncestor(root->right, p, q);
         }
-        return nullptr;
+        return root;
     }
 };
-// https://leetcode.cn/submissions/detail/368724252/
+// https://leetcode.cn/submissions/detail/468482124/
 ```
 
 ## 236. 二叉树的最近公共祖先
