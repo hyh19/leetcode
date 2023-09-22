@@ -4390,6 +4390,43 @@ class Solution {
 <https://leetcode.cn/problems/kth-smallest-element-in-a-bst/>
 
 ```swift
+class Solution {
+    private var valueToSize: [Int: Int] = [:]
+
+    func kthSmallest(_ root: TreeNode?, _ k: Int) -> Int {
+        return select(root, k - 1)
+    }
+
+    private func select(_ root: TreeNode?, _ rank: Int) -> Int {
+        guard let root = root else {
+            return -1
+        }
+        let leftSize = size(root.left)
+        if rank < leftSize {
+            return select(root.left, rank)
+        }
+        if leftSize < rank {
+            return select(root.right, rank - leftSize - 1)
+        }
+        return root.val
+    }
+
+    private func size(_ root: TreeNode?) -> Int {
+        guard let root = root else {
+            return 0
+        }
+        guard let size = valueToSize[root.val] else {
+            let size = 1 + size(root.left) + size(root.right)
+            valueToSize[root.val] = size
+            return size
+        }
+        return size
+    }
+}
+// https://leetcode.cn/submissions/detail/468744294/
+```
+
+```swift
 extension TreeNode: Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(val)
@@ -4398,19 +4435,11 @@ extension TreeNode: Hashable {
     }
 
     public static func ==(lhs: TreeNode, rhs: TreeNode) -> Bool {
-        if lhs === rhs {
-            return true
-        }
-        if type(of: lhs) != type(of: rhs) {
-            return false
-        }
-        if lhs.val != rhs.val {
-            return false
-        }
-        if lhs.left != rhs.left {
-            return false
-        }
-        if lhs.right != rhs.right {
+        guard type(of: lhs) == type(of: rhs),
+              lhs.val == rhs.val,
+              lhs.left == rhs.left,
+              lhs.right == rhs.right
+        else {
             return false
         }
         return true
@@ -4418,37 +4447,39 @@ extension TreeNode: Hashable {
 }
 
 class Solution {
-    private var nodeToSize: [TreeNode: Int] = [:];
+    private var nodeToSize: [TreeNode: Int] = [:]
 
     func kthSmallest(_ root: TreeNode?, _ k: Int) -> Int {
-        select(root, k - 1);
+        return select(root, k - 1)
     }
 
     private func select(_ root: TreeNode?, _ rank: Int) -> Int {
-        if (root == nil) {
-            return -1;
+        guard let root = root else {
+            return -1
         }
-        let leftSize = size(root!.left);
-        if (rank < leftSize) {
-            return select(root!.left, rank);
+        let leftSize = size(root.left)
+        if rank < leftSize {
+            return select(root.left, rank)
         }
-        if (leftSize < rank) {
-            return select(root!.right, rank - leftSize - 1);
+        if leftSize < rank {
+            return select(root.right, rank - leftSize - 1)
         }
-        return root!.val;
+        return root.val
     }
 
     private func size(_ root: TreeNode?) -> Int {
-        if (root == nil) {
-            return 0;
+        guard let root = root else {
+            return 0
         }
-        if (nodeToSize[root!] == nil) {
-            nodeToSize[root!] = 1 + size(root!.left) + size(root!.right);
+        guard let size = nodeToSize[root] else {
+            let size = 1 + size(root.left) + size(root.right)
+            nodeToSize[root] = size
+            return size
         }
-        return nodeToSize[root!]!;
+        return size
     }
 }
-// https://leetcode.cn/submissions/detail/387981743/
+// https://leetcode.cn/submissions/detail/468743452/
 ```
 
 ## 232. 用栈实现队列
