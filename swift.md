@@ -4584,23 +4584,26 @@ class Solution {
 ```swift
 class Solution {
     func lowestCommonAncestor(_ root: TreeNode?, _ p: TreeNode?, _ q: TreeNode?) -> TreeNode? {
+        guard let root = root,
+              let p = p,
+              let q = q
+        else {
+            return nil
+        }
         // 保证 p < q
-        if (p!.val > q!.val) {
-            return lowestCommonAncestor(root, q, p);
+        if p.val > q.val {
+            return lowestCommonAncestor(root, q, p)
         }
-        if (p!.val <= root!.val && root!.val <= q!.val) {
-            return root;
+        if q.val < root.val {
+            return lowestCommonAncestor(root.left, p, q)
         }
-        if (q!.val < root!.val) {
-            return lowestCommonAncestor(root!.left, p, q);
+        if root.val < p.val {
+            return lowestCommonAncestor(root.right, p, q)
         }
-        if (root!.val < p!.val) {
-            return lowestCommonAncestor(root!.right, p, q);
-        }
-        return nil;
+        return root
     }
 }
-// https://leetcode.cn/submissions/detail/385072960/
+// https://leetcode.cn/submissions/detail/469037680/
 ```
 
 ## 236. 二叉树的最近公共祖先
