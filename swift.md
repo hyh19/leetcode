@@ -5889,24 +5889,24 @@ class Solution {
 
 ```swift
 class Solution {
-    private var sum = 0;
+    private var sum: Int = 0
 
     func convertBST(_ root: TreeNode?) -> TreeNode? {
-        dfs(root);
-        return root;
+        dfs(root)
+        return root
     }
 
     private func dfs(_ root: TreeNode?) {
-        if (root == nil) {
-            return;
+        guard let root = root else {
+            return
         }
-        dfs(root!.right);
-        sum += root!.val;
-        root!.val = sum;
-        dfs(root!.left);
+        dfs(root.right)
+        sum += root.val
+        root.val = sum
+        dfs(root.left)
     }
 }
-// https://leetcode.cn/submissions/detail/384994478/
+// https://leetcode.cn/submissions/detail/469584266/
 ```
 
 ## 543. 二叉树的直径
