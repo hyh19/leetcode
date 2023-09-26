@@ -3142,24 +3142,24 @@ class Solution:
 ```py
 class Solution:
     def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
-        return self.select(root, k - 1)
+        return self._select(root, k - 1)
 
-    def select(self, root: Optional[TreeNode], rank: int) -> int:
+    def _select(self, root: Optional[TreeNode], rank: int) -> int:
         if root is None:
             return -1
-        leftSize = self.size(root.left)
+        leftSize = self._size(root.left)
         if rank < leftSize:
-            return self.select(root.left, rank)
+            return self._select(root.left, rank)
         if leftSize < rank:
-            return self.select(root.right, rank - leftSize - 1)
+            return self._select(root.right, rank - leftSize - 1)
         return root.val
 
     @cache
-    def size(self, root: Optional[TreeNode]) -> int:
+    def _size(self, root: Optional[TreeNode]) -> int:
         if root is None:
             return 0
-        return 1 + self.size(root.left) + self.size(root.right)
-# https://leetcode.cn/submissions/detail/380140796/
+        return 1 + self._size(root.left) + self._size(root.right)
+# https://leetcode.cn/submissions/detail/469886518/
 ```
 
 ## 232. 用栈实现队列
