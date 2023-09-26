@@ -5053,8 +5053,13 @@ class Solution
 
 class Solution
 {
-    private ?SplObjectStorage $memo = null;
+    private ?SplObjectStorage $nodeToSize;
 
+    public function __construct()
+    {
+        $this->nodeToSize = new SplObjectStorage();
+    }
+    
     /**
      * @param TreeNode $root
      * @param int $k
@@ -5062,19 +5067,18 @@ class Solution
      */
     function kthSmallest(TreeNode $root, int $k): int
     {
-        $this->memo = new SplObjectStorage();
         return $this->select($root, $k - 1);
     }
 
     /**
      * @param TreeNode|null $root
      * @param int $rank
-     * @return int|null
+     * @return int
      */
-    private function select(?TreeNode $root, int $rank): ?int
+    private function select(?TreeNode $root, int $rank): int
     {
         if ($root === null) {
-            return null;
+            return -1;
         }
         $leftSize = $this->size($root->left);
         if ($rank < $leftSize) {
@@ -5095,14 +5099,13 @@ class Solution
         if ($root === null) {
             return 0;
         }
-        if (!$this->memo->contains($root)) {
-            $res = 1 + $this->size($root->left) + $this->size($root->right);
-            $this->memo[$root] = $res;
+        if (!$this->nodeToSize->contains($root)) {
+            $this->nodeToSize[$root] = 1 + $this->size($root->left) + $this->size($root->right);
         }
-        return $this->memo[$root];
+        return $this->nodeToSize[$root];
     }
 }
-// https://leetcode.cn/submissions/detail/383160387/
+// https://leetcode.cn/submissions/detail/469895267/
 ```
 
 ## 232. 用栈实现队列
