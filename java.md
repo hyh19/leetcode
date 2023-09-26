@@ -6156,7 +6156,7 @@ class Solution {
 
 ```java
 class Solution {
-    private final Map<TreeNode, Integer> memo = new HashMap<>();
+    private final Map<TreeNode, Integer> nodeToSize = new HashMap<>();
 
     public int kthSmallest(TreeNode root, int k) {
         return select(root, k - 1);
@@ -6180,11 +6180,11 @@ class Solution {
         if (root == null) {
             return 0;
         }
-        memo.putIfAbsent(root, 1 + size(root.left) + size(root.right));
-        return memo.get(root);
+        nodeToSize.putIfAbsent(root, 1 + size(root.left) + size(root.right));
+        return nodeToSize.get(root);
     }
 }
-// https://leetcode.cn/submissions/detail/468369107/
+// https://leetcode.cn/submissions/detail/469890345/
 ```
 
 ```java
