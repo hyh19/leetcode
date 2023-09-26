@@ -6193,23 +6193,23 @@ class Solution {
     int rank = 0;
 
     public int kthSmallest(TreeNode root, int k) {
-        traverse(root, k);
+        dfs(root, k);
         return ans;
     }
 
-    void traverse(TreeNode root, int k) {
+    void dfs(TreeNode root, int k) {
         if (root == null) {
             return;
         }
-        traverse(root.left, k);
+        dfs(root.left, k);
         if (++rank == k) {
             ans = root.val;
             return;
         }
-        traverse(root.right, k);
+        dfs(root.right, k);
     }
 }
-// https://leetcode.cn/submissions/detail/322638349/
+// https://leetcode.cn/submissions/detail/469896162/
 ```
 
 ## 232. 用栈实现队列
