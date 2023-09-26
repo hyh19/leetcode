@@ -6078,15 +6078,15 @@ private:
         if (root == nullptr) {
             return 0;
         }
-        if (memo.count(root) == 0) {
-            memo[root] = 1 + size(root->left) + size(root->right);
+        if (nodeToSize.count(root) == 0) {
+            nodeToSize[root] = 1 + size(root->left) + size(root->right);
         }
-        return memo[root];
+        return nodeToSize[root];
     }
 
-    unordered_map<const TreeNode *, int> memo;
+    unordered_map<const TreeNode *, int> nodeToSize;
 };
-// https://leetcode.cn/submissions/detail/467955590/
+// https://leetcode.cn/submissions/detail/469890771/
 ```
 
 ## 232. 用栈实现队列
