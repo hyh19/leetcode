@@ -3978,7 +3978,7 @@ const invertTree = function (root) {
 <https://leetcode.cn/problems/kth-smallest-element-in-a-bst/>
 
 ```js
-const memo = new Map();
+const nodeToSize = new Map();
 
 /**
  * @param {TreeNode} root
@@ -3986,7 +3986,7 @@ const memo = new Map();
  * @return {number}
  */
 const kthSmallest = function (root, k) {
-    memo.clear();
+    nodeToSize.clear();
     return select(root, k - 1);
 };
 
@@ -4017,12 +4017,12 @@ const size = function (root) {
     if (root == null) {
         return 0;
     }
-    if (!memo.has(root)) {
-        memo.set(root, 1 + size(root.left) + size(root.right));
+    if (!nodeToSize.has(root)) {
+        nodeToSize.set(root, 1 + size(root.left) + size(root.right));
     }
-    return memo.get(root);
+    return nodeToSize.get(root);
 };
-// https://leetcode.cn/submissions/detail/469876214/
+// https://leetcode.cn/submissions/detail/469891103/
 ```
 
 ## 232. 用栈实现队列
