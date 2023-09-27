@@ -4197,20 +4197,20 @@ class Solution:
 ```py
 class Solution:
     def __init__(self):
-        self.sum = 0
+        self._sum = 0
 
     def convertBST(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
-        self.dfs(root)
+        self._dfs(root)
         return root
 
-    def dfs(self, root: Optional[TreeNode]) -> None:
+    def _dfs(self, root: Optional[TreeNode]) -> None:
         if root is None:
             return
-        self.dfs(root.right)
-        self.sum += root.val
-        root.val = self.sum
-        self.dfs(root.left)
-# https://leetcode.cn/submissions/detail/380137290/
+        self._dfs(root.right)
+        self._sum += root.val
+        root.val = self._sum
+        self._dfs(root.left)
+# https://leetcode.cn/submissions/detail/470139706/
 ```
 
 ## 543. 二叉树的直径
