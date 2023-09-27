@@ -8195,24 +8195,24 @@ class Solution {
 
 ```java
 class Solution {
-    int sum = 0;
+    private int sum = 0;
 
     public TreeNode convertBST(TreeNode root) {
-        traverse(root);
+        dfs(root);
         return root;
     }
 
-    void traverse(TreeNode root) {
+    private void dfs(TreeNode root) {
         if (root == null) {
             return;
         }
-        traverse(root.right);
+        dfs(root.right);
         sum += root.val;
         root.val = sum;
-        traverse(root.left);
+        dfs(root.left);
     }
 }
-// https://leetcode.cn/submissions/detail/322655153/
+// https://leetcode.cn/submissions/detail/470136364/
 ```
 
 ## 543. 二叉树的直径
