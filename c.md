@@ -5440,19 +5440,19 @@ typedef struct {
     UT_hash_handle hh;
 } HashMapItem;
 
-HashMapItem *memo = NULL;
+HashMapItem *nodeToSize = NULL;
 
 int size(struct TreeNode *root) {
     if (root == NULL) {
         return 0;
     }
     HashMapItem *item;
-    HASH_FIND_PTR(memo, &root, item);
+    HASH_FIND_PTR(nodeToSize, &root, item);
     if (item == NULL) {
         item = malloc(sizeof(HashMapItem));
         item->key = root;
         item->val = 1 + size(root->left) + size(root->right);
-        HASH_ADD_PTR(memo, key, item);
+        HASH_ADD_PTR(nodeToSize, key, item);
     }
     return item->val;
 }
@@ -5474,13 +5474,13 @@ int qselect(struct TreeNode *root, int rank) {
 int kthSmallest(struct TreeNode *root, int k) {
     int ans = qselect(root, k - 1);
     HashMapItem *cur, *tmp;
-    HASH_ITER(hh, memo, cur, tmp) {
-        HASH_DEL(memo, cur);
+    HASH_ITER(hh, nodeToSize, cur, tmp) {
+        HASH_DEL(nodeToSize, cur);
         free(cur);
     }
     return ans;
 }
-// https://leetcode.cn/submissions/detail/391279273/
+// https://leetcode.cn/submissions/detail/470134802/
 ```
 
 ## 232. 用栈实现队列
