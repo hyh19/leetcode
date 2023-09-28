@@ -5646,18 +5646,15 @@ struct TreeNode *lowestCommonAncestor(struct TreeNode *root, struct TreeNode *p,
     if (p->val > q->val) {
         return lowestCommonAncestor(root, q, p);
     }
-    if (p->val <= root->val && root->val <= q->val) {
-        return root;
-    }
     if (q->val < root->val) {
         return lowestCommonAncestor(root->left, p, q);
     }
     if (root->val < p->val) {
         return lowestCommonAncestor(root->right, p, q);
     }
-    return NULL;
+    return root;
 }
-// https://leetcode.cn/submissions/detail/390008893/
+// https://leetcode.cn/submissions/detail/470333219/
 ```
 
 ## 236. 二叉树的最近公共祖先
