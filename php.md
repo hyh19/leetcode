@@ -5255,16 +5255,13 @@ class Solution
      * @param TreeNode $root
      * @param TreeNode $p
      * @param TreeNode $q
-     * @return TreeNode|null
+     * @return TreeNode
      */
-    function lowestCommonAncestor(TreeNode $root, TreeNode $p, TreeNode $q): ?TreeNode
+    function lowestCommonAncestor(TreeNode $root, TreeNode $p, TreeNode $q): TreeNode
     {
         // 保证 p < q
         if ($p->val > $q->val) {
             return $this->lowestCommonAncestor($root, $q, $p);
-        }
-        if ($p->val <= $root->val && $root->val <= $q->val) {
-            return $root;
         }
         if ($q->val < $root->val) {
             return $this->lowestCommonAncestor($root->left, $p, $q);
@@ -5272,10 +5269,10 @@ class Solution
         if ($root->val < $p->val) {
             return $this->lowestCommonAncestor($root->right, $p, $q);
         }
-        return null;
+        return $root;
     }
 }
-// https://leetcode.cn/submissions/detail/383165043/
+// https://leetcode.cn/submissions/detail/470331150/
 ```
 
 ## 236. 二叉树的最近公共祖先
