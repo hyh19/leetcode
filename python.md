@@ -3245,14 +3245,12 @@ class Solution:
         # 保证 p < q
         if p.val > q.val:
             return self.lowestCommonAncestor(root, q, p)
-        if p.val <= root.val <= q.val:
-            return root
         if q.val < root.val:
             return self.lowestCommonAncestor(root.left, p, q)
         if root.val < p.val:
             return self.lowestCommonAncestor(root.right, p, q)
-        return None
-# https://leetcode.cn/submissions/detail/380299890/
+        return root
+# https://leetcode.cn/submissions/detail/470328592/
 ```
 
 ## 236. 二叉树的最近公共祖先
