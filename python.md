@@ -1971,18 +1971,18 @@ class Solution:
 ```py
 class Solution:
     def sortedArrayToBST(self, nums: List[int]) -> Optional[TreeNode]:
-        return self.sortedArrayToBSTRange(nums, 0, len(nums) - 1)
+        return self._sortedArrayToBST(nums, 0, len(nums) - 1)
 
     # 将有序子数组 nums[lo..hi] 转换为二叉搜索树
-    def sortedArrayToBSTRange(self, nums: List[int], lo: int, hi: int) -> Optional[TreeNode]:
+    def _sortedArrayToBST(self, nums: List[int], lo: int, hi: int) -> Optional[TreeNode]:
         if lo > hi:
             return None
         mid = lo + (hi - lo) // 2
         root = TreeNode(nums[mid])
-        root.left = self.sortedArrayToBSTRange(nums, lo, mid - 1)
-        root.right = self.sortedArrayToBSTRange(nums, mid + 1, hi)
+        root.left = self._sortedArrayToBST(nums, lo, mid - 1)
+        root.right = self._sortedArrayToBST(nums, mid + 1, hi)
         return root
-# https://leetcode.cn/submissions/detail/393687141/
+# https://leetcode.cn/submissions/detail/470476775/
 ```
 
 ## 110. 平衡二叉树
