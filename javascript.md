@@ -2439,17 +2439,27 @@ const buildTreeRange = function (inorder, inStart, inEnd, postorder, postStart, 
  * @param {number[]} nums
  * @return {TreeNode}
  */
- const sortedArrayToBST = function (nums, lo = 0, hi = nums.length - 1) {
+const sortedArrayToBST = function (nums) {
+    return _sortedArrayToBST(nums, 0, nums.length - 1);
+};
+
+/**
+ * @param {number[]} nums
+ * @param {number} lo
+ * @param {number} hi
+ * @return {(TreeNode|null)}
+ */
+const _sortedArrayToBST = function (nums, lo, hi) {
     if (lo > hi) {
         return null;
     }
     const mid = lo + Math.floor((hi - lo) / 2);
     const root = new TreeNode(nums[mid]);
-    root.left = sortedArrayToBST(nums, lo, mid - 1);
-    root.right = sortedArrayToBST(nums, mid + 1, hi);
+    root.left = _sortedArrayToBST(nums, lo, mid - 1);
+    root.right = _sortedArrayToBST(nums, mid + 1, hi);
     return root;
 };
-// https://leetcode.cn/submissions/detail/381288201/
+// https://leetcode.cn/submissions/detail/470481269/
 ```
 
 ## 110. 平衡二叉树
