@@ -3157,26 +3157,32 @@ class Solution
 {
     /**
      * @param int[] $nums
-     * @param int|null $lo
-     * @param int|null $hi
+     * @return TreeNode
+     */
+    function sortedArrayToBST(array $nums): TreeNode
+    {
+        return $this->_sortedArrayToBST($nums, 0, count($nums) - 1);
+    }
+
+    /**
+     * @param int[] $nums
+     * @param int $lo
+     * @param int $hi
      * @return TreeNode|null
      */
-    function sortedArrayToBST(array $nums, int $lo = null, int $hi = null): ?TreeNode
+    private function _sortedArrayToBST(array $nums, int $lo, int $hi): ?TreeNode
     {
-        if (is_null($lo) && is_null($hi)) {
-            return $this->sortedArrayToBST($nums, 0, count($nums) - 1);
-        }
         if ($lo > $hi) {
             return null;
         }
-        $mid = $lo + floor(($hi - $lo) / 2);
+        $mid = $lo + intval(($hi - $lo) / 2);
         $root = new TreeNode($nums[$mid]);
-        $root->left = $this->sortedArrayToBST($nums, $lo, $mid - 1);
-        $root->right = $this->sortedArrayToBST($nums, $mid + 1, $hi);
+        $root->left = $this->_sortedArrayToBST($nums, $lo, $mid - 1);
+        $root->right = $this->_sortedArrayToBST($nums, $mid + 1, $hi);
         return $root;
     }
 }
-// https://leetcode.cn/submissions/detail/382995024/
+// https://leetcode.cn/submissions/detail/470622355/
 ```
 
 ## 110. 平衡二叉树
