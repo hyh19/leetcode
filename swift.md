@@ -2701,22 +2701,22 @@ public struct Deque<T> {
 ```swift
 class Solution {
     func sortedArrayToBST(_ nums: [Int]) -> TreeNode? {
-        sortedArrayToBST(nums, 0, nums.count - 1);
+        sortedArrayToBST(nums, 0, nums.count - 1)
     }
 
-    // 将有序子数组 nums[lo..hi] 转换为二叉搜索树
+    /// 将有序子数组 nums[lo..hi] 转换为二叉搜索树
     private func sortedArrayToBST(_ nums: [Int], _ lo: Int, _ hi: Int) -> TreeNode? {
-        if (lo > hi) {
-            return nil;
+        guard lo <= hi else {
+            return nil
         }
-        let mid = lo + (hi - lo) / 2;
-        let root = TreeNode(nums[mid]);
-        root.left = sortedArrayToBST(nums, lo, mid - 1);
-        root.right = sortedArrayToBST(nums, mid + 1, hi);
-        return root;
+        let mid = lo + (hi - lo) / 2
+        let root = TreeNode(nums[mid])
+        root.left = sortedArrayToBST(nums, lo, mid - 1)
+        root.right = sortedArrayToBST(nums, mid + 1, hi)
+        return root
     }
 }
-// https://leetcode.cn/submissions/detail/384967257/
+// https://leetcode.cn/submissions/detail/470561534/
 ```
 
 ## 110. 平衡二叉树
