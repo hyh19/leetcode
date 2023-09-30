@@ -3390,22 +3390,22 @@ int **levelOrderBottom(struct TreeNode *root, int *returnSize, int **returnColum
 
 ```c
 // 将有序数组 nums[lo..hi] 转换为二叉搜索树
-struct TreeNode *sortedArrayToBSTRange(const int *nums, int lo, int hi) {
+struct TreeNode *_sortedArrayToBST(const int *nums, int lo, int hi) {
     if (lo > hi) {
         return NULL;
     }
     int mid = lo + (hi - lo) / 2;
     struct TreeNode *root = malloc(sizeof(struct TreeNode));
     root->val = nums[mid];
-    root->left = sortedArrayToBSTRange(nums, lo, mid - 1);
-    root->right = sortedArrayToBSTRange(nums, mid + 1, hi);
+    root->left = _sortedArrayToBST(nums, lo, mid - 1);
+    root->right = _sortedArrayToBST(nums, mid + 1, hi);
     return root;
 }
 
 struct TreeNode *sortedArrayToBST(const int *nums, int numsSize) {
-    return sortedArrayToBSTRange(nums, 0, numsSize - 1);
+    return _sortedArrayToBST(nums, 0, numsSize - 1);
 }
-// https://leetcode.cn/submissions/detail/389152259/
+// https://leetcode.cn/submissions/detail/470500131/
 ```
 
 ## 110. 平衡二叉树
