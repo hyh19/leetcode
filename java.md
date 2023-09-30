@@ -3274,12 +3274,12 @@ class Solution {
 
 ```java
 class Solution {
-    private boolean ans = true;
     private TreeNode ptr = null;
+    private boolean isBST = true;
 
     public boolean isValidBST(TreeNode root) {
         dfs(root);
-        return ans;
+        return isBST;
     }
 
     private void dfs(TreeNode root) {
@@ -3287,15 +3287,14 @@ class Solution {
             return;
         }
         dfs(root.left);
-        if (ptr != null && root.val <= ptr.val) {
-            ans = false;
-            return;
+        if (ptr != null && ptr.val >= root.val) {
+            isBST = false;
         }
         ptr = root;
         dfs(root.right);
     }
 }
-// https://leetcode.cn/submissions/detail/365896812/
+// https://leetcode.cn/submissions/detail/470652344/
 ```
 
 ## 100. 相同的树
