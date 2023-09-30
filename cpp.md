@@ -3218,7 +3218,7 @@ public:
 
 private:
     void dfs(const TreeNode *root) {
-        if (root == nullptr || !isBST) {
+        if (root == nullptr) {
             return;
         }
         dfs(root->left);
@@ -3232,7 +3232,7 @@ private:
     const TreeNode *ptr = nullptr;
     bool isBST = true;
 };
-// https://leetcode.cn/submissions/detail/470637091/
+// https://leetcode.cn/submissions/detail/470652519/
 ```
 
 ## 100. 相同的树
