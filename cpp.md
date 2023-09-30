@@ -3211,29 +3211,28 @@ private:
 ```cpp
 class Solution {
 public:
-    bool isValidBST(TreeNode *root) {
-        inorderTraversal(root);
-        return bst;
+    bool isValidBST(const TreeNode *root) {
+        dfs(root);
+        return isBST;
     }
 
 private:
-    void inorderTraversal(TreeNode *root) {
-        if (root == nullptr) {
+    void dfs(const TreeNode *root) {
+        if (root == nullptr || !isBST) {
             return;
         }
-        inorderTraversal(root->left);
+        dfs(root->left);
         if (ptr != nullptr && ptr->val >= root->val) {
-            bst = false;
-            return;
+            isBST = false;
         }
         ptr = root;
-        inorderTraversal(root->right);
+        dfs(root->right);
     }
 
-    TreeNode *ptr = nullptr;
-    bool bst = true;
+    const TreeNode *ptr = nullptr;
+    bool isBST = true;
 };
-// https://leetcode.cn/submissions/detail/391602211/
+// https://leetcode.cn/submissions/detail/470637091/
 ```
 
 ## 100. 相同的树
