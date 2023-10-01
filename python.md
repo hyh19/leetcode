@@ -1768,6 +1768,27 @@ class Solution:
 
 ```py
 class Solution:
+    def __init__(self) -> None:
+        self._ptr: Optional[TreeNode] = None
+        self._isBST = True
+
+    def isValidBST(self, root: Optional[TreeNode]) -> bool:
+        self._dfs(root)
+        return self._isBST
+
+    def _dfs(self, root: Optional[TreeNode]) -> None:
+        if root is None:
+            return
+        self._dfs(root.left)
+        if (self._ptr is not None) and (self._ptr.val >= root.val):
+            self._isBST = False
+        self._ptr = root
+        self._dfs(root.right)
+# https://leetcode.cn/submissions/detail/470838636/
+```
+
+```py
+class Solution:
     def __init__(self):
         self.ans = True
 
