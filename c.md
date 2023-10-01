@@ -2713,6 +2713,31 @@ bool isValidBST(const struct TreeNode *root) {
 // https://leetcode.cn/submissions/detail/436408455/
 ```
 
+```c
+const struct TreeNode *ptr;
+bool isBST;
+
+void dfs(const struct TreeNode *root) {
+    if (root == NULL) {
+        return;
+    }
+    dfs(root->left);
+    if (ptr != NULL && ptr->val >= root->val) {
+        isBST = false;
+    }
+    ptr = root;
+    dfs(root->right);
+}
+
+bool isValidBST(const struct TreeNode *root) {
+    ptr = NULL;
+    isBST = true;
+    dfs(root);
+    return isBST;
+}
+// https://leetcode.cn/submissions/detail/470672428/
+```
+
 ## 100. 相同的树
 
 <https://leetcode.cn/problems/same-tree/>
