@@ -2078,6 +2078,31 @@ class Solution {
 
 ```swift
 class Solution {
+    private var ptr: TreeNode? = nil
+    private var isBST = true
+
+    func isValidBST(_ root: TreeNode?) -> Bool {
+        dfs(root)
+        return isBST
+    }
+
+    private func dfs(_ root: TreeNode?) {
+        guard let root = root else {
+            return
+        }
+        dfs(root.left)
+        if ptr != nil && ptr!.val >= root.val {
+            isBST = false
+        }
+        ptr = root
+        dfs(root.right)
+    }
+}
+// https://leetcode.cn/submissions/detail/470841290/
+```
+
+```swift
+class Solution {
     private var ans = true;
 
     func isValidBST(_ root: TreeNode?) -> Bool {
