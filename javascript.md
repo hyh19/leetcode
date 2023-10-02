@@ -2182,6 +2182,38 @@ const numTrees = function (n, memo = new Map()) {
 <https://leetcode.cn/problems/validate-binary-search-tree/>
 
 ```js
+let ptr = null;
+let isBST = true;
+
+/**
+ * @param {TreeNode} root
+ * @return {boolean}
+ */
+const isValidBST = function (root) {
+    ptr = null;
+    isBST = true;
+    dfs(root);
+    return isBST;
+};
+
+/**
+ * @param {(TreeNode|null)} root
+ */
+const dfs = function (root) {
+    if (root == null) {
+        return;
+    }
+    dfs(root.left);
+    if (ptr != null && ptr.val >= root.val) {
+        isBST = false;
+    }
+    ptr = root;
+    dfs(root.right);
+};
+// https://leetcode.cn/submissions/detail/470931746/
+```
+
+```js
 /**
  * @param {TreeNode} root
  * @return {boolean}
