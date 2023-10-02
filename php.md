@@ -2708,6 +2708,44 @@ class Solution
 
 class Solution
 {
+    private ?TreeNode $ptr = null;
+    private bool $isBST = true;
+
+    /**
+     * @param TreeNode $root
+     * @return bool
+     */
+    function isValidBST(TreeNode $root): bool
+    {
+        $this->dfs($root);
+        return $this->isBST;
+    }
+
+    /**
+     * @param TreeNode|null $root
+     * @return void
+     */
+    private function dfs(?TreeNode $root): void
+    {
+        if (is_null($root)) {
+            return;
+        }
+        $this->dfs($root->left);
+        if (!is_null($this->ptr) && $this->ptr->val >= $root->val) {
+            $this->isBST = false;
+        }
+        $this->ptr = $root;
+        $this->dfs($root->right);
+    }
+}
+// https://leetcode.cn/submissions/detail/470934792/
+```
+
+```php
+<?php
+
+class Solution
+{
     private bool $ans = true;
 
     /**
