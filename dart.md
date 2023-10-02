@@ -1913,6 +1913,31 @@ class Solution {
 
 ```dart
 class Solution {
+  TreeNode? _ptr;
+  bool _isBST = true;
+
+  bool isValidBST(TreeNode? root) {
+    _dfs(root);
+    return _isBST;
+  }
+
+  void _dfs(TreeNode? root) {
+    if (root == null) {
+      return;
+    }
+    _dfs(root.left);
+    if (_ptr != null && _ptr!.val >= root.val) {
+      _isBST = false;
+    }
+    _ptr = root;
+    _dfs(root.right);
+  }
+}
+// https://leetcode.cn/submissions/detail/470936616/
+```
+
+```dart
+class Solution {
   bool _ans = true;
 
   bool isValidBST(TreeNode? root) {
