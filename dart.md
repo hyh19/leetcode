@@ -2341,10 +2341,9 @@ class Solution {
     }
     flatten(root.left);
     flatten(root.right);
-    final left = root.left;
     final right = root.right;
+    root.right = root.left;
     root.left = null;
-    root.right = left;
     var ptr = root;
     while (ptr.right != null) {
       ptr = ptr.right!;
@@ -2352,7 +2351,7 @@ class Solution {
     ptr.right = right;
   }
 }
-// https://leetcode.cn/submissions/detail/377212736/
+// https://leetcode.cn/submissions/detail/471198902/
 ```
 
 ## 116. 填充每个节点的下一个右侧节点指针
