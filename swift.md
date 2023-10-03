@@ -2920,23 +2920,22 @@ class Solution {
 ```swift
 class Solution {
     func flatten(_ root: TreeNode?) {
-        if (root == nil) {
-            return;
+        guard let root = root else {
+            return
         }
-        flatten(root!.left);
-        flatten(root!.right);
-        let left = root!.left;
-        let right = root!.right;
-        root!.left = nil;
-        root!.right = left;
-        var ptr = root;
-        while (ptr!.right != nil) {
-            ptr = ptr!.right!;
+        flatten(root.left)
+        flatten(root.right)
+        let right = root.right
+        root.right = root.left
+        root.left = nil
+        var ptr = root
+        while let next = ptr.right {
+            ptr = next
         }
-        ptr!.right = right;
+        ptr.right = right
     }
 }
-// https://leetcode.cn/submissions/detail/384991503/
+// https://leetcode.cn/submissions/detail/471197215/
 ```
 
 ## 116. 填充每个节点的下一个右侧节点指针
