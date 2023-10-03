@@ -2084,15 +2084,14 @@ class Solution:
             return
         self.flatten(root.left)
         self.flatten(root.right)
-        left = root.left
         right = root.right
+        root.right = root.left
         root.left = None
-        root.right = left
         ptr = root
         while ptr.right is not None:
             ptr = ptr.right
         ptr.right = right
-# https://leetcode.cn/submissions/detail/380124010/
+# https://leetcode.cn/submissions/detail/471199775/
 ```
 
 ## 116. 填充每个节点的下一个右侧节点指针
