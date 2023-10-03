@@ -3352,23 +3352,22 @@ class Solution
      */
     function flatten(?TreeNode $root): void
     {
-        if ($root === null) {
+        if (is_null($root)) {
             return;
         }
         $this->flatten($root->left);
         $this->flatten($root->right);
-        $left = $root->left;
         $right = $root->right;
+        $root->right = $root->left;
         $root->left = null;
-        $root->right = $left;
         $ptr = $root;
-        while ($ptr->right !== null) {
+        while (!is_null($ptr->right)) {
             $ptr = $ptr->right;
         }
         $ptr->right = $right;
     }
 }
-// https://leetcode.cn/submissions/detail/383095079/
+// https://leetcode.cn/submissions/detail/471205945/
 ```
 
 ## 116. 填充每个节点的下一个右侧节点指针
