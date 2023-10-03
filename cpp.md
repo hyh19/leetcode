@@ -3809,18 +3809,17 @@ public:
         }
         flatten(root->left);
         flatten(root->right);
-        TreeNode *left = root->left;
-        TreeNode *right = root->right;
+        auto right = root->right;
+        root->right = root->left;
         root->left = nullptr;
-        root->right = left;
-        TreeNode *ptr = root;
+        auto ptr = root;
         while (ptr->right != nullptr) {
             ptr = ptr->right;
         }
         ptr->right = right;
     }
 };
-// https://leetcode.cn/submissions/detail/391476610/
+// https://leetcode.cn/submissions/detail/471035857/
 ```
 
 ```cpp
