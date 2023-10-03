@@ -3629,17 +3629,16 @@ void flatten(struct TreeNode *root) {
     }
     flatten(root->left);
     flatten(root->right);
-    struct TreeNode *left = root->left;
     struct TreeNode *right = root->right;
+    root->right = root->left;
     root->left = NULL;
-    root->right = left;
     struct TreeNode *ptr = root;
     while (ptr->right != NULL) {
         ptr = ptr->right;
     }
     ptr->right = right;
 }
-// https://leetcode.cn/submissions/detail/390002505/
+// https://leetcode.cn/submissions/detail/471203647/
 ```
 
 ## 116. 填充每个节点的下一个右侧节点指针
