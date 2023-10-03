@@ -3891,13 +3891,11 @@ class Solution {
         if (root == null) {
             return;
         }
-        TreeNode left = root.left;
+        flatten(root.left);
+        flatten(root.right);
         TreeNode right = root.right;
+        root.right = root.left;
         root.left = null;
-        root.right = null;
-        flatten(left);
-        flatten(right);
-        root.right = left;
         TreeNode ptr = root;
         while (ptr.right != null) {
             ptr = ptr.right;
@@ -3905,7 +3903,7 @@ class Solution {
         ptr.right = right;
     }
 }
-// https://leetcode.cn/submissions/detail/364471466/
+// https://leetcode.cn/submissions/detail/471195633/
 ```
 
 ```java
