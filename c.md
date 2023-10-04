@@ -3641,6 +3641,32 @@ void flatten(struct TreeNode *root) {
 // https://leetcode.cn/submissions/detail/471203647/
 ```
 
+```c
+struct TreeNode *ptr;
+
+void dfs(struct TreeNode *root) {
+    if (root == NULL) {
+        return;
+    }
+    struct TreeNode *left = root->left;
+    struct TreeNode *right = root->right;
+    root->left = NULL;
+    root->right = NULL;
+    ptr->right = root;
+    ptr = root;
+    dfs(left);
+    dfs(right);
+}
+
+void flatten(struct TreeNode *root) {
+    struct TreeNode *dummyHead = malloc(sizeof(struct TreeNode));
+    ptr = dummyHead;
+    dfs(root);
+    free(dummyHead);
+}
+// https://leetcode.cn/submissions/detail/471300447/
+```
+
 ## 116. 填充每个节点的下一个右侧节点指针
 
 <https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/>
