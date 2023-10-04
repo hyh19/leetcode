@@ -2094,6 +2094,30 @@ class Solution:
 # https://leetcode.cn/submissions/detail/471199775/
 ```
 
+```python
+class Solution:
+    _dummyHead = TreeNode()
+
+    def __init__(self) -> None:
+        self._ptr = Solution._dummyHead
+
+    def flatten(self, root: Optional[TreeNode]) -> None:
+        self._dfs(root)
+
+    def _dfs(self, root: Optional[TreeNode]) -> None:
+        if root is None:
+            return
+        left = root.left
+        right = root.right
+        root.left = None
+        root.right = None
+        self._ptr.right = root
+        self._ptr = root
+        self._dfs(left)
+        self._dfs(right)
+# https://leetcode.cn/submissions/detail/471400594/
+```
+
 ## 116. 填充每个节点的下一个右侧节点指针
 
 <https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/>
