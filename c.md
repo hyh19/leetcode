@@ -3642,7 +3642,7 @@ void flatten(struct TreeNode *root) {
 ```
 
 ```c
-struct TreeNode *ptr;
+struct TreeNode *ptr = NULL;
 
 void dfs(struct TreeNode *root) {
     if (root == NULL) {
@@ -3664,7 +3664,7 @@ void flatten(struct TreeNode *root) {
     dfs(root);
     free(dummyHead);
 }
-// https://leetcode.cn/submissions/detail/471300447/
+// https://leetcode.cn/submissions/detail/471305401/
 ```
 
 ## 116. 填充每个节点的下一个右侧节点指针
