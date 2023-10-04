@@ -2591,7 +2591,7 @@ const hasPathSum = function (root, targetSum) {
 
 ```js
 /**
- * @param {(TreeNode|null)} root
+ * @param {TreeNode|null} root
  * @return {void} Do not return anything, modify root in-place instead.
  */
 const flatten = function (root) {
@@ -2609,7 +2609,39 @@ const flatten = function (root) {
     }
     ptr.right = right;
 };
-// https://leetcode.cn/submissions/detail/471204747/
+// https://leetcode.cn/submissions/detail/471304218/
+```
+
+```js
+const dummyHead = new TreeNode();
+let ptr = dummyHead;
+
+/**
+ * @param {TreeNode} root
+ * @return {void} Do not return anything, modify root in-place instead.
+ */
+const flatten = function (root) {
+    ptr = dummyHead;
+    dfs(root);
+};
+
+/**
+ * @param {TreeNode|null} root
+ */
+const dfs = function (root) {
+    if (root == null) {
+        return;
+    }
+    const left = root.left;
+    const right = root.right;
+    root.left = null;
+    root.right = null;
+    ptr.right = root;
+    ptr = root;
+    dfs(left);
+    dfs(right);
+};
+// https://leetcode.cn/submissions/detail/471303891/
 ```
 
 ## 116. 填充每个节点的下一个右侧节点指针
