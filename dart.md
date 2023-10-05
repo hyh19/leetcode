@@ -2354,6 +2354,33 @@ class Solution {
 // https://leetcode.cn/submissions/detail/471198902/
 ```
 
+```dart
+class Solution {
+  late TreeNode _ptr;
+  static final TreeNode _dummyHead = TreeNode();
+
+  void flatten(TreeNode? root) {
+    _ptr = _dummyHead;
+    _dfs(root);
+  }
+
+  void _dfs(TreeNode? root) {
+    if (root == null) {
+      return;
+    }
+    final left = root.left;
+    final right = root.right;
+    root.left = null;
+    root.right = null;
+    _ptr.right = root;
+    _ptr = root;
+    _dfs(left);
+    _dfs(right);
+  }
+}
+// https://leetcode.cn/submissions/detail/471586841/
+```
+
 ## 116. 填充每个节点的下一个右侧节点指针
 
 <https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/>
