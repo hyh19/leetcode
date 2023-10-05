@@ -3909,29 +3909,28 @@ class Solution {
 ```java
 class Solution {
     private TreeNode ptr;
+    private static final TreeNode dummyHead = new TreeNode();
 
     public void flatten(TreeNode root) {
-        TreeNode dummyHead = new TreeNode();
         ptr = dummyHead;
         dfs(root);
-        root = dummyHead.right;
     }
 
     private void dfs(TreeNode root) {
         if (root == null) {
             return;
         }
-        ptr.right = root;
-        ptr = ptr.right;
         TreeNode left = root.left;
         TreeNode right = root.right;
         root.left = null;
         root.right = null;
+        ptr.right = root;
+        ptr = root;
         dfs(left);
         dfs(right);
     }
 }
-// https://leetcode.cn/submissions/detail/365648355/
+// https://leetcode.cn/submissions/detail/471585127/
 ```
 
 ## 116. 填充每个节点的下一个右侧节点指针
