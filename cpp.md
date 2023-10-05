@@ -3837,19 +3837,19 @@ private:
         if (root == nullptr) {
             return;
         }
-        ptr->right = root;
-        ptr = ptr->right;
-        TreeNode *left = root->left;
-        TreeNode *right = root->right;
+        auto *left = root->left;
+        auto *right = root->right;
         root->left = nullptr;
         root->right = nullptr;
+        ptr->right = root;
+        ptr = root;
         dfs(left);
         dfs(right);
     }
 
     TreeNode *ptr;
 };
-// https://leetcode.cn/submissions/detail/391476852/
+// https://leetcode.cn/submissions/detail/471583430/
 ```
 
 ## 116. 填充每个节点的下一个右侧节点指针
