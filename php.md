@@ -3370,6 +3370,49 @@ class Solution
 // https://leetcode.cn/submissions/detail/471205945/
 ```
 
+```php
+<?php
+
+class Solution
+{
+    private TreeNode $ptr;
+
+    public function __construct()
+    {
+        $this->ptr = new TreeNode();
+    }
+
+    /**
+     * @param TreeNode|null $root
+     * @return void
+     */
+    function flatten(?TreeNode $root): void
+    {
+        $this->dfs($root);
+    }
+
+    /**
+     * @param TreeNode|null $root
+     * @return void
+     */
+    private function dfs(?TreeNode $root): void
+    {
+        if (is_null($root)) {
+            return;
+        }
+        $left = $root->left;
+        $right = $root->right;
+        $root->left = null;
+        $root->right = null;
+        $this->ptr->right = $root;
+        $this->ptr = $root;
+        $this->dfs($left);
+        $this->dfs($right);
+    }
+}
+// https://leetcode.cn/submissions/detail/472039291/
+```
+
 ## 116. 填充每个节点的下一个右侧节点指针
 
 <https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/>
