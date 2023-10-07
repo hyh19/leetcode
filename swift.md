@@ -2938,6 +2938,32 @@ class Solution {
 // https://leetcode.cn/submissions/detail/471197215/
 ```
 
+```swift
+class Solution {
+    private static let dummyHead = TreeNode()
+    private var ptr = Solution.dummyHead
+
+    func flatten(_ root: TreeNode?) {
+        dfs(root)
+    }
+
+    private func dfs(_ root: TreeNode?) {
+        guard let root = root else {
+            return
+        }
+        let left = root.left
+        let right = root.right
+        root.left = nil
+        root.right = nil
+        ptr.right = root
+        ptr = root
+        dfs(left)
+        dfs(right)
+    }
+}
+// https://leetcode.cn/submissions/detail/472031876/
+```
+
 ## 116. 填充每个节点的下一个右侧节点指针
 
 <https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/>
