@@ -5481,24 +5481,25 @@ class Solution {
 
 ```java
 class Solution {
+    private final List<Integer> ans = new LinkedList<>();
+
     public List<Integer> rightSideView(TreeNode root) {
-        List<Integer> list = new LinkedList();
-        dfs(root, 0, list);
-        return list;
+        dfs(root, 0);
+        return ans;
     }
 
-    private void dfs(TreeNode root, int depth, List<Integer> list) {
+    private void dfs(TreeNode root, int depth) {
         if (root == null) {
             return;
         }
-        if (list.size() == depth) {
-            list.add(root.val);
+        if (ans.size() == depth) {
+            ans.add(root.val);
         }
-        dfs(root.right, depth + 1, list);
-        dfs(root.left, depth + 1, list);
+        dfs(root.right, depth + 1);
+        dfs(root.left, depth + 1);
     }
 }
-// https://leetcode.cn/submissions/detail/350413845/
+// https://leetcode.cn/submissions/detail/472288291/
 ```
 
 ## 200. 岛屿数量
