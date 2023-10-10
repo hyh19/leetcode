@@ -3801,6 +3801,29 @@ class Solution {
 
 ```swift
 class Solution {
+    private var ans = [Int]()
+
+    func rightSideView(_ root: TreeNode?) -> [Int] {
+        dfs(root, 0)
+        return ans
+    }
+
+    private func dfs(_ root: TreeNode?, _ depth: Int) {
+        guard let root = root else {
+            return
+        }
+        if ans.count == depth {
+            ans.append(root.val)
+        }
+        dfs(root.right, depth + 1)
+        dfs(root.left, depth + 1)
+    }
+}
+// https://leetcode.cn/submissions/detail/472838945/
+```
+
+```swift
+class Solution {
     func rightSideView(_ root: TreeNode?) -> [Int] {
         var ans: [Int] = [];
         var queue = Deque<TreeNode>();
