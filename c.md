@@ -4696,6 +4696,40 @@ int rob(int *nums, int numsSize) {
 <https://leetcode.cn/problems/binary-tree-right-side-view/>
 
 ```c
+int *ans;
+int ansSize;
+int ansCapacity;
+
+void dfs(const struct TreeNode *root, int depth) {
+    if (root == NULL) {
+        return;
+    }
+    if (ansSize == ansCapacity) {
+        ansCapacity *= 2;
+        ans = realloc(ans, sizeof(int[ansCapacity]));
+    }
+    if (ansSize == depth) {
+        ans[ansSize++] = root->val;
+    }
+    dfs(root->right, depth + 1);
+    dfs(root->left, depth + 1);
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *rightSideView(const struct TreeNode *root, int *returnSize) {
+    ansSize = 0;
+    ansCapacity = 8;
+    ans = malloc(sizeof(int[ansCapacity]));
+    dfs(root, 0);
+    *returnSize = ansSize;
+    return ans;
+}
+// https://leetcode.cn/submissions/detail/473493096/
+```
+
+```c
 static const int MAXSIZE = 100;
 
 /**
