@@ -3018,6 +3018,29 @@ class Solution {
 <https://leetcode.cn/problems/binary-tree-right-side-view/>
 
 ```dart
+class Solution {
+  final List<int> _ans = [];
+
+  List<int> rightSideView(TreeNode? root) {
+    _dfs(root, 0);
+    return _ans;
+  }
+
+  void _dfs(TreeNode? root, int depth) {
+    if (root == null) {
+      return;
+    }
+    if (_ans.length == depth) {
+      _ans.add(root.val);
+    }
+    _dfs(root.right, depth + 1);
+    _dfs(root.left, depth + 1);
+  }
+}
+// https://leetcode.cn/submissions/detail/473486335/
+```
+
+```dart
 import 'dart:collection';
 
 class Solution {
