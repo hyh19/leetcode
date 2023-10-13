@@ -3567,6 +3567,36 @@ const subseqSum = function (nums) {
 <https://leetcode.cn/problems/binary-tree-right-side-view/>
 
 ```js
+const ans = [];
+
+/**
+ * @param {TreeNode|null} root
+ * @return {number[]}
+ */
+const rightSideView = function (root) {
+    ans.length = 0;
+    dfs(root, 0);
+    return ans;
+};
+
+/**
+ * @param {TreeNode|null} root
+ * @param {number} depth
+ */
+const dfs = function (root, depth) {
+    if (root == null) {
+        return;
+    }
+    if (ans.length === depth) {
+        ans.push(root.val);
+    }
+    dfs(root.right, depth + 1);
+    dfs(root.left, depth + 1);
+};
+// https://leetcode.cn/submissions/detail/473771372/
+```
+
+```js
 /**
  * @param {TreeNode} root
  * @return {number[]}
