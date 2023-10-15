@@ -5369,6 +5369,58 @@ private:
 ```cpp
 class Solution {
 public:
+    vector<int> rightSideView(const TreeNode *root) {
+        dfs(root, 0);
+        return ans;
+    }
+
+private:
+    void dfs(const TreeNode *root, int depth) {
+        if (root == nullptr) {
+            return;
+        }
+        if (ans.size() == depth) {
+            ans.push_back(root->val);
+        }
+        dfs(root->right, depth + 1);
+        dfs(root->left, depth + 1);
+    }
+
+    vector<int> ans;
+};
+// https://leetcode.cn/submissions/detail/404386387/
+```
+
+```cpp
+class Solution {
+public:
+    vector<int> rightSideView(const TreeNode *root) {
+        dfs(root, 0);
+        return ans;
+    }
+
+private:
+    void dfs(const TreeNode *root, int depth) {
+        if (root == nullptr) {
+            return;
+        }
+        if (ans.size() == depth) {
+            ans.push_back(root->val);
+        } else {
+            ans[depth] = root->val;
+        }
+        dfs(root->left, depth + 1);
+        dfs(root->right, depth + 1);
+    }
+
+    vector<int> ans;
+};
+// https://leetcode.cn/submissions/detail/474362917/
+```
+
+```cpp
+class Solution {
+public:
     vector<int> rightSideView(TreeNode *root) {
         vector<int> ans;
         deque<TreeNode *> q;
@@ -5424,31 +5476,6 @@ public:
     }
 };
 // https://leetcode.cn/submissions/detail/391695558/
-```
-
-```cpp
-class Solution {
-public:
-    vector<int> rightSideView(const TreeNode *root) {
-        dfs(root, 0);
-        return ans;
-    }
-
-private:
-    void dfs(const TreeNode *root, int depth) {
-        if (root == nullptr) {
-            return;
-        }
-        if (ans.size() == depth) {
-            ans.push_back(root->val);
-        }
-        dfs(root->right, depth + 1);
-        dfs(root->left, depth + 1);
-    }
-
-    vector<int> ans;
-};
-// https://leetcode.cn/submissions/detail/404386387/
 ```
 
 ```cpp
