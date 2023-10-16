@@ -2849,6 +2849,27 @@ class Solution:
 
 ```py
 class Solution:
+    def __init__(self) -> None:
+        self._ans: List[int] = []
+
+    def rightSideView(self, root: Optional[TreeNode]) -> List[int]:
+        self._dfs(root, 0)
+        return self._ans
+
+    def _dfs(self, root: Optional[TreeNode], depth: int) -> None:
+        if root is None:
+            return
+        if len(self._ans) == depth:
+            self._ans.append(root.val)
+        else:
+            self._ans[depth] = root.val
+        self._dfs(root.left, depth + 1)
+        self._dfs(root.right, depth + 1)
+# https://leetcode.cn/submissions/detail/474533321/
+```
+
+```py
+class Solution:
     def rightSideView(self, root: Optional[TreeNode]) -> List[int]:
         ans = []
         q = deque()
