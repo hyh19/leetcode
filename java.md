@@ -5401,6 +5401,54 @@ class Solution {
 
 ```java
 class Solution {
+    private final List<Integer> ans = new LinkedList<>();
+
+    public List<Integer> rightSideView(TreeNode root) {
+        dfs(root, 0);
+        return ans;
+    }
+
+    private void dfs(TreeNode root, int depth) {
+        if (root == null) {
+            return;
+        }
+        if (ans.size() == depth) {
+            ans.add(root.val);
+        }
+        dfs(root.right, depth + 1);
+        dfs(root.left, depth + 1);
+    }
+}
+// https://leetcode.cn/submissions/detail/472288291/
+```
+
+```java
+class Solution {
+    private final List<Integer> ans = new LinkedList<>();
+
+    public List<Integer> rightSideView(TreeNode root) {
+        dfs(root, 0);
+        return ans;
+    }
+
+    private void dfs(TreeNode root, int depth) {
+        if (root == null) {
+            return;
+        }
+        if (ans.size() == depth) {
+            ans.add(root.val);
+        } else {
+            ans.set(depth, root.val);
+        }
+        dfs(root.left, depth + 1);
+        dfs(root.right, depth + 1);
+    }
+}
+// https://leetcode.cn/submissions/detail/474531830/
+```
+
+```java
+class Solution {
     public List<Integer> rightSideView(TreeNode root) {
         List<Integer> list = new LinkedList();
         Deque<TreeNode> queue = new LinkedList();
@@ -5477,29 +5525,6 @@ class Solution {
     }
 }
 // https://leetcode.cn/submissions/detail/350410018/
-```
-
-```java
-class Solution {
-    private final List<Integer> ans = new LinkedList<>();
-
-    public List<Integer> rightSideView(TreeNode root) {
-        dfs(root, 0);
-        return ans;
-    }
-
-    private void dfs(TreeNode root, int depth) {
-        if (root == null) {
-            return;
-        }
-        if (ans.size() == depth) {
-            ans.add(root.val);
-        }
-        dfs(root.right, depth + 1);
-        dfs(root.left, depth + 1);
-    }
-}
-// https://leetcode.cn/submissions/detail/472288291/
 ```
 
 ## 200. 岛屿数量
