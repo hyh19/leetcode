@@ -3041,6 +3041,31 @@ class Solution {
 ```
 
 ```dart
+class Solution {
+  final List<int> _ans = [];
+
+  List<int> rightSideView(TreeNode? root) {
+    _dfs(root, 0);
+    return _ans;
+  }
+
+  void _dfs(TreeNode? root, int depth) {
+    if (root == null) {
+      return;
+    }
+    if (_ans.length == depth) {
+      _ans.add(root.val);
+    } else {
+      _ans[depth] = root.val;
+    }
+    _dfs(root.left, depth + 1);
+    _dfs(root.right, depth + 1);
+  }
+}
+// https://leetcode.cn/submissions/detail/474859184/
+```
+
+```dart
 import 'dart:collection';
 
 class Solution {
