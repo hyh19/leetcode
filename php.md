@@ -4559,6 +4559,48 @@ class Solution
 class Solution
 {
     /**
+     * @var int[]
+     */
+    private array $ans = [];
+
+    /**
+     * @param TreeNode|null $root
+     * @return int[]
+     */
+    function rightSideView(?TreeNode $root): array
+    {
+        $this->dfs($root, 0);
+        return $this->ans;
+    }
+
+    /**
+     * @param TreeNode|null $root
+     * @param int $depth
+     * @return void
+     */
+    private function dfs(?TreeNode $root, int $depth): void
+    {
+        if (is_null($root)) {
+            return;
+        }
+        if (count($this->ans) === $depth) {
+            $this->ans[] = $root->val;
+        } else {
+            $this->ans[$depth] = $root->val;
+        }
+        $this->dfs($root->left, $depth + 1);
+        $this->dfs($root->right, $depth + 1);
+    }
+}
+// https://leetcode.cn/submissions/detail/474860751/
+```
+
+```php
+<?php
+
+class Solution
+{
+    /**
      * @param TreeNode|null $root
      * @return int[]
      */
