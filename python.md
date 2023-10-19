@@ -862,9 +862,9 @@ class Solution:
 ```py
 class Solution:
     def searchRange(self, nums: List[int], target: int) -> List[int]:
-        return [self.search(nums, target, True), self.search(nums, target, False)]
+        return [self._binary_search(nums, target, True), self._binary_search(nums, target, False)]
 
-    def search(self, nums: List[int], target: int, lower: bool) -> int:
+    def _binary_search(self, nums: List[int], target: int, lower: bool) -> int:
         res = -1
         lo, hi = 0, len(nums) - 1
         while lo <= hi:
@@ -880,7 +880,7 @@ class Solution:
                 else:
                     lo = mid + 1
         return res
-# https://leetcode.cn/submissions/detail/380214793/
+# https://leetcode.cn/submissions/detail/475499379/
 ```
 
 ## 37. 解数独
