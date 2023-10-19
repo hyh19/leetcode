@@ -930,10 +930,13 @@ class Solution {
 ```dart
 class Solution {
   List<int> searchRange(List<int> nums, int target) {
-    return [_search(nums, target, true), _search(nums, target, false)];
+    return [
+      _binarySearch(nums, target, true),
+      _binarySearch(nums, target, false)
+    ];
   }
 
-  int _search(List<int> nums, int target, bool lower) {
+  int _binarySearch(List<int> nums, int target, bool lower) {
     var res = -1;
     var lo = 0;
     var hi = nums.length - 1;
@@ -955,7 +958,7 @@ class Solution {
     return res;
   }
 }
-// https://leetcode.cn/submissions/detail/377820190/
+// https://leetcode.cn/submissions/detail/475506321/
 ```
 
 ## 37. 解数独
