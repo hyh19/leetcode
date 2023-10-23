@@ -1134,10 +1134,16 @@ const strStr = function (haystack, needle) {
  * @return {number[]}
  */
 const searchRange = function (nums, target) {
-    return [search(nums, target, true), search(nums, target, false)];
+    return [binarySearch(nums, target, true), binarySearch(nums, target, false)];
 };
 
-const search = function (nums, target, lower) {
+/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @param {boolean} lower
+ * @return number
+ */
+const binarySearch = function (nums, target, lower) {
     let res = -1;
     let lo = 0, hi = nums.length - 1;
     while (lo <= hi) {
@@ -1156,8 +1162,8 @@ const search = function (nums, target, lower) {
         }
     }
     return res;
-};
-// https://leetcode.cn/submissions/detail/381717350/
+}
+// https://leetcode.cn/submissions/detail/476522996/
 ```
 
 ## 37. 解数独
