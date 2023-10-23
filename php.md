@@ -1382,28 +1382,28 @@ class Solution
 class Solution
 {
     /**
-     * @param Integer[] $nums
-     * @param Integer $target
-     * @return Integer[]
+     * @param int[] $nums
+     * @param int $target
+     * @return int[]
      */
     function searchRange(array $nums, int $target): array
     {
-        return [$this->search($nums, $target, true), $this->search($nums, $target, false)];
+        return [$this->binarySearch($nums, $target, true), $this->binarySearch($nums, $target, false)];
     }
 
     /**
-     * @param Integer[] $nums
-     * @param Integer $target
-     * @param Integer $lower
-     * @return Integer
+     * @param int[] $nums
+     * @param int $target
+     * @param bool $lower
+     * @return int
      */
-    function search(array $nums, int $target, int $lower): int
+    private function binarySearch(array $nums, int $target, bool $lower): int
     {
         $res = -1;
         $lo = 0;
         $hi = count($nums) - 1;
         while ($lo <= $hi) {
-            $mid = $lo + floor(($hi - $lo) / 2);
+            $mid = $lo + intval(($hi - $lo) / 2);
             if ($target < $nums[$mid]) {
                 $hi = $mid - 1;
             } else if ($nums[$mid] < $target) {
@@ -1420,7 +1420,7 @@ class Solution
         return $res;
     }
 }
-// https://leetcode.cn/submissions/detail/382830812/
+// https://leetcode.cn/submissions/detail/476527694/
 ```
 
 ## 37. 解数独
