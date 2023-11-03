@@ -3242,7 +3242,7 @@ LRUCache.prototype.touchCache = function (key, val) {
  * @param {number[]} nums
  * @return {number}
  */
- const findMin = function (nums) {
+const findMin = function (nums) {
     let lo = 0, hi = nums.length - 1;
     while (lo < hi) {
         const mid = lo + Math.floor((hi - lo) / 2);
