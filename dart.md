@@ -2740,8 +2740,7 @@ class Solution {
 ```dart
 class Solution {
   int findMin(List<int> nums) {
-    var lo = 0;
-    var hi = nums.length - 1;
+    var lo = 0, hi = nums.length - 1;
     while (lo < hi) {
       final mid = lo + (hi - lo) ~/ 2;
       if (nums[mid] < nums[hi]) {
@@ -2753,7 +2752,7 @@ class Solution {
     return nums[lo];
   }
 }
-// https://leetcode.cn/submissions/detail/376142956/
+// https://leetcode.cn/submissions/detail/479425829/
 ```
 
 ## 155. 最小栈
