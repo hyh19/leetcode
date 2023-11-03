@@ -4117,15 +4117,15 @@ class LRUCache
 class Solution
 {
     /**
-     * @param Integer[] $nums
-     * @return Integer
+     * @param int[] $nums
+     * @return int
      */
     function findMin(array $nums): int
     {
         $lo = 0;
         $hi = count($nums) - 1;
         while ($lo < $hi) {
-            $mid = $lo + floor(($hi - $lo) / 2);
+            $mid = $lo + intval(($hi - $lo) / 2);
             if ($nums[$mid] < $nums[$hi]) {
                 $hi = $mid;
             } else {
@@ -4135,7 +4135,7 @@ class Solution
         return $nums[$lo];
     }
 }
-// https://leetcode.cn/submissions/detail/382820423/
+// https://leetcode.cn/submissions/detail/479428173/
 ```
 
 ## 155. 最小栈
