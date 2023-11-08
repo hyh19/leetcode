@@ -4837,7 +4837,7 @@ private:
 ```cpp
 class Solution {
 public:
-    int findMin(vector<int> &nums) {
+    int findMin(const vector<int> &nums) {
         int lo = 0, hi = nums.size() - 1;
         while (lo < hi) {
             int mid = lo + (hi - lo) / 2;
@@ -4850,7 +4850,7 @@ public:
         return nums[lo];
     }
 };
-// https://leetcode.cn/submissions/detail/348420700/
+// https://leetcode.cn/submissions/detail/480592770/
 ```
 
 ## 155. 最小栈
