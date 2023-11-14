@@ -5284,17 +5284,17 @@ class Solution {
 
     private void reverse(int[] nums, int lo, int hi) {
         while (lo < hi) {
-            exch(nums, lo++, hi--);
+            swap(nums, lo++, hi--);
         }
     }
 
-    private void exch(int[] nums, int i, int j) {
-        int swap = nums[i];
+    private void swap(int[] nums, int i, int j) {
+        int temp = nums[i];
         nums[i] = nums[j];
-        nums[j] = swap;
+        nums[j] = temp;
     }
 }
-// https://leetcode.cn/submissions/detail/364370375/
+// https://leetcode.cn/submissions/detail/482007973/
 ```
 
 ```java
