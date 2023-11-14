@@ -2781,16 +2781,17 @@ class Solution:
     def rotate(self, nums: List[int], k: int) -> None:
         n = len(nums)
         k %= n
-        self.reverse(nums, 0, n - 1)
-        self.reverse(nums, 0, k - 1)
-        self.reverse(nums, k, n - 1)
+        if k > 0:
+            self._reverse(nums, 0, n - 1)
+            self._reverse(nums, 0, k - 1)
+            self._reverse(nums, k, n - 1)
 
-    def reverse(self, nums: List[int], lo: int, hi: int) -> None:
+    def _reverse(self, nums: List[int], lo: int, hi: int) -> None:
         while lo < hi:
             nums[lo], nums[hi] = nums[hi], nums[lo]
             lo += 1
             hi -= 1
-# https://leetcode.cn/submissions/detail/378924954/
+# https://leetcode.cn/submissions/detail/482010024/
 ```
 
 ## 198. 打家劫舍
