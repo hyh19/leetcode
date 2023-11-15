@@ -3497,7 +3497,7 @@ const maxProfit = function (k, prices) {
  * @param {number} k
  * @return {void} Do not return anything, modify nums in-place instead.
  */
- const rotate = function (nums, k) {
+const rotate = function (nums, k) {
     const n = nums.length;
     k %= n;
     if (k > 0) {
