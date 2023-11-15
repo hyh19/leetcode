@@ -4420,11 +4420,13 @@ class Solution
 ```php
 <?php
 
+<?php
+
 class Solution
 {
     /**
-     * @param Integer[] $nums
-     * @param Integer $k
+     * @param int[] $nums
+     * @param int $k
      * @return void
      */
     function rotate(array &$nums, int $k): void
@@ -4439,9 +4441,9 @@ class Solution
     }
 
     /**
-     * @param Integer[] $nums
-     * @param Integer $lo
-     * @param Integer $hi
+     * @param int[] $nums
+     * @param int $lo
+     * @param int $hi
      * @return void
      */
     function reverse(array &$nums, int $lo, int $hi): void
@@ -4453,7 +4455,7 @@ class Solution
         }
     }
 }
-// https://leetcode.cn/submissions/detail/382819195/
+// https://leetcode.cn/submissions/detail/482270775/
 ```
 
 ## 198. 打家劫舍
