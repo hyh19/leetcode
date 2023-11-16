@@ -2959,9 +2959,11 @@ class Solution {
   void rotate(List<int> nums, int k) {
     final n = nums.length;
     k %= n;
-    _reverse(nums, 0, n - 1);
-    _reverse(nums, 0, k - 1);
-    _reverse(nums, k, n - 1);
+    if (k > 0) {
+      _reverse(nums, 0, n - 1);
+      _reverse(nums, 0, k - 1);
+      _reverse(nums, k, n - 1);
+    }
   }
 
   void _reverse(List<int> nums, int lo, int hi) {
@@ -2976,7 +2978,7 @@ class Solution {
     nums[j] = temp;
   }
 }
-// https://leetcode.cn/submissions/detail/393026485/
+// https://leetcode.cn/submissions/detail/482603637/
 ```
 
 ## 198. 打家劫舍
