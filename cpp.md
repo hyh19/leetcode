@@ -3525,7 +3525,7 @@ private:
         int rootVal = preorder[preStart];
         auto *root = new TreeNode(rootVal);
         if (preStart < preEnd) {
-            // 当前根节点的值在后序遍历数组中的索引
+            // 当前根节点的值在中序遍历数组中的索引
             int inRoot = valToIndex[rootVal];
             // 左子树的节点数量
             int leftSize = inRoot - inStart;
@@ -3539,7 +3539,7 @@ private:
 
     unordered_map<int, int> valToIndex;
 };
-// https://leetcode.cn/submissions/detail/483278139/
+// https://leetcode.cn/submissions/detail/483279422/
 ```
 
 ## 106. 从中序与后序遍历序列构造二叉树
@@ -3549,7 +3549,7 @@ private:
 ```cpp
 class Solution {
 public:
-    TreeNode *buildTree(vector<int> &inorder, vector<int> &postorder) {
+    TreeNode *buildTree(const vector<int> &inorder, const vector<int> &postorder) {
         for (int i = 0; i < inorder.size(); ++i) {
             valToIndex[inorder[i]] = i;
         }
@@ -3565,18 +3565,22 @@ private:
         }
         int rootVal = postorder[postEnd];
         auto *root = new TreeNode(rootVal);
-        int inRoot = valToIndex[rootVal];
-        int leftSize = inRoot - inStart;
-        root->left = buildTree(inorder, inStart, inRoot - 1,
-                               postorder, postStart, postStart + leftSize - 1);
-        root->right = buildTree(inorder, inRoot + 1, inEnd,
-                                postorder, postStart + leftSize, postEnd - 1);
+        if (inStart < inEnd) {
+            // 当前根节点的值在中序遍历数组中的索引
+            int inRoot = valToIndex[rootVal];
+            // 左子树的节点数量
+            int leftSize = inRoot - inStart;
+            root->left = buildTree(inorder, inStart, inRoot - 1,
+                                   postorder, postStart, postStart + leftSize - 1);
+            root->right = buildTree(inorder, inRoot + 1, inEnd,
+                                    postorder, postStart + leftSize, postEnd - 1);
+        }
         return root;
     }
 
     unordered_map<int, int> valToIndex;
 };
-// https://leetcode.cn/submissions/detail/391590030/
+// https://leetcode.cn/submissions/detail/483279203/
 ```
 
 ## 107. 二叉树的层序遍历 II
