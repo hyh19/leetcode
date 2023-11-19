@@ -8229,13 +8229,13 @@ private:
 // diameter(root) = max({ rootLP(subtree) | subtree 是 root 的任意子树 })
 class Solution {
 public:
-    int diameterOfBinaryTree(TreeNode *root) {
+    int diameterOfBinaryTree(const TreeNode *root) {
         maxDepth(root);
         return diameter;
     }
 
 private:
-    int maxDepth(TreeNode *root) {
+    int maxDepth(const TreeNode *root) {
         if (root == nullptr) {
             return 0;
         }
@@ -8248,7 +8248,7 @@ private:
 
     int diameter = 0;
 };
-// https://leetcode.cn/submissions/detail/391588086/
+// https://leetcode.cn/submissions/detail/483268077/
 ```
 
 ## 567. 字符串的排列
