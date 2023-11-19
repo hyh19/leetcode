@@ -3508,7 +3508,7 @@ private:
 ```cpp
 class Solution {
 public:
-    TreeNode *buildTree(vector<int> &preorder, vector<int> &inorder) {
+    TreeNode *buildTree(const vector<int> &preorder, const vector<int> &inorder) {
         for (int i = 0; i < inorder.size(); ++i) {
             valToIndex[inorder[i]] = i;
         }
@@ -3539,7 +3539,7 @@ private:
 
     unordered_map<int, int> valToIndex;
 };
-// https://leetcode.cn/submissions/detail/483277454/
+// https://leetcode.cn/submissions/detail/483278139/
 ```
 
 ## 106. 从中序与后序遍历序列构造二叉树
