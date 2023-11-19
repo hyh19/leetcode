@@ -9487,7 +9487,7 @@ private:
 ```cpp
 class Solution {
 public:
-    TreeNode *constructFromPrePost(vector<int> &preorder, vector<int> &postorder) {
+    TreeNode *constructFromPrePost(const vector<int> &preorder, const vector<int> &postorder) {
         for (int i = 0; i < postorder.size(); ++i) {
             valToIndex[postorder[i]] = i;
         }
@@ -9504,20 +9504,23 @@ private:
         int rootVal = preorder[preStart];
         auto *root = new TreeNode(rootVal);
         if (preStart < preEnd) {
+            // 左子树根节点的值
             int leftRootVal = preorder[preStart + 1];
+            // 左子树根节点的值在后序遍历数组中的索引
             int postLeftRoot = valToIndex[leftRootVal];
+            // 左子树的节点数量
             int leftSize = postLeftRoot - postStart + 1;
             root->left = buildTree(preorder, preStart + 1, preStart + leftSize,
                                    postorder, postStart, postLeftRoot);
             root->right = buildTree(preorder, preStart + leftSize + 1, preEnd,
-                                    postorder, postLeftRoot + 1, postEnd);
+                                    postorder, postLeftRoot + 1, postEnd - 1);
         }
         return root;
     }
 
     unordered_map<int, int> valToIndex;
 };
-// https://leetcode.cn/submissions/detail/391590416/
+// https://leetcode.cn/submissions/detail/483275282/
 ```
 
 ## 905. 按奇偶排序数组
