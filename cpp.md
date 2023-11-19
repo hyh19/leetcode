@@ -3524,18 +3524,22 @@ private:
         }
         int rootVal = preorder[preStart];
         auto *root = new TreeNode(rootVal);
-        int inRoot = valToIndex[rootVal];
-        int leftSize = inRoot - inStart;
-        root->left = buildTree(preorder, preStart + 1, preStart + leftSize,
-                               inorder, inStart, inRoot - 1);
-        root->right = buildTree(preorder, preStart + leftSize + 1, preEnd,
-                                inorder, inRoot + 1, inEnd);
+        if (preStart < preEnd) {
+            // 当前根节点的值在后序遍历数组中的索引
+            int inRoot = valToIndex[rootVal];
+            // 左子树的节点数量
+            int leftSize = inRoot - inStart;
+            root->left = buildTree(preorder, preStart + 1, preStart + leftSize,
+                                   inorder, inStart, inRoot - 1);
+            root->right = buildTree(preorder, preStart + leftSize + 1, preEnd,
+                                    inorder, inRoot + 1, inEnd);
+        }
         return root;
     }
 
     unordered_map<int, int> valToIndex;
 };
-// https://leetcode.cn/submissions/detail/391591107/
+// https://leetcode.cn/submissions/detail/483277454/
 ```
 
 ## 106. 从中序与后序遍历序列构造二叉树
