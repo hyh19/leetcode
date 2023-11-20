@@ -10041,23 +10041,26 @@ private:
 class Solution {
 public:
     int videoStitching(vector<vector<int>> &clips, int time) {
+        // 按区间起点升序排列
         sort(clips.begin(), clips.end(),
              [](const vector<int> &a, const vector<int> &b) {
-                 if (a[0] == b[0]) {
-                     return a[1] > b[1];
-                 }
                  return a[0] < b[0];
              });
         size_t n = clips.size();
-        int i = 0, maxEnd = 0, count = 0;
+        // 当前遍历区间的索引
+        int i = 0;
+        // 已遍历区间的最大终点
+        int maxEnd = 0;
+        // 覆盖 [0, time] 所需片段的最小数量
+        int count = 0;
         // 当 clips[i] 与 [0, maxEnd] 重叠（相交或被覆盖）时
         while (i < n && clips[i][0] <= maxEnd) {
             // 记录与 [0, maxEnd] 重叠的所有区间中最大的 end
-            int nextEnd = clips[i][1];
+            int newMaxEnd = clips[i][1];
             while (++i < n && clips[i][0] <= maxEnd) {
-                nextEnd = max(nextEnd, clips[i][1]);
+                newMaxEnd = max(newMaxEnd, clips[i][1]);
             }
-            maxEnd = nextEnd;
+            maxEnd = newMaxEnd;
             ++count;
             if (maxEnd >= time) {
                 return count;
@@ -10066,7 +10069,7 @@ public:
         return -1;
     }
 };
-// https://leetcode.cn/submissions/detail/391550144/
+// https://leetcode.cn/submissions/detail/483470873/
 ```
 
 ## 1143. 最长公共子序列
