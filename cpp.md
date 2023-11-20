@@ -2354,11 +2354,9 @@ private:
 class Solution {
 public:
     vector<vector<int>> merge(vector<vector<int>> &intervals) {
+        // 按区间起点升序排列
         sort(intervals.begin(), intervals.end(),
              [](const vector<int> &a, const vector<int> &b) {
-                 if (a[0] == b[0]) {
-                     return a[1] > b[1];
-                 }
                  return a[0] < b[0];
              });
         int mStart = intervals[0][0];
@@ -2379,7 +2377,7 @@ public:
         return ans;
     }
 };
-// https://leetcode.cn/submissions/detail/391666589/
+// https://leetcode.cn/submissions/detail/483471659/
 ```
 
 ## 64. 最小路径和
