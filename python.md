@@ -5100,13 +5100,12 @@ class Solution:
 ```py
 class Solution:
     def middleNode(self, head: Optional[ListNode]) -> Optional[ListNode]:
-        slow = head
-        fast = head
-        while fast is not None and fast.next is not None:
+        slow = fast = head
+        while (fast is not None) and (fast.next is not None):
             slow = slow.next
             fast = fast.next.next
         return slow
-# https://leetcode.cn/submissions/detail/378712078/
+# https://leetcode.cn/submissions/detail/486849739/
 ```
 
 ## 886. 可能的二分法
