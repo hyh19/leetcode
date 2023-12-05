@@ -684,17 +684,17 @@ const removeNthFromEnd = function (head, n) {
     const dummyHead = new ListNode(-1, head);
     let slow = dummyHead;
     let fast = dummyHead;
-    for (let i = 1; i <= n; ++i) {
+    for (let i = 0; i < n; ++i) {
         fast = fast.next;
     }
-    while (fast.next !== null) {
+    while (fast.next != null) {
         slow = slow.next;
         fast = fast.next;
     }
     slow.next = slow.next.next;
     return dummyHead.next;
 };
-// https://leetcode.cn/submissions/detail/399469073/
+// https://leetcode.cn/submissions/detail/486932188/
 ```
 
 ## 20. 有效的括号
