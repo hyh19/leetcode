@@ -3763,7 +3763,34 @@ class Solution
 <https://leetcode.cn/problems/linked-list-cycle-ii/>
 
 ```php
-// TODO
+<?php
+
+class Solution
+{
+    /**
+     * @param ListNode|null $head
+     * @return ListNode|null
+     */
+    function detectCycle(?ListNode $head): ?ListNode
+    {
+        $slow = $head;
+        $fast = $head;
+        while ($fast !== null && $fast->next !== null) {
+            $slow = $slow->next;
+            $fast = $fast->next->next;
+            if ($slow === $fast) {
+                $fast = $head;
+                while ($slow !== $fast) {
+                    $slow = $slow->next;
+                    $fast = $fast->next;
+                }
+                return $slow;
+            }
+        }
+        return null;
+    }
+}
+// https://leetcode.cn/submissions/detail/486907285/
 ```
 
 ## 143. 重排链表
