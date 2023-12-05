@@ -3230,18 +3230,19 @@ class Solution {
 ```swift
 class Solution {
     func hasCycle(_ head: ListNode?) -> Bool {
-        var slow = head, fast = head;
-        while (fast != nil && fast!.next != nil) {
-            slow = slow!.next;
-            fast = fast!.next!.next;
-            if (slow === fast) {
-                return true;
+        var slow = head
+        var fast = head
+        while fast != nil, fast?.next != nil {
+            slow = slow?.next
+            fast = fast?.next?.next
+            if slow === fast {
+                return true
             }
         }
-        return false;
+        return false
     }
 }
-// https://leetcode.cn/submissions/detail/384870414/
+// https://leetcode.cn/submissions/detail/486858777/
 ```
 
 ## 142. 环形链表 II
