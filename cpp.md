@@ -6892,7 +6892,7 @@ private:
 ```cpp
 class Solution {
 public:
-    int coinChange(vector<int> &coins, int amount) {
+    int coinChange(const vector<int> &coins, int amount) {
         // dp[i] = 凑成总金额 i 所需的最少的硬币个数
         vector<int> dp(amount + 1);
         for (int i = 1; i <= amount; ++i) {
@@ -6901,9 +6901,9 @@ public:
             // i-c     = 剩余总金额
             // dp[i-c] = 凑成剩余总金额所需的最少的硬币个数
             for (const auto &c: coins) {
-                int x = i - c;
-                if (x >= 0 && dp[x] != -1) {
-                    res = min(res, dp[x] + 1);
+                int remain = i - c;
+                if (remain >= 0 && dp[remain] != -1) {
+                    res = min(res, dp[remain] + 1);
                 }
             }
             dp[i] = (res == INT_MAX ? -1 : res);
@@ -6911,7 +6911,7 @@ public:
         return dp[amount];
     }
 };
-// https://leetcode.cn/submissions/detail/391483145/
+// https://leetcode.cn/submissions/detail/487565321/
 ```
 
 ```cpp
