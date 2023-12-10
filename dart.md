@@ -3618,7 +3618,6 @@ class Solution {
     final n = nums.length;
     // dp[i] = max({length(subseq) | subseq 是以 nums[i] 结尾的严格递增子序列})
     final dp = List<int>.filled(n, 1);
-    dp[0] = 1;
     var ans = dp[0];
     for (var i = 1; i < n; ++i) {
       var res = 1;
@@ -3633,7 +3632,7 @@ class Solution {
     return ans;
   }
 }
-// https://leetcode.cn/submissions/detail/376528570/
+// https://leetcode.cn/submissions/detail/488006366/
 ```
 
 ## 303. 区域和检索 - 数组不可变
