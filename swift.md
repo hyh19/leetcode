@@ -1483,21 +1483,17 @@ class Solution {
 ```swift
 class Solution {
     func maxSubArray(_ nums: [Int]) -> Int {
-        let n = nums.count;
-        if (n == 1) {
-            return nums[0];
-        }
         // dp[i] = max({sum(subarray) | subarray 是以 nums[i] 结尾的子数组})
-        var dp = nums;
-        var ans = dp[0];
-        for i in 1...n - 1 {
-            dp[i] = max(nums[i], dp[i - 1] + nums[i]);
-            ans = max(ans, dp[i]);
+        var dp = nums
+        var ans = dp[0]
+        for i in 1..<nums.count {
+            dp[i] = max(nums[i], dp[i - 1] + nums[i])
+            ans = max(ans, dp[i])
         }
-        return ans;
+        return ans
     }
 }
-// https://leetcode.cn/submissions/detail/387508297/
+// https://leetcode.cn/submissions/detail/488011390/
 ```
 
 ## 56. 合并区间
