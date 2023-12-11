@@ -1051,19 +1051,19 @@ class Solution {
     // 避免重复，从 edge 开始选择
     // 例如 [1->2] 和 [2->1] 是重复的
     while (edge < candidates.length) {
-      final x = candidates[edge];
-      if (_pathSum + x <= target) {
-        _pathSum += x;
-        _path.add(x);
+      final num = candidates[edge];
+      if (_pathSum + num <= target) {
+        _pathSum += num;
+        _path.add(num);
         _backtrack(candidates, target, edge);
-        _pathSum -= x;
+        _pathSum -= num;
         _path.removeLast();
       }
       ++edge;
     }
   }
 }
-// https://leetcode.cn/submissions/detail/443973978/
+// https://leetcode.cn/submissions/detail/488229842/
 ```
 
 ## 40. 组合总和 II
