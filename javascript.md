@@ -7007,7 +7007,7 @@ const minFallingPathSumSP = function (matrix, row, col, memo) {
  * @param {number[][]} secondList
  * @return {number[][]}
  */
- const intervalIntersection = function (firstList, secondList) {
+const intervalIntersection = function (firstList, secondList) {
     const ans = [];
     let i = 0, j = 0;
     while (i < firstList.length && j < secondList.length) {
