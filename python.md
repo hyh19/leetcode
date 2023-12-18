@@ -3894,11 +3894,11 @@ class Solution:
 ```py
 class Solution:
     def findMinArrowShots(self, points: List[List[int]]) -> int:
-        return Solution.maxNonOverlappingIntervals(points)
+        return Solution._maxNonOverlappingIntervals(points)
 
     # 返回区间数组 intervals 无重叠区间的最大数量
     @staticmethod
-    def maxNonOverlappingIntervals(intervals: List[List[int]]) -> int:
+    def _maxNonOverlappingIntervals(intervals: List[List[int]]) -> int:
         # 按区间终点升序排列
         intervals.sort(key=lambda interval: interval[1])
         # 最后一个不重叠区间的终点
@@ -3910,7 +3910,7 @@ class Solution:
                 count += 1
                 lastEnd = end
         return count
-# https://leetcode.cn/submissions/detail/456435233/
+# https://leetcode.cn/submissions/detail/489739380/
 ```
 
 ## 460. LFU 缓存
