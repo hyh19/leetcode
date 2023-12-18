@@ -1503,30 +1503,27 @@ class Solution {
 ```swift
 class Solution {
     func merge(_ intervals: [[Int]]) -> [[Int]] {
-        let sortedIntervals = intervals.sorted { a, b in
-            a[0] == b[0] ? a[1] > b[1] : a[0] < b[0]
-        };
-        var ans: [[Int]] = [];
-        var mStart = sortedIntervals[0][0];
-        var mEnd = sortedIntervals[0][1];
-        for interval in sortedIntervals {
-            let start = interval[0];
-            let end = interval[1];
-            if (start <= mEnd) {
-                // 重叠
-                mEnd = max(mEnd, end);
-            } else {
-                // 不重叠
-                ans.append([mStart, mEnd]);
-                mStart = start;
-                mEnd = end;
+        // 按区间起点升序排列
+        let sortedIntervals = intervals.sorted { $0[0] < $1[0] }
+        var ans: [[Int]] = []
+        var mStart = sortedIntervals[0][0]
+        var mEnd = sortedIntervals[0][1]
+        for i in 1..<sortedIntervals.count {
+            let start = sortedIntervals[i][0]
+            let end = sortedIntervals[i][1]
+            if start <= mEnd {  // 重叠
+                mEnd = max(mEnd, end)
+            } else {  // 不重叠
+                ans.append([mStart, mEnd])
+                mStart = start
+                mEnd = end
             }
         }
-        ans.append([mStart, mEnd]);
-        return ans;
+        ans.append([mStart, mEnd])
+        return ans
     }
 }
-// https://leetcode.cn/submissions/detail/385540334/
+// https://leetcode.cn/submissions/detail/489749686/
 ```
 
 ## 64. 最小路径和
