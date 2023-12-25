@@ -5518,31 +5518,26 @@ class Solution {
 <https://leetcode.cn/problems/video-stitching/>
 
 ```dart
-// 测试用例
-// [[0,1],[6,8],[0,2],[5,6],[0,4],[0,3],[6,7],[1,3],[4,7],[1,4],[2,5],[2,6],[3,4],[4,5],[5,7],[6,9]]
-// 9
-// 排序后
-// [[0,4],[0,3],[0,2],[0,1],[1,4],[1,3],[2,6],[2,5],[3,4],[4,7],[4,5],[5,7],[5,6],[6,9],[6,8],[6,7]]
-// 删除被覆盖区间后 [0,4],[2,6],[4,7],[6,9]
-// 虽然 [2,6],[4,7] 都与 [0,4] 相交，但是只取 end 最大的区间 [4,7]
-// 正确答案 [0,4],[4,7],[6,9]
-// 相似题目 1288. 删除被覆盖区间 https://leetcode.cn/problems/remove-covered-intervals/
 class Solution {
   int videoStitching(List<List<int>> clips, int time) {
-    clips.sort((a, b) => a[0] == b[0] ? b[1] - a[1] : a[0] - b[0]);
-    var count = 0;
-    var maxEnd = 0;
-    var i = 0;
+    // 按区间起点升序排列
+    clips.sort((a, b) => a[0] - b[0]);
     final n = clips.length;
+    // 当前遍历区间的索引
+    var i = 0;
+    // 已遍历区间的最大终点
+    var maxEnd = 0;
+    // 覆盖 [0, time] 所需片段的最小数量
+    var count = 0;
     // 当 clips[i] 与 [0, maxEnd] 重叠（相交或被覆盖）时
     while (i < n && clips[i][0] <= maxEnd) {
       // 记录与 [0, maxEnd] 重叠的所有区间中最大的 end
-      var nextEnd = clips[i][1];
+      var newMaxEnd = clips[i][1];
       while (++i < n && clips[i][0] <= maxEnd) {
-        nextEnd = max(nextEnd, clips[i][1]);
+        newMaxEnd = max(newMaxEnd, clips[i][1]);
       }
       ++count;
-      maxEnd = nextEnd;
+      maxEnd = newMaxEnd;
       if (maxEnd >= time) {
         return count;
       }
@@ -5550,7 +5545,7 @@ class Solution {
     return -1;
   }
 }
-// https://leetcode.cn/submissions/detail/376157491/
+// https://leetcode.cn/submissions/detail/491081342/
 ```
 
 ## 1143. 最长公共子序列
