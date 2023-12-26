@@ -3079,14 +3079,14 @@ class Solution:
 class Solution:
     def findKthLargest(self, nums: List[int], k: int) -> int:
         shuffle(nums)
-        return self.quickSelect(nums, len(nums) - k)
+        return self._quick_select(nums, len(nums) - k)
 
-    # 数组 nums 从小到大排在第 rank 位的元素，排位从 0 开始计算，
+    # 返回数组 nums 从小到大排在第 rank 位的元素，排位从 0 开始计算，
     # 相当于有 rank 个元素小于该元素。
-    def quickSelect(self, nums: List[int], rank: int) -> int:
+    def _quick_select(self, nums: List[int], rank: int) -> int:
         lo, hi = 0, len(nums) - 1
         while lo < hi:
-            j = self.partition(nums, lo, hi)
+            j = self._partition(nums, lo, hi)
             if rank < j:
                 hi = j - 1
             elif j < rank:
@@ -3095,7 +3095,7 @@ class Solution:
                 return nums[j]
         return nums[lo]
 
-    def partition(self, nums: List[int], lo: int, hi: int) -> int:
+    def _partition(self, nums: List[int], lo: int, hi: int) -> int:
         v = nums[lo]
         i, j = lo, hi + 1
         while True:
@@ -3114,7 +3114,7 @@ class Solution:
             nums[i], nums[j] = nums[j], nums[i]
         nums[lo], nums[j] = nums[j], nums[lo]
         return j
-# https://leetcode.cn/submissions/detail/442873594/
+# https://leetcode.cn/submissions/detail/491298430/
 ```
 
 ## 216. 组合总和 III
