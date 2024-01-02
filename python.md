@@ -2720,23 +2720,23 @@ class Solution:
 <https://leetcode.cn/problems/largest-number/>
 
 ```py
+def _cmp(s1: str, s2: str) -> int:
+    a = s1 + s2
+    b = s2 + s1
+    if a > b:
+        return -1
+    if a < b:
+        return 1
+    return 0
+
+
 class Solution:
     def largestNumber(self, nums: List[int]) -> str:
         strs = [str(x) for x in nums]
-
-        def cmp(s1, s2):
-            a = s1 + s2
-            b = s2 + s1
-            if a > b:
-                return -1
-            if a < b:
-                return 1
-            return 0
-
-        strs.sort(key=functools.cmp_to_key(cmp))
+        strs.sort(key=functools.cmp_to_key(_cmp))
         ans = ''.join(strs)
         return '0' if ans[0] == '0' else ans
-# https://leetcode.cn/submissions/detail/380213463/
+# https://leetcode.cn/problems/largest-number/submissions/492661825/
 ```
 
 ## 188. 买卖股票的最佳时机 IV
