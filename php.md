@@ -3005,13 +3005,13 @@ class Solution
      */
     function maxDepth(?TreeNode $root): int
     {
-        if ($root === null) {
+        if (is_null($root)) {
             return 0;
         }
         return 1 + max($this->maxDepth($root->left), $this->maxDepth($root->right));
     }
 }
-// https://leetcode.cn/submissions/detail/382912828/
+// https://leetcode.cn/problems/maximum-depth-of-binary-tree/submissions/497222315/
 ```
 
 ## 105. 从前序与中序遍历序列构造二叉树
