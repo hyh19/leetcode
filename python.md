@@ -3343,28 +3343,28 @@ class Solution:
 
 ```py
 class Solution:
-    def __init__(self):
-        self.lca = None
+    def __init__(self) -> None:
+        self._lca: Optional[TreeNode] = None
 
-    def lowestCommonAncestor(self, root: TreeNode, p: TreeNode, q: TreeNode) -> TreeNode:
-        self.find(root, p, q)
-        return self.lca
+    def lowestCommonAncestor(self, root: TreeNode, p: TreeNode, q: TreeNode) -> Optional[TreeNode]:
+        self._find(root, p, q)
+        return self._lca
 
     # 在子树中查找节点 p 或 q，递归过程中确定『最近公共祖先』
-    def find(self, root: Optional[TreeNode], p: TreeNode, q: TreeNode) -> bool:
+    def _find(self, root: Optional[TreeNode], p: TreeNode, q: TreeNode) -> bool:
         if root is None:
             return False
         if (root is p) or (root is q):
             # 如果 lca(p,q) = p 或 q，则此处的 lca = root 是最终答案
-            self.lca = root
+            self._lca = root
             return True
-        left = self.find(root.left, p, q)
-        right = self.find(root.right, p, q)
+        left = self._find(root.left, p, q)
+        right = self._find(root.right, p, q)
         if left and right:
             # 否则返回到某祖先节点处的 lca = root 才是最终答案
-            self.lca = root
+            self._lca = root
         return left or right
-# https://leetcode.cn/submissions/detail/380341756/
+# https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/submissions/497232016/
 ```
 
 ## 237. 删除链表中的节点
