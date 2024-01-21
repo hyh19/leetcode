@@ -3406,16 +3406,16 @@ class Solution {
 ```java
 class Solution {
     public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
-        List<List<Integer>> ans = new LinkedList();
-        Deque<TreeNode> queue = new LinkedList();
+        List<List<Integer>> ans = new LinkedList<>();
+        Deque<TreeNode> queue = new LinkedList<>();
         if (root != null) {
             queue.addLast(root);
         }
         boolean reverse = false;
         while (!queue.isEmpty()) {
-            int sz = queue.size();
-            List<Integer> level = new LinkedList();
-            for (int i = 0; i < sz; ++i) {
+            int n = queue.size();
+            List<Integer> level = new LinkedList<>();
+            for (int i = 0; i < n; ++i) {
                 TreeNode x = queue.removeFirst();
                 if (reverse) {
                     level.add(0, x.val);
@@ -3437,7 +3437,7 @@ class Solution {
         return ans;
     }
 }
-// https://leetcode.cn/submissions/detail/361391543/
+// https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/submissions/497220606/
 ```
 
 ```java
