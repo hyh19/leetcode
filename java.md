@@ -6590,12 +6590,12 @@ public class Codec {
         }
         String left = serialize(root.left);
         String right = serialize(root.right);
-        return String.valueOf(root.val) + "," + left + "," + right;
+        return root.val + "," + left + "," + right;
     }
 
     // Decodes your encoded data to tree.
     public TreeNode deserialize(String data) {
-        Deque<String> queue = new LinkedList();
+        Deque<String> queue = new LinkedList<>();
         for (String s : data.split(",")) {
             queue.addLast(s);
         }
@@ -6613,7 +6613,7 @@ public class Codec {
         return root;
     }
 }
-// https://leetcode.cn/submissions/detail/368744798/
+// https://leetcode.cn/problems/serialize-and-deserialize-binary-tree/submissions/497993884/
 ```
 
 ```java
