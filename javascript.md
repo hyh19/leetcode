@@ -6750,29 +6750,58 @@ const isBipartite = function (graph) {
 
 ```js
 /**
+ * 二叉树节点的值在 postorder 中的索引
+ *
+ * @type {Map<number, number>}
+ */
+let valToIndex = new Map();
+
+/**
+ * 根据前序遍历 preorder 和后序遍历 postorder 构造二叉树
+ *
  * @param {number[]} preorder
  * @param {number[]} postorder
  * @return {TreeNode}
  */
-const constructFromPrePost = function (preorder, postorder,
-                                       preStart = 0, preEnd = preorder.length - 1,
-                                       postStart = 0, postEnd = postorder.length - 1,
-                                       postorderMap = new Map(postorder.map((e, i) => [e, i]))) {
+const constructFromPrePost = function (preorder, postorder) {
+    valToIndex = new Map(postorder.map((e, i) => [e, i]));
+    return constructFromPrePostRange(preorder, 0, preorder.length - 1,
+        postorder, 0, postorder.length - 1);
+};
+
+/**
+ * 根据前序遍历 preorder[preStart,preEnd] 和后序遍历 postorder[postStart,postEnd] 构造二叉树
+ *
+ * @param {number[]} preorder
+ * @param {number} preStart
+ * @param {number} preEnd
+ * @param {number[]} postorder
+ * @param {number} postStart
+ * @param {number} postEnd
+ * @return {(TreeNode|null)}
+ */
+const constructFromPrePostRange = function (preorder, preStart, preEnd,
+                                            postorder, postStart, postEnd) {
     if (preStart > preEnd) {
         return null;
     }
     const rootVal = preorder[preStart];
-    const root = new TreeNode(rootVal);
+    const rootNode = new TreeNode(rootVal);
     if (preStart < preEnd) {
+        // 左子树根节点的值
         const leftRootVal = preorder[preStart + 1];
-        const postLeftRoot = postorderMap.get(leftRootVal);
-        const leftSize = postLeftRoot - postStart + 1;
-        root.left = constructFromPrePost(preorder, postorder, preStart + 1, preStart + leftSize, postStart, postLeftRoot, postorderMap);
-        root.right = constructFromPrePost(preorder, postorder, preStart + leftSize + 1, preEnd, postLeftRoot + 1, postEnd - 1, postorderMap);
+        // 左子树根节点的值在后序遍历数组中的索引
+        const leftRootValIndex = valToIndex.get(leftRootVal);
+        // 左子树的节点数量
+        const leftTreeSize = leftRootValIndex - postStart + 1;
+        rootNode.left = constructFromPrePostRange(preorder, preStart + 1, preStart + leftTreeSize,
+            postorder, postStart, leftRootValIndex);
+        rootNode.right = constructFromPrePostRange(preorder, preStart + leftTreeSize + 1, preEnd,
+            postorder, leftRootValIndex + 1, postEnd - 1);
     }
-    return root;
+    return rootNode;
 };
-// https://leetcode.cn/submissions/detail/381412408/
+// https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/submissions/499113754/
 ```
 
 ## 905. 按奇偶排序数组
