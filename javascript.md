@@ -2376,26 +2376,56 @@ const zigzagLevelOrder = function (root) {
 
 ```js
 /**
- * @param {number[]} preorder
- * @param {number[]} inorder
- * @return {TreeNode}
+ * 二叉树节点的值在中序遍历数组中的索引
+ *
+ * @type {Map<number, number>}
  */
-const buildTree = function (preorder, inorder,
-                            preStart = 0, preEnd = preorder.length - 1,
-                            inStart = 0, inEnd = inorder.length - 1,
-                            inorderMap = new Map(inorder.map((e, i) => [e, i]))) {
+let valToIdx = new Map();
+
+/**
+ * 构造二叉树
+ *
+ * @param {number[]} preorder 前序遍历数组
+ * @param {number[]} inorder 中序遍历数组
+ * @return {TreeNode} 构造的二叉树的根节点
+ */
+const buildTree = function (preorder, inorder) {
+    valToIdx = new Map(inorder.map((e, i) => [e, i]));
+    return buildTreeRange(preorder, 0, preorder.length - 1,
+        inorder, 0, inorder.length - 1);
+};
+
+/**
+ * 在指定范围内构造二叉树
+ *
+ * @param {number[]} preorder 前序遍历数组
+ * @param {number} preStart 前序遍历起始索引
+ * @param {number} preEnd 前序遍历结束索引
+ * @param {number[]} inorder 中序遍历数组
+ * @param {number} inStart 中序遍历起始索引
+ * @param {number} inEnd 中序遍历结束索引
+ * @return {(TreeNode|null)} 构造的二叉树的根节点
+ */
+const buildTreeRange = function (preorder, preStart, preEnd,
+                                 inorder, inStart, inEnd) {
     if (preStart > preEnd) {
         return null;
     }
     const rootVal = preorder[preStart];
-    const inRoot = inorderMap.get(rootVal);
-    const leftSize = inRoot - inStart;
-    const root = new TreeNode(rootVal);
-    root.left = buildTree(preorder, inorder, preStart + 1, preStart + leftSize, inStart, inRoot - 1, inorderMap);
-    root.right = buildTree(preorder, inorder, preStart + leftSize + 1, preEnd, inRoot + 1, inEnd, inorderMap);
-    return root;
+    const rootNode = new TreeNode(rootVal);
+    if (preStart < preEnd) {
+        // 根节点的值在中序遍历数组中的索引
+        const rootValIdx = valToIdx.get(rootVal);
+        // 左子树的节点数量
+        const leftTreeSize = rootValIdx - inStart;
+        rootNode.left = buildTreeRange(preorder, preStart + 1, preStart + leftTreeSize,
+            inorder, inStart, rootValIdx - 1);
+        rootNode.right = buildTreeRange(preorder, preStart + leftTreeSize + 1, preEnd,
+            inorder, rootValIdx + 1, inEnd);
+    }
+    return rootNode;
 };
-// https://leetcode.cn/submissions/detail/381409472/
+// https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/submissions/499531031/
 ```
 
 ## 106. 从中序与后序遍历序列构造二叉树
