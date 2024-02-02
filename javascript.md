@@ -2433,32 +2433,57 @@ const buildTreeRange = function (preorder, preStart, preEnd,
 <https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/>
 
 ```js
-const inorderMap = new Map();
+/**
+ * 二叉树节点的值在中序遍历数组中的索引
+ *
+ * @type {Map<number, number>}
+ */
+let valToIdx = new Map();
 
 /**
- * @param {number[]} inorder
- * @param {number[]} postorder
- * @return {TreeNode}
+ * 构造二叉树
+ *
+ * @param {number[]} inorder 中序遍历数组
+ * @param {number[]} postorder 后序遍历数组
+ * @return {TreeNode} 构造的二叉树的根节点
  */
 const buildTree = function (inorder, postorder) {
-    inorderMap.clear();
-    inorder.forEach((element, index) => inorderMap.set(element, index));
-    return buildTreeRange(inorder, 0, inorder.length - 1, postorder, 0, postorder.length - 1);
+    valToIdx = new Map(inorder.map((e, i) => [e, i]));
+    return buildTreeRange(inorder, 0, inorder.length - 1,
+        postorder, 0, postorder.length - 1);
 };
 
-const buildTreeRange = function (inorder, inStart, inEnd, postorder, postStart, postEnd) {
-    if (inStart > inEnd) {
+/**
+ * 在指定范围内构造二叉树
+ *
+ * @param {number[]} inorder 中序遍历数组
+ * @param {number} inStart 中序遍历起始索引
+ * @param {number} inEnd 中序遍历结束索引
+ * @param {number[]} postorder 后序遍历数组
+ * @param {number} postStart 后序遍历起始索引
+ * @param {number} postEnd 后序遍历结束索引
+ * @return {(TreeNode|null)} 构造的二叉树的根节点
+ */
+const buildTreeRange = function (inorder, inStart, inEnd,
+                                 postorder, postStart, postEnd) {
+    if (postStart > postEnd) {
         return null;
     }
     const rootVal = postorder[postEnd];
-    const inRoot = inorderMap.get(rootVal);
-    const leftSize = inRoot - inStart;
-    const root = new TreeNode(rootVal);
-    root.left = buildTreeRange(inorder, inStart, inRoot - 1, postorder, postStart, postStart + leftSize - 1);
-    root.right = buildTreeRange(inorder, inRoot + 1, inEnd, postorder, postStart + leftSize, postEnd - 1);
-    return root;
+    const rootNode = new TreeNode(rootVal);
+    if (postStart < postEnd) {
+        // 根节点的值在中序遍历数组中的索引
+        const rootValIdx = valToIdx.get(rootVal);
+        // 左子树的节点数量
+        const leftTreeSize = rootValIdx - inStart;
+        rootNode.left = buildTreeRange(inorder, inStart, rootValIdx - 1,
+            postorder, postStart, postStart + leftTreeSize - 1);
+        rootNode.right = buildTreeRange(inorder, rootValIdx + 1, inEnd,
+            postorder, postStart + leftTreeSize, postEnd - 1);
+    }
+    return rootNode;
 };
-// https://leetcode.cn/submissions/detail/403135248/
+// https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/submissions/499991550/
 ```
 
 ## 107. 二叉树的层序遍历 II
