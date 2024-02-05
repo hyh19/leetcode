@@ -3117,9 +3117,9 @@ private:
 ```cpp
 class Solution {
 public:
-    // 由 n 个不同数字 x_1 < x_2 < ... < x_n 组成的节点值互不相同的二叉搜索树的种数
+    // 返回由 n 个不同数字 x_1 < x_2 < ... < x_n 组成的节点值互不相同的二叉搜索树的种数
     int numTrees(int n) {
-        if (n == 0) {
+        if (n < 2) {
             return 1;
         }
         if (memo.count(n) == 0) {
@@ -3138,7 +3138,7 @@ public:
 private:
     unordered_map<int, int> memo;
 };
-// https://leetcode.cn/submissions/detail/391591454/
+// https://leetcode.cn/problems/unique-binary-search-trees/submissions/500621239/
 ```
 
 ## 98. 验证二叉搜索树
