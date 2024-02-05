@@ -1745,21 +1745,29 @@ class Solution:
 <https://leetcode.cn/problems/unique-binary-search-trees/>
 
 ```ruby
-class Solution:
-    # 由 n 个不同数字 x_1 < x_2 < ... < x_n
-    # 组成的节点值互不相同的二叉搜索树的种数
-    @cache
-    def numTrees(self, n: int) -> int:
-        if n == 0 or n == 1:
-            return 1
-        res = 0
-        # 根节点为 x_i
-        # 左子树由 i-1 个数字 x1 < x2 < ... < x_i-1 组成
-        # 右子树由 n-i 个数字 x_i+1 < x_i+2 < ... < x_n 组成
-        for i in range(1, n + 1):
-            res += self.numTrees(i - 1) * self.numTrees(n - i)
-        return res
-# https://leetcode.cn/submissions/detail/380046582/
+# 返回由 n 个不同数字 x_1 < x_2 < ... < x_n 组成的节点值互不相同的二叉搜索树的种数
+#
+# @param {Integer} n 二叉搜索树的节点数
+# @param {Hash} memo 用于存储已经计算过的结果
+# @return {Integer} 二叉搜索树的种数
+def num_trees(n, memo = {})
+  return 1 if n < 2
+
+  unless memo.has_key?(n)
+    memo[n] = 0
+    # 根节点为 x_i
+    (1..n).each do |i|
+      # 左子树由 i-1 个数字 x1 < x2 < ... < x_i-1 组成
+      left = num_trees(i - 1, memo)
+      # 右子树由 n-i 个数字 x_i+1 < x_i+2 < ... < x_n 组成
+      right = num_trees(n - i, memo)
+      memo[n] += left * right
+    end
+  end
+
+  memo[n]
+end
+# https://leetcode.cn/problems/unique-binary-search-trees/submissions/500744238/
 ```
 
 ## 98. 验证二叉搜索树
