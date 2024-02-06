@@ -1998,20 +1998,31 @@ class Solution:
 <https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/>
 
 ```ruby
-class Solution:
-    def sortedArrayToBST(self, nums: List[int]) -> Optional[TreeNode]:
-        return self._sortedArrayToBST(nums, 0, len(nums) - 1)
+# 将有序数组转换为二叉搜索树
+#
+# @param {Integer[]} nums 有序数组
+# @return {TreeNode} 返回二叉搜索树的根节点
+def sorted_array_to_bst(nums)
+  sorted_array_to_bst_range(nums, 0, nums.length - 1)
+end
 
-    # 将有序子数组 nums[lo..hi] 转换为二叉搜索树
-    def _sortedArrayToBST(self, nums: List[int], lo: int, hi: int) -> Optional[TreeNode]:
-        if lo > hi:
-            return None
-        mid = lo + (hi - lo) // 2
-        root = TreeNode(nums[mid])
-        root.left = self._sortedArrayToBST(nums, lo, mid - 1)
-        root.right = self._sortedArrayToBST(nums, mid + 1, hi)
-        return root
-# https://leetcode.cn/submissions/detail/470476775/
+private
+
+# 将有序子数组 nums[lo..hi] 转换为二叉搜索树
+#
+# @param {Integer[]} nums 有序数组
+# @param {Integer} lo 子数组的开始索引
+# @param {Integer} hi 子数组的结束索引
+# @return {TreeNode} 返回根节点
+def sorted_array_to_bst_range(nums, lo, hi)
+  return nil if lo > hi
+  mid = lo + (hi - lo) / 2
+  root = TreeNode.new(nums[mid])
+  root.left = sorted_array_to_bst_range(nums, lo, mid - 1)
+  root.right = sorted_array_to_bst_range(nums, mid + 1, hi)
+  root
+end
+# https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/submissions/500900908/
 ```
 
 ## 110. 平衡二叉树
