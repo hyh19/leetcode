@@ -5256,7 +5256,7 @@ class Solution
     {
         $this->nodeToSize = new SplObjectStorage();
     }
-    
+
     /**
      * @param TreeNode $root
      * @param int $k
@@ -5274,7 +5274,7 @@ class Solution
      */
     private function select(?TreeNode $root, int $rank): int
     {
-        if ($root === null) {
+        if (is_null($root)) {
             return -1;
         }
         $leftSize = $this->size($root->left);
@@ -5293,7 +5293,7 @@ class Solution
      */
     private function size(?TreeNode $root): int
     {
-        if ($root === null) {
+        if (is_null($root)) {
             return 0;
         }
         if (!$this->nodeToSize->contains($root)) {
@@ -5302,7 +5302,7 @@ class Solution
         return $this->nodeToSize[$root];
     }
 }
-// https://leetcode.cn/submissions/detail/469895267/
+// https://leetcode.cn/problems/kth-smallest-element-in-a-bst/submissions/500836559/
 ```
 
 ## 232. 用栈实现队列
