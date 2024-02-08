@@ -7630,36 +7630,34 @@ class Solution {
 
 ```swift
 class Solution {
-    private var nums: [Int] = [];
+    private var nums: [Int] = []
 
     func balanceBST(_ root: TreeNode?) -> TreeNode? {
-        dfs(root);
-        return sortedArrayToBST(nums, 0, nums.count - 1);
+        dfs(root)
+        return sortedArrayToBST(nums, 0, nums.count - 1)
     }
 
     // 深度优先搜索，获取中序遍历结果
     private func dfs(_ root: TreeNode?) {
-        if (root == nil) {
-            return;
-        }
-        dfs(root!.left);
-        nums.append(root!.val);
-        dfs(root!.right);
+        guard let root = root else { return }
+        dfs(root.left)
+        nums.append(root.val)
+        dfs(root.right)
     }
 
     // 将有序子数组 nums[lo..hi] 转换为二叉搜索树
     private func sortedArrayToBST(_ nums: [Int], _ lo: Int, _ hi: Int) -> TreeNode? {
-        if (lo > hi) {
-            return nil;
+        if lo > hi {
+            return nil
         }
-        let mid = lo + (hi - lo) / 2;
-        let root = TreeNode(nums[mid]);
-        root.left = sortedArrayToBST(nums, lo, mid - 1);
-        root.right = sortedArrayToBST(nums, mid + 1, hi);
-        return root;
+        let mid = lo + (hi - lo) / 2
+        let root = TreeNode(nums[mid])
+        root.left = sortedArrayToBST(nums, lo, mid - 1)
+        root.right = sortedArrayToBST(nums, mid + 1, hi)
+        return root
     }
 }
-// https://leetcode.cn/submissions/detail/384968609/
+// https://leetcode.cn/problems/balance-a-binary-search-tree/submissions/501298754/
 ```
 
 ## 1514. 概率最大的路径
