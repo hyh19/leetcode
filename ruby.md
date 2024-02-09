@@ -1747,8 +1747,8 @@ class Solution:
 ```ruby
 # 返回由 n 个不同数字 x_1 < x_2 < ... < x_n 组成的节点值互不相同的二叉搜索树的种数
 #
-# @param n [Integer] 二叉搜索树的节点数
-# @param memo [Hash{Integer => Integer}] 用于存储已经计算过的结果
+# @param [Integer] n 二叉搜索树的节点数
+# @param [Hash{Integer => Integer}] memo 用于存储已经计算过的结果
 # @return [Integer] 二叉搜索树的种数
 def num_trees(n, memo = {})
   return 1 if n < 2
@@ -1767,7 +1767,7 @@ def num_trees(n, memo = {})
 
   memo[n]
 end
-# https://leetcode.cn/problems/unique-binary-search-trees/submissions/501355816/
+# https://leetcode.cn/problems/unique-binary-search-trees/submissions/501436889/
 ```
 
 ## 98. 验证二叉搜索树
@@ -2000,7 +2000,7 @@ class Solution:
 ```ruby
 # 将有序数组转换为二叉搜索树 (BST)
 #
-# @param nums [Array<Integer>] 有序整数数组
+# @param [Array<Integer>] nums 有序整数数组
 # @return [TreeNode, nil] 转换得到的二叉搜索树的根节点
 def sorted_array_to_bst(nums)
   sorted_array_to_bst_range(nums, 0, nums.length - 1)
@@ -2010,9 +2010,9 @@ private
 
 # 辅助方法，用于将有序数组的一个区间转换为二叉搜索树
 #
-# @param nums [Array<Integer>] 有序整数数组
-# @param lo [Integer] 区间的起始索引
-# @param hi [Integer] 区间的结束索引
+# @param [Array<Integer>] nums 有序整数数组
+# @param [Integer] lo 区间的起始索引
+# @param [Integer] hi 区间的结束索引
 # @return [TreeNode, nil] 转换得到的二叉搜索树的根节点，如果区间无效则返回 nil
 def sorted_array_to_bst_range(nums, lo, hi)
   return nil if lo > hi
@@ -2026,7 +2026,7 @@ def sorted_array_to_bst_range(nums, lo, hi)
   root.right = sorted_array_to_bst_range(nums, mid + 1, hi)
   root
 end
-# https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/submissions/501352141/
+# https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/submissions/501437089/
 ```
 
 ## 110. 平衡二叉树
@@ -5213,8 +5213,8 @@ class Solution:
 ```ruby
 # 根据前序遍历和后序遍历数组重构二叉树
 #
-# @param preorder [Array<Integer>] 前序遍历数组
-# @param postorder [Array<Integer>] 后序遍历数组
+# @param [Array<Integer>] preorder 前序遍历数组
+# @param [Array<Integer>] postorder 后序遍历数组
 # @return [TreeNode, nil] 重构得到的二叉树的根节点
 def construct_from_pre_post(preorder, postorder)
   # 二叉树节点的值在后序遍历数组中的索引
@@ -5227,13 +5227,13 @@ end
 
 # 使用前序遍历和后序遍历的特定区间重构二叉树的辅助方法
 #
-# @param preorder [Array<Integer>] 前序遍历数组
-# @param pre_start [Integer] 前序遍历的起始索引
-# @param pre_end [Integer] 前序遍历的结束索引
-# @param postorder [Array<Integer>] 后序遍历数组
-# @param post_start [Integer] 后序遍历的起始索引
-# @param post_end [Integer] 后序遍历的结束索引
-# @param val_to_idx [Hash{Integer => Integer}] 后序遍历中值到索引的映射
+# @param [Array<Integer>] preorder 前序遍历数组
+# @param [Integer] pre_start 前序遍历的起始索引
+# @param [Integer] pre_end 前序遍历的结束索引
+# @param [Array<Integer>] postorder 后序遍历数组
+# @param [Integer] post_start 后序遍历的起始索引
+# @param [Integer] post_end 后序遍历的结束索引
+# @param [Hash{Integer => Integer}] val_to_idx 后序遍历中值到索引的映射
 # @return [TreeNode, nil] 重构得到的二叉树的根节点，如果区间无效则返回 nil
 def construct_from_pre_post_range(preorder, pre_start, pre_end,
                                   postorder, post_start, post_end,
@@ -5261,7 +5261,7 @@ def construct_from_pre_post_range(preorder, pre_start, pre_end,
 
   root_node
 end
-# https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/submissions/501354698/
+# https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/submissions/501437629/
 ```
 
 ## 905. 按奇偶排序数组
@@ -5675,7 +5675,7 @@ class Solution:
 ```ruby
 # 将给定的二叉搜索树转换成一个高度平衡的二叉搜索树
 #
-# @param root [TreeNode, nil] 二叉搜索树的根节点
+# @param [TreeNode, nil] root 二叉搜索树的根节点
 # @return [TreeNode, nil] 平衡后的二叉搜索树的根节点
 def balance_bst(root)
   # 初始化一个数组，用于存放二叉树的中序遍历结果
@@ -5690,8 +5690,8 @@ private
 
 # 递归执行深度优先搜索，以中序遍历的方式访问树的所有节点，并将遍历结果存储在数组中
 #
-# @param root [TreeNode, nil] 当前遍历的节点
-# @param inorder [Array<Integer>] 存储中序遍历结果的数组
+# @param [TreeNode, nil] root 当前遍历的节点
+# @param [Array<Integer>] inorder 存储中序遍历结果的数组
 # @return [void]
 def dfs(root, inorder)
   # 如果当前节点为空，则返回，递归结束
@@ -5707,9 +5707,9 @@ end
 
 # 从有序数组中构建一棵高度平衡的二叉搜索树
 #
-# @param nums [Array<Integer>] 有序数组，包含树的所有节点值
-# @param lo [Integer] 当前子数组的起始索引
-# @param hi [Integer] 当前子数组的结束索引
+# @param [Array<Integer>] nums 有序数组，包含树的所有节点值
+# @param [Integer] lo 当前子数组的起始索引
+# @param [Integer] hi 当前子数组的结束索引
 # @return [TreeNode, nil] 构建好的二叉搜索树的根节点
 def sorted_array_to_bst(nums, lo, hi)
   # 如果起始索引大于结束索引，意味着子数组为空，返回 nil
@@ -5726,7 +5726,7 @@ def sorted_array_to_bst(nums, lo, hi)
   # 返回构建好的树的根节点
   root
 end
-# https://leetcode.cn/problems/balance-a-binary-search-tree/submissions/501350908/
+# https://leetcode.cn/problems/balance-a-binary-search-tree/submissions/501438030/
 ```
 
 ## 1514. 概率最大的路径
