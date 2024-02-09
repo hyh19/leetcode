@@ -2800,21 +2800,53 @@ class Solution:
 <https://leetcode.cn/problems/rotate-array/>
 
 ```ruby
-class Solution:
-    def rotate(self, nums: List[int], k: int) -> None:
-        n = len(nums)
-        k %= n
-        if k > 0:
-            self._reverse(nums, 0, n - 1)
-            self._reverse(nums, 0, k - 1)
-            self._reverse(nums, k, n - 1)
+# 对数组进行旋转
+#
+# @param [Array<Integer>] nums 需要旋转的数组
+# @param [Integer] k 旋转的步数
+# @return [void]
+def rotate(nums, k)
+  n = nums.size
+  # 确保 k 是有效的
+  k %= n
+  return if k.zero?
 
-    def _reverse(self, nums: List[int], lo: int, hi: int) -> None:
-        while lo < hi:
-            nums[lo], nums[hi] = nums[hi], nums[lo]
-            lo += 1
-            hi -= 1
-# https://leetcode.cn/submissions/detail/482010024/
+  # 翻转整个数组
+  nums.reverse!
+
+  # 翻转前 k 个元素
+  nums[0...k] = nums[0...k].reverse
+
+  # 翻转剩余的元素
+  nums[k...n] = nums[k...n].reverse
+end
+# https://leetcode.cn/problems/rotate-array/submissions/501435651/
+```
+
+```ruby
+# 将数组向右旋转 k 步
+#
+# @param nums [Array<Integer>] 待旋转的数组
+# @param k [Integer] 向右旋转的步数
+# @return [void]
+def rotate(nums, k)
+  n = nums.size
+  k %= n
+  return if k.zero?
+
+  reverse = lambda do |start, ending|
+    while start < ending
+      nums[start], nums[ending] = nums[ending], nums[start]
+      start += 1
+      ending -= 1
+    end
+  end
+
+  reverse.call(0, n - 1)
+  reverse.call(0, k - 1)
+  reverse.call(k, n - 1)
+end
+# https://leetcode.cn/problems/rotate-array/submissions/501436134/
 ```
 
 ## 198. 打家劫舍
