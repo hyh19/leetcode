@@ -3131,45 +3131,70 @@ class Solution:
 <https://leetcode.cn/problems/kth-largest-element-in-an-array/>
 
 ```ruby
-class Solution:
-    def findKthLargest(self, nums: List[int], k: int) -> int:
-        shuffle(nums)
-        return self._quick_select(nums, len(nums) - k)
+# 查找数组中第 k 大的元素（从大到小排序）
+#
+# @param [Array<Integer>] nums 输入的数组
+# @param [Integer] k 第 k 大的元素
+# @return [Integer] 返回第 k 大的元素
+def find_kth_largest(nums, k)
+  quick_select(nums, 0, nums.length - 1, nums.length - k)
+end
 
-    # 返回数组 nums 从小到大排在第 rank 位的元素，排位从 0 开始计算，
-    # 相当于有 rank 个元素小于该元素。
-    def _quick_select(self, nums: List[int], rank: int) -> int:
-        lo, hi = 0, len(nums) - 1
-        while lo < hi:
-            j = self._partition(nums, lo, hi)
-            if rank < j:
-                hi = j - 1
-            elif j < rank:
-                lo = j + 1
-            else:
-                return nums[j]
-        return nums[lo]
+private
 
-    def _partition(self, nums: List[int], lo: int, hi: int) -> int:
-        v = nums[lo]
-        i, j = lo, hi + 1
-        while True:
-            i += 1
-            while nums[i] < v:
-                if i == hi:
-                    break
-                i += 1
-            j -= 1
-            while nums[j] > v:
-                if j == lo:
-                    break
-                j -= 1
-            if i >= j:
-                break
-            nums[i], nums[j] = nums[j], nums[i]
-        nums[lo], nums[j] = nums[j], nums[lo]
-        return j
-# https://leetcode.cn/submissions/detail/491298430/
+# 使用快速选择算法找到数组中的第 rank 大的元素（从小到大排序）
+#
+# @param [Array<Integer>] nums 输入的数组
+# @param [Integer] lo 划分的起始位置
+# @param [Integer] hi 划分的结束位置
+# @param [Integer] rank 第 rank 大的元素
+# @return [Integer] 返回第 rank 大的元素
+def quick_select(nums, lo, hi, rank)
+  return nums[lo] if lo >= hi
+
+  j = partition(nums, lo, hi)
+  if rank < j
+    quick_select(nums, lo, j - 1, rank)
+  elsif j < rank
+    quick_select(nums, j + 1, hi, rank)
+  else
+    nums[j]
+  end
+end
+
+# 使用快速排序的划分方法
+#
+# @param [Array<Integer>] nums 输入的数组
+# @param [Integer] lo 划分的起始位置
+# @param [Integer] hi 划分的结束位置
+# @return [Integer] 返回划分后 v 的位置
+def partition(nums, lo, hi)
+  v = nums[lo]
+  i = lo
+  j = hi + 1
+  loop do
+    i += 1
+    while nums[i] < v
+      break if i == hi
+
+      i += 1
+    end
+
+    j -= 1
+    while nums[j] > v
+      break if j == lo
+
+      j -= 1
+    end
+
+    break if i >= j
+
+    nums[i], nums[j] = nums[j], nums[i]
+  end
+  nums[lo], nums[j] = nums[j], nums[lo]
+  j
+end
+# https://leetcode.cn/problems/kth-largest-element-in-an-array/submissions/501681296/
 ```
 
 ## 216. 组合总和 III
