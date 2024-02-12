@@ -2743,23 +2743,21 @@ class Solution:
 <https://leetcode.cn/problems/largest-number/>
 
 ```ruby
-def _cmp(s1: str, s2: str) -> int:
-    a = s1 + s2
-    b = s2 + s1
-    if a > b:
-        return -1
-    if a < b:
-        return 1
-    return 0
-
-
-class Solution:
-    def largestNumber(self, nums: List[int]) -> str:
-        strs = [str(x) for x in nums]
-        strs.sort(key=functools.cmp_to_key(_cmp))
-        ans = ''.join(strs)
-        return '0' if ans[0] == '0' else ans
-# https://leetcode.cn/problems/largest-number/submissions/492661825/
+# 将整数数组转换为能够组成的最大数的字符串表示
+#
+# @param [Array<Integer>] nums 一个整数数组
+# @return [String] 一个表示数组中数字能组成的最大数的字符串
+def largest_number(nums)
+  # 将整数数组转换为字符串数组
+  strs = nums.map(&:to_s)
+  # 根据组合后的字符串大小进行排序
+  strs.sort! { |a, b| (b + a) <=> (a + b) }
+  # 将排序后的字符串数组拼接成一个单一的字符串
+  ans = strs.join
+  # 检查结果字符串的开头是否为 “0”（处理全为 0 的情况）
+  ans[0] == '0' ? '0' : ans
+end
+# https://leetcode.cn/problems/largest-number/submissions/501800709/
 ```
 
 ## 188. 买卖股票的最佳时机 IV
