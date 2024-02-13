@@ -5314,39 +5314,63 @@ class Solution:
 <https://leetcode.cn/problems/sort-an-array/>
 
 ```ruby
-class Solution:
-    def sortArray(self, nums: List[int]) -> List[int]:
-        random.shuffle(nums)
-        self.quickSort(nums, 0, len(nums) - 1)
-        return nums
+# 对给定的整数数组进行排序
+#
+# @param [Array<Integer>] nums 需要排序的整数数组
+# @return [Array<Integer>] 排序后的整数数组
+def sort_array(nums)
+  # 使用 Ruby 的内置方法打乱数组顺序
+  shuffled = nums.shuffle
+  sort(shuffled, 0, shuffled.size - 1)
+  shuffled
+end
 
-    def quickSort(self, nums: List[int], lo: int, hi: int) -> None:
-        if lo >= hi:
-            return
-        j = self.partition(nums, lo, hi)
-        self.quickSort(nums, lo, j - 1)
-        self.quickSort(nums, j + 1, hi)
+private
 
-    def partition(self, nums: List[int], lo: int, hi: int) -> int:
-        v = nums[lo]
-        i, j = lo, hi + 1
-        while True:
-            i += 1
-            while nums[i] < v:
-                if i == hi:
-                    break
-                i += 1
-            j -= 1
-            while nums[j] > v:
-                if j == lo:
-                    break
-                j -= 1
-            if i >= j:
-                break
-            nums[i], nums[j] = nums[j], nums[i]
-        nums[lo], nums[j] = nums[j], nums[lo]
-        return j
-# https://leetcode.cn/submissions/detail/380342510/
+# 使用快速排序算法递归地对数组的指定部分进行排序
+#
+# @param [Array<Integer>] nums 需要排序的整数数组
+# @param [Integer] lo 数组中需要排序部分的起始索引
+# @param [Integer] hi 数组中需要排序部分的结束索引
+def sort(nums, lo, hi)
+  return if lo >= hi
+
+  j = partition(nums, lo, hi)
+  sort(nums, lo, j - 1)
+  sort(nums, j + 1, hi)
+end
+
+# 对数组的指定部分进行划分，选择一个划分元素，然后将所有小于划分元素的值移动到其左侧，将所有大于划分元素的值移动到其右侧。
+#
+# @param [Array<Integer>] nums 需要排序的整数数组
+# @param [Integer] lo 数组中需要进行划分操作部分的起始索引
+# @param [Integer] hi 数组中需要进行划分操作部分的结束索引
+# @return [Integer] 划分操作完成后，划分元素的索引位置。
+def partition(nums, lo, hi)
+  v = nums[lo]
+  i = lo
+  j = hi + 1
+
+  loop do
+    loop do
+      i += 1
+      break unless i < hi && nums[i] < v
+    end
+
+    loop do
+      j -= 1
+      break unless j > lo && nums[j] > v
+    end
+
+    break if i >= j
+
+    nums[i], nums[j] = nums[j], nums[i]
+  end
+
+  nums[lo], nums[j] = nums[j], nums[lo]
+  j
+end
+# https://leetcode.cn/problems/sort-an-array/submissions/501931112/
 ```
 
 ## 921. 使括号有效的最少添加
