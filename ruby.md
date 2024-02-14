@@ -860,27 +860,45 @@ class Solution:
 <https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/>
 
 ```ruby
-class Solution:
-    def searchRange(self, nums: List[int], target: int) -> List[int]:
-        return [self._binary_search(nums, target, True), self._binary_search(nums, target, False)]
+# 在排序数组中查找元素的首尾位置
+#
+# @param [Array<Integer>] nums 排序好的整数数组
+# @param [Integer] target 需要查找的目标值
+# @return [Array<Integer>] 返回一个包含目标值首次出现和最后一次出现的索引位置的数组。如果目标值在数组中不存在，则返回 [-1, -1]。
+def search_range(nums, target)
+  [binary_search(nums, target, true), binary_search(nums, target, false)]
+end
 
-    def _binary_search(self, nums: List[int], target: int, lower: bool) -> int:
-        res = -1
-        lo, hi = 0, len(nums) - 1
-        while lo <= hi:
-            mid = lo + (hi - lo) // 2
-            if target < nums[mid]:
-                hi = mid - 1
-            elif nums[mid] < target:
-                lo = mid + 1
-            else:
-                res = mid
-                if lower:
-                    hi = mid - 1
-                else:
-                    lo = mid + 1
-        return res
-# https://leetcode.cn/submissions/detail/475499379/
+private
+
+# 在排序数组中执行二分查找
+#
+# @param [Array<Integer>] nums 排序好的整数数组
+# @param [Integer] target 需要查找的目标值
+# @param [Boolean] lower 布尔值，指示查找目标值的首次出现（true）还是最后一次出现（false）。
+# @return [Integer] 如果找到目标值，则返回其索引位置；否则返回 -1。
+def binary_search(nums, target, lower)
+  res = -1
+  lo = 0
+  hi = nums.length - 1
+  while lo <= hi
+    mid = lo + (hi - lo) / 2
+    if target < nums[mid]
+      hi = mid - 1
+    elsif nums[mid] < target
+      lo = mid + 1
+    else
+      res = mid
+      if lower
+        hi = mid - 1
+      else
+        lo = mid + 1
+      end
+    end
+  end
+  res
+end
+# https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/submissions/502013559/
 ```
 
 ## 37. 解数独
