@@ -4793,19 +4793,27 @@ class Solution:
 <https://leetcode.cn/problems/binary-search/>
 
 ```ruby
-class Solution:
-    def search(self, nums: List[int], target: int) -> int:
-        lo, hi = 0, len(nums) - 1
-        while lo <= hi:
-            mid = lo + (hi - lo) // 2
-            if target < nums[mid]:
-                hi = mid - 1
-            elif nums[mid] < target:
-                lo = mid + 1
-            else:
-                return mid
-        return -1
-# https://leetcode.cn/submissions/detail/380214333/
+# 在一个升序排列的整型数组中执行二分查找
+#
+# @param [Array<Integer>] nums 一个升序排列的整型数组
+# @param [Integer] target 需要查找的目标值
+# @return [Integer] 如果目标值存在于数组中，则返回其索引；否则返回 -1。
+def search(nums, target)
+  lo = 0
+  hi = nums.length - 1
+  while lo <= hi
+    mid = lo + (hi - lo) / 2
+    if target < nums[mid]
+      hi = mid - 1
+    elsif nums[mid] < target
+      lo = mid + 1
+    else
+      return mid
+    end
+  end
+  -1
+end
+# https://leetcode.cn/problems/binary-search/submissions/502006568/
 ```
 
 ## 712. 两个字符串的最小 ASCII 删除和
