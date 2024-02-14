@@ -6401,22 +6401,29 @@ class Solution {
 
 ```swift
 class Solution {
+    /// 在一个升序排列的整型数组中执行二分查找
+    ///
+    /// - Parameters:
+    ///   - nums: 一个升序排列的整型数组
+    ///   - target: 需要查找的目标值
+    /// - Returns: 如果目标值存在于数组中，则返回其索引；否则返回 -1。
     func search(_ nums: [Int], _ target: Int) -> Int {
-        var lo = 0, hi = nums.count - 1;
-        while (lo <= hi) {
-            let mid = lo + (hi - lo) / 2;
-            if (target < nums[mid]) {
-                hi = mid - 1;
-            } else if (nums[mid] < target) {
-                lo = mid + 1;
+        var lo = 0
+        var hi = nums.count - 1
+        while lo <= hi {
+            let mid = lo + (hi - lo) / 2
+            if target < nums[mid] {
+                hi = mid - 1
+            } else if nums[mid] < target {
+                lo = mid + 1
             } else {
-                return mid;
+                return mid
             }
         }
-        return -1;
+        return -1
     }
 }
-// https://leetcode.cn/submissions/detail/384830033/
+// https://leetcode.cn/problems/binary-search/submissions/502005972/
 ```
 
 ## 712. 两个字符串的最小 ASCII 删除和
