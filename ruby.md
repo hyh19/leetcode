@@ -833,26 +833,35 @@ class Solution:
 <https://leetcode.cn/problems/search-in-rotated-sorted-array/>
 
 ```ruby
-class Solution:
-    def search(self, nums: List[int], target: int) -> int:
-        lo = 0
-        hi = len(nums) - 1
-        while lo <= hi:
-            mid = lo + (hi - lo) // 2
-            if nums[mid] == target:
-                return mid
-            if nums[mid] <= nums[hi]:
-                if nums[mid] < target <= nums[hi]:
-                    lo = mid + 1
-                else:
-                    hi = mid - 1
-            else:
-                if nums[lo] <= target < nums[mid]:
-                    hi = mid - 1
-                else:
-                    lo = mid + 1
-        return -1
-# https://leetcode.cn/submissions/detail/378928407/
+# 在旋转排序数组中搜索一个给定的目标值
+#
+# @param [Array<Integer>] nums 旋转排序的数组
+# @param [Integer] target 要搜索的目标值
+# @return [Integer] 目标值在数组中的索引；如果不存在，则返回 `-1`。
+def search(nums, target)
+  lo = 0
+  hi = nums.length - 1
+  while lo <= hi
+    mid = lo + (hi - lo) / 2
+    return mid if nums[mid] == target
+
+    if nums[mid] <= nums[hi]
+      if nums[mid] < target && target <= nums[hi]
+        lo = mid + 1
+      else
+        hi = mid - 1
+      end
+    else
+      if nums[lo] <= target && target < nums[mid]
+        hi = mid - 1
+      else
+        lo = mid + 1
+      end
+    end
+  end
+  -1
+end
+# https://leetcode.cn/problems/search-in-rotated-sorted-array/submissions/502185879/
 ```
 
 ## 34. 在排序数组中查找元素的第一个和最后一个位置
