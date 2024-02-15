@@ -1019,33 +1019,40 @@ class Solution {
 
 ```swift
 class Solution {
+    /// 在旋转排序数组中搜索一个给定的目标值
+    ///
+    /// - Parameters:
+    ///   - nums: 旋转排序的数组
+    ///   - target: 要搜索的目标值
+    /// - Returns: 目标值在数组中的索引；如果不存在，则返回 `-1`。
     func search(_ nums: [Int], _ target: Int) -> Int {
-        var lo = 0, hi = nums.count - 1;
-        while (lo <= hi) {
-            let mid = lo + (hi - lo) / 2;
-            if (nums[mid] == target) {
-                return mid;
+        var lo = 0
+        var hi = nums.count - 1
+        while lo <= hi {
+            let mid = lo + (hi - lo) / 2
+            if nums[mid] == target {
+                return mid
             }
             // 当 lo = hi 时，nums[lo] = nums[mid] = nums[hi]，
             // 此时 nums[mid] < target <= nums[hi] 不成立
-            if (nums[mid] <= nums[hi]) {
-                if (nums[mid] < target && target <= nums[hi]) {
-                    lo = mid + 1;
+            if nums[mid] <= nums[hi] {
+                if nums[mid] < target && target <= nums[hi] {
+                    lo = mid + 1
                 } else {
-                    hi = mid - 1;
+                    hi = mid - 1
                 }
             } else {
-                if (nums[lo] <= target && target < nums[mid]) {
-                    hi = mid - 1;
+                if nums[lo] <= target && target < nums[mid] {
+                    hi = mid - 1
                 } else {
-                    lo = mid + 1;
+                    lo = mid + 1
                 }
             }
         }
-        return -1;
+        return -1
     }
 }
-// https://leetcode.cn/submissions/detail/384828451/
+// https://leetcode.cn/problems/search-in-rotated-sorted-array/submissions/502184981/
 ```
 
 ## 34. 在排序数组中查找元素的第一个和最后一个位置
