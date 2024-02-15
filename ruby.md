@@ -2593,17 +2593,26 @@ class LRUCache:
 <https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/>
 
 ```ruby
-class Solution:
-    def findMin(self, nums: List[int]) -> int:
-        lo, hi = 0, len(nums) - 1
-        while lo < hi:
-            mid = lo + (hi - lo) // 2
-            if nums[mid] < nums[hi]:
-                hi = mid
-            else:
-                lo = mid + 1
-        return nums[lo]
-# https://leetcode.cn/submissions/detail/478160118/
+# 在旋转排序的数组中找到最小的元素
+#
+# 该方法通过二分查找算法在一个部分旋转排序的数组中查找并返回最小元素。数组中的元素是唯一的。
+#
+# @param [Array<Integer>] nums 一个部分旋转排序的整数数组。数组不会为空，且数组中的元素是唯一的。
+# @return [Integer] 返回数组中的最小元素。
+def find_min(nums)
+  lo = 0
+  hi = nums.length - 1
+  while lo < hi
+    mid = lo + (hi - lo) / 2
+    if nums[mid] < nums[hi]
+      hi = mid
+    else
+      lo = mid + 1
+    end
+  end
+  nums[lo]
+end
+# https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/submissions/502177192/
 ```
 
 ## 155. 最小栈
