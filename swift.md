@@ -3522,8 +3522,15 @@ class LRUCache {
 
 ```swift
 class Solution {
+    /// 在旋转排序的数组中找到最小的元素
+    ///
+    /// 该函数通过二分查找算法在一个部分旋转排序的数组中查找并返回最小元素。数组中的元素是唯一的。
+    ///
+    /// - Parameter nums: 一个部分旋转排序的整数数组。数组不会为空，且数组中的元素是唯一的。
+    /// - Returns: 数组中的最小元素
     func findMin(_ nums: [Int]) -> Int {
-        var lo = 0, hi = nums.count - 1
+        var lo = 0
+        var hi = nums.count - 1
         while lo < hi {
             let mid = lo + (hi - lo) / 2
             if nums[mid] < nums[hi] {
@@ -3535,7 +3542,7 @@ class Solution {
         return nums[lo]
     }
 }
-// https://leetcode.cn/submissions/detail/480596624/
+// https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/submissions/502176303/
 ```
 
 ## 155. 最小栈
