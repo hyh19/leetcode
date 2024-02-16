@@ -1842,37 +1842,44 @@ class Solution {
 <https://leetcode.cn/problems/search-in-rotated-sorted-array-ii/>
 
 ```swift
+/// 在旋转排序数组中搜索目标值
+///
+/// - Parameters:
+///   - nums: 一个整数数组，表示旋转排序后可能包含重复元素的数组。
+///   - target: 需要在 `nums` 数组中搜索的目标值
+/// - Returns: 如果目标值存在于数组中，则返回 true；如果不存在，则返回 false。
 class Solution {
     func search(_ nums: [Int], _ target: Int) -> Bool {
-        var lo = 0, hi = nums.count - 1;
-        while (lo <= hi) {
-            let mid = lo + (hi - lo) / 2;
-            if (nums[mid] == target) {
-                return true;
+        var lo = 0
+        var hi = nums.count - 1
+        while lo <= hi {
+            let mid = lo + (hi - lo) / 2
+            if nums[mid] == target {
+                return true
             }
-            if (nums[lo] == nums[mid] && nums[mid] == nums[hi]) {
-                lo += 1;
-                hi -= 1;
+            if nums[lo] == nums[mid] && nums[mid] == nums[hi] {
+                lo += 1
+                hi -= 1
             } else {
-                if (nums[mid] <= nums[hi]) {
-                    if (nums[mid] < target && target <= nums[hi]) {
-                        lo = mid + 1;
+                if nums[mid] <= nums[hi] {
+                    if nums[mid] < target && target <= nums[hi] {
+                        lo = mid + 1
                     } else {
-                        hi = mid - 1;
+                        hi = mid - 1
                     }
                 } else {
-                    if (nums[lo] <= target && target < nums[mid]) {
-                        hi = mid - 1;
+                    if nums[lo] <= target && target < nums[mid] {
+                        hi = mid - 1
                     } else {
-                        lo = mid + 1;
+                        lo = mid + 1
                     }
                 }
             }
         }
-        return false;
+        return false
     }
 }
-// https://leetcode.cn/submissions/detail/384829399/
+// https://leetcode.cn/problems/search-in-rotated-sorted-array-ii/submissions/502352962/
 ```
 
 ## 83. 删除排序链表中的重复元素
