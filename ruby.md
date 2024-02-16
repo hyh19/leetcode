@@ -1585,30 +1585,40 @@ class Solution:
 <https://leetcode.cn/problems/search-in-rotated-sorted-array-ii/>
 
 ```ruby
-class Solution:
-    def search(self, nums: List[int], target: int) -> bool:
-        lo = 0
-        hi = len(nums) - 1
-        while lo <= hi:
-            mid = lo + (hi - lo) // 2
-            if nums[mid] == target:
-                return True
-            if nums[lo] == nums[mid] == nums[hi]:
-                lo += 1
-                hi -= 1
-            else:
-                if nums[mid] <= nums[hi]:
-                    if nums[mid] < target <= nums[hi]:
-                        lo = mid + 1
-                    else:
-                        hi = mid - 1
-                else:
-                    if nums[lo] <= target < nums[mid]:
-                        hi = mid - 1
-                    else:
-                        lo = mid + 1
-        return False
-# https://leetcode.cn/submissions/detail/378929481/
+# 在旋转排序数组中搜索目标值
+#
+# @param [Array<Integer>] nums 表示旋转排序后可能包含重复元素的整数数组
+# @param [Integer] target 需要在 `nums` 数组中搜索的目标值
+# @return [Boolean] 如果目标值存在于数组中，则返回 true；如果不存在，则返回 false。
+def search(nums, target)
+  lo = 0
+  hi = nums.size - 1
+
+  while lo <= hi
+    mid = lo + (hi - lo) / 2
+    return true if nums[mid] == target
+
+    if nums[lo] == nums[mid] && nums[mid] == nums[hi]
+      lo += 1
+      hi -= 1
+    elsif nums[mid] <= nums[hi]
+      if nums[mid] < target && target <= nums[hi]
+        lo = mid + 1
+      else
+        hi = mid - 1
+      end
+    else
+      if nums[lo] <= target && target < nums[mid]
+        hi = mid - 1
+      else
+        lo = mid + 1
+      end
+    end
+  end
+
+  false
+end
+# https://leetcode.cn/problems/search-in-rotated-sorted-array-ii/submissions/502354141/
 ```
 
 ## 83. 删除排序链表中的重复元素
