@@ -5596,31 +5596,51 @@ class Solution:
 <https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/>
 
 ```ruby
-class Solution:
-    def shipWithinDays(self, weights: List[int], days: int) -> int:
-        lo, hi = max(weights), sum(weights)
-        ans = lo
-        while lo <= hi:
-            mid = lo + (hi - lo) // 2
-            if self.canFinish(weights, days, mid):
-                ans = mid
-                hi = mid - 1
-            else:
-                lo = mid + 1
-        return ans
+# 计算在指定天数内送达所有包裹需要的最小运载能力
+#
+# @param [Array<Integer>] weights 包裹重量的数组
+# @param [Integer] days 需要在这么多天内送达所有包裹
+# @return [Integer, nil] 返回能在指定天数内完成运送的最小运载能力
+def ship_within_days(weights, days)
+  lo = weights.max # 所有包裹中的最大重量，为运载能力的最小可能值
+  hi = weights.sum # 所有包裹的总重量，为运载能力的最大可能值
+  ans = lo
+  while lo <= hi
+    mid = lo + (hi - lo) / 2
+    if can_finish(weights, days, mid)
+      ans = mid
+      hi = mid - 1
+    else
+      lo = mid + 1
+    end
+  end
+  ans
+end
 
-    # 当船的运载能力为 capacity 时，是否能在 days 天内送完
-    def canFinish(self, weights: List[int], days: int, capacity: int) -> bool:
-        minDays = 0
-        i, n = 0, len(weights)
-        while i < n:
-            total = 0
-            while i < n and total + weights[i] <= capacity:
-                total += weights[i]
-                i += 1
-            minDays += 1
-        return minDays <= days
-# https://leetcode.cn/submissions/detail/380294837/
+# 检查给定运载能力是否能在指定天数内完成包裹运送
+#
+# 根据给定的运载能力和包裹重量数组，计算出在不超过运载能力的情况下，完成所有包裹运送需要的天数。
+# 如果这个天数小于或等于给定的天数，返回 true，表示可以完成运送。
+#
+# @param [Array<Integer>] weights 包裹重量的数组
+# @param [Integer] days 目标天数
+# @param [Integer] capacity 给定的运载能力
+# @return [Boolean] 如果能在指定天数内完成运送，返回 true；否则返回 false。
+def can_finish(weights, days, capacity)
+  min_days = 0 # 完成运送需要的最小天数
+  i = 0 # 当前考察的包裹索引
+  n = weights.length
+  while i < n
+    sum = 0 # 当前船上包裹的总重量
+    while i < n && sum + weights[i] <= capacity # 当前船的总重量不超过给定的运载能力
+      sum += weights[i]
+      i += 1
+    end
+    min_days += 1 # 完成一天的运送
+  end
+  min_days <= days # 如果需要的天数不超过给定的天数，返回 true
+end
+# https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/submissions/502359600/
 ```
 
 ## 1020. 飞地的数量
