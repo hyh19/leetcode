@@ -5203,26 +5203,38 @@ class Solution:
 <https://leetcode.cn/problems/koko-eating-bananas/>
 
 ```ruby
-class Solution:
-    def minEatingSpeed(self, piles: List[int], h: int) -> int:
-        lo, hi = 1, max(piles)
-        ans = lo
-        while lo <= hi:
-            mid = lo + (hi - lo) // 2
-            if self.canFinish(piles, h, mid):
-                ans = mid
-                hi = mid - 1
-            else:
-                lo = mid + 1
-        return ans
+# 计算 Koko 吃完所有香蕉的最小速度
+#
+# @param [Array<Integer>] piles 每个元素代表一堆香蕉的数量
+# @param [Integer] h 总时间限制，单位为小时
+# @return [Integer] 返回 Koko 吃完所有香蕉的最小速度
+def min_eating_speed(piles, h)
+  lo = 1
+  hi = piles.max
+  ans = lo
+  while lo <= hi
+    mid = lo + (hi - lo) / 2
+    if can_finish(piles, h, mid)
+      ans = mid
+      hi = mid - 1
+    else
+      lo = mid + 1
+    end
+  end
+  ans
+end
 
-    # 当吃香蕉的速度为 k 时，是否能在 h 小时内吃完
-    def canFinish(self, piles: List[int], h: int, k: int) -> bool:
-        hours = 0
-        for p in piles:
-            hours += math.ceil(p / k)
-        return hours <= h
-# https://leetcode.cn/submissions/detail/380292403/
+# 判断给定速度 k 下，是否能在 h 小时内吃完所有香蕉
+#
+# @param [Array<Integer>] piles 每个元素代表一堆香蕉的数量
+# @param [Integer] h 总时间限制，单位为小时
+# @param [Integer] k Koko 每小时吃香蕉的速度
+# @return [Boolean] 如果能在 h 小时内吃完返回 `true`，否则返回 `false`
+def can_finish(piles, h, k)
+  hours = piles.sum { |p| (p - 1) / k + 1 }
+  hours <= h
+end
+# https://leetcode.cn/problems/koko-eating-bananas/submissions/502532779/
 ```
 
 ## 876. 链表的中间结点
@@ -5600,7 +5612,7 @@ class Solution:
 #
 # @param [Array<Integer>] weights 包裹重量的数组
 # @param [Integer] days 需要在这么多天内送达所有包裹
-# @return [Integer, nil] 返回能在指定天数内完成运送的最小运载能力
+# @return [Integer] 返回能在指定天数内完成运送的最小运载能力
 def ship_within_days(weights, days)
   lo = weights.max # 所有包裹中的最大重量，为运载能力的最小可能值
   hi = weights.sum # 所有包裹的总重量，为运载能力的最大可能值
@@ -5640,7 +5652,7 @@ def can_finish(weights, days, capacity)
   end
   min_days <= days # 如果需要的天数不超过给定的天数，返回 true
 end
-# https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/submissions/502359600/
+# https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/submissions/502533037/
 ```
 
 ## 1020. 飞地的数量
