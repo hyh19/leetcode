@@ -3659,23 +3659,29 @@ class Solution {
 
 ```swift
 class Solution {
+    /// 在有序数组中找出两个数，使它们的和等于一个特定的目标数。
+    ///
+    /// - Parameters:
+    ///   - numbers: 一个按非递减顺序排序的整数数组
+    ///   - target: 目标数
+    /// - Returns: 两个数的索引（以 1 为起始值），这两个数的和等于目标数。如果有多对数字的和等于目标值，返回其中任意一对的索引。如果找不到这样的两个数，则返回 [-1, -1]。
     func twoSum(_ numbers: [Int], _ target: Int) -> [Int] {
-        var i = 0;
-        var j = numbers.count - 1;
-        while (i < j) {
-            let sum = numbers[i] + numbers[j];
-            if (sum > target) {
-                j -= 1;
-            } else if (sum < target) {
-                i += 1;
-            } else {
-                return [i + 1, j + 1];
+        var i = 0  // 数组的起始位置
+        var j = numbers.count - 1  // 数组的结束位置
+        while i < j {
+            let sum = numbers[i] + numbers[j]  // 计算当前两个指针指向的数字之和
+            if sum > target {  // 如果和大于目标值，则将结束位置的指针向前移动
+                j -= 1
+            } else if sum < target {  // 如果和小于目标值，则将起始位置的指针向后移动
+                i += 1
+            } else {  // 如果和等于目标值，则返回这两个数字的索引（索引以 1 为起始值）
+                return [i + 1, j + 1]
             }
         }
-        return [-1, -1];
+        return [-1, -1]  // 如果找不到符合条件的两个数，则返回 [-1, -1]
     }
 }
-// https://leetcode.cn/submissions/detail/384817754/
+// https://leetcode.cn/problems/two-sum-ii-input-array-is-sorted/submissions/502726044/
 ```
 
 ## 169. 多数元素
