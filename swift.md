@@ -423,22 +423,30 @@ class Solution {
 
 ```swift
 class Solution {
+    /// 计算最大的容器面积
+    ///
+    /// 给定一个整数数组 `height`，数组中的每个元素代表一个点的高度，数组的索引表示点的位置，两点之间的距离和较矮点的高度共同决定了容器的面积。
+    /// 此函数旨在找到由线段组成的容器可以容纳最多的水量。它采用双指针技术，从数组的两端开始，逐渐向中间移动，以找到可能的最大面积。
+    ///
+    /// - Parameter height: 一个整数数组，每个元素代表点的高度。
+    /// - Returns: 返回能够容纳最多水的容器的最大面积
     func maxArea(_ height: [Int]) -> Int {
-        var ans = 0;
-        var i = 0, j = height.count - 1;
-        while (i < j) {
-            let area = (j - i) * min(height[i], height[j]);
-            ans = max(ans, area);
-            if (height[i] < height[j]) {
-                i += 1;
+        var ans = 0 // 存储最大面积
+        var i = 0 // 左指针
+        var j = height.count - 1 // 右指针
+        while i < j {
+            let area = (j - i) * min(height[i], height[j]) // 计算当前指针对应的容器面积
+            ans = max(ans, area) // 更新最大面积
+            if height[i] < height[j] {
+                i += 1 // 如果左边较矮，向右移动左指针
             } else {
-                j -= 1;
+                j -= 1 // 如果右边较矮或两边一样高，向左移动右指针
             }
         }
-        return ans;
+        return ans // 返回最大面积
     }
 }
-// https://leetcode.cn/submissions/detail/395984988/
+// https://leetcode.cn/problems/container-with-most-water/submissions/503066779/
 ```
 
 ## 14. 最长公共前缀
@@ -3673,22 +3681,22 @@ class Solution {
     ///   - target: 目标数
     /// - Returns: 两个数的索引（以 1 为起始值），这两个数的和等于目标数。如果有多对数字的和等于目标值，返回其中任意一对的索引。如果找不到这样的两个数，则返回 [-1, -1]。
     func twoSum(_ numbers: [Int], _ target: Int) -> [Int] {
-        var i = 0  // 数组的起始位置
-        var j = numbers.count - 1  // 数组的结束位置
+        var i = 0 // 数组的起始位置
+        var j = numbers.count - 1 // 数组的结束位置
         while i < j {
-            let sum = numbers[i] + numbers[j]  // 计算当前两个指针指向的数字之和
-            if sum > target {  // 如果和大于目标值，则将结束位置的指针向前移动
+            let sum = numbers[i] + numbers[j] // 计算当前两个指针指向的数字之和
+            if sum > target { // 如果和大于目标值，则将结束位置的指针向前移动
                 j -= 1
-            } else if sum < target {  // 如果和小于目标值，则将起始位置的指针向后移动
+            } else if sum < target { // 如果和小于目标值，则将起始位置的指针向后移动
                 i += 1
-            } else {  // 如果和等于目标值，则返回这两个数字的索引（索引以 1 为起始值）
+            } else { // 如果和等于目标值，则返回这两个数字的索引（索引以 1 为起始值）
                 return [i + 1, j + 1]
             }
         }
-        return [-1, -1]  // 如果找不到符合条件的两个数，则返回 [-1, -1]
+        return [-1, -1] // 如果找不到符合条件的两个数，则返回 [-1, -1]
     }
 }
-// https://leetcode.cn/problems/two-sum-ii-input-array-is-sorted/submissions/502726044/
+// https://leetcode.cn/problems/two-sum-ii-input-array-is-sorted/submissions/503067540/
 ```
 
 ## 169. 多数元素
@@ -5243,17 +5251,20 @@ class Solution {
 
 ```swift
 class Solution {
+    /// 反转字符串
+    ///
+    /// - Parameter s: 一个引用传递的字符数组（`inout [Character]`），函数将会在这个数组上直接修改，实现反转。
     func reverseString(_ s: inout [Character]) {
-        var i = 0;
-        var j = s.count - 1;
-        while (i < j) {
-            s.swapAt(i, j);
-            i += 1;
-            j -= 1;
+        var i = 0
+        var j = s.count - 1
+        while i < j {
+            s.swapAt(i, j)
+            i += 1
+            j -= 1
         }
     }
 }
-// https://leetcode.cn/submissions/detail/385432325/
+// https://leetcode.cn/problems/reverse-string/submissions/503063971/
 ```
 
 ## 354. 俄罗斯套娃信封问题
