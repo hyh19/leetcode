@@ -872,24 +872,29 @@ class Solution {
 
 ```swift
 class Solution {
+    /// 从排序数组中删除重复项，并返回新的数组长度。
+    ///
+    /// - Parameter nums: 一个引用传递的整型数组，已经按非降序排序。
+    /// - Returns: 整型值，表示去重后数组的新长度。
     func removeDuplicates(_ nums: inout [Int]) -> Int {
         // [0..i-1] 不重复元素区间
         // [i..j-1] 重复元素区间
         // [j..n-1] 扫描区间
-        var i = 0, j = 0;
-        let n = nums.count;
-        while (j < n) {
-            while (j + 1 < n && nums[j] == nums[j + 1]) {
-                j += 1;
+        var i = 0
+        var j = 0
+        let n = nums.count
+        while j < n {
+            while j + 1 < n && nums[j] == nums[j + 1] {
+                j += 1
             }
-            nums.swapAt(i, j);
-            i += 1;
-            j += 1;
+            nums.swapAt(i, j)
+            i += 1
+            j += 1
         }
-        return i;
+        return i
     }
 }
-// https://leetcode.cn/submissions/detail/384823368/
+// https://leetcode.cn/problems/remove-duplicates-from-sorted-array/submissions/507786314/
 ```
 
 ## 27. 移除元素
