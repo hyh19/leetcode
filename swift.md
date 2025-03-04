@@ -3884,7 +3884,8 @@ class Solution {
     ///   - hi: 要反转部分的结束索引。
     /// 此方法通过交换两端的元素来反转指定部分的数组，直到中间位置。
     private func reverse(_ nums: inout [Int], _ lo: Int, _ hi: Int) {
-        var i = lo, j = hi
+        var i = lo
+        var j = hi
         while i < j {
             nums.swapAt(i, j) // 交换 i 和 j 位置的元素
             i += 1 // i 向中间移动
@@ -3892,7 +3893,8 @@ class Solution {
         }
     }
 }
-// https://leetcode.cn/problems/rotate-array/submissions/501430097/
+
+// https://leetcode.cn/problems/rotate-array/submissions/605920437/
 ```
 
 ## 198. 打家劫舍
@@ -4332,56 +4334,82 @@ class Solution {
 
 ```swift
 class Solution {
+    /**
+     * 查找数组中第 K 个最大的元素
+     *
+     * - Parameters:
+     *   - nums: 输入的整数数组
+     *   - k: 要查找的位置（从大到小排序，第 k 大）
+     * - Returns: 第 k 大的元素值
+     */
     func findKthLargest(_ nums: [Int], _ k: Int) -> Int {
-        var copy = nums.shuffled();
-        return select(&copy, copy.count - k);
+        var copy = nums.shuffled()
+        return select(&copy, copy.count - k)
     }
 
-    // 返回数组 nums 从小到大排在第 rank 位的元素，排位从 0 开始计算，
-    // 相当于有 rank 个元素小于该元素。
+    /**
+     * 查找数组中排名为指定位置的元素（基于快速选择算法）
+     *
+     * - Parameters:
+     *   - nums: 待操作的整数数组（传入引用，会被修改）
+     *   - rank: 目标排名（从小到大排序，排在第 rank 位，从 0 开始计数）
+     * - Returns: 排名为 rank 的元素值
+     */
     private func select(_ nums: inout [Int], _ rank: Int) -> Int {
-        var lo = 0, hi = nums.count - 1;
-        while (lo < hi) {
-            let j = partition(&nums, lo, hi);
-            if (rank < j) {
-                hi = j - 1;
-            } else if (j < rank) {
-                lo = j + 1;
+        var lo = 0
+        var hi = nums.count - 1
+        while lo < hi {
+            let j = partition(&nums, lo, hi)
+            if rank < j {
+                hi = j - 1
+            } else if j < rank {
+                lo = j + 1
             } else {
-                return nums[j];
+                return nums[j]
             }
         }
-        return nums[lo];
+        return nums[lo]
     }
 
+    /**
+     * 对数组进行分区操作（快速排序的核心操作）
+     *
+     * - Parameters:
+     *   - nums: 待分区的整数数组（传入引用，会被修改）
+     *   - lo: 分区的起始索引
+     *   - hi: 分区的结束索引
+     * - Returns: 分区点的索引，使得分区点左侧的元素都小于分区点元素，右侧的元素都大于分区点元素
+     */
     private func partition(_ nums: inout [Int], _ lo: Int, _ hi: Int) -> Int {
-        let v = nums[lo];
-        var i = lo, j = hi + 1;
-        while (true) {
-            i += 1;
-            while (nums[i] < v) {
-                if (i == hi) {
-                    break;
+        let v = nums[lo]
+        var i = lo
+        var j = hi + 1
+        while true {
+            i += 1
+            while nums[i] < v {
+                if i == hi {
+                    break
                 }
-                i += 1;
+                i += 1
             }
-            j -= 1;
-            while (v < nums[j]) {
-                if (j == lo) {
-                    break;
+            j -= 1
+            while v < nums[j] {
+                if j == lo {
+                    break
                 }
-                j -= 1;
+                j -= 1
             }
-            if (i >= j) {
-                break;
+            if i >= j {
+                break
             }
-            nums.swapAt(i, j);
+            nums.swapAt(i, j)
         }
-        nums.swapAt(lo, j);
-        return j;
+        nums.swapAt(lo, j)
+        return j
     }
 }
-// https://leetcode.cn/submissions/detail/384850597/
+
+// https://leetcode.cn/problems/kth-largest-element-in-an-array/submissions/605927144/
 ```
 
 ## 216. 组合总和 III
@@ -7341,7 +7369,8 @@ class Solution {
     /// - Returns: 划分操作完成后，划分元素的索引位置。
     private func partition(_ nums: inout [Int], _ lo: Int, _ hi: Int) -> Int {
         let v = nums[lo]
-        var i = lo, j = hi + 1
+        var i = lo
+        var j = hi + 1
         while true {
             i += 1
             while nums[i] < v {
@@ -7366,7 +7395,8 @@ class Solution {
         return j
     }
 }
-// https://leetcode.cn/problems/sort-an-array/submissions/501929101/
+
+// https://leetcode.cn/problems/sort-an-array/submissions/605922111/
 ```
 
 ## 921. 使括号有效的最少添加
