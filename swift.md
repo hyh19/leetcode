@@ -7252,41 +7252,49 @@ class Solution {
     /// 计算 Koko 吃完所有香蕉的最小速度
     ///
     /// - Parameters:
-    ///   - piles: 一个整数数组，每个元素代表一堆香蕉的数量。
-    ///   - h: 一个整数，表示总时间限制，单位为小时。
-    /// - Returns: 返回 Koko 吃完所有香蕉的最小速度
+    ///   - piles: 一个整数数组，每个元素代表一堆香蕉的数量
+    ///   - h: 一个整数，表示总时间限制，单位为小时
+    /// - Returns: Koko 吃完所有香蕉的最小速度
     func minEatingSpeed(_ piles: [Int], _ h: Int) -> Int {
-        var lo = 1
-        var hi = piles.max()!
-        var ans = lo
-        while lo <= hi {
-            let mid = lo + (hi - lo) / 2
-            if canFinish(piles, h, mid) {
-                ans = mid
-                hi = mid - 1
+        // 设置二分查找的上下界
+        var left = 1
+        var right = piles.max()!
+        var result = left
+        
+        // 二分查找最小速度
+        while left <= right {
+            let mid = left + (right - left) / 2
+            
+            if canEatAll(piles, withinHours: h, atSpeed: mid) {
+                result = mid
+                right = mid - 1 // 尝试找到更小的速度
             } else {
-                lo = mid + 1
+                left = mid + 1 // 速度不够，需要增加
             }
         }
-        return ans
+        
+        return result
     }
 
-    /// 判断给定速度 k 下，是否能在 h 小时内吃完所有香蕉。
+    /// 判断给定速度下，是否能在规定时间内吃完所有香蕉
     ///
     /// - Parameters:
-    ///   - piles: 一个整数数组，每个元素代表一堆香蕉的数量。
-    ///   - h: 一个整数，表示总时间限制，单位为小时。
-    ///   - k: 一个整数，表示 Koko 每小时吃香蕉的速度。
-    /// - Returns: 如果能在 h 小时内吃完返回 `true`，否则返回 `false`。
-    private func canFinish(_ piles: [Int], _ h: Int, _ k: Int) -> Bool {
-        var hours = 0
-        for p in piles {
-            hours += (p - 1) / k + 1
+    ///   - piles: 一个整数数组，每个元素代表一堆香蕉的数量
+    ///   - hours: 一个整数，表示总时间限制，单位为小时
+    ///   - speed: 一个整数，表示 Koko 每小时吃香蕉的速度
+    /// - Returns: 如果能在规定时间内吃完返回 `true`，否则返回 `false`
+    private func canEatAll(_ piles: [Int], withinHours hours: Int, atSpeed speed: Int) -> Bool {
+        // 计算吃完所有香蕉需要的总时间
+        var totalHours = 0
+        
+        for pile in piles {
+            // 向上取整计算吃完当前堆需要的时间
+            totalHours += (pile - 1) / speed + 1
         }
-        return hours <= h
+        
+        return totalHours <= hours
     }
 }
-// https://leetcode.cn/problems/koko-eating-bananas/submissions/502526182/
 ```
 
 ## 876. 链表的中间结点
@@ -7752,7 +7760,7 @@ class Solution {
         while left <= right {
             let mid = left + (right - left) / 2
             
-            if canShipWithinDays(weights, days, mid) {
+            if canShipWithinDays(weights, days, capacity: mid) {
                 // 如果当前运载能力可行，尝试减小运载能力
                 right = mid - 1
             } else {
@@ -7775,7 +7783,7 @@ class Solution {
     ///   - days: 运送天数限制
     ///   - capacity: 船舶运载能力
     /// - Returns: 是否能在指定天数内完成运送
-    private func canShipWithinDays(_ weights: [Int], _ days: Int, _ capacity: Int) -> Bool {
+    private func canShipWithinDays(_ weights: [Int], _ days: Int, capacity: Int) -> Bool {
         var dayCount = 1 // 当前已用天数
         var currentLoad = 0 // 当天已装载的重量
         
