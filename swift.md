@@ -1071,40 +1071,55 @@ class Solution {
 
 ```swift
 class Solution {
-    /// 在旋转排序数组中搜索一个给定的目标值
+    /// 在旋转排序数组中搜索目标值
+    ///
+    /// 使用二分查找算法在旋转排序数组中查找目标值。
+    /// 旋转排序数组是指原本有序的数组在某个位置上进行了旋转，例如 [0,1,2,4,5,6,7] 旋转为 [4,5,6,7,0,1,2]。
+    ///
+    /// - 时间复杂度: O(log n)，其中 n 是数组长度
+    /// - 空间复杂度: O(1)
     ///
     /// - Parameters:
     ///   - nums: 旋转排序的数组
     ///   - target: 要搜索的目标值
-    /// - Returns: 目标值在数组中的索引；如果不存在，则返回 `-1`。
+    /// - Returns: 目标值在数组中的索引；如果不存在，则返回 `-1`
     func search(_ nums: [Int], _ target: Int) -> Int {
-        var lo = 0
-        var hi = nums.count - 1
-        while lo <= hi {
-            let mid = lo + (hi - lo) / 2
+        var left = 0
+        var right = nums.count - 1
+        
+        // 二分查找
+        while left <= right {
+            let mid = left + (right - left) / 2
+            
+            // 找到目标值，直接返回索引
             if nums[mid] == target {
                 return mid
             }
-            // 当 lo = hi 时，nums[lo] = nums[mid] = nums[hi]，
-            // 此时 nums[mid] < target <= nums[hi] 不成立
-            if nums[mid] <= nums[hi] {
-                if nums[mid] < target && target <= nums[hi] {
-                    lo = mid + 1
+            
+            // 判断 mid 在哪个有序部分
+            if nums[mid] <= nums[right] {
+                // 右半部分有序
+                // 检查目标值是否在右半有序部分
+                if nums[mid] < target && target <= nums[right] {
+                    left = mid + 1 // 目标在右侧，缩小左边界
                 } else {
-                    hi = mid - 1
+                    right = mid - 1 // 目标在左侧，缩小右边界
                 }
             } else {
-                if nums[lo] <= target && target < nums[mid] {
-                    hi = mid - 1
+                // 左半部分有序
+                // 检查目标值是否在左半有序部分
+                if nums[left] <= target && target < nums[mid] {
+                    right = mid - 1 // 目标在左侧，缩小右边界
                 } else {
-                    lo = mid + 1
+                    left = mid + 1 // 目标在右侧，缩小左边界
                 }
             }
         }
+        
+        // 未找到目标值
         return -1
     }
 }
-// https://leetcode.cn/problems/search-in-rotated-sorted-array/submissions/502184981/
 ```
 
 ## 34. 在排序数组中查找元素的第一个和最后一个位置
@@ -1956,42 +1971,59 @@ class Solution {
 ```swift
 /// 在旋转排序数组中搜索目标值
 ///
+/// 该方法使用二分查找在可能包含重复元素的旋转排序数组中查找目标值。
+/// 旋转排序数组是指原本有序的数组在某个位置上进行了旋转，例如 [0,1,2,4,5,6,7] 旋转为 [4,5,6,7,0,1,2]。
+///
 /// - Parameters:
-///   - nums: 一个整数数组，表示旋转排序后可能包含重复元素的数组。
+///   - nums: 一个整数数组，表示旋转排序后可能包含重复元素的数组
 ///   - target: 需要在 `nums` 数组中搜索的目标值
-/// - Returns: 如果目标值存在于数组中，则返回 true；如果不存在，则返回 false。
+/// - Returns: 如果目标值存在于数组中，则返回 true；如果不存在，则返回 false
 class Solution {
     func search(_ nums: [Int], _ target: Int) -> Bool {
-        var lo = 0
-        var hi = nums.count - 1
-        while lo <= hi {
-            let mid = lo + (hi - lo) / 2
+        var left = 0
+        var right = nums.count - 1
+        
+        // 使用二分查找在旋转排序数组中查找目标值
+        while left <= right {
+            let mid = left + (right - left) / 2
+            
+            // 找到目标值，直接返回true
             if nums[mid] == target {
                 return true
             }
-            if nums[lo] == nums[mid] && nums[mid] == nums[hi] {
-                lo += 1
-                hi -= 1
+            
+            // 处理左边界、中间值和右边界三者相等的特殊情况
+            // 这种情况下无法判断哪部分是有序的，需要缩小搜索范围
+            if nums[left] == nums[mid] && nums[mid] == nums[right] {
+                left += 1
+                right -= 1
             } else {
-                if nums[mid] <= nums[hi] {
-                    if nums[mid] < target && target <= nums[hi] {
-                        lo = mid + 1
+                // 判断右半部分是否有序
+                if nums[mid] <= nums[right] {
+                    // 如果右半部分有序且目标值在右半部分的范围内，则在右半部分查找
+                    if nums[mid] < target && target <= nums[right] {
+                        left = mid + 1
                     } else {
-                        hi = mid - 1
+                        // 否则在左半部分查找
+                        right = mid - 1
                     }
                 } else {
-                    if nums[lo] <= target && target < nums[mid] {
-                        hi = mid - 1
+                    // 左半部分有序
+                    // 如果目标值在左半部分的范围内，则在左半部分查找
+                    if nums[left] <= target && target < nums[mid] {
+                        right = mid - 1
                     } else {
-                        lo = mid + 1
+                        // 否则在右半部分查找
+                        left = mid + 1
                     }
                 }
             }
         }
+        
+        // 未找到目标值
         return false
     }
 }
-// https://leetcode.cn/problems/search-in-rotated-sorted-array-ii/submissions/502352962/
 ```
 
 ## 83. 删除排序链表中的重复元素
@@ -3654,27 +3686,35 @@ class LRUCache {
 
 ```swift
 class Solution {
-    /// 在旋转排序的数组中找到最小的元素
+    /// 查找旋转排序数组中的最小值
     ///
-    /// 该函数通过二分查找算法在一个部分旋转排序的数组中查找并返回最小元素。数组中的元素是唯一的。
+    /// 在一个经过旋转的排序数组中找到最小元素。
+    /// 例如，数组 [0,1,2,4,5,6,7] 可能变为 [4,5,6,7,0,1,2]。
+    /// 使用二分查找算法，时间复杂度为 O(log n)。
     ///
-    /// - Parameter nums: 一个部分旋转排序的整数数组。数组不会为空，且数组中的元素是唯一的。
-    /// - Returns: 数组中的最小元素
+    /// - Parameter nums: 旋转排序的整数数组，元素唯一且数组非空
+    /// - Returns: 数组中的最小值
     func findMin(_ nums: [Int]) -> Int {
-        var lo = 0
-        var hi = nums.count - 1
-        while lo < hi {
-            let mid = lo + (hi - lo) / 2
-            if nums[mid] < nums[hi] {
-                hi = mid
+        var left = 0
+        var right = nums.count - 1
+        
+        // 使用二分查找寻找最小值
+        while left < right {
+            let mid = left + (right - left) / 2
+            
+            // 如果中间元素小于右边界元素，说明最小值在左半部分（包括mid）
+            if nums[mid] < nums[right] {
+                right = mid
             } else {
-                lo = mid + 1
+                // 否则最小值在右半部分（不包括mid）
+                left = mid + 1
             }
         }
-        return nums[lo]
+        
+        // 当left==right时，找到最小值
+        return nums[left]
     }
 }
-// https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/submissions/502176303/
 ```
 
 ## 155. 最小栈
