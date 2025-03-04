@@ -3947,18 +3947,18 @@ class Solution {
 
         if steps > 0 {
             // 使用三次反转法完成旋转
-            reverseRange(&nums, 0, count - 1) // 先反转整个数组
-            reverseRange(&nums, 0, steps - 1) // 再反转前 steps 个元素
-            reverseRange(&nums, steps, count - 1) // 最后反转剩余元素
+            reverseRange(in: &nums, from: 0, to: count - 1) // 先反转整个数组
+            reverseRange(in: &nums, from: 0, to: steps - 1) // 再反转前 steps 个元素
+            reverseRange(in: &nums, from: steps, to: count - 1) // 最后反转剩余元素
         }
     }
 
     /// 反转数组中指定范围的元素
     /// - Parameters:
     ///   - nums: 待操作的整型数组
-    ///   - start: 要反转部分的起始索引
-    ///   - end: 要反转部分的结束索引
-    private func reverseRange(_ nums: inout [Int], _ start: Int, _ end: Int) {
+    ///   - from: 要反转部分的起始索引
+    ///   - to: 要反转部分的结束索引
+    private func reverseRange(in nums: inout [Int], from start: Int, to end: Int) {
         // 使用双指针法从两端向中间移动，交换元素完成反转
         var left = start
         var right = end
@@ -7450,30 +7450,30 @@ class Solution {
     /// - Returns: 排序后的整数数组
     func sortArray(_ nums: [Int]) -> [Int] {
         var shuffled = nums.shuffled()
-        quickSort(&shuffled, 0, shuffled.count - 1)
+        quickSort(of: &shuffled, from: 0, to: shuffled.count - 1)
         return shuffled
     }
 
     /// 使用快速排序算法递归地对数组的指定范围进行排序
     ///
     /// - Parameters:
-    ///   - array: 需要排序的整数数组（使用inout允许在函数内修改）
+    ///   - nums: 需要排序的整数数组（使用inout允许在函数内修改）
     ///   - start: 排序范围的起始索引
     ///   - end: 排序范围的结束索引
-    private func quickSort(_ array: inout [Int], _ start: Int, _ end: Int) {
+    private func quickSort(of nums: inout [Int], from start: Int, to end: Int) {
         // 如果起始索引大于或等于结束索引，说明已经排序完成或无需排序
         if start >= end {
             return
         }
         
         // 对数组进行分区，并获取分区点的索引
-        let pivotIndex = partition(&array, start, end)
+        let pivotIndex = partition(of: &nums, from: start, to: end)
         
         // 递归排序分区点左侧的元素
-        quickSort(&array, start, pivotIndex - 1)
+        quickSort(of: &nums, from: start, to: pivotIndex - 1)
         
         // 递归排序分区点右侧的元素
-        quickSort(&array, pivotIndex + 1, end)
+        quickSort(of: &nums, from: pivotIndex + 1, to: end)
     }
 
     /// 对数组的指定范围进行分区操作
@@ -7481,13 +7481,13 @@ class Solution {
     /// 选择一个基准元素，将小于基准的元素移到左侧，大于基准的元素移到右侧。
     ///
     /// - Parameters:
-    ///   - array: 需要分区的整数数组（使用inout允许在函数内修改）
+    ///   - nums: 需要分区的整数数组（使用inout允许在函数内修改）
     ///   - start: 分区范围的起始索引
     ///   - end: 分区范围的结束索引
     /// - Returns: 分区操作完成后，基准元素的最终索引位置
-    private func partition(_ array: inout [Int], _ start: Int, _ end: Int) -> Int {
+    private func partition(of nums: inout [Int], from start: Int, to end: Int) -> Int {
         // 选择起始位置的元素作为基准
-        let pivot = array[start]
+        let pivot = nums[start]
         
         // 初始化左右指针
         var left = start
@@ -7496,13 +7496,13 @@ class Solution {
         while true {
             // 从左向右查找大于等于基准的元素
             left += 1
-            while left <= end && array[left] < pivot {
+            while left <= end && nums[left] < pivot {
                 left += 1
             }
             
             // 从右向左查找小于等于基准的元素
             right -= 1
-            while right >= start && array[right] > pivot {
+            while right >= start && nums[right] > pivot {
                 right -= 1
             }
             
@@ -7512,11 +7512,11 @@ class Solution {
             }
             
             // 交换左右指针指向的元素
-            array.swapAt(left, right)
+            nums.swapAt(left, right)
         }
         
         // 将基准元素放到正确的位置
-        array.swapAt(start, right)
+        nums.swapAt(start, right)
         
         // 返回基准元素的最终位置
         return right
