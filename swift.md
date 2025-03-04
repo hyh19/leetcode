@@ -1113,46 +1113,66 @@ class Solution {
 
 ```swift
 class Solution {
-    /// 查找排序数组中指定元素的首尾位置
+    /// 在排序数组中查找目标值的起始和结束位置
     ///
     /// - Parameters:
-    ///   - nums: 排序好的整数数组
-    ///   - target: 需要查找的目标值
-    /// - Returns: 返回一个包含目标值首次出现和最后一次出现的索引位置的数组。如果目标值在数组中不存在，则返回 [-1, -1]。
+    ///   - nums: 已排序的整数数组
+    ///   - target: 要查找的目标值
+    /// - Returns: 包含目标值第一次和最后一次出现位置的数组 [firstPos, lastPos]
+    ///            如果目标值不存在，则返回 [-1, -1]
+    /// - Complexity: 时间复杂度 O(log n)，空间复杂度 O(1)
     func searchRange(_ nums: [Int], _ target: Int) -> [Int] {
-        return [binarySearch(nums, target, true), binarySearch(nums, target, false)]
+        // 分别查找目标值的第一次出现位置和最后一次出现位置
+        return [
+            findBoundary(nums, target, isSearchingFirst: true),
+            findBoundary(nums, target, isSearchingFirst: false)
+        ]
     }
 
-    /// 在排序数组中执行二分查找，以找到目标值的索引位置。
+    /// 在排序数组中查找目标值的边界位置
     ///
     /// - Parameters:
-    ///   - nums: 排序好的整数数组
-    ///   - target: 需要查找的目标值
-    ///   - lower: 布尔值，指示查找目标值的首次出现（true）还是最后一次出现（false）。
-    /// - Returns: 如果找到目标值，则返回其索引位置；否则返回 -1。
-    private func binarySearch(_ nums: [Int], _ target: Int, _ lower: Bool) -> Int {
-        var res = -1
-        var lo = 0
-        var hi = nums.count - 1
-        while lo <= hi {
-            let mid = lo + (hi - lo) / 2
+    ///   - nums: 已排序的整数数组
+    ///   - target: 要查找的目标值
+    ///   - isSearchingFirst: 是否查找第一次出现的位置
+    ///                       true 表示查找第一次出现位置
+    ///                       false 表示查找最后一次出现位置
+    /// - Returns: 目标值的边界索引，如果不存在则返回 -1
+    /// - Complexity: 时间复杂度 O(log n)，空间复杂度 O(1)
+    private func findBoundary(_ nums: [Int], _ target: Int, isSearchingFirst: Bool) -> Int {
+        // 初始化结果为 -1，表示未找到目标值
+        var position = -1
+        var left = 0
+        var right = nums.count - 1
+        
+        // 标准二分查找
+        while left <= right {
+            // 计算中间位置，避免整数溢出
+            let mid = left + (right - left) / 2
+            
             if target < nums[mid] {
-                hi = mid - 1
+                // 目标值在左半部分
+                right = mid - 1
             } else if nums[mid] < target {
-                lo = mid + 1
+                // 目标值在右半部分
+                left = mid + 1
             } else {
-                res = mid
-                if lower {
-                    hi = mid - 1
+                // 找到目标值
+                position = mid
+                
+                if isSearchingFirst {
+                    // 如果查找第一次出现位置，继续在左半部分查找
+                    right = mid - 1
                 } else {
-                    lo = mid + 1
+                    // 如果查找最后一次出现位置，继续在右半部分查找
+                    left = mid + 1
                 }
             }
         }
-        return res
+        
+        return position
     }
 }
-// https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/submissions/502012829/
 ```
 
 ## 37. 解数独
@@ -1760,29 +1780,41 @@ class Solution {
 
 ```swift
 class Solution {
-    /// 对整数数组进行排序，使得所有 0 排在数组前面，所有 2 排在数组后面，1 排在中间。
+    /// 颜色排序：将包含0、1、2三种元素的数组进行排序
     ///
-    /// - Parameters:
-    ///   - nums: 一个引用传递的整数数组，函数将直接在这个数组上进行排序操作。数组中的元素只能是 0，1 或 2。
+    /// 使用三向切分的快速排序思想，将数组分为三部分：
+    /// - 小于1的部分（0）放在数组前面
+    /// - 等于1的部分放在数组中间
+    /// - 大于1的部分（2）放在数组后面
+    ///
+    /// - 时间复杂度: O(n)，其中n是数组长度
+    /// - 空间复杂度: O(1)，只使用常数额外空间
+    ///
+    /// - Parameter nums: 待排序的数组，仅包含0、1、2三种元素，将直接在此数组上进行修改
     func sortColors(_ nums: inout [Int]) {
-        let v = 1 // 用于与数组中的元素进行比较的值
-        var lt = 0, gt = nums.count - 1 // `lt` 指向 0 的最右边界，`gt` 指向 2 的最左边界
-        var i = 0 // 遍历数组的指针
-        while i <= gt {
-            if nums[i] < v { // 当前元素小于 1，应移动到数组前面
-                nums.swapAt(lt, i)
-                lt += 1
-                i += 1
-            } else if nums[i] > v { // 当前元素大于 1，应移动到数组后面
-                nums.swapAt(i, gt)
-                gt -= 1
-            } else { // 当前元素等于 1，不需要移动
-                i += 1
+        let pivot = 1 // 枢轴值，用于三向切分
+        var left = 0 // left指向小于pivot区域的右边界
+        var right = nums.count - 1 // right指向大于pivot区域的左边界
+        var current = 0 // 当前处理的元素索引
+
+        while current <= right {
+            if nums[current] < pivot {
+                // 当前元素为0，移到数组前部
+                nums.swapAt(left, current)
+                left += 1
+                current += 1
+            } else if nums[current] > pivot {
+                // 当前元素为2，移到数组后部
+                nums.swapAt(current, right)
+                right -= 1
+                // 注意：此处不增加current，因为交换后的新元素还未处理
+            } else {
+                // 当前元素为1，保持在中间区域
+                current += 1
             }
         }
     }
 }
-// https://leetcode.cn/problems/sort-colors/submissions/501922226/
 ```
 
 ## 76. 最小覆盖子串
@@ -3862,39 +3894,42 @@ class Solution {
 
 ```swift
 class Solution {
-    /// 将数组中的元素向右旋转 k 个位置。
+    /// 将数组中的元素向右旋转 k 个位置
     /// - Parameters:
-    ///   - nums: 一个整型数组的引用，操作将直接在这个数组上进行。
-    ///   - k: 旋转的步数，即将数组的最后 k 个元素移动到数组的前面。
-    /// 数组旋转操作首先对整个数组进行反转，然后分别反转前 k 个元素和剩余的 n-k 个元素。
+    ///   - nums: 待旋转的整型数组，操作将直接在此数组上进行
+    ///   - k: 旋转的步数，表示将数组的最后 k 个元素移动到数组的前面
+    /// - Complexity:
+    ///   - 时间复杂度: O(n)，其中 n 是数组长度
+    ///   - 空间复杂度: O(1)，只使用常数额外空间
     func rotate(_ nums: inout [Int], _ k: Int) {
-        let n = nums.count // 数组的长度
-        let t = k % n // 实际旋转的步数，考虑到 k 可能大于数组长度的情况
-        if t > 0 {
-            reverse(&nums, 0, n - 1) // 先反转整个数组
-            reverse(&nums, 0, t - 1) // 然后反转前 t 个元素
-            reverse(&nums, t, n - 1) // 最后反转剩余的元素
+        let count = nums.count
+        let steps = k % count // 计算实际需要旋转的步数
+
+        if steps > 0 {
+            // 使用三次反转法完成旋转
+            reverseRange(&nums, 0, count - 1) // 先反转整个数组
+            reverseRange(&nums, 0, steps - 1) // 再反转前 steps 个元素
+            reverseRange(&nums, steps, count - 1) // 最后反转剩余元素
         }
     }
 
-    /// 将数组的一部分进行反转。
+    /// 反转数组中指定范围的元素
     /// - Parameters:
-    ///   - nums: 一个整型数组的引用，操作将直接在这个数组上进行。
-    ///   - lo: 要反转部分的起始索引。
-    ///   - hi: 要反转部分的结束索引。
-    /// 此方法通过交换两端的元素来反转指定部分的数组，直到中间位置。
-    private func reverse(_ nums: inout [Int], _ lo: Int, _ hi: Int) {
-        var i = lo
-        var j = hi
-        while i < j {
-            nums.swapAt(i, j) // 交换 i 和 j 位置的元素
-            i += 1 // i 向中间移动
-            j -= 1 // j 向中间移动
+    ///   - nums: 待操作的整型数组
+    ///   - start: 要反转部分的起始索引
+    ///   - end: 要反转部分的结束索引
+    private func reverseRange(_ nums: inout [Int], _ start: Int, _ end: Int) {
+        // 使用双指针法从两端向中间移动，交换元素完成反转
+        var left = start
+        var right = end
+
+        while left < right {
+            nums.swapAt(left, right)
+            left += 1
+            right -= 1
         }
     }
 }
-
-// https://leetcode.cn/problems/rotate-array/submissions/605920437/
 ```
 
 ## 198. 打家劫舍
@@ -4335,81 +4370,96 @@ class Solution {
 ```swift
 class Solution {
     /**
-     * 查找数组中第 K 个最大的元素
+     * 查找数组中第K个最大的元素
      *
      * - Parameters:
      *   - nums: 输入的整数数组
-     *   - k: 要查找的位置（从大到小排序，第 k 大）
-     * - Returns: 第 k 大的元素值
+     *   - k: 要查找的位置（第k大）
+     * - Returns: 第k大的元素值
      */
     func findKthLargest(_ nums: [Int], _ k: Int) -> Int {
-        var copy = nums.shuffled()
-        return select(&copy, copy.count - k)
+        // 创建数组副本并随机打乱，以避免最坏情况下的性能
+        var shuffledNums = nums.shuffled()
+        // 将第k大转换为从小到大排序的索引位置
+        return quickSelect(&shuffledNums, targetIndex: nums.count - k)
     }
 
     /**
-     * 查找数组中排名为指定位置的元素（基于快速选择算法）
+     * 使用快速选择算法查找数组中指定排名的元素
      *
      * - Parameters:
      *   - nums: 待操作的整数数组（传入引用，会被修改）
-     *   - rank: 目标排名（从小到大排序，排在第 rank 位，从 0 开始计数）
-     * - Returns: 排名为 rank 的元素值
+     *   - targetIndex: 目标索引位置（从小到大排序，索引从0开始）
+     * - Returns: 排名为targetIndex的元素值
      */
-    private func select(_ nums: inout [Int], _ rank: Int) -> Int {
-        var lo = 0
-        var hi = nums.count - 1
-        while lo < hi {
-            let j = partition(&nums, lo, hi)
-            if rank < j {
-                hi = j - 1
-            } else if j < rank {
-                lo = j + 1
+    private func quickSelect(_ nums: inout [Int], targetIndex: Int) -> Int {
+        var left = 0
+        var right = nums.count - 1
+        
+        while left < right {
+            // 获取分区点索引
+            let pivotIndex = partition(&nums, start: left, end: right)
+            
+            if targetIndex < pivotIndex {
+                // 目标在左半部分
+                right = pivotIndex - 1
+            } else if pivotIndex < targetIndex {
+                // 目标在右半部分
+                left = pivotIndex + 1
             } else {
-                return nums[j]
+                // 找到目标
+                return nums[pivotIndex]
             }
         }
-        return nums[lo]
+        
+        // 当left==right时，找到目标元素
+        return nums[left]
     }
 
     /**
-     * 对数组进行分区操作（快速排序的核心操作）
+     * 对数组进行分区操作
      *
      * - Parameters:
      *   - nums: 待分区的整数数组（传入引用，会被修改）
-     *   - lo: 分区的起始索引
-     *   - hi: 分区的结束索引
+     *   - start: 分区的起始索引
+     *   - end: 分区的结束索引
      * - Returns: 分区点的索引，使得分区点左侧的元素都小于分区点元素，右侧的元素都大于分区点元素
      */
-    private func partition(_ nums: inout [Int], _ lo: Int, _ hi: Int) -> Int {
-        let v = nums[lo]
-        var i = lo
-        var j = hi + 1
+    private func partition(_ nums: inout [Int], start: Int, end: Int) -> Int {
+        // 选择第一个元素作为基准值
+        let pivot = nums[start]
+        var left = start
+        var right = end + 1
+        
         while true {
-            i += 1
-            while nums[i] < v {
-                if i == hi {
-                    break
-                }
-                i += 1
+            // 从左向右查找大于等于基准值的元素
+            left += 1
+            while left <= end && nums[left] < pivot {
+                left += 1
             }
-            j -= 1
-            while v < nums[j] {
-                if j == lo {
-                    break
-                }
-                j -= 1
+            
+            // 从右向左查找小于等于基准值的元素
+            right -= 1
+            while right >= start && nums[right] > pivot {
+                right -= 1
             }
-            if i >= j {
+            
+            // 如果两个指针交叉，结束循环
+            if left >= right {
                 break
             }
-            nums.swapAt(i, j)
+            
+            // 交换找到的两个元素
+            nums.swapAt(left, right)
         }
-        nums.swapAt(lo, j)
-        return j
+        
+        // 将基准值放到正确的位置
+        nums.swapAt(start, right)
+        
+        // 返回基准值的最终位置
+        return right
     }
 }
-
-// https://leetcode.cn/problems/kth-largest-element-in-an-array/submissions/605927144/
 ```
 
 ## 216. 组合总和 III
@@ -6558,29 +6608,39 @@ class Solution {
 
 ```swift
 class Solution {
-    /// 在一个升序排列的整型数组中执行二分查找
+    /// 在有序数组中查找目标值
     ///
     /// - Parameters:
-    ///   - nums: 一个升序排列的整型数组
-    ///   - target: 需要查找的目标值
-    /// - Returns: 如果目标值存在于数组中，则返回其索引；否则返回 -1。
+    ///   - nums: 升序排列的整数数组
+    ///   - target: 要查找的目标值
+    /// - Returns: 目标值在数组中的索引，如果不存在则返回 -1
+    /// - Complexity: 时间复杂度 O(log n)，空间复杂度 O(1)
     func search(_ nums: [Int], _ target: Int) -> Int {
-        var lo = 0
-        var hi = nums.count - 1
-        while lo <= hi {
-            let mid = lo + (hi - lo) / 2
+        // 初始化左右指针
+        var left = 0
+        var right = nums.count - 1
+
+        // 当左指针小于等于右指针时继续查找
+        while left <= right {
+            // 计算中间位置，避免整数溢出
+            let mid = left + (right - left) / 2
+
             if target < nums[mid] {
-                hi = mid - 1
+                // 目标值在左半部分
+                right = mid - 1
             } else if nums[mid] < target {
-                lo = mid + 1
+                // 目标值在右半部分
+                left = mid + 1
             } else {
+                // 找到目标值
                 return mid
             }
         }
+
+        // 目标值不存在于数组中
         return -1
     }
 }
-// https://leetcode.cn/problems/binary-search/submissions/502005972/
 ```
 
 ## 712. 两个字符串的最小 ASCII 删除和
@@ -7333,70 +7393,87 @@ class Solution {
 
 ```swift
 class Solution {
-    /// 对给定的数组进行排序
+    /// 对给定的整数数组进行排序
     ///
-    /// 首先将输入数组随机打乱，以避免最坏情况的发生，然后调用私有的 `sort` 方法对打乱后的数组进行实际的排序操作。
+    /// 使用快速排序算法对数组进行排序。首先将输入数组随机打乱以避免最坏情况，
+    /// 然后调用私有的快速排序方法进行实际排序。
     ///
     /// - Parameter nums: 需要排序的整数数组
     /// - Returns: 排序后的整数数组
     func sortArray(_ nums: [Int]) -> [Int] {
         var shuffled = nums.shuffled()
-        sort(&shuffled, 0, shuffled.count - 1)
+        quickSort(&shuffled, 0, shuffled.count - 1)
         return shuffled
     }
 
-    /// 使用快速排序算法递归地对数组的指定部分进行排序
+    /// 使用快速排序算法递归地对数组的指定范围进行排序
     ///
     /// - Parameters:
-    ///   - nums: 需要排序的整数数组，传入时使用 `inout` 关键字允许在函数内修改数组。
-    ///   - lo: 数组中需要排序部分的起始索引
-    ///   - hi: 数组中需要排序部分的结束索引
-    private func sort(_ nums: inout [Int], _ lo: Int, _ hi: Int) {
-        if lo >= hi {
+    ///   - array: 需要排序的整数数组（使用inout允许在函数内修改）
+    ///   - start: 排序范围的起始索引
+    ///   - end: 排序范围的结束索引
+    private func quickSort(_ array: inout [Int], _ start: Int, _ end: Int) {
+        // 如果起始索引大于或等于结束索引，说明已经排序完成或无需排序
+        if start >= end {
             return
         }
-        let j = partition(&nums, lo, hi)
-        sort(&nums, lo, j - 1)
-        sort(&nums, j + 1, hi)
+        
+        // 对数组进行分区，并获取分区点的索引
+        let pivotIndex = partition(&array, start, end)
+        
+        // 递归排序分区点左侧的元素
+        quickSort(&array, start, pivotIndex - 1)
+        
+        // 递归排序分区点右侧的元素
+        quickSort(&array, pivotIndex + 1, end)
     }
 
-    /// 对数组的指定部分进行划分，选择一个划分元素，然后将所有小于划分元素的值移动到其左侧，将所有大于划分元素的值移动到其右侧。
+    /// 对数组的指定范围进行分区操作
+    ///
+    /// 选择一个基准元素，将小于基准的元素移到左侧，大于基准的元素移到右侧。
     ///
     /// - Parameters:
-    ///   - nums: 需要排序的整数数组，传入时使用 `inout` 关键字允许在函数内修改数组。
-    ///   - lo: 数组中需要进行划分操作部分的起始索引
-    ///   - hi: 数组中需要进行划分操作部分的结束索引
-    /// - Returns: 划分操作完成后，划分元素的索引位置。
-    private func partition(_ nums: inout [Int], _ lo: Int, _ hi: Int) -> Int {
-        let v = nums[lo]
-        var i = lo
-        var j = hi + 1
+    ///   - array: 需要分区的整数数组（使用inout允许在函数内修改）
+    ///   - start: 分区范围的起始索引
+    ///   - end: 分区范围的结束索引
+    /// - Returns: 分区操作完成后，基准元素的最终索引位置
+    private func partition(_ array: inout [Int], _ start: Int, _ end: Int) -> Int {
+        // 选择起始位置的元素作为基准
+        let pivot = array[start]
+        
+        // 初始化左右指针
+        var left = start
+        var right = end + 1
+        
         while true {
-            i += 1
-            while nums[i] < v {
-                if i == hi {
-                    break
-                }
-                i += 1
+            // 从左向右查找大于等于基准的元素
+            left += 1
+            while left <= end && array[left] < pivot {
+                left += 1
             }
-            j -= 1
-            while v < nums[j] {
-                if j == lo {
-                    break
-                }
-                j -= 1
+            
+            // 从右向左查找小于等于基准的元素
+            right -= 1
+            while right >= start && array[right] > pivot {
+                right -= 1
             }
-            if i >= j {
+            
+            // 如果左右指针交叉，结束循环
+            if left >= right {
                 break
             }
-            nums.swapAt(i, j)
+            
+            // 交换左右指针指向的元素
+            array.swapAt(left, right)
         }
-        nums.swapAt(lo, j)
-        return j
+        
+        // 将基准元素放到正确的位置
+        array.swapAt(start, right)
+        
+        // 返回基准元素的最终位置
+        return right
     }
 }
-
-// https://leetcode.cn/problems/sort-an-array/submissions/605922111/
 ```
 
 ## 921. 使括号有效的最少添加
