@@ -7733,57 +7733,72 @@ struct UF {
 
 ```swift
 class Solution {
-    /// 计算在指定天数内送达所有包裹需要的最小运载能力
+    /// 在指定天数内运送所有包裹所需的最小船舶运载能力
     ///
-    /// 使用二分查找算法找到满足条件的最小运载能力。定义两个边界，下边界为包裹中最重的重量，上边界为所有包裹重量之和。
-    /// 逐步缩小这个范围直到找到最小的符合条件的运载能力。
+    /// 使用二分查找算法确定满足条件的最小运载能力。搜索范围的下界为最重包裹的重量，
+    /// 上界为所有包裹的总重量。通过不断缩小这个范围，找到能够在指定天数内完成运送的最小运载能力。
     ///
     /// - Parameters:
-    ///   - weights: 包裹重量的数组
-    ///   - days: 需要在这么多天内送达所有包裹
-    /// - Returns: 返回能在指定天数内完成运送的最小运载能力
+    ///   - weights: 包裹重量数组
+    ///   - days: 运送天数限制
+    /// - Returns: 能在指定天数内完成运送的最小运载能力
     func shipWithinDays(_ weights: [Int], _ days: Int) -> Int {
-        var lo = weights.max()! // 所有包裹中的最大重量，为运载能力的最小可能值
-        var hi = weights.reduce(0, +) // 所有包裹的总重量，为运载能力的最大可能值
-        var ans = lo
-        while lo <= hi {
-            let mid = lo + (hi - lo) / 2
-            if canFinish(weights, days, mid) {
-                ans = mid
-                hi = mid - 1
+        // 运载能力的下限是最重的包裹重量
+        var left = weights.max()!
+        // 运载能力的上限是所有包裹的总重量
+        var right = weights.reduce(0, +)
+        
+        // 二分查找最小运载能力
+        while left <= right {
+            let mid = left + (right - left) / 2
+            
+            if canShipWithinDays(weights, days, mid) {
+                // 如果当前运载能力可行，尝试减小运载能力
+                right = mid - 1
             } else {
-                lo = mid + 1
+                // 如果当前运载能力不可行，增加运载能力
+                left = mid + 1
             }
         }
-        return ans
+        
+        // 循环结束后，left 是满足条件的最小运载能力
+        return left
     }
 
-    /// 检查给定运载能力是否能在指定天数内完成包裹运送
+    /// 判断给定运载能力是否能在指定天数内完成所有包裹的运送
     ///
-    /// 根据给定的运载能力和包裹重量数组，计算出在不超过运载能力的情况下，完成所有包裹运送需要的天数。
-    /// 如果这个天数小于或等于给定的天数，返回 true，表示可以完成运送。
+    /// 模拟运送过程，计算在不超过给定运载能力的情况下完成所有包裹运送所需的天数。
+    /// 如果所需天数不超过限制天数，则返回 true。
     ///
     /// - Parameters:
-    ///   - weights: 包裹重量的数组
-    ///   - days: 目标天数
-    ///   - capacity: 给定的运载能力
-    /// - Returns: 如果能在指定天数内完成运送，返回 true；否则返回 false。
-    private func canFinish(_ weights: [Int], _ days: Int, _ capacity: Int) -> Bool {
-        var minDays = 0 // 完成运送需要的最小天数
-        var i = 0 // 当前考察的包裹索引
-        let n = weights.count
-        while i < n {
-            var sum = 0 // 当前船上包裹的总重量
-            while i < n && sum + weights[i] <= capacity { // 当前船的总重量不超过给定的运载能力
-                sum += weights[i]
-                i += 1
+    ///   - weights: 包裹重量数组
+    ///   - days: 运送天数限制
+    ///   - capacity: 船舶运载能力
+    /// - Returns: 是否能在指定天数内完成运送
+    private func canShipWithinDays(_ weights: [Int], _ days: Int, _ capacity: Int) -> Bool {
+        var dayCount = 1 // 当前已用天数
+        var currentLoad = 0 // 当天已装载的重量
+        
+        for weight in weights {
+            // 如果当前包裹加上已装载重量超过运载能力，需要新的一天
+            if currentLoad + weight > capacity {
+                dayCount += 1
+                currentLoad = weight
+                
+                // 如果所需天数已超过限制，提前返回 false
+                if dayCount > days {
+                    return false
+                }
+            } else {
+                // 当前包裹可以在当天运送
+                currentLoad += weight
             }
-            minDays += 1 // 完成一天的运送
         }
-        return minDays <= days // 如果需要的天数不超过给定的天数，返回 true
+        
+        // 如果所有包裹都能在不超过限制天数的情况下运送完毕，返回 true
+        return true
     }
 }
-// https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/submissions/502357409/
 ```
 
 ## 1020. 飞地的数量
