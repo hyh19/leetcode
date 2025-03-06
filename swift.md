@@ -455,30 +455,40 @@ class Solution {
 
 ```swift
 class Solution {
-    /// 计算最大的容器面积
+    /// 计算能容纳最多水的容器面积
     ///
-    /// 给定一个整数数组 `height`，数组中的每个元素代表一个点的高度，数组的索引表示点的位置，两点之间的距离和较矮点的高度共同决定了容器的面积。
-    /// 此函数旨在找到由线段组成的容器可以容纳最多的水量。它采用双指针技术，从数组的两端开始，逐渐向中间移动，以找到可能的最大面积。
+    /// - 描述: 给定一个表示高度的整数数组，找出其中两条垂直线与x轴共同构成的容器，使其能够容纳最多的水
+    /// - 算法: 使用双指针技术，从数组两端向中间移动，每次移动高度较小的指针，计算并更新最大面积
+    /// - 时间复杂度: O(n)，其中n是数组长度
+    /// - 空间复杂度: O(1)，只使用常数额外空间
     ///
-    /// - Parameter height: 一个整数数组，每个元素代表点的高度。
-    /// - Returns: 返回能够容纳最多水的容器的最大面积
-    func maxArea(_ height: [Int]) -> Int {
-        var ans = 0 // 存储最大面积
-        var i = 0 // 左指针
-        var j = height.count - 1 // 右指针
-        while i < j {
-            let area = (j - i) * min(height[i], height[j]) // 计算当前指针对应的容器面积
-            ans = max(ans, area) // 更新最大面积
-            if height[i] < height[j] {
-                i += 1 // 如果左边较矮，向右移动左指针
+    /// - Parameter heights: 表示垂直线高度的整数数组
+    /// - Returns: 能容纳最多水的容器面积
+    func maxArea(_ heights: [Int]) -> Int {
+        var maxArea = 0 // 存储最大容器面积
+        var left = 0 // 左指针，初始位置在数组起始位置
+        var right = heights.count - 1 // 右指针，初始位置在数组末尾
+        
+        // 当左指针小于右指针时继续循环
+        while left < right {
+            // 计算当前容器面积：宽度(right-left) × 高度(两边较矮的高度)
+            let currentArea = (right - left) * min(heights[left], heights[right])
+            
+            // 更新最大面积
+            maxArea = max(maxArea, currentArea)
+            
+            // 移动较矮一侧的指针
+            // 原理：容器的高度受限于较矮的一侧，移动较高的一侧不可能得到更大的面积
+            if heights[left] < heights[right] {
+                left += 1 // 左侧较矮，向右移动左指针
             } else {
-                j -= 1 // 如果右边较矮或两边一样高，向左移动右指针
+                right -= 1 // 右侧较矮或两侧等高，向左移动右指针
             }
         }
-        return ans // 返回最大面积
+        
+        return maxArea
     }
 }
-// https://leetcode.cn/problems/container-with-most-water/submissions/503066779/
 ```
 
 ## 14. 最长公共前缀
