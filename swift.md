@@ -920,31 +920,49 @@ class Solution {
 class Solution {
     /// 移除数组中所有指定的元素，并返回移除后数组的新长度。
     ///
+    /// 使用左右指针法，将所有不等于目标值的元素移到数组左侧。
+    ///
+    /// - 时间复杂度: O(n)，其中 n 是数组长度
+    /// - 空间复杂度: O(1)，只使用常数额外空间
+    ///
     /// - Parameters:
-    ///   - nums: 一个整数数组的引用，操作将直接在此数组上进行，其中的特定值 `val` 将被移除。此参数为输入输出参数。
-    ///   - val: 需要从数组 `nums` 中移除的值
+    ///   - nums: 一个整数数组的引用，操作将直接在此数组上进行。此参数为输入输出参数。
+    ///   - val: 需要从数组中移除的目标值
     /// - Returns: 移除指定元素后的数组的新长度
     func removeElement(_ nums: inout [Int], _ val: Int) -> Int {
-        // nums[0..i-1]   != val
-        // nums[i..j]     Scanning
-        // nums[j+1..n-1] == val
-        var i = 0
-        var j = nums.count - 1
-        while i <= j {
-            while i <= j && nums[i] != val {
-                i += 1
+        // 使用左右指针法
+        // left 指向当前处理位置
+        // right 指向从右向左扫描的位置
+        //
+        // 区间说明:
+        // nums[0..<left]  - 不等于 val 的元素区域
+        // nums[left...right] - 待处理区域
+        // nums[right+1..<n] - 等于 val 的元素区域
+        
+        var left = 0
+        var right = nums.count - 1
+        
+        while left <= right {
+            // 找到左侧等于 val 的元素
+            while left <= right && nums[left] != val {
+                left += 1
             }
-            while i <= j && nums[j] == val {
-                j -= 1
+            
+            // 找到右侧不等于 val 的元素
+            while left <= right && nums[right] == val {
+                right -= 1
             }
-            if i <= j {
-                nums.swapAt(i, j)
+            
+            // 如果左右指针仍然有效，交换元素
+            if left <= right {
+                nums.swapAt(left, right)
             }
         }
-        return i
+        
+        // left 指向的位置就是新数组的长度
+        return left
     }
 }
-// https://leetcode.cn/problems/remove-element/submissions/502730099/
 ```
 
 ## 28. 实现 strStr()
@@ -3817,29 +3835,39 @@ class Solution {
 
 ```swift
 class Solution {
-    /// 在有序数组中找出两个数，使它们的和等于一个特定的目标数。
+    /// 在有序数组中找出两个数，使它们的和等于目标值
     ///
     /// - Parameters:
-    ///   - numbers: 一个按非递减顺序排序的整数数组
-    ///   - target: 目标数
-    /// - Returns: 两个数的索引（以 1 为起始值），这两个数的和等于目标数。如果有多对数字的和等于目标值，返回其中任意一对的索引。如果找不到这样的两个数，则返回 [-1, -1]。
+    ///   - numbers: 按非递减顺序排序的整数数组
+    ///   - target: 目标和
+    /// - Returns: 两个数的索引（以 1 为起始），这两个数的和等于目标值
+    ///           如果有多对数字的和等于目标值，返回其中任意一对
+    ///           如果找不到这样的两个数，返回 [-1, -1]
     func twoSum(_ numbers: [Int], _ target: Int) -> [Int] {
-        var i = 0 // 数组的起始位置
-        var j = numbers.count - 1 // 数组的结束位置
-        while i < j {
-            let sum = numbers[i] + numbers[j] // 计算当前两个指针指向的数字之和
-            if sum > target { // 如果和大于目标值，则将结束位置的指针向前移动
-                j -= 1
-            } else if sum < target { // 如果和小于目标值，则将起始位置的指针向后移动
-                i += 1
-            } else { // 如果和等于目标值，则返回这两个数字的索引（索引以 1 为起始值）
-                return [i + 1, j + 1]
+        // 使用双指针技巧，left指向数组开始，right指向数组结束
+        var left = 0
+        var right = numbers.count - 1
+        
+        // 当左指针小于右指针时继续查找
+        while left < right {
+            let currentSum = numbers[left] + numbers[right]
+            
+            if currentSum > target {
+                // 如果当前和大于目标值，右指针左移以减小和
+                right -= 1
+            } else if currentSum < target {
+                // 如果当前和小于目标值，左指针右移以增大和
+                left += 1
+            } else {
+                // 找到目标和，返回索引（注意：题目要求索引从1开始）
+                return [left + 1, right + 1]
             }
         }
-        return [-1, -1] // 如果找不到符合条件的两个数，则返回 [-1, -1]
+        
+        // 未找到符合条件的两个数
+        return [-1, -1]
     }
 }
-// https://leetcode.cn/problems/two-sum-ii-input-array-is-sorted/submissions/503067540/
 ```
 
 ## 169. 多数元素
@@ -5442,18 +5470,24 @@ class Solution {
 class Solution {
     /// 反转字符串
     ///
+    /// 使用双指针技术从两端向中间移动，交换字符位置来实现字符串反转。
+    /// 时间复杂度：O(n)，其中n是字符串的长度
+    /// 空间复杂度：O(1)，只使用了常数额外空间
+    ///
     /// - Parameter s: 一个引用传递的字符数组（`inout [Character]`），函数将会在这个数组上直接修改，实现反转。
     func reverseString(_ s: inout [Character]) {
-        var i = 0
-        var j = s.count - 1
-        while i < j {
-            s.swapAt(i, j)
-            i += 1
-            j -= 1
+        // 初始化左右指针
+        var left = 0
+        var right = s.count - 1
+
+        // 当左指针小于右指针时，交换字符并移动指针
+        while left < right {
+            s.swapAt(left, right)
+            left += 1
+            right -= 1
         }
     }
 }
-// https://leetcode.cn/problems/reverse-string/submissions/503063971/
 ```
 
 ## 354. 俄罗斯套娃信封问题
