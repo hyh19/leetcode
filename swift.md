@@ -4421,7 +4421,7 @@ class Solution {
         // 创建数组副本并随机打乱，以避免最坏情况下的性能
         var shuffledNums = nums.shuffled()
         // 将第k大转换为从小到大排序的索引位置
-        return quickSelect(of: &shuffledNums, targetIndex: nums.count - k)
+        return quickSelect(in: &shuffledNums, forRank: nums.count - k)
     }
 
     /**
@@ -4429,10 +4429,10 @@ class Solution {
      *
      * - Parameters:
      *   - nums: 待操作的整数数组（传入引用，会被修改）
-     *   - targetIndex: 目标索引位置（从小到大排序，索引从0开始）
-     * - Returns: 排名为targetIndex的元素值
+     *   - rank: 目标索引位置（从小到大排序，索引从0开始）
+     * - Returns: 排名为rank的元素值
      */
-    private func quickSelect(of nums: inout [Int], targetIndex: Int) -> Int {
+    private func quickSelect(in nums: inout [Int], forRank rank: Int) -> Int {
         var left = 0
         var right = nums.count - 1
         
@@ -4440,10 +4440,10 @@ class Solution {
             // 获取分区点索引
             let pivotIndex = partition(of: &nums, from: left, to: right)
             
-            if targetIndex < pivotIndex {
+            if rank < pivotIndex {
                 // 目标在左半部分
                 right = pivotIndex - 1
-            } else if pivotIndex < targetIndex {
+            } else if pivotIndex < rank {
                 // 目标在右半部分
                 left = pivotIndex + 1
             } else {
