@@ -1139,8 +1139,8 @@ class Solution {
     func searchRange(_ nums: [Int], _ target: Int) -> [Int] {
         // 分别查找目标值的第一次出现位置和最后一次出现位置
         return [
-            findBoundary(nums, target, isSearchingFirst: true),
-            findBoundary(nums, target, isSearchingFirst: false)
+            findBoundary(in: nums, for: target, isSearchingFirst: true),
+            findBoundary(in: nums, for: target, isSearchingFirst: false)
         ]
     }
 
@@ -1154,7 +1154,7 @@ class Solution {
     ///                       false 表示查找最后一次出现位置
     /// - Returns: 目标值的边界索引，如果不存在则返回 -1
     /// - Complexity: 时间复杂度 O(log n)，空间复杂度 O(1)
-    private func findBoundary(_ nums: [Int], _ target: Int, isSearchingFirst: Bool) -> Int {
+    private func findBoundary(in nums: [Int], for target: Int, isSearchingFirst: Bool) -> Int {
         // 初始化结果为 -1，表示未找到目标值
         var position = -1
         var left = 0
@@ -3956,8 +3956,8 @@ class Solution {
     /// 反转数组中指定范围的元素
     /// - Parameters:
     ///   - nums: 待操作的整型数组
-    ///   - from: 要反转部分的起始索引
-    ///   - to: 要反转部分的结束索引
+    ///   - start: 要反转部分的起始索引
+    ///   - end: 要反转部分的结束索引
     private func reverseRange(in nums: inout [Int], from start: Int, to end: Int) {
         // 使用双指针法从两端向中间移动，交换元素完成反转
         var left = start
@@ -4421,7 +4421,7 @@ class Solution {
         // 创建数组副本并随机打乱，以避免最坏情况下的性能
         var shuffledNums = nums.shuffled()
         // 将第k大转换为从小到大排序的索引位置
-        return quickSelect(&shuffledNums, targetIndex: nums.count - k)
+        return quickSelect(of: &shuffledNums, targetIndex: nums.count - k)
     }
 
     /**
@@ -4432,13 +4432,13 @@ class Solution {
      *   - targetIndex: 目标索引位置（从小到大排序，索引从0开始）
      * - Returns: 排名为targetIndex的元素值
      */
-    private func quickSelect(_ nums: inout [Int], targetIndex: Int) -> Int {
+    private func quickSelect(of nums: inout [Int], targetIndex: Int) -> Int {
         var left = 0
         var right = nums.count - 1
         
         while left < right {
             // 获取分区点索引
-            let pivotIndex = partition(&nums, start: left, end: right)
+            let pivotIndex = partition(of: &nums, from: left, to: right)
             
             if targetIndex < pivotIndex {
                 // 目标在左半部分
@@ -4465,7 +4465,7 @@ class Solution {
      *   - end: 分区的结束索引
      * - Returns: 分区点的索引，使得分区点左侧的元素都小于分区点元素，右侧的元素都大于分区点元素
      */
-    private func partition(_ nums: inout [Int], start: Int, end: Int) -> Int {
+    private func partition(of nums: inout [Int], from start: Int, to end: Int) -> Int {
         // 选择第一个元素作为基准值
         let pivot = nums[start]
         var left = start
@@ -7760,7 +7760,7 @@ class Solution {
         while left <= right {
             let mid = left + (right - left) / 2
             
-            if canShipWithinDays(weights, days, capacity: mid) {
+            if canShip(weights, within: days, usingCapacity: mid) {
                 // 如果当前运载能力可行，尝试减小运载能力
                 right = mid - 1
             } else {
@@ -7783,7 +7783,7 @@ class Solution {
     ///   - days: 运送天数限制
     ///   - capacity: 船舶运载能力
     /// - Returns: 是否能在指定天数内完成运送
-    private func canShipWithinDays(_ weights: [Int], _ days: Int, capacity: Int) -> Bool {
+    private func canShip(_ weights: [Int], within days: Int, usingCapacity capacity: Int) -> Bool {
         var dayCount = 1 // 当前已用天数
         var currentLoad = 0 // 当天已装载的重量
         
