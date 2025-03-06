@@ -374,50 +374,79 @@ class Solution {
 
 ```swift
 class Solution {
-    /// 查找最长回文子串
+    /// 查找字符串中的最长回文子串
     ///
-    /// 该方法通过扩展中心的方式来查找回文串，考虑了奇数长度和偶数长度的回文串。
+    /// 该方法使用中心扩展算法，考虑了奇数长度（单字符中心）和偶数长度（双字符中心）的回文串。
+    /// 时间复杂度：O(n²)，其中n是字符串长度
+    /// 空间复杂度：O(n)，用于存储字符数组
     ///
-    /// - Parameter s: 输入的字符串
-    /// - Returns: `s` 中最长的回文子串
+    /// - Parameter s: 输入字符串
+    /// - Returns: 最长的回文子串
     func longestPalindrome(_ s: String) -> String {
-        let t = [Character](s)
-        var ans = ""
-        for i in 0..<t.count {
-            // 寻找以 t[i] 为中心的最长回文子串
-            let s1 = expandAroundCenter(t, i, i)
-            if s1.count > ans.count {
-                ans = s1
-            }
-            // 寻找以 t[i] 和 t[i+1] 为中心的最长回文子串
-            let s2 = expandAroundCenter(t, i, i + 1)
-            if s2.count > ans.count {
-                ans = s2
+        let chars = [Character](s)
+        var longest = ""
+        
+        for i in 0..<chars.count {
+            // 查找以i为中心的最长回文子串（同时考虑奇偶两种情况）
+            let palindrome = findLongestPalindrome(in: chars, at: i)
+            if palindrome.count > longest.count {
+                longest = palindrome
             }
         }
-        return ans
+        
+        return longest
     }
-
-    /// 返回字符串 `s` 中以 `s[i]` 和 `s[j]` 为中心的最长回文子串
+    
+    /// 从指定位置查找最长回文子串
     ///
-    /// 该函数尝试从中心向两边扩展，以找到最长的回文子串。它可以处理奇数长度和偶数长度的回文子串。
+    /// 该函数会同时考虑以center为中心的奇数长度回文和以center为左侧的偶数长度回文，
+    /// 并返回两者中较长的一个。
     ///
     /// - Parameters:
-    ///   - s: 字符数组，从原字符串转换得到。
-    ///   - i: 回文中心的左侧索引
-    ///   - j: 回文中心的右侧索引
-    /// - Returns: 以 `s[i]` 和 `s[j]` 为中心的最长回文子串
-    private func expandAroundCenter(_ s: [Character], _ i: Int, _ j: Int) -> String {
-        var i = i, j = j
-        while i >= 0 && j < s.count && s[i] == s[j] {
-            i -= 1
-            j += 1
+    ///   - chars: 原字符串转换的字符数组
+    ///   - center: 回文中心的索引位置
+    /// - Returns: 从指定中心扩展得到的最长回文子串
+    private func findLongestPalindrome(in chars: [Character], at center: Int) -> String {
+        // 考虑奇数长度回文（单字符中心）
+        let oddPalindrome = expandPalindrome(in: chars, at: center, type: .odd)
+        
+        // 考虑偶数长度回文（双字符中心）
+        let evenPalindrome = expandPalindrome(in: chars, at: center, type: .even)
+        
+        // 返回两种情况中较长的回文子串
+        return oddPalindrome.count > evenPalindrome.count ? oddPalindrome : evenPalindrome
+    }
+    
+    /// 回文类型枚举
+    private enum PalindromeType {
+        case odd // 奇数长度回文（单字符中心）
+        case even // 偶数长度回文（双字符中心）
+    }
+    
+    /// 从指定中心向两侧扩展查找回文子串
+    ///
+    /// 该函数从给定的中心位置开始，向两侧扩展，直到不再形成回文为止。
+    /// 可以处理奇数长度（单字符中心）和偶数长度（双字符之间的中心）的回文串。
+    ///
+    /// - Parameters:
+    ///   - chars: 原字符串转换的字符数组
+    ///   - center: 回文中心的索引位置
+    ///   - type: 回文类型，奇数或偶数长度
+    /// - Returns: 从指定中心扩展得到的最长回文子串
+    private func expandPalindrome(in chars: [Character], at center: Int, type: PalindromeType) -> String {
+        var leftBound = center
+        var rightBound = type == .odd ? center : center + 1
+        
+        // 向两侧扩展，直到边界或字符不匹配
+        while leftBound >= 0 && rightBound < chars.count && chars[leftBound] == chars[rightBound] {
+            leftBound -= 1
+            rightBound += 1
         }
-        // 注意：由于退出循环时，i 和 j 分别指向了回文子串外的第一个不匹配的字符，所以需要用 i+1 和 j-1 来截取
-        return String(s[i + 1..<j])
+        
+        // 退出循环时，leftBound和rightBound已经指向不匹配的位置，需要修正边界
+        return String(chars[leftBound + 1..<rightBound])
     }
 }
-// https://leetcode.cn/problems/longest-palindromic-substring/submissions/503209107/
 ```
 
 ## 7. 整数反转
